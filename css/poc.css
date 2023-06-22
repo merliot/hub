@@ -1,0 +1,47 @@
+body {
+	width: 770px;
+}
+
+.flex-row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+
+.flex-column {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+}
+
+iframe {
+	margin-bottom: 10px;
+	border: none;
+	width: 380px;
+}
+
+#demo {
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 20px;
+}
+
+#demo-pyportal {
+	height: 410px;
+}
+
+#demo-connect {
+	height: 570px;
+}
+
+#demo-metro {
+	height: 400px;
+}
+
+#demo-matrix {
+	height: 380px;
+}
+
+#demo-wio {
+	height: 400px;
+}

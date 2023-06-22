@@ -1,0 +1,10 @@
+github.com/merliot/dean v0.0.0-20230621012611-6222bd632c7b h1:yaC/e4ypCEYVemZc9d4T5wKlYqzeSahuHmxgUeRvDTA=
+github.com/merliot/dean v0.0.0-20230621012611-6222bd632c7b/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
+github.com/merliot/dean-lib v0.0.0-20230426041915-e0d53c14f203 h1:Ex4MlWEKSIzI+NmUnBDYOt3xKl7fDqCbbTXlpJ/8H2Q=
+github.com/merliot/dean-lib v0.0.0-20230426041915-e0d53c14f203/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
+golang.org/x/crypto v0.10.0 h1:LKqV2xt9+kDzSTfOhx4FrkEBcMrAgHSYgzywV9zcGmM=
+golang.org/x/crypto v0.10.0/go.mod h1:o4eNf7Ede1fv+hwOwZsTHl9EsPFO6q6ZvYR8vYfY45I=
+golang.org/x/net v0.11.0 h1:Gi2tvZIJyBtO9SDr1q9h5hEQCp/4L2RQ+ar0qjx2oNU=
+golang.org/x/net v0.11.0/go.mod h1:2L/ixqYpgIVXmeoSA/4Lu7BzTG4KIyPIryS4IsOd1oQ=
+golang.org/x/text v0.10.0 h1:UpjohKhiEgNc0CSauXmwYftY1+LlaC75SJwh0SgCX58=
+golang.org/x/text v0.10.0/go.mod h1:TvPlkZtksWOMsz7fbANvkp4WM8x/WCo/om8BMLbz+aE=
