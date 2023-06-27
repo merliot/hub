@@ -20,20 +20,3 @@
 	color: white;
 	transform: translate(-50%,-50%) rotate(-45deg);
 }
-
-textarea {
-	resize: none;
-	border: none;
-	width: 100%;
-}
-
-button {
-	margin-top: 10px;
-}
-
-.buttons {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: flex-end;
-}

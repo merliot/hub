@@ -1,48 +1,27 @@
 <html lang="en">
-
 	<head>
 		<meta name="viewport"
 		      content="width=device-width, initial-scale=1">
-
 		<title>Model A</title>
-
 		<link rel="stylesheet" type="text/css" href="css/modela.css">
-
 	</head>
 
 	<body>
-		
 		<div id="overlay">
 			<div id="offline">Offline</div>
 		</div>
+		<div id="buttons" style="display: none">
+			<input type="checkbox" id="relay0" disabled=true onclick='sendClick(this, 0)'>
+			<label for="relay0"> Relay 0 </label>
+			<input type="checkbox" id="relay1" disabled=true onclick='sendClick(this, 1)'>
+			<label for="relay1"> Relay 1 </label>
+			<input type="checkbox" id="relay2" disabled=true onclick='sendClick(this, 2)'>
+			<label for="relay2"> Relay 2 </label>
+			<input type="checkbox" id="relay3" disabled=true onclick='sendClick(this, 3)'>
+			<label for="relay3"> Relay 3 </label>
+		</div>
 
-		<fieldset>
-			<legend>Model A</legend>
-			<fieldset>
-				<legend>System Info</legend>
-				<textarea id="system" readonly rows="3"></textarea>
-			</fieldset>
-			<fieldset>
-				<legend>Temperature</legend>
-				<textarea id="tempc" readonly rows="1"></textarea>
-			</fieldset>
-			<fieldset>
-				<legend>BH1750 Light Intensity</legend>
-				<canvas id="bh1750"></canvas>
-			</fieldset>
-			<fieldset>
-				<legend>Relay 1 (Pin D2)</legend>
-				<center><img id="relay" src="images/relay-on.svg" width=100px></img></center>
-			</fieldset>
-			<div class="buttons">
-				<button onclick="reset()">Reset</button>
-			</div>
-		</fieldset>
-
-		<script src="js/gauge.min.js"></script>
 		<script src="js/modela.js"></script>
 		<script>run("{{.WebSocket}}")</script>
-
 	</body>
-
 </html>
