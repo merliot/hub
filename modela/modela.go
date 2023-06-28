@@ -3,6 +3,8 @@ package modela
 import (
 	"embed"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"github.com/merliot/dean"
 	"gobot.io/x/gobot/drivers/gpio"
@@ -15,8 +17,15 @@ var fs embed.FS
 type Modela struct {
 	dean.Thing
 	dean.ThingMsg
+	Identity Identity
 	relays [4]*gpio.RelayDriver
 	States [4]bool
+}
+
+type Identity struct {
+	Id    string
+	Model string
+	Name  string
 }
 
 type MsgClick struct {
@@ -29,6 +38,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW MODELA")
 	return &Modela{
 		Thing: dean.NewThing(id, model, name),
+		Identity: Identity{id, model, name},
 	}
 }
 
@@ -45,7 +55,6 @@ func (m *Modela) click(msg *dean.Msg) {
 	var msgClick MsgClick
 	msg.Unmarshal(&msgClick)
 	m.States[msgClick.Relay] = msgClick.State
-	println(m.IsMetal(), msgClick.State)
 	if m.IsMetal() {
 		if msgClick.State {
 			m.relays[msgClick.Relay].On()
@@ -83,5 +92,13 @@ func (m *Modela) Run(i *dean.Injector) {
 		relay.Off()
 	}
 
-	select {}
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+
+	select {
+	case <-c:
+		for _, relay := range m.relays {
+			relay.Off()
+		}
+	}
 }

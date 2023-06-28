@@ -1,3 +1,4 @@
+var state
 var conn
 var online = false
 
@@ -7,6 +8,14 @@ for (var i = 0; i < 4; i++) {
 }
 
 var buttons = document.getElementById("buttons")
+
+function showSystem() {
+	let system = document.getElementById("system")
+	system.value = ""
+	system.value += "ID:      " + state.Identity.Id + "\r\n"
+	system.value += "Model:   " + state.Identity.Model + "\r\n"
+	system.value += "Name:    " + state.Identity.Name
+}
 
 function showRelays() {
 	for (var i = 0; i < relays.length; i++) {
@@ -18,10 +27,12 @@ function showRelays() {
 function show() {
 	overlay = document.getElementById("overlay")
 	overlay.style.display = online ? "none" : "block"
+	showSystem()
 	showRelays()
 }
 
 function saveState(msg) {
+	state = msg
 	for (var i = 0; i < relays.length; i++) {
 		relays[i].checked = msg.States[i]
 	}
