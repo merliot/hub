@@ -3,6 +3,7 @@ var conn
 var online = false
 
 var map = document.getElementById("map")
+var marker
 
 function showSystem() {
 	let system = document.getElementById("system")
@@ -12,19 +13,16 @@ function showSystem() {
 	system.value += "Name:    " + state.Identity.Name
 }
 
-function showMap() {
-	map.style.display = "block"
+function showLocation() {
+	marker.setLatLng([state.Lat, state.Long])
+	map.panTo([state.Lat, state.Long])
 }
 
 function show() {
 	overlay = document.getElementById("overlay")
 	overlay.style.display = online ? "none" : "block"
 	showSystem()
-	showMap()
-}
-
-function saveState(msg) {
-	state = msg
+	showLocation()
 }
 
 function createMap() {
@@ -71,8 +69,13 @@ function run(ws) {
 		switch(msg.Path) {
 		case "state":
 			online = true
-			saveState(msg)
+			state = msg
 			show()
+			break
+		case "update":
+			state.Lat = msg.Lat
+			state.Long = msg.Long
+			showLocation()
 			break
 		}
 	}
