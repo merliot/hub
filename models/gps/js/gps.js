@@ -2,7 +2,7 @@ var state
 var conn
 var online = false
 
-var map = document.getElementById("map")
+var map
 var marker
 
 function showSystem() {
@@ -26,6 +26,11 @@ function show() {
 }
 
 function createMap() {
+
+	if (typeof map !== 'undefined') {
+		return
+	}
+
 	<!-- Create a Leaflet map using OpenStreetMap -->
 	map = L.map('map').setZoom(13)
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
