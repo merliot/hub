@@ -1,0 +1,35 @@
+<html lang="en">
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+		<title>Relays</title>
+		<link rel="stylesheet" type="text/css" href="css/relays.css">
+	</head>
+
+	<body>
+		<div id="overlay">
+			<div id="offline">Offline</div>
+		</div>
+
+		<fieldset>
+			<legend>System Info</legend>
+			<textarea id="system" readonly rows="3"></textarea>
+		</fieldset>
+		<fieldset>
+			<legend>Relays</legend>
+			<div id="buttons" style="display: none">
+				<input type="checkbox" id="relay0" disabled=true onclick='sendClick(this, 0)'>
+				<label for="relay0"> Relay 0 </label>
+				<input type="checkbox" id="relay1" disabled=true onclick='sendClick(this, 1)'>
+				<label for="relay1"> Relay 1 </label>
+				<input type="checkbox" id="relay2" disabled=true onclick='sendClick(this, 2)'>
+				<label for="relay2"> Relay 2 </label>
+				<input type="checkbox" id="relay3" disabled=true onclick='sendClick(this, 3)'>
+				<label for="relay3"> Relay 3 </label>
+			</div>
+		</fieldset>
+
+		<script src="js/relays.js"></script>
+		<script>run("{{.WebSocket}}")</script>
+	</body>
+</html>

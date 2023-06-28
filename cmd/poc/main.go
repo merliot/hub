@@ -6,7 +6,8 @@ import (
 
 	"github.com/merliot/dean"
 	poc "github.com/merliot/sw-poc"
-	"github.com/merliot/sw-poc/relays"
+	"github.com/merliot/sw-poc/models/relays"
+	"github.com/merliot/sw-poc/models/gps"
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	}
 
 	poc.Register("relays", relays.New)
+	poc.Register("gps", gps.New)
 
 	log.Fatal(server.ListenAndServe())
 }
