@@ -2,12 +2,7 @@ var state
 var conn
 var online = false
 
-var relays = []
-for (var i = 0; i < 4; i++) {
-	relays[i] = document.getElementById("relay" + i)
-}
-
-var buttons = document.getElementById("buttons")
+var map = document.getElementById("map")
 
 function showSystem() {
 	let system = document.getElementById("system")
@@ -17,36 +12,37 @@ function showSystem() {
 	system.value += "Name:    " + state.Identity.Name
 }
 
-function showRelays() {
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].disabled = !online
-	}
-	buttons.style.display = "block"
+function showMap() {
+	map.style.display = "block"
 }
 
 function show() {
 	overlay = document.getElementById("overlay")
 	overlay.style.display = online ? "none" : "block"
 	showSystem()
-	showRelays()
+	showMap()
 }
 
 function saveState(msg) {
 	state = msg
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].checked = msg.States[i]
-	}
 }
 
-function sendClick(relay, num) {
-	conn.send(JSON.stringify({Path: "click", Relay: num, State: relay.checked}))
-}
+function createMap() {
+	<!-- Create a Leaflet map using OpenStreetMap -->
+	map = L.map('map').setZoom(13)
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    maxZoom: 19,
+	    attribution: '© OpenStreetMap'
+	}).addTo(map)
 
-function saveClick(msg) {
-	relays[msg.Relay].checked = msg.State
+	<!-- Create a map marker with popup that has [Id, Model, Name] -- !>
+	popup = "ID: {{.Id}}<br>Model: {{.Model}}<br>Name: {{.Name}}"
+	marker = L.marker([0, 0]).addTo(map).bindPopup(popup);
 }
 
 function run(ws) {
+
+	createMap()
 
 	console.log('connecting...')
 	conn = new WebSocket(ws)
@@ -78,10 +74,6 @@ function run(ws) {
 			saveState(msg)
 			show()
 			break
-		case "click":
-			saveClick(msg)
-			break
 		}
 	}
 }
-

@@ -10,7 +10,7 @@ func main() {
 	id := id.MAC()
 	thing := gps.New(id, "gps", "gps_" + id)
 	server := dean.NewServer(thing)
-	server.Addr = ":8001"
+	server.Addr = ":8002"
 	server.DialWebSocket("user", "passwd", "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
 	go server.ListenAndServe()
 	server.Run()
