@@ -11,7 +11,7 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-//go:embed css js images index.html
+//go:embed css js index.html
 var fs embed.FS
 
 type Gps struct {
