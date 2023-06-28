@@ -80,7 +80,7 @@ func (m *Modela) Run(i *dean.Injector) {
 
 	for _, relay := range m.relays {
 		relay.Start()
-		relay.On()
+		relay.Off()
 	}
 
 	select {}

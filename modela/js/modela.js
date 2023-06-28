@@ -1,4 +1,3 @@
-var state
 var conn
 var online = false
 
@@ -22,8 +21,18 @@ function show() {
 	showRelays()
 }
 
+function saveState(msg) {
+	for (var i = 0; i < relays.length; i++) {
+		relays[i].checked = msg.States[i]
+	}
+}
+
 function sendClick(relay, num) {
 	conn.send(JSON.stringify({Path: "click", Relay: num, State: relay.checked}))
+}
+
+function saveClick(msg) {
+	relays[msg.Relay].checked = msg.State
 }
 
 function run(ws) {
@@ -55,11 +64,11 @@ function run(ws) {
 		switch(msg.Path) {
 		case "state":
 			online = true
-			state = msg
+			saveState(msg)
 			show()
 			break
 		case "click":
-			relays[msg.Relay].checked = msg.State
+			saveClick(msg)
 			break
 		}
 	}
