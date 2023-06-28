@@ -6,7 +6,7 @@ import (
 
 	"github.com/merliot/dean"
 	poc "github.com/merliot/sw-poc"
-	"github.com/merliot/sw-poc/modela"
+	"github.com/merliot/sw-poc/relays"
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 		}
 	}
 
-	poc.Register("modela", modela.New)
+	poc.Register("relays", relays.New)
 
 	log.Fatal(server.ListenAndServe())
 }

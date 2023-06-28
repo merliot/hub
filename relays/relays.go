@@ -1,4 +1,4 @@
-package modela
+package relays
 
 import (
 	"embed"
