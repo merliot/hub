@@ -47,29 +47,29 @@ function run(ws) {
 
 	createMap()
 
-	console.log('connecting...')
+	console.log('gps', 'connecting...')
 	conn = new WebSocket(ws)
 
 	conn.onopen = function(evt) {
-		console.log("open")
+		console.log('gps', 'open')
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
 	conn.onclose = function(evt) {
-		console.log("close")
+		console.log('gps', 'close')
 		online = false
 		show()
 		setTimeout(run(ws), 1000)
 	}
 
 	conn.onerror = function(err) {
-		console.log("error", err)
+		console.log('gps', 'error', err)
 		conn.close()
 	}
 
 	conn.onmessage = function(evt) {
 		msg = JSON.parse(evt.data)
-		console.log('connect', msg)
+		console.log('gps', 'connect', msg)
 
 		switch(msg.Path) {
 		case "state":
