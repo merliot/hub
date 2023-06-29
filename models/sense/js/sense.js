@@ -49,29 +49,29 @@ function show() {
 
 function run(ws) {
 
-	console.log('sense', 'connecting...')
+	console.log('[sense]', 'connecting...')
 	conn = new WebSocket(ws)
 
 	conn.onopen = function(evt) {
-		console.log('sense', 'open')
+		console.log('[sense]', 'open')
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
 	conn.onclose = function(evt) {
-		console.log('sense', 'close')
+		console.log('[sense]', 'close')
 		online = false
 		show()
 		setTimeout(run(ws), 1000)
 	}
 
 	conn.onerror = function(err) {
-		console.log('sense', 'error', err)
+		console.log('[sense]', 'error', err)
 		conn.close()
 	}
 
 	conn.onmessage = function(evt) {
 		msg = JSON.parse(evt.data)
-		console.log('sense', msg)
+		console.log('[sense]', msg)
 
 		switch(msg.Path) {
 		case "state":

@@ -48,29 +48,29 @@ function saveClick(msg) {
 
 function run(ws) {
 
-	console.log('relays', 'connecting...')
+	console.log('[relays]', 'connecting...')
 	conn = new WebSocket(ws)
 
 	conn.onopen = function(evt) {
-		console.log('relays', 'open')
+		console.log('[relays]', 'open')
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
 	conn.onclose = function(evt) {
-		console.log('relays', 'close')
+		console.log('[relays]', 'close')
 		online = false
 		show()
 		setTimeout(run(ws), 1000)
 	}
 
 	conn.onerror = function(err) {
-		console.log('relays', 'error', err)
+		console.log('[relays]', 'error', err)
 		conn.close()
 	}
 
 	conn.onmessage = function(evt) {
 		msg = JSON.parse(evt.data)
-		console.log('relays', 'connect', msg)
+		console.log('[relays]', msg)
 
 		switch(msg.Path) {
 		case "state":
