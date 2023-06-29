@@ -1,0 +1,33 @@
+#!/bin/bash
+
+CD=`pwd`
+go build -o sense main.go
+
+cat << EOF > /tmp/sense.service
+[Unit]
+Description=Sense
+ConditionPathExists=$CD/sense
+After=network.target
+ 
+[Service]
+Type=simple
+User=pi
+
+WorkingDirectory=$CD
+ExecStart=$CD/sense
+
+Restart=on-failure
+RestartSec=1
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=sense
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo cp /tmp/sense.service /lib/systemd/system/sense.service
+sudo systemctl daemon-reload
+sudo systemctl enable sense
+sudo systemctl start sense

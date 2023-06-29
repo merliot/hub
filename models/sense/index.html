@@ -1,0 +1,22 @@
+<html lang="en">
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+		<title>Sense Hat</title>
+		<link rel="stylesheet" type="text/css" href="css/sense.css">
+	</head>
+
+	<body>
+		<div id="overlay">
+			<div id="offline">Offline</div>
+		</div>
+
+		<fieldset>
+			<legend>System Info</legend>
+			<textarea id="system" readonly rows="3"></textarea>
+		</fieldset>
+
+		<script src="js/sense.js"></script>
+		<script>run("{{.WebSocket}}")</script>
+	</body>
+</html>
