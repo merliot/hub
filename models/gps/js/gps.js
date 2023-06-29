@@ -1,9 +1,8 @@
 var state
 var conn
-var online = false
-
 var map
 var marker
+var overlay = document.getElementById("overlay")
 
 function showSystem() {
 	let system = document.getElementById("system")
@@ -18,11 +17,14 @@ function showLocation() {
 	map.panTo([state.Lat, state.Long])
 }
 
-function show() {
-	overlay = document.getElementById("overlay")
-	overlay.style.display = online ? "none" : "block"
+function showOffline() {
+	overlay.style.display = "block"
+}
+
+function showOnline() {
 	showSystem()
 	showLocation()
+	overlay.style.display = "none"
 }
 
 function createMap() {
@@ -57,8 +59,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[gps]', 'close')
-		online = false
-		show()
+		showOffline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -73,9 +74,8 @@ function run(ws) {
 
 		switch(msg.Path) {
 		case "state":
-			online = true
 			state = msg
-			show()
+			showOnline()
 			break
 		case "update":
 			state.Lat = msg.Lat

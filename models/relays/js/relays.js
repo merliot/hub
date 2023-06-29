@@ -1,13 +1,11 @@
 var state
 var conn
-var online = false
+var overlay = document.getElementById("overlay")
 
 var relays = []
 for (var i = 0; i < 4; i++) {
 	relays[i] = document.getElementById("relay" + i)
 }
-
-var buttons = document.getElementById("buttons")
 
 function showSystem() {
 	let system = document.getElementById("system")
@@ -19,16 +17,21 @@ function showSystem() {
 
 function showRelays() {
 	for (var i = 0; i < relays.length; i++) {
-		relays[i].disabled = !online
+		relays[i].disabled = false
 	}
-	buttons.style.display = "block"
 }
 
-function show() {
-	overlay = document.getElementById("overlay")
-	overlay.style.display = online ? "none" : "block"
+function showOffline() {
+	overlay.style.display = "block"
+	for (var i = 0; i < relays.length; i++) {
+		relays[i].disabled = true
+	}
+}
+
+function showOnline() {
 	showSystem()
 	showRelays()
+	overlay.style.display = "none"
 }
 
 function saveState(msg) {
@@ -58,8 +61,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[relays]', 'close')
-		online = false
-		show()
+		showOffline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -74,9 +76,8 @@ function run(ws) {
 
 		switch(msg.Path) {
 		case "state":
-			online = true
 			saveState(msg)
-			show()
+			showOnline()
 			break
 		case "click":
 			saveClick(msg)
@@ -84,4 +85,3 @@ function run(ws) {
 		}
 	}
 }
-

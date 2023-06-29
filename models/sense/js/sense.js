@@ -1,6 +1,6 @@
 var state
 var conn
-var online = false
+var overlay = document.getElementById("overlay")
 
 var opts = {
 	angle: -0.2, // The span of the gauge arc
@@ -40,11 +40,14 @@ function showLux() {
 	gauge.set(state.Lux)
 }
 
-function show() {
-	overlay = document.getElementById("overlay")
-	overlay.style.display = online ? "none" : "block"
+function showOffline() {
+	overlay.style.display = "block"
+}
+
+function showOnline() {
 	showSystem()
 	showLux()
+	overlay.style.display = "none"
 }
 
 function run(ws) {
@@ -59,8 +62,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[sense]', 'close')
-		online = false
-		show()
+		showOffline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -75,9 +77,8 @@ function run(ws) {
 
 		switch(msg.Path) {
 		case "state":
-			online = true
 			state = msg
-			show()
+			showOnline()
 			break
 		case "update":
 			state.Lux = msg.Lux
@@ -86,4 +87,3 @@ function run(ws) {
 		}
 	}
 }
-
