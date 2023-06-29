@@ -23,7 +23,7 @@ var opts = {
 var bh1750= document.getElementById('bh1750')
 var gauge = new Gauge(bh1750).setOptions(opts)
 
-gauge.maxValue = 2400
+gauge.maxValue = 500
 gauge.setMinValue(0)
 gauge.animationSpeed = 32
 gauge.set(0)
