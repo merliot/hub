@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/merliot/dean v0.0.0-20230628183622-77438ea7f816
-	github.com/merliot/dean-lib v0.0.0-20230629184637-8a4ed21a04f9
+	github.com/merliot/dean-lib v0.0.0-20230629193420-8318ae21b724
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	gobot.io/x/gobot v1.16.0
 )
