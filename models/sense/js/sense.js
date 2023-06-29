@@ -15,9 +15,9 @@ var opts = {
 	limitMin: false,     // If true, the min value of the gauge will be fixed
 	highDpiSupport: true,     // High resolution support
 	staticZones: [
-		{strokeStyle: "#30B32D", min:      0, max: 1700}, // Green
-		{strokeStyle: "#FFDD00", min:   1700, max: 1780}, // Yellow
-		{strokeStyle: "#F03E3E", min:   1780, max: 2400}  // Red
+		{strokeStyle: "#30B32D", min:   0, max: 350}, // Green
+		{strokeStyle: "#FFDD00", min: 350, max: 380}, // Yellow
+		{strokeStyle: "#F03E3E", min: 380, max: 500}  // Red
 	],
 }
 var bh1750= document.getElementById('bh1750')
