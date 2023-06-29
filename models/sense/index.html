@@ -15,7 +15,12 @@
 			<legend>System Info</legend>
 			<textarea id="system" readonly rows="3"></textarea>
 		</fieldset>
+		<fieldset>
+			<legend>BH1750 Light Intensity</legend>
+			<canvas id="bh1750"></canvas>
+		</fieldset>
 
+		<script src="js/gauge.min.js"></script>
 		<script src="js/sense.js"></script>
 		<script>run("{{.WebSocket}}")</script>
 	</body>
