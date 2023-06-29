@@ -1,33 +1,45 @@
 #!/bin/bash
 
-CD=`pwd`
-go build -o sense main.go
+APP="sense"
+DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd ${DIR}
 
-cat << EOF > /tmp/sense.service
+go build -o ${APP} main.go
+
+cat << EOF > /tmp/${APP}.service
 [Unit]
-Description=Sense
-ConditionPathExists=$CD/sense
+Description=Gps
+ConditionPathExists=${DIR}/${APP}
 After=network.target
  
 [Service]
 Type=simple
 User=pi
 
-WorkingDirectory=$CD
-ExecStart=$CD/sense
+WorkingDirectory=${DIR}
+ExecStart=${DIR}/${APP}
 
 Restart=on-failure
 RestartSec=1
 
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=sense
+SyslogIdentifier=${APP}
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-sudo cp /tmp/sense.service /lib/systemd/system/sense.service
+cat << EOF > /tmp/${APP}.conf
+if \$programname == '${APP}' then
+/var/log/${APP}.log
+& stop
+EOF
+
+sudo cp /tmp/${APP}.service /lib/systemd/system/${APP}.service
+sudo cp /tmp/${APP}.conf /etc/rsyslog.d/${APP}.conf
+
 sudo systemctl daemon-reload
-sudo systemctl enable sense
-sudo systemctl start sense
+sudo systemctl enable ${APP}
+sudo systemctl restart rsyslog.service
+sudo systemctl restart ${APP}
