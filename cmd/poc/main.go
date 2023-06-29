@@ -30,7 +30,7 @@ func main() {
 
 	poc.Register("relays", relays.New)
 	poc.Register("gps", gps.New)
-	poc.Register("sense", gps.New)
+	poc.Register("sense", sense.New)
 
 	log.Fatal(server.ListenAndServe())
 }
