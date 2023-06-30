@@ -35,6 +35,8 @@ github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hd
 github.com/mattn/go-isatty v0.0.9/go.mod h1:YNRxwqDuOph6SZLI9vUUz6OYw3QyUt7WiY2yME+cCiQ=
 github.com/merliot/dean v0.0.0-20230628183622-77438ea7f816 h1:nC/ocdFOewDtdBkWldxMMp/Gy9ux04RIf5OCoBMEM8M=
 github.com/merliot/dean v0.0.0-20230628183622-77438ea7f816/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
+github.com/merliot/dean v0.0.0-20230630090421-19ecb00482ad h1:y+/b2eohY4wvnmVwl6V0sLiYsXjeKVYqpFWHQnY2xws=
+github.com/merliot/dean v0.0.0-20230630090421-19ecb00482ad/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
 github.com/merliot/dean-lib v0.0.0-20230629072859-b71b80498ed0 h1:hjH7OW0NM6a6ha0Jh7WdblI1DEwUDdkBjZioAgdGpaM=
 github.com/merliot/dean-lib v0.0.0-20230629072859-b71b80498ed0/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
 github.com/merliot/dean-lib v0.0.0-20230629184637-8a4ed21a04f9 h1:cMxDC+FQTlJjndybNp/7tNYW8NiDMivHHCNIeXCohVA=

@@ -3,7 +3,7 @@ module github.com/merliot/sw-poc
 go 1.20
 
 require (
-	github.com/merliot/dean v0.0.0-20230628183622-77438ea7f816
+	github.com/merliot/dean v0.0.0-20230630090421-19ecb00482ad
 	github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	gobot.io/x/gobot v1.16.0
