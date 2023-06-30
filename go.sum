@@ -43,6 +43,8 @@ github.com/merliot/dean-lib v0.0.0-20230629193420-8318ae21b724 h1:KZtJoQrHr/MJFO
 github.com/merliot/dean-lib v0.0.0-20230629193420-8318ae21b724/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
 github.com/merliot/dean-lib v0.0.0-20230630043705-52dff9f2a18b h1:n2JEzrl44mjW+GLuyk3SmkO1aY3R/+gW+fIKIZGULKo=
 github.com/merliot/dean-lib v0.0.0-20230630043705-52dff9f2a18b/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
+github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b h1:J83D71MK3a/VcirrZaAxKsmPnrNB9C1NHJiGxvEF2CI=
+github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
 github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab/go.mod h1:y1pL58r5z2VvAjeG1VLGc8zOQgSOzbKN7kMHPvFXJ+8=
 github.com/muka/go-bluetooth v0.0.0-20200926181701-4ca7d8dd0ff5/go.mod h1:dMCjicU6vRBk34dqOmIZm0aod6gUwZXOXzBROqGous0=
