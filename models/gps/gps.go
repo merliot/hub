@@ -41,16 +41,16 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func replyState(g *Gps) func(*dean.Msg) {
+func reply(g *Gps) func(*dean.Msg) {
 	g.Path = "state"
-	return dean.ReplyState(g)
+	return dean.ThingReply(g)
 }
 
 func (g *Gps) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     dean.SaveState(g),
-		"get/state": replyState(g),
-		"update":    dean.UpdateState(g),
+		"state":     dean.ThingSave(g),
+		"get/state": reply(g),
+		"update":    dean.ThingUpdate(g),
 	}
 }
 

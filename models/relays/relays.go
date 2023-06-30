@@ -54,15 +54,15 @@ func (r *Relays) click(msg *dean.Msg) {
 	msg.Broadcast()
 }
 
-func replyState(r *Relays) func(*dean.Msg) {
+func reply(r *Relays) func(*dean.Msg) {
 	r.Path = "state"
-	return dean.ReplyState(r)
+	return dean.ThingReply(r)
 }
 
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     dean.SaveState(r),
-		"get/state": replyState(r),
+		"state":     dean.ThingSave(r),
+		"get/state": reply(r),
 		"click":     r.click,
 	}
 }
