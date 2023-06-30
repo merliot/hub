@@ -75,7 +75,7 @@ func (g *Gps) Run(i *dean.Injector) {
 			continue
 		}
 		dist := int(gps.Distance(lat, long, g.Lat, g.Long) * 100.0) // cm
-		if dist < 20 /*cm*/ {
+		if dist < 200 /*cm*/ {
 			continue
 		}
 		g.Lat, g.Long = lat, long
