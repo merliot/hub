@@ -9,6 +9,7 @@ import (
 	"github.com/merliot/dean"
 	"github.com/merliot/dean-lib/gps"
 	"github.com/merliot/dean-lib/gps/nmea"
+	"github.com/merliot/sw-poc/models/common"
 	"github.com/tarm/serial"
 )
 
@@ -16,9 +17,7 @@ import (
 var fs embed.FS
 
 type Gps struct {
-	dean.Thing
-	dean.ThingMsg
-	Identity Identity
+	*common.Common
 	Lat  float64
 	Long float64
 }
@@ -38,29 +37,20 @@ type Update struct {
 func New(id, model, name string) dean.Thinger {
 	println("NEW GPS")
 	return &Gps{
-		Thing: dean.NewThing(id, model, name),
-		Identity: Identity{id, model, name},
+		Common: common.New(id, model, name).(*common.Common),
 	}
 }
 
-func (g *Gps) saveState(msg *dean.Msg) {
-	msg.Unmarshal(g)
-}
-
-func (g *Gps) getState(msg *dean.Msg) {
+func replyState(g *Gps) func(*dean.Msg) {
 	g.Path = "state"
-	msg.Marshal(g).Reply()
-}
-
-func (g *Gps) update(msg *dean.Msg) {
-	msg.Unmarshal(g).Broadcast()
+	return dean.ReplyState(g)
 }
 
 func (g *Gps) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     g.saveState,
-		"get/state": g.getState,
-		"update":    g.update,
+		"state":     dean.SaveState(g),
+		"get/state": replyState(g),
+		"update":    dean.UpdateState(g),
 	}
 }
 

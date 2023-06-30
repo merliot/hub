@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/sw-poc/models/common"
 	"gobot.io/x/gobot/drivers/i2c"
 	"gobot.io/x/gobot/platforms/raspi"
 )
@@ -14,9 +15,7 @@ import (
 var fs embed.FS
 
 type Sense struct {
-	dean.Thing
-	dean.ThingMsg
-	Identity Identity
+	*common.Common
 	Lux int
 	bh1750 *i2c.BH1750Driver
 }
@@ -34,30 +33,21 @@ type Update struct {
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW SENSE")
-	return &Sense{
-		Thing: dean.NewThing(id, model, name),
-		Identity: Identity{id, model, name},
+	return &Sense {
+		Common: common.New(id, model, name).(*common.Common),
 	}
 }
 
-func (s *Sense) saveState(msg *dean.Msg) {
-	msg.Unmarshal(s)
-}
-
-func (s *Sense) getState(msg *dean.Msg) {
+func replyState(s *Sense) func(*dean.Msg) {
 	s.Path = "state"
-	msg.Marshal(s).Reply()
-}
-
-func (s *Sense) update(msg *dean.Msg) {
-	msg.Unmarshal(s).Broadcast()
+	return dean.ReplyState(s)
 }
 
 func (s *Sense) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     s.saveState,
-		"get/state": s.getState,
-		"update":    s.update,
+		"state":     dean.SaveState(s),
+		"get/state": replyState(s),
+		"update":    dean.UpdateState(s),
 	}
 }
 

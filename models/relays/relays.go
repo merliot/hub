@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/sw-poc/models/common"
 	"gobot.io/x/gobot/drivers/gpio"
 	"gobot.io/x/gobot/platforms/raspi"
 )
@@ -15,9 +16,7 @@ import (
 var fs embed.FS
 
 type Relays struct {
-	dean.Thing
-	dean.ThingMsg
-	Identity Identity
+	*common.Common
 	relays [4]*gpio.RelayDriver
 	States [4]bool
 }
@@ -37,18 +36,8 @@ type MsgClick struct {
 func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")
 	return &Relays{
-		Thing: dean.NewThing(id, model, name),
-		Identity: Identity{id, model, name},
+		Common: common.New(id, model, name).(*common.Common),
 	}
-}
-
-func (r *Relays) saveState(msg *dean.Msg) {
-	msg.Unmarshal(r)
-}
-
-func (r *Relays) getState(msg *dean.Msg) {
-	r.Path = "state"
-	msg.Marshal(r).Reply()
 }
 
 func (r *Relays) click(msg *dean.Msg) {
@@ -65,10 +54,15 @@ func (r *Relays) click(msg *dean.Msg) {
 	msg.Broadcast()
 }
 
+func replyState(r *Relays) func(*dean.Msg) {
+	r.Path = "state"
+	return dean.ReplyState(r)
+}
+
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     r.saveState,
-		"get/state": r.getState,
+		"state":     dean.SaveState(r),
+		"get/state": replyState(r),
 		"click":     r.click,
 	}
 }

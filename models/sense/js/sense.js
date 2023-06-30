@@ -1,5 +1,6 @@
 var state
 var conn
+var pingID
 var overlay = document.getElementById("overlay")
 var overlay = document.getElementById("overlay")
 
