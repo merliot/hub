@@ -21,14 +21,14 @@ function showRelays() {
 	}
 }
 
-function showOffline() {
+function offline() {
 	overlay.style.display = "block"
 	for (var i = 0; i < relays.length; i++) {
 		relays[i].disabled = true
 	}
 }
 
-function showOnline() {
+function online() {
 	showSystem()
 	showRelays()
 	overlay.style.display = "none"
@@ -61,7 +61,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[relays]', 'close')
-		showOffline()
+		offline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -77,7 +77,7 @@ function run(ws) {
 		switch(msg.Path) {
 		case "state":
 			saveState(msg)
-			showOnline()
+			online()
 			break
 		case "click":
 			saveClick(msg)
