@@ -1,6 +1,7 @@
 var state
 var conn
 var overlay = document.getElementById("overlay")
+var overlay = document.getElementById("overlay")
 
 var opts = {
 	angle: -0.2, // The span of the gauge arc
@@ -40,14 +41,21 @@ function showLux() {
 	gauge.set(state.Lux)
 }
 
-function showOffline() {
+function offline() {
 	overlay.style.display = "block"
+	clearInterval(pingID)
 }
 
-function showOnline() {
+function ping() {
+	conn.send("ping")
+}
+
+function online() {
 	showSystem()
 	showLux()
 	overlay.style.display = "none"
+	// for Koyeb work-around
+	pingID = setInterval(ping, 1500)
 }
 
 function run(ws) {
@@ -62,7 +70,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[sense]', 'close')
-		showOffline()
+		offline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -78,7 +86,7 @@ function run(ws) {
 		switch(msg.Path) {
 		case "state":
 			state = msg
-			showOnline()
+			online()
 			break
 		case "update":
 			state.Lux = msg.Lux

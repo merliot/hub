@@ -1,5 +1,6 @@
 var state
 var conn
+var pingID
 var map
 var marker
 var overlay = document.getElementById("overlay")
@@ -17,14 +18,21 @@ function showLocation() {
 	map.panTo([state.Lat, state.Long])
 }
 
-function showOffline() {
+function offline() {
 	overlay.style.display = "block"
+	clearInterval(pingID)
 }
 
-function showOnline() {
+function ping() {
+	conn.send("ping")
+}
+
+function online() {
 	showSystem()
 	showLocation()
 	overlay.style.display = "none"
+	// for Koyeb work-around
+	pingID = setInterval(ping, 1500)
 }
 
 function createMap() {
@@ -59,7 +67,7 @@ function run(ws) {
 
 	conn.onclose = function(evt) {
 		console.log('[gps]', 'close')
-		showOffline()
+		offline()
 		setTimeout(run(ws), 1000)
 	}
 
@@ -75,7 +83,7 @@ function run(ws) {
 		switch(msg.Path) {
 		case "state":
 			state = msg
-			showOnline()
+			online()
 			break
 		case "update":
 			state.Lat = msg.Lat

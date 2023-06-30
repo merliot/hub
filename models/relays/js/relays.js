@@ -1,5 +1,6 @@
 var state
 var conn
+var pingID
 var overlay = document.getElementById("overlay")
 
 var relays = []
@@ -26,12 +27,19 @@ function offline() {
 	for (var i = 0; i < relays.length; i++) {
 		relays[i].disabled = true
 	}
+	clearInterval(pingID)
+}
+
+function ping() {
+	conn.send("ping")
 }
 
 function online() {
 	showSystem()
 	showRelays()
 	overlay.style.display = "none"
+	// for Koyeb work-around
+	pingID = setInterval(ping, 1500)
 }
 
 function saveState(msg) {
