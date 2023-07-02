@@ -16,7 +16,7 @@ EXPOSE 8000
 CMD ["/poc"]
 
 
-FROM tinygo:0.28.1
+FROM tinygo/tinygo:0.28.1
 
 WORKDIR /tinygo
 
