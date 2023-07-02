@@ -1,5 +1,13 @@
 # syntax=docker/dockerfile:1
 
+
+FROM tinygo/tinygo:0.28.1
+
+WORKDIR /tinygo
+
+RUN tinygo version
+
+
 FROM golang:1.20
 
 WORKDIR /app
@@ -15,9 +23,3 @@ EXPOSE 8000
 
 CMD ["/poc"]
 
-
-FROM tinygo/tinygo:0.28.1
-
-WORKDIR /app
-
-RUN tinygo version
