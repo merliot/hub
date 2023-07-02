@@ -18,12 +18,6 @@ CMD ["/poc"]
 
 FROM tinygo/tinygo:0.28.1
 
-WORKDIR /tinygo
-
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY . ./
+WORKDIR /app
 
 RUN tinygo version
-RUN tinygo build -target pico -o /main.uf2 ./cmd/tinygo
