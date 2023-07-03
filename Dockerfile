@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM tinygo/tinygo:0.28.1
+FROM golang:1.20
 
 WORKDIR /app
 
