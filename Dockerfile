@@ -8,7 +8,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
-COPY cmd/ ./cmd/
 
 RUN CGO_ENABLED=0 GOOS=linux go build -tags wss -o /poc ./cmd/poc
 
