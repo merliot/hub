@@ -17,7 +17,8 @@
 			<textarea id="system" readonly rows="3"></textarea>
 		</fieldset>
 
+		<script src="js/common.js"></script>
 		<script src="js/led.js"></script>
-		<script>run("{{.WebSocket}}")</script>
+		<script>run("[led]", "{{.WebSocket}}")</script>
 	</body>
 </html>
