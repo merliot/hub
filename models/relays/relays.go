@@ -21,12 +21,6 @@ type Relays struct {
 	States [4]bool
 }
 
-type Identity struct {
-	Id    string
-	Model string
-	Name  string
-}
-
 type MsgClick struct {
 	Path  string
 	Relay int

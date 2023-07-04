@@ -20,12 +20,6 @@ type Sense struct {
 	bh1750 *i2c.BH1750Driver
 }
 
-type Identity struct {
-	Id    string
-	Model string
-	Name  string
-}
-
 type Update struct {
 	Path string
 	Lux int

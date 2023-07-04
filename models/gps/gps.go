@@ -22,12 +22,6 @@ type Gps struct {
 	Long float64
 }
 
-type Identity struct {
-	Id    string
-	Model string
-	Name  string
-}
-
 type Update struct {
 	Path string
 	Lat  float64

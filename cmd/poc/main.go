@@ -9,6 +9,7 @@ import (
 	"github.com/merliot/sw-poc/models/relays"
 	"github.com/merliot/sw-poc/models/gps"
 	"github.com/merliot/sw-poc/models/sense"
+	"github.com/merliot/sw-poc/models/led"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	poc.Register("relays", relays.New)
 	poc.Register("gps", gps.New)
 	poc.Register("sense", sense.New)
+	poc.Register("led", led.New)
 
 	log.Fatal(server.ListenAndServe())
 }
