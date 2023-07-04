@@ -14,6 +14,7 @@ function showSystem() {
 
 function offline() {
 	overlay.style.display = "block"
+	hide()
 	clearInterval(pingID)
 }
 
@@ -30,6 +31,8 @@ function online() {
 }
 
 function run(prefix, ws) {
+
+	init()
 
 	console.log(prefix, 'connecting...')
 	conn = new WebSocket(ws)
