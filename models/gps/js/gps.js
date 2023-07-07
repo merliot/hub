@@ -19,6 +19,7 @@ function init() {
 }
 
 function show() {
+	showSystem()
 	marker.setLatLng([state.Lat, state.Long])
 	map.panTo([state.Lat, state.Long])
 }

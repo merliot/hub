@@ -34,6 +34,7 @@ function init() {
 }
 
 function show() {
+	showSystem()
 	gauge.set(state.Lux)
 }
 

@@ -1,0 +1,20 @@
+#all {
+	display: flex;
+	height: 100%;
+}
+
+#explorer {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+	max-width: 300px;
+}
+
+#view {
+	width: 100%;
+}
+
+#view iframe {
+	height: 100%;
+	width: 100%;
+}

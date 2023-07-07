@@ -1,0 +1,30 @@
+<html lang="en">
+
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+
+		<title>Hub</title>
+
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+		<link rel="stylesheet" type="text/css" href="css/hub.css">
+
+	</head>
+
+	<body>
+		<div id="overlay">
+			<div id="offline">Offline</div>
+		</div>
+		
+		<div id="all">
+			<div id="explorer"></div>
+			<div id="view"></div>
+		</div>
+
+		<script src="js/common.js"></script>
+		<script src="js/hub.js"></script>
+		<script>run("[hub]", "{{.WebSocket}}")</script>
+
+	</body>
+
+</html>

@@ -23,7 +23,6 @@ function ping() {
 }
 
 function online() {
-	showSystem()
 	show()
 	overlay.style.display = "none"
 	// for Koyeb work-around, ping every 60s to keep websocket alive
