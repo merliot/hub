@@ -1,18 +1,15 @@
 {
 	"88_ae_dd_0a_70_92": {
-		"Folder": "/",
 		"Model": "relays",
 		"Name": "Relays",
 		"Online": false
 	},
 	"d1": {
-		"Folder": "/",
 		"Model": "relays",
 		"Name": "Relays01",
 		"Online": false
 	},
 	"d2": {
-		"Folder": "/",
 		"Model": "relays",
 		"Name": "Relays02",
 		"Online": false

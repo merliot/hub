@@ -1,6 +1,6 @@
 module github.com/merliot/sw-poc
 
-go 1.20
+go 1.19
 
 require (
 	github.com/merliot/dean v0.0.0-20230630211343-615e9b53aaa5

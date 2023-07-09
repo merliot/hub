@@ -22,18 +22,22 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func reply(l *Led) func(*dean.Msg) {
+func (l *Led) save(msg *dean.Msg) {
+	msg.Unmarshal(l)
+}
+
+func (l *Led) getState(msg *dean.Msg) {
 	l.Path = "state"
-	return dean.ThingReply(l)
+	msg.Marshal(l).Reply()
 }
 
 func (l *Led) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     dean.ThingSave(l),
-		"get/state": reply(l),
+		"state":     l.save,
+		"get/state": l.getState,
 	}
 }
 
 func (l *Led) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	l.ServeFS(fs, w, r)
+	l.API(fs, w, r)
 }

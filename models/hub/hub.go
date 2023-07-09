@@ -9,19 +9,13 @@ import (
 	"sync"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/sw-poc/models/common"
 )
 
-//go:embed css images js index.html
+//go:embed css html images js index.html
 var fs embed.FS
 
-type Identity struct {
-	Id    string
-	Model string
-	Name  string
-}
-
 type Device struct {
-	Folder string
 	Model string
 	Name  string
 	Online  bool
@@ -32,9 +26,7 @@ type Devices map[string]*Device        // keyed by id
 type makers map[string]dean.ThingMaker // keyed by model
 
 type Hub struct {
-	dean.Thing
-	dean.ThingMsg
-	Identity Identity
+	*common.Common
 	Devices
 	makersMu sync.Mutex
 	makers   makers
@@ -43,12 +35,11 @@ type Hub struct {
 func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	return &Hub{
-		Thing:    dean.NewThing(id, model, name),
-		Identity: Identity{id, model, name},
+		Common: common.New(id, model, name).(*common.Common),
 		Devices:  Devices{
-			"88_ae_dd_0a_70_92": &Device{Folder: "/", Model: "relays", Name: "Relays"},
-			"d1":                &Device{Folder: "/", Model: "relays", Name: "Relays01"},
-			"d2":                &Device{Folder: "/", Model: "relays", Name: "Relays02"},
+			"88_ae_dd_0a_70_92": &Device{Model: "relays", Name: "Relays"},
+			"d1":                &Device{Model: "relays", Name: "Relays01"},
+			"d2":                &Device{Model: "relays", Name: "Relays02"},
 		},
 		makers:   makers{},
 	}
@@ -96,7 +87,6 @@ func (h *Hub) online(msg *dean.Msg, online bool) {
 		dev.Online = online
 	}
 
-	h.dumpDevices()
 	msg.Broadcast()
 }
 
@@ -145,7 +135,7 @@ func (h *Hub) dumpDevices() {
 }
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.ServeFS(fs, w, r)
+	h.API(fs, w, r)
 }
 
 func (h *Hub) Run(i *dean.Injector) {

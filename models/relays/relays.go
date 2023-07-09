@@ -34,6 +34,15 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
+func (r *Relays) save(msg *dean.Msg) {
+	msg.Unmarshal(r)
+}
+
+func (r *Relays) getState(msg *dean.Msg) {
+	r.Path = "state"
+	msg.Marshal(r).Reply()
+}
+
 func (r *Relays) click(msg *dean.Msg) {
 	var msgClick MsgClick
 	msg.Unmarshal(&msgClick)
@@ -48,21 +57,16 @@ func (r *Relays) click(msg *dean.Msg) {
 	msg.Broadcast()
 }
 
-func reply(r *Relays) func(*dean.Msg) {
-	r.Path = "state"
-	return dean.ThingReply(r)
-}
-
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     dean.ThingSave(r),
-		"get/state": reply(r),
+		"state":     r.save,
+		"get/state": r.getState,
 		"click":     r.click,
 	}
 }
 
 func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.ServeFS(fs, w, req)
+	r.API(fs, w, req)
 }
 
 func (r *Relays) Run(i *dean.Injector) {

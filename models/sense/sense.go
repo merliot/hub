@@ -32,21 +32,29 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func reply(s *Sense) func(*dean.Msg) {
+func (s *Sense) save(msg *dean.Msg) {
+	msg.Unmarshal(s)
+}
+
+func (s *Sense) getState(msg *dean.Msg) {
 	s.Path = "state"
-	return dean.ThingReply(s)
+	msg.Marshal(s).Reply()
+}
+
+func (s *Sense) update(msg *dean.Msg) {
+	msg.Unmarshal(s).Broadcast()
 }
 
 func (s *Sense) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     dean.ThingSave(s),
-		"get/state": reply(s),
-		"update":    dean.ThingUpdate(s),
+		"state":     s.save,
+		"get/state": s.getState,
+		"update":    s.update,
 	}
 }
 
 func (s *Sense) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.ServeFS(fs, w, r)
+	s.API(fs, w, r)
 }
 
 func (s *Sense) Run(i *dean.Injector) {
