@@ -2,6 +2,7 @@ package relays
 
 import (
 	"embed"
+	"html/template"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,8 +13,9 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-//go:embed css js index.html
+//go:embed css html js
 var fs embed.FS
+var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Relays struct {
 	*common.Common
@@ -22,7 +24,7 @@ type Relays struct {
 }
 
 type MsgClick struct {
-	Path  string
+	dean.ThingMsg
 	Relay int
 	State bool
 }
@@ -59,14 +61,14 @@ func (r *Relays) click(msg *dean.Msg) {
 
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     r.save,
-		"get/state": r.getState,
-		"click":     r.click,
+		"state":      r.save,
+		"get/state":  r.getState,
+		"click":      r.click,
 	}
 }
 
 func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.API(fs, w, req)
+	r.API(fs, tmpls, w, req)
 }
 
 func (r *Relays) Run(i *dean.Injector) {

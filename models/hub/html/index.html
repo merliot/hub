@@ -1,0 +1,47 @@
+<html lang="en">
+
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+
+		<title>Hub</title>
+
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+		<link rel="stylesheet" type="text/css" href="css/hub.css">
+
+	</head>
+
+	<body>
+		<div id="overlay">
+			<div id="offline">Offline</div>
+		</div>
+		
+		<div id="all">
+			<div id="header">
+				<button id="deploy">Deploy</button>
+			</div>
+			<div id="bod">
+				<div id="explorer"></div>
+				<div id="view"></div>
+			</div>
+		</div>
+
+		<dialog id="deploy-dialog">
+			<label for="deploy-targets">Targets:</label>
+			<select name="deploy-targets" id="deploy-targets">
+				<option value="rpi">Raspberry Pi</option>
+				<option value="pico">Raspberry Pi Pico</option>
+			</select>
+			<div id="deploy-btns">
+				<button id="deploy-close">Close</button>
+				<button id="deploy-deploy">Deploy</button>
+			</div>
+		</dialog>
+
+		<script src="js/common.js"></script>
+		<script src="js/hub.js"></script>
+		<script>run("[hub]", "{{.WebSocket}}")</script>
+
+	</body>
+
+</html>

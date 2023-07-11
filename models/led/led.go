@@ -2,14 +2,16 @@ package led
 
 import (
 	"embed"
+	"html/template"
 	"net/http"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/sw-poc/models/common"
 )
 
-//go:embed css js index.html
+//go:embed css html js
 var fs embed.FS
+var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Led struct {
 	*common.Common
@@ -39,5 +41,5 @@ func (l *Led) Subscribers() dean.Subscribers {
 }
 
 func (l *Led) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	l.API(fs, w, r)
+	l.API(fs, tmpls, w, r)
 }

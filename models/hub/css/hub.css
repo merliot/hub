@@ -1,5 +1,16 @@
 #all {
 	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+#header {
+	display: flex;
+	justify-content: flex-end;
+}
+
+#bod {
+	display: flex;
 	height: 100%;
 }
 
@@ -14,7 +25,11 @@
 	width: 100%;
 }
 
-#view iframe {
+#deploy-btns {
+	display: flex;
+}
+
+object {
 	height: 100%;
 	width: 100%;
 }

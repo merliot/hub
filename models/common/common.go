@@ -29,23 +29,18 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func parseTemplate(data any, fs embed.FS, w http.ResponseWriter, file string) {
-	tmpl, err := template.ParseFS(fs, file)
+func parseTemplate(data any, tmpls *template.Template, w http.ResponseWriter, name string) {
+	err := tmpls.ExecuteTemplate(w, name, data)
 	if err != nil {
-		println(err)
-		return
-	}
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		println(err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
 }
 
-func (c *Common) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
-	c.WebSocket = scheme + r.Host + "/ws/" + c.Id() + "/"
+func (c *Common) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "", "/":
-		parseTemplate(c, fs, w, "index.html")
+		c.WebSocket = scheme + r.Host + "/ws/" + c.Id() + "/"
+		parseTemplate(c, tmpls, w, "index.html")
 	default:
 		http.FileServer(http.FS(fs)).ServeHTTP(w, r)
 	}

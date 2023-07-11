@@ -1,53 +1,43 @@
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
+var deploy = document.getElementById("deploy")
+var dialogDeploy= document.getElementById("deploy-dialog")
 
 function init() {
 }
 
-folder = "folder:"
-device = "device:"
+function runDeploy(id) {
+	dialogDeploy.close()
+}
 
-function clickedDev(id) {
+function clickDeploy(id) {
+	var btnClose = document.getElementById("deploy-close")
+	var btnDeploy = document.getElementById("deploy-deploy")
+	btnClose.onclick = function(){dialogDeploy.close()}
+	btnDeploy.onclick = function(){runDeploy(id)}
+	dialogDeploy.showModal()
+}
+
+function clickDev(id) {
 	view.textContent = ''
-	var elem = document.createElement("iframe")
-	elem.src = "/" + encodeURIComponent(id) + "/"
-	view.appendChild(elem)
+	var obj = document.createElement("object")
+	obj.data = "/" + id + "/"
+	view.appendChild(obj)
+	deploy.onclick = function(){clickDeploy(id)}
 }
 
-function clickedFolder() {
-	view.textContent = ''
-}
-
-function insertFolder(level, key) {
-	var elem = document.createElement("div")
-	elem.style.paddingLeft = level * 20 + "px"
-	elem.onclick = function (){clickedFolder()}
-	elem.appendChild(document.createTextNode(key))
-	explorer.appendChild(elem)
-}
-
-function insertDevice(level, dev) {
-	var elem = document.createElement("div")
-	elem.style.paddingLeft = level * 20 + "px"
-	elem.onclick = function (){clickedDev(dev["Id"])}
-	elem.appendChild(document.createTextNode(dev["Name"]))
-	explorer.appendChild(elem)
-}
-
-function doit(level, devs) {
-	for (let key in devs) {
-		if (key.startsWith(folder)) {
-			insertFolder(level, key)
-			doit(level+1, devs[key])
-		} else if (key.startsWith(device)) {
-			insertDevice(level, devs[key])
-		}
-	}
+function insertDevice(id, dev) {
+	var div = document.createElement("div")
+	div.onclick = function (){clickDev(id)}
+	div.appendChild(document.createTextNode(dev.Name))
+	explorer.appendChild(div)
 }
 
 function show() {
 	explorer.textContent = ''
-	doit(0, state.Devices)
+	for (let id in state.Devices) {
+		insertDevice(id, state.Devices[id])
+	}
 }
 
 function hide() {

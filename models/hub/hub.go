@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"sync"
+	"html/template"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/sw-poc/models/common"
 )
 
-//go:embed css html images js index.html
+//go:embed css html images js
 var fs embed.FS
+var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Device struct {
 	Model string
@@ -28,7 +29,6 @@ type makers map[string]dean.ThingMaker // keyed by model
 type Hub struct {
 	*common.Common
 	Devices
-	makersMu sync.Mutex
 	makers   makers
 }
 
@@ -36,38 +36,27 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	return &Hub{
 		Common: common.New(id, model, name).(*common.Common),
+		/*
 		Devices:  Devices{
 			"88_ae_dd_0a_70_92": &Device{Model: "relays", Name: "Relays"},
 			"d1":                &Device{Model: "relays", Name: "Relays01"},
 			"d2":                &Device{Model: "relays", Name: "Relays02"},
 		},
+		*/
 		makers:   makers{},
 	}
 }
 
 func (h *Hub) Register(model string, maker dean.ThingMaker) {
-	h.makersMu.Lock()
-	defer h.makersMu.Unlock()
 	h.makers[model] = maker
 }
 
 func (h *Hub) Unregister(model string) {
-	h.makersMu.Lock()
-	defer h.makersMu.Unlock()
 	delete(h.makers, model)
 }
 
-func (h *Hub) getDevice(id, model, name string) (found *Device) {
-	if dev, ok := h.Devices[id]; ok {
-		if dev.Model == model && dev.Name == name {
-			found = dev
-		}
-	}
-	return
-}
-
 func (h *Hub) Make(id, model, name string) dean.Thinger {
-	dev := h.getDevice(id, model, name)
+	dev := h.Devices[id]
 	if dev == nil {
 		return nil
 	}
@@ -110,8 +99,6 @@ func (h *Hub) storeDevices() {
 }
 
 func (h *Hub) makeThingers() {
-	h.makersMu.Lock()
-	defer h.makersMu.Unlock()
 	for id, dev := range h.Devices {
 		dev.Online = false
 		if maker, ok := h.makers[dev.Model]; ok {
@@ -134,12 +121,57 @@ func (h *Hub) dumpDevices() {
 	fmt.Println(string(b))
 }
 
+func (h *Hub) create(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+	model := r.URL.Query().Get("model")
+	name := r.URL.Query().Get("name")
+
+	println("create", id, model, name)
+
+	if !dean.ValidId(id) || !dean.ValidId(model) || !dean.ValidId(name) {
+		http.Error(w, "Invalid id|model|name", http.StatusNotAcceptable)
+		return
+	}
+
+	dev := h.Devices[id]
+	if dev != nil {
+		http.Error(w, "Device already exists", http.StatusNotAcceptable)
+		return
+	}
+
+	maker, ok := h.makers[model]
+	if !ok {
+		http.Error(w, "Device model unknown", http.StatusNotAcceptable)
+		return
+	}
+
+	h.Devices[id] = &Device{model, name, false, maker(id, model, name)}
+	h.storeDevices()
+}
+
+func (h *Hub) deploy(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	println("deploy", id)
+}
+
+func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/create":
+		h.create(w, r)
+	case "/deploy":
+		h.deploy(w, r)
+	default:
+		h.Common.API(fs, tmpls, w, r)
+	}
+}
+
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.API(fs, w, r)
+	h.API(fs, tmpls, w, r)
 }
 
 func (h *Hub) Run(i *dean.Injector) {
-	h.storeDevices()
+	//h.storeDevices()
 	h.restoreDevices()
 	h.makeThingers()
 	h.dumpDevices()

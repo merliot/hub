@@ -2,6 +2,7 @@ package sense
 
 import (
 	"embed"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -11,8 +12,9 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-//go:embed css js index.html
+//go:embed css html js
 var fs embed.FS
+var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Sense struct {
 	*common.Common
@@ -54,7 +56,7 @@ func (s *Sense) Subscribers() dean.Subscribers {
 }
 
 func (s *Sense) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.API(fs, w, r)
+	s.API(fs, tmpls, w, r)
 }
 
 func (s *Sense) Run(i *dean.Injector) {

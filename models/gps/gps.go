@@ -3,6 +3,7 @@ package gps
 import (
 	"bufio"
 	"embed"
+	"html/template"
 	"log"
 	"net/http"
 
@@ -13,8 +14,9 @@ import (
 	"github.com/tarm/serial"
 )
 
-//go:embed css js index.html
+//go:embed css html js
 var fs embed.FS
+var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Gps struct {
 	*common.Common
@@ -57,7 +59,7 @@ func (g *Gps) Subscribers() dean.Subscribers {
 }
 
 func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	g.API(fs, w, r)
+	g.API(fs, tmpls, w, r)
 }
 
 func (g *Gps) Run(i *dean.Injector) {
