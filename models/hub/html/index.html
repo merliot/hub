@@ -18,6 +18,7 @@
 		
 		<div id="all">
 			<div id="header">
+				<button id="create">Create</button>
 				<button id="deploy">Deploy</button>
 			</div>
 			<div id="bod">
@@ -26,9 +27,26 @@
 			</div>
 		</div>
 
+		<dialog id="create-dialog">
+			<form>
+				<div id="create-inputs">
+					<label for="create-models">Model:</label>
+					<select name="create-models" id="create-models"></select>
+					<label for="id">ID</label>
+					<input type="text" name="id" required>
+					<label for="name">Name</label>
+					<input type="text" name="name" required>
+				</div>
+				<div id="create-btns">
+					<button id="create-close">Close</button>
+					<button id="create-create">Create</button>
+				</div>
+			</form>
+		</dialog>
+
 		<dialog id="deploy-dialog">
-			<label for="deploy-targets">Targets:</label>
-			<select name="deploy-targets" id="deploy-targets">
+			<label for="deploy-target">Target:</label>
+			<select name="deploy-target" id="deploy-target">
 				<option value="rpi">Raspberry Pi</option>
 				<option value="pico">Raspberry Pi Pico</option>
 			</select>

@@ -6,7 +6,7 @@
 
 #header {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 }
 
 #bod {
@@ -26,6 +26,15 @@
 }
 
 #deploy-btns {
+	display: flex;
+}
+
+#create-inputs {
+	display: flex;
+	flex-direction: column;
+}
+
+#create-btns {
 	display: flex;
 }
 

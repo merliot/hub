@@ -1,7 +1,9 @@
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
-var deploy = document.getElementById("deploy")
-var dialogDeploy= document.getElementById("deploy-dialog")
+var btnDeploy = document.getElementById("deploy")
+var btnCreate = document.getElementById("create")
+var dialogDeploy = document.getElementById("deploy-dialog")
+var dialogCreate = document.getElementById("create-dialog")
 
 function init() {
 }
@@ -23,7 +25,7 @@ function clickDev(id) {
 	var obj = document.createElement("object")
 	obj.data = "/" + id + "/"
 	view.appendChild(obj)
-	deploy.onclick = function(){clickDeploy(id)}
+	btnDeploy.onclick = function(){clickDeploy(id)}
 }
 
 function insertDevice(id, dev) {
@@ -33,11 +35,27 @@ function insertDevice(id, dev) {
 	explorer.appendChild(div)
 }
 
+function stageCreate() {
+	var btnClose = document.getElementById("create-close")
+	btnClose.onclick = function(){dialogCreate.close()}
+	btnCreate.onclick = function(){dialogCreate.showModal()}
+
+	var createModels = document.getElementById("create-models")
+	createModels.textContent = ''
+	for (let i in state.Models) {
+		var option = document.createElement("option")
+		option.value = state.Models[i]
+		option.text = state.Models[i]
+		createModels.appendChild(option)
+	}
+}
+
 function show() {
 	explorer.textContent = ''
 	for (let id in state.Devices) {
 		insertDevice(id, state.Devices[id])
 	}
+	stageCreate()
 }
 
 function hide() {

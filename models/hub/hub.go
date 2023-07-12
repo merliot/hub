@@ -24,11 +24,13 @@ type Device struct {
 }
 
 type Devices map[string]*Device        // keyed by id
+type Models []string
 type makers map[string]dean.ThingMaker // keyed by model
 
 type Hub struct {
 	*common.Common
 	Devices
+	Models
 	makers   makers
 }
 
@@ -65,6 +67,10 @@ func (h *Hub) Make(id, model, name string) dean.Thinger {
 
 func (h *Hub) getState(msg *dean.Msg) {
 	h.Path = "state"
+	h.Models = make([]string, 0, len(h.makers))
+	for model := range h.makers {
+		h.Models = append(h.Models, model)
+	}
 	msg.Marshal(h).Reply()
 }
 
@@ -121,6 +127,12 @@ func (h *Hub) dumpDevices() {
 	fmt.Println(string(b))
 }
 
+func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("api\n"))
+	w.Write([]byte("create?id&model&name\n"))
+	w.Write([]byte("deploy?id\n"))
+}
+
 func (h *Hub) create(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
@@ -157,6 +169,8 @@ func (h *Hub) deploy(w http.ResponseWriter, r *http.Request) {
 
 func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
+	case "/api":
+		h.api(w, r)
 	case "/create":
 		h.create(w, r)
 	case "/deploy":
