@@ -31,7 +31,8 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	makers   makers
+	makers  makers
+	async chan *dean.Msg
 }
 
 func New(id, model, name string) dean.Thinger {
@@ -46,6 +47,7 @@ func New(id, model, name string) dean.Thinger {
 		},
 		*/
 		makers:   makers{},
+		async: make(chan *dean.Msg),
 	}
 }
 
@@ -58,8 +60,12 @@ func (h *Hub) Unregister(model string) {
 }
 
 func (h *Hub) Make(id, model, name string) dean.Thinger {
+	// Want exact match on [id, model, name]
 	dev := h.Devices[id]
 	if dev == nil {
+		return nil
+	}
+	if dev.Model != model || dev.Name != name {
 		return nil
 	}
 	return dev.thinger
@@ -226,6 +232,11 @@ func (h *Hub) _delete(id string)  error {
 	}
 	delete(h.Devices, id)
 	h.storeDevices()
+
+	var msg dean.Msg
+	msg.Marshal(&dean.ThingMsgAbandon{Path: "abandon", Id: id})
+	h.async <- &msg
+
 	return nil
 }
 
@@ -274,9 +285,15 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Hub) Run(i *dean.Injector) {
-	//h.storeDevices()
 	h.restoreDevices()
+	h.storeDevices()
 	h.makeThingers()
 	h.dumpDevices()
-	select {}
+
+	for {
+		select {
+		case msg := <- h.async:
+			i.Inject(msg)
+		}
+	}
 }
