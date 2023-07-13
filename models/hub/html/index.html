@@ -18,8 +18,14 @@
 		
 		<div id="all">
 			<div id="header">
-				<button id="create">Create</button>
-				<button id="deploy">Deploy</button>
+				<div class="btnsRow">
+					<button id="create">Create</button>
+				</div>
+				<div class="btnsRow">
+					<button id="delete">Delete</button>
+					<button id="save">Save</button>
+					<button id="deploy">Deploy</button>
+				</div>
 			</div>
 			<div id="bod">
 				<div id="explorer"></div>
@@ -28,31 +34,51 @@
 		</div>
 
 		<dialog id="create-dialog">
-			<form>
-				<div id="create-inputs">
-					<label for="create-models">Model:</label>
-					<select name="create-models" id="create-models"></select>
-					<label for="id">ID</label>
-					<input type="text" name="id" required>
-					<label for="name">Name</label>
-					<input type="text" name="name" required>
-				</div>
-				<div id="create-btns">
-					<button id="create-close">Close</button>
-					<button id="create-create">Create</button>
-				</div>
-			</form>
+			<div class="divFlexCol">
+				<label for="create-model">Model:</label>
+				<select name="model" id="create-model"></select>
+				<label for="create-id">ID</label>
+				<input type="text" id="create-id">
+				<label for="create-name">Name</label>
+				<input type="text" id="create-name">
+				<em id="create-err"></em>
+			</div>
+			<div class="btnsRow">
+				<button id="create-close">Close</button>
+				<button id="create-create">Create</button>
+			</div>
+		</dialog>
+
+		<dialog id="delete-dialog">
+			<div class="divFlexCol">
+				<span id="delete-prompt"></span>
+				<em id="delete-err"></em>
+			</div>
+			<div class="btnsRow">
+				<button id="delete-close">Close</button>
+				<button id="delete-delete">Delete</button>
+			</div>
 		</dialog>
 
 		<dialog id="deploy-dialog">
-			<label for="deploy-target">Target:</label>
-			<select name="deploy-target" id="deploy-target">
-				<option value="rpi">Raspberry Pi</option>
-				<option value="pico">Raspberry Pi Pico</option>
-			</select>
-			<div id="deploy-btns">
+			<div class="divFlexCol">
+				<div id="divFlexRow">
+					<label for="deploy-target">Target:</label>
+					<select name="deploy-target" id="deploy-target">
+						<option value="rpi">Raspberry Pi</option>
+					</select>
+				</div>
+				<div id="divFlexRow">
+					<label for="deploy-http">Run local Web Server:</label>
+					<input type="checkbox" id="deploy-http">
+				</div>
+				<div class="divFlexCol">
+					<p>Download Link:</p>
+					<a id="deploy-link"></a>
+				</div>
+			</div>
+			<div class="btnsRow">
 				<button id="deploy-close">Close</button>
-				<button id="deploy-deploy">Deploy</button>
 			</div>
 		</dialog>
 

@@ -3,20 +3,5 @@
 		"Model": "relays",
 		"Name": "Relays",
 		"Online": false
-	},
-	"d1": {
-		"Model": "relays",
-		"Name": "Relays01",
-		"Online": false
-	},
-	"d2": {
-		"Model": "relays",
-		"Name": "Relays02",
-		"Online": false
-	},
-	"russ": {
-		"Model": "relays",
-		"Name": "bar",
-		"Online": false
 	}
 }

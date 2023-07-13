@@ -91,11 +91,59 @@ func (h *Hub) connect(online bool) func(*dean.Msg) {
 	}
 }
 
+type MsgCreate struct {
+	dean.ThingMsg
+	Id string
+	Model string
+	Name string
+	Err string
+}
+
+func (h *Hub) create(msg *dean.Msg) {
+	var m MsgCreate
+	msg.Unmarshal(&m)
+
+	err := h._create(m.Id, m.Model, m.Name)
+	if err == nil {
+		m.Path = "create/good"
+		m.Err = ""
+	} else {
+		m.Path = "create/bad"
+		m.Err = err.Error()
+	}
+
+	msg.Marshal(&m).Reply().Broadcast()
+}
+
+type MsgDelete struct {
+	dean.ThingMsg
+	Id string
+	Err string
+}
+
+func (h *Hub) deletef(msg *dean.Msg) {
+	var m MsgDelete
+	msg.Unmarshal(&m)
+
+	err := h._delete(m.Id)
+	if err == nil {
+		m.Path = "delete/good"
+		m.Err = ""
+	} else {
+		m.Path = "delete/bad"
+		m.Err = err.Error()
+	}
+
+	msg.Marshal(&m).Reply().Broadcast()
+}
+
 func (h *Hub) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"get/state":    h.getState,
 		"connected":    h.connect(true),
 		"disconnected": h.connect(false),
+		"create":       h.create,
+		"delete":       h.deletef,
 	}
 }
 
@@ -128,43 +176,82 @@ func (h *Hub) dumpDevices() {
 }
 
 func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("api\n"))
-	w.Write([]byte("create?id&model&name\n"))
-	w.Write([]byte("deploy?id\n"))
+	w.Write([]byte("/api\n"))
+	w.Write([]byte("/create?id&model&name\n"))
+	w.Write([]byte("/delete?id\n"))
+	w.Write([]byte("/deploy?id\n"))
 }
 
-func (h *Hub) create(w http.ResponseWriter, r *http.Request) {
-
-	id := r.URL.Query().Get("id")
-	model := r.URL.Query().Get("model")
-	name := r.URL.Query().Get("name")
-
-	println("create", id, model, name)
-
-	if !dean.ValidId(id) || !dean.ValidId(model) || !dean.ValidId(name) {
-		http.Error(w, "Invalid id|model|name", http.StatusNotAcceptable)
-		return
+func (h *Hub) _create(id, model, name string)  error {
+	if !dean.ValidId(id) {
+		return fmt.Errorf("Invalid ID.  A valid ID is a non-empty string with only [a-z], [A-Z], [0-9], or underscore characters.")
+	}
+	if !dean.ValidId(model) {
+		return fmt.Errorf("Invalid Model.  A valid Model is a non-empty string with only [a-z], [A-Z], [0-9], or underscore characters.")
+	}
+	if !dean.ValidId(name) {
+		return fmt.Errorf("Invalid Name.  A valid Name is a non-empty string with only [a-z], [A-Z], [0-9], or underscore characters.")
 	}
 
 	dev := h.Devices[id]
 	if dev != nil {
-		http.Error(w, "Device already exists", http.StatusNotAcceptable)
-		return
+		return fmt.Errorf("Device ID '%s' already exists", id)
 	}
 
 	maker, ok := h.makers[model]
 	if !ok {
-		http.Error(w, "Device model unknown", http.StatusNotAcceptable)
-		return
+		return fmt.Errorf("Device Model '%s' not registered", model)
 	}
 
 	h.Devices[id] = &Device{model, name, false, maker(id, model, name)}
 	h.storeDevices()
+
+	return nil
 }
 
-func (h *Hub) deploy(w http.ResponseWriter, r *http.Request) {
+func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	println("deploy", id)
+	model := r.URL.Query().Get("model")
+	name := r.URL.Query().Get("name")
+	err := h._create(id, model, name)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (h *Hub) _delete(id string)  error {
+	dev := h.Devices[id]
+	if dev == nil {
+		return fmt.Errorf("Device ID '%s' not found", id)
+	}
+	delete(h.Devices, id)
+	h.storeDevices()
+	return nil
+}
+
+func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	err := h._delete(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (h *Hub) _deploy(id string) error {
+	_, ok := h.Devices[id]
+	if !ok {
+		return fmt.Errorf("Device ID '%s' doesn't exist!", id)
+	}
+	// TODO build binary and download
+	return nil
+}
+
+func (h *Hub) apiDeploy(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	err := h._deploy(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
 func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
@@ -172,9 +259,11 @@ func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, 
 	case "/api":
 		h.api(w, r)
 	case "/create":
-		h.create(w, r)
+		h.apiCreate(w, r)
+	case "/delete":
+		h.apiDelete(w, r)
 	case "/deploy":
-		h.deploy(w, r)
+		h.apiDeploy(w, r)
 	default:
 		h.Common.API(fs, tmpls, w, r)
 	}

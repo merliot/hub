@@ -25,16 +25,27 @@
 	width: 100%;
 }
 
-#deploy-btns {
+#deploy-link {
+	max-width: 300px;
+}
+
+#create-err {
+	color: red;
+	width: 200px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.divFlexRow {
 	display: flex;
 }
 
-#create-inputs {
+.divFlexCol {
 	display: flex;
 	flex-direction: column;
 }
 
-#create-btns {
+.btnsRow {
 	display: flex;
 }
 
