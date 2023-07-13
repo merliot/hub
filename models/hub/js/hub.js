@@ -2,7 +2,7 @@ var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
 var dialogCreate = document.getElementById("create-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
-var dev
+var selected
 
 function init() {
 }
@@ -11,7 +11,7 @@ function updateDeployLink() {
 	var link = document.getElementById("deploy-link")
 	var target = document.getElementById("deploy-target")
 	var http = document.getElementById("deploy-http")
-	var url = "https://sw-poc.merliot.net/deploy?id=" + dev +
+	var url = "https://sw-poc.merliot.net/deploy?id=" + selected +
 		"&target=" + target.value +
 		"&http=" + http.checked
 	link.href = url
@@ -35,7 +35,7 @@ function clickDev(id) {
 	obj.data = "/" + id + "/"
 	view.textContent = ''
 	view.appendChild(obj)
-	dev = id
+	selected = id
 }
 
 function create() {
@@ -72,14 +72,14 @@ function stageCreate() {
 }
 
 function deletef() {
-	conn.send(JSON.stringify({Path: "delete", Id: dev}))
+	conn.send(JSON.stringify({Path: "delete", Id: selected}))
 }
 
 function showDelete() {
 	var err = document.getElementById("delete-err")
 	err.innerText = ""
 	var delprompt = document.getElementById("delete-prompt")
-	delprompt.innerText = "Delete device ID " + dev + "?"
+	delprompt.innerText = "Delete device ID " + selected + "?"
 	dialogDelete.showModal()
 }
 
@@ -112,17 +112,19 @@ function insertDevice(id, dev) {
 	explorer.appendChild(div)
 }
 
+function removeDevice(id) {
+	var div = document.getElementById("device-" + id)
+	selected = undefined
+	view.textContent = ''
+	explorer.removeChild(div)
+	delete state.Devices[id]
+}
+
 function loadExplorer() {
 	explorer.textContent = ''
 	for (let id in state.Devices) {
 		insertDevice(id, state.Devices[id])
 	}
-}
-
-function removeDevice(id) {
-	var div = document.getElementById("device-" + id)
-	explorer.removeChild(div)
-	delete state.Devices[id]
 }
 
 function show() {
@@ -147,6 +149,7 @@ function createBad(msg) {
 function createGood(msg) {
 	dialogCreate.close()
 	insertDevice(msg.Id, msg)
+	clickDev(msg.Id)
 }
 
 function deleteBad(msg) {

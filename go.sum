@@ -35,6 +35,8 @@ github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hd
 github.com/mattn/go-isatty v0.0.9/go.mod h1:YNRxwqDuOph6SZLI9vUUz6OYw3QyUt7WiY2yME+cCiQ=
 github.com/merliot/dean v0.0.0-20230630211343-615e9b53aaa5 h1:aaTmWPlK7SJjwJwihwtHDYVsMi7ZxaF7al/Bhznlutc=
 github.com/merliot/dean v0.0.0-20230630211343-615e9b53aaa5/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
+github.com/merliot/dean v0.0.0-20230713141624-f3b76dc159a1 h1:3iUs4N6FuALlgovEkbhSQrYIogXMg3geSNPvP7NjBxE=
+github.com/merliot/dean v0.0.0-20230713141624-f3b76dc159a1/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
 github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b h1:J83D71MK3a/VcirrZaAxKsmPnrNB9C1NHJiGxvEF2CI=
 github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
