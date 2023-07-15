@@ -36,7 +36,7 @@ function clickDev(id) {
 	view.textContent = ''
 	view.appendChild(obj)
 
-	if (typeof selected !== "undefined" {
+	if (typeof selected !== "undefined") {
 		var seldiv = document.getElementById("device-" + selected)
 		seldiv.style.background = "lightgrey"
 	}
