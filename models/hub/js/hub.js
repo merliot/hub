@@ -110,7 +110,7 @@ function insertDevice(id, dev) {
 	div.id = "device-" + id
 	div.appendChild(document.createTextNode(dev.Name))
 	explorer.appendChild(div)
-	if (explorer.length == 1) {
+	if (explorer.children.length == 1) {
 		clickDev(id)
 	}
 }
