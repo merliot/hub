@@ -22,6 +22,7 @@
 }
 
 textarea {
+	font-size: 10px;
 	resize: none;
 	border: none;
 	width: 100%;
