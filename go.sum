@@ -14,6 +14,8 @@ github.com/eclipse/paho.mqtt.golang v1.2.0/go.mod h1:H9keYFcgq3Qr5OUJm/JZI/i6U7j
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/go-ble/ble v0.0.0-20190521171521-147700f13610/go.mod h1:UMPB54/KFpdTdfH7Yovhk3J6kzgzE88e3QZi8cbayis=
 github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
+github.com/goburrow/serial v0.1.0 h1:v2T1SQa/dlUqQiYIT8+Cu7YolfqAi3K96UmhwYyuSrA=
+github.com/goburrow/serial v0.1.0/go.mod h1:sAiqG0nRVswsm1C97xsttiYCzSLBmUZ/VSlVLZJ8haA=
 github.com/godbus/dbus/v5 v5.0.3/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
@@ -33,8 +35,6 @@ github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/mattn/go-colorable v0.1.4/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
 github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
 github.com/mattn/go-isatty v0.0.9/go.mod h1:YNRxwqDuOph6SZLI9vUUz6OYw3QyUt7WiY2yME+cCiQ=
-github.com/merliot/dean v0.0.0-20230630211343-615e9b53aaa5 h1:aaTmWPlK7SJjwJwihwtHDYVsMi7ZxaF7al/Bhznlutc=
-github.com/merliot/dean v0.0.0-20230630211343-615e9b53aaa5/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
 github.com/merliot/dean v0.0.0-20230713141624-f3b76dc159a1 h1:3iUs4N6FuALlgovEkbhSQrYIogXMg3geSNPvP7NjBxE=
 github.com/merliot/dean v0.0.0-20230713141624-f3b76dc159a1/go.mod h1:bS5Z4hYf00ceGAZbzro0UWTUIlHDDzV+6mI0lokpvcE=
 github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b h1:J83D71MK3a/VcirrZaAxKsmPnrNB9C1NHJiGxvEF2CI=
@@ -62,6 +62,8 @@ github.com/sigurn/crc8 v0.0.0-20160107002456-e55481d6f45c h1:hk0Jigjfq59yDMgd6bz
 github.com/sigurn/crc8 v0.0.0-20160107002456-e55481d6f45c/go.mod h1:cyrWuItcOVIGX6fBZ/G00z4ykprWM7hH58fSavNkjRg=
 github.com/sigurn/utils v0.0.0-20190728110027-e1fefb11a144 h1:ccb8W1+mYuZvlpn/mJUMAbsFHTMCpcJBS78AsBQxNcY=
 github.com/sigurn/utils v0.0.0-20190728110027-e1fefb11a144/go.mod h1:VRI4lXkrUH5Cygl6mbG1BRUfMMoT2o8BkrtBDUAm+GU=
+github.com/simonvetter/modbus v1.6.0 h1:RDHJevtc7LDIVoHAbhDun8fy+QwnGe+ZU+sLm9ZZzjc=
+github.com/simonvetter/modbus v1.6.0/go.mod h1:hh90ZaTaPLcK2REj6/fpTbiV0J6S7GWmd8q+GVRObPw=
 github.com/sirupsen/logrus v1.5.0/go.mod h1:+F7Ogzej0PZc/94MaYx/nvG9jOFMD2osvC3s+Squfpo=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
 github.com/sirupsen/logrus v1.7.0/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
