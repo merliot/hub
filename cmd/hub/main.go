@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	hub := hub.New("swpoc01", "swpoc", "swpoc01").(*hub.Hub)
+	hub := hub.New("swpoc01", "swpoc", "swpoc01")
 
 	server := dean.NewServer(hub)
 
@@ -28,10 +28,10 @@ func main() {
 		}
 	}
 
-	hub.Register("relays", relays.New)
-	hub.Register("gps", gps.New)
-	hub.Register("sense", sense.New)
-	hub.Register("led", led.New)
+	server.RegisterModel("relays", relays.New)
+	server.RegisterModel("gps", gps.New)
+	server.RegisterModel("sense", sense.New)
+	server.RegisterModel("led", led.New)
 
 	go server.ListenAndServe()
 	server.Run()

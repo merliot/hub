@@ -20,18 +20,15 @@ type Device struct {
 	Model string
 	Name  string
 	Online  bool
-	thinger dean.Thinger
 }
 
 type Devices map[string]*Device        // keyed by id
 type Models []string
-type makers map[string]dean.ThingMaker // keyed by model
 
 type Hub struct {
 	*common.Common
 	Devices
 	Models
-	makers  makers
 	async chan *dean.Msg
 }
 
@@ -46,37 +43,12 @@ func New(id, model, name string) dean.Thinger {
 			"d2":                &Device{Model: "relays", Name: "Relays02"},
 		},
 		*/
-		makers:   makers{},
 		async: make(chan *dean.Msg),
 	}
 }
 
-func (h *Hub) Register(model string, maker dean.ThingMaker) {
-	h.makers[model] = maker
-}
-
-func (h *Hub) Unregister(model string) {
-	delete(h.makers, model)
-}
-
-func (h *Hub) Make(id, model, name string) dean.Thinger {
-	// Want exact match on [id, model, name]
-	dev := h.Devices[id]
-	if dev == nil {
-		return nil
-	}
-	if dev.Model != model || dev.Name != name {
-		return nil
-	}
-	return dev.thinger
-}
-
 func (h *Hub) getState(msg *dean.Msg) {
 	h.Path = "state"
-	h.Models = make([]string, 0, len(h.makers))
-	for model := range h.makers {
-		h.Models = append(h.Models, model)
-	}
 	msg.Marshal(h).Reply()
 }
 
@@ -143,8 +115,17 @@ func (h *Hub) deletef(msg *dean.Msg) {
 	msg.Marshal(&m).Reply().Broadcast()
 }
 
+func (h *Hub) saveModels(msg *dean.Msg) {
+	var models ServerMsgModels
+	msg.Unmarshal(&h.Models)
+	h.Models = models.Models
+}
+
 func (h *Hub) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
+		"models":       h.saveModels,
+		"create/device/bad": h.createBad,
+		"create/device/good": h.createGood,
 		"get/state":    h.getState,
 		"connected":    h.connect(true),
 		"disconnected": h.connect(false),
@@ -161,18 +142,7 @@ func (h *Hub) storeDevices() {
 func (h *Hub) makeThingers() {
 	for id, dev := range h.Devices {
 		dev.Online = false
-		if maker, ok := h.makers[dev.Model]; ok {
-			dev.thinger = maker(id, dev.Model, dev.Name)
-		}
-	}
-}
 
-func (h *Hub) restoreDevices() {
-	bytes, err := os.ReadFile("devices.json")
-	if err == nil {
-		json.Unmarshal(bytes, &h.Devices)
-	} else {
-		println(err.Error())
 	}
 }
 
@@ -284,11 +254,35 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.API(fs, tmpls, w, r)
 }
 
+func (h *Hub) getModels(i *dean.Injector) {
+	var msg dean.Msg
+	msg.Marshal(&dean.ThingMsg{Path: "get/models"}))
+	i.Inject(&msg)
+}
+
+func (h *Hub) restoreDevices(i *dean.Injector) {
+	var msg dean.Msg
+	var devices Devices
+	bytes, _ := os.ReadFile("devices.json")
+	json.Unmarshal(bytes, devices)
+	for id, dev := range devices {
+		var create = dean.ServerMsgCreate{
+			Path: "create/device",
+			Id: id,
+			Model: dev.Model,
+			Name: dev.Name,
+		}
+		msg.Marshal(&create)
+		i.Inject(&msg)
+	}
+}
+
 func (h *Hub) Run(i *dean.Injector) {
+	h.getModels(i)
 	h.restoreDevices()
-	h.storeDevices()
-	h.makeThingers()
-	h.dumpDevices()
+	//h.storeDevices()
+	//h.makeThingers()
+	//h.dumpDevices()
 
 	for {
 		select {
