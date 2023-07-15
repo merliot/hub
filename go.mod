@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/merliot/dean v0.0.0-20230713141624-f3b76dc159a1
-	github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b
+	github.com/merliot/dean-lib v0.0.0-20230709062937-7418dea847c4
 	github.com/simonvetter/modbus v1.6.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/x448/float16 v0.8.4
