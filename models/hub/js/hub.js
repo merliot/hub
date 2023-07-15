@@ -35,7 +35,15 @@ function clickDev(id) {
 	obj.data = "/" + id + "/"
 	view.textContent = ''
 	view.appendChild(obj)
+
+	if selected != undefined {
+		var seldiv = document.getElementById("device-" + selected)
+		seldiv.style.background = "lightgrey"
+	}
+	
 	selected = id
+	var seldiv = document.getElementById("device-" + selected)
+	seldiv.style.background = "white"
 }
 
 function create() {
@@ -108,6 +116,7 @@ function insertDevice(id, dev) {
 	var div = document.createElement("div")
 	div.onclick = function (){clickDev(id)}
 	div.id = "device-" + id
+	div.className = "devBtn"
 	div.appendChild(document.createTextNode(dev.Name))
 	explorer.appendChild(div)
 	if (explorer.children.length == 1) {

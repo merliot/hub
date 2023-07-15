@@ -1,3 +1,7 @@
+body {
+	margin: 0px;
+}
+
 #all {
 	display: flex;
 	flex-direction: column;
@@ -7,6 +11,11 @@
 #header {
 	display: flex;
 	justify-content: space-between;
+	background: lightgrey;
+	padding-bottom: 20px;
+	padding-top: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 #bod {
@@ -19,6 +28,8 @@
 	flex-direction: column;
 	width: 20%;
 	max-width: 300px;
+	background: lightgrey;
+	padding-left: 10px;
 }
 
 #view {
@@ -47,6 +58,11 @@
 
 .btnsRow {
 	display: flex;
+}
+
+.devBtn {
+	padding: 10px;
+	border-radius: 15px 0px 0px 15px;
 }
 
 object {
