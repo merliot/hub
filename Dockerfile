@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -tags wss -o /poc ./cmd/poc
+RUN CGO_ENABLED=0 GOOS=linux go build -tags wss -o /hub ./cmd/hub
 
 EXPOSE 8000
 
@@ -17,4 +17,4 @@ RUN wget https://github.com/tinygo-org/tinygo/releases/download/v0.28.1/tinygo_0
 RUN dpkg -i tinygo_0.28.1_amd64.deb
 
 
-CMD ["/poc"]
+CMD ["/hub"]
