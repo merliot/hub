@@ -9,6 +9,7 @@ import (
 	"github.com/merliot/sw-poc/models/gps"
 	"github.com/merliot/sw-poc/models/sense"
 	"github.com/merliot/sw-poc/models/led"
+	"github.com/merliot/sw-poc/models/ps30m"
 )
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	hub.Register("gps", gps.New)
 	hub.Register("sense", sense.New)
 	hub.Register("led", led.New)
+	hub.Register("ps30m", ps30m.New)
 
 	go server.ListenAndServe()
 	server.Run()

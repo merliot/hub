@@ -1,0 +1,29 @@
+<html lang="en">
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+		<title>MorningStar ProStar PS-30M</title>
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+
+	</head>
+
+	<body>
+		<div id="overlay">
+			<div id="offline">Offline</div>
+		</div>
+
+		<fieldset>
+			<legend>System Info</legend>
+			<textarea id="system" readonly rows="3"></textarea>
+		</fieldset>
+
+		<fieldset>
+			<legend>Holding Registers</legend>
+			<textarea id="regs" readonly rows="5"></textarea>
+		</fieldset>
+
+		<script src="js/common.js"></script>
+		<script src="js/ps30m.js"></script>
+		<script>run("[ps30m]", "{{.WebSocket}}")</script>
+	</body>
+</html>

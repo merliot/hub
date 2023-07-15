@@ -1,7 +1,7 @@
 {
-	"88_ae_dd_0a_70_92": {
-		"Model": "relays",
-		"Name": "Relays",
-		"Online": false
+	"230042": {
+		"Model": "ps30m",
+		"Name": "poc1",
+		"Online": true
 	}
 }

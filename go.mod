@@ -17,6 +17,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sigurn/crc8 v0.0.0-20160107002456-e55481d6f45c // indirect
 	github.com/sigurn/utils v0.0.0-20190728110027-e1fefb11a144 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
