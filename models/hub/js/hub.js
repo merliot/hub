@@ -3,7 +3,7 @@ var view = document.getElementById("view")
 var dialogCreate = document.getElementById("create-dialog")
 var dialogApi = document.getElementById("api-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
-var selected
+var selected // currently selected device ID
 
 function init() {
 }
@@ -82,8 +82,10 @@ function stageCreate() {
 
 function showApi() {
 	var apihub = document.getElementById("api-hub")
+	apihub.textContent = ''
 	apihub.data = "/api"
 	var apidev = document.getElementById("api-dev")
+	apidev.textContent = ''
 	apidev.data = "/" + selected + "/api"
 	dialogApi.showModal()
 }
