@@ -61,8 +61,8 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 }
 
 func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("/api\n"))
-	w.Write([]byte("/readreg?addr={addr}&type={type}\n"))
+	w.Write([]byte("/" + p.Id() + "/api\n"))
+	w.Write([]byte("/" + p.Id() + "/readreg?addr={addr}&type={type}\n"))
 	w.Write([]byte("\ttype = 0 holding register\n"))
 	w.Write([]byte("\ttype = 1 input register\n"))
 }
