@@ -79,6 +79,21 @@ function stageCreate() {
 	}
 }
 
+function showApi() {
+	var apihub = document.getElementById("api-hub")
+	apihub.data = "/api"
+	var apidev = document.getElementById("api-dev")
+	apidev.data = "/" + selected + "/api
+	dialogApi.showModal()
+}
+
+function stageApi() {
+	var btnApi = document.getElementById("api")
+	btnApi.onclick = function(){showApi()}
+	var btnClose = document.getElementById("api-close")
+	btnClose.onclick = function(){dialogApi.close()}
+}
+
 function deletef() {
 	conn.send(JSON.stringify({Path: "delete", Id: selected}))
 }
@@ -142,6 +157,7 @@ function loadExplorer() {
 function show() {
 	loadExplorer()
 	stageCreate()
+	stageApi()
 	stageDelete()
 	stageSave()
 	stageDeploy()
