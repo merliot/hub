@@ -75,9 +75,9 @@ type reg struct {
 
 func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
 	var reg reg
-	var regaddr int
+	var regaddr int64
 
-	regaddr, reg.Err = strconv.Atoi(r.URL.Query().Get("addr"))
+	regaddr, reg.Err = strconv.ParseInt(r.URL.Query().Get("addr"), 0, 16)
 	reg.Addr = uint16(regaddr)
 	reg.Value = p.Regs[reg.Addr]
 
