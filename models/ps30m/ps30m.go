@@ -69,34 +69,29 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 
 type reg struct {
 	Addr uint16
-	Type uint16
+	Type modbus.RegType
 	Value uint16
 	Err error
 }
 
 func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
 	var reg reg
-	addr := r.URL.Query().Get("addr")
-	regtype := r.URL.Query().Get("type")
-	reg.Addr, _ := strconv.atoi(addr)
-	reg.Type, _ := strconv.atoi(regtype)
-	switch reg.Type {
-	case 0:
-		reg.Value, reg.Err = p.client.ReadRegister(uint16(regaddr), modbus.HOLDING_REGISTER)
-	case 1:
-		reg.Value, reg.Err = p.client.ReadRegister(uint16(regaddr), modbus.INPUT_REGISTER)
-	}
+	regaddr, _ := strconv.Atoi(r.URL.Query().Get("addr"))
+	reg.Addr = uint16(regaddr)
+	regtype, _ := strconv.Atoi(r.URL.Query().Get("type"))
+	reg.Type = modbus.RegType(regtype)
+	reg.Value, reg.Err = p.client.ReadRegister(reg.Addr, reg.Type) 
 	json.NewEncoder(w).Encode(reg)
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api":
-		h.api(w, r)
+		p.api(w, r)
 	case "/readreg":
-		h.readreg(w, r)
+		p.readreg(w, r)
 	default:
-		h.Common.API(fs, tmpls, w, r)
+		p.Common.API(fs, tmpls, w, r)
 	}
 }
 
