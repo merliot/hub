@@ -63,6 +63,7 @@ body {
 .devBtn {
 	padding: 10px;
 	border-radius: 15px 0px 0px 15px;
+	font-weight: bold;
 }
 
 object {

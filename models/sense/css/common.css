@@ -1,3 +1,7 @@
+html * {
+	font-family: monospace;
+}
+
 #overlay {
 	position: fixed;
 	display: none;
