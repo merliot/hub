@@ -83,7 +83,7 @@ function showApi() {
 	var apihub = document.getElementById("api-hub")
 	apihub.data = "/api"
 	var apidev = document.getElementById("api-dev")
-	apidev.data = "/" + selected + "/api
+	apidev.data = "/" + selected + "/api"
 	dialogApi.showModal()
 }
 
