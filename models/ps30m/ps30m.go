@@ -85,11 +85,10 @@ func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
-	println("API", r.URL.Path)
 	switch r.URL.Path {
-	case "/api":
+	case "api":
 		p.api(w, r)
-	case "/readreg":
+	case "readreg":
 		p.readreg(w, r)
 	default:
 		p.Common.API(fs, tmpls, w, r)
