@@ -81,7 +81,9 @@ func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
 	reg.Addr = uint16(regaddr)
 	reg.Value = p.Regs[reg.Addr]
 
-	json.NewEncoder(w).Encode(reg)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t")
+	enc.Encode(reg)
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
