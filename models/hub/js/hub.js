@@ -1,6 +1,7 @@
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
 var dialogCreate = document.getElementById("create-dialog")
+var dialogApi = document.getElementById("api-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
 var selected
 
