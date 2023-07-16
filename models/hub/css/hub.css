@@ -47,6 +47,10 @@ body {
 	padding-bottom: 20px;
 }
 
+#api-dialog {
+	width: 400px;
+}
+
 .divFlexRow {
 	display: flex;
 }
@@ -69,5 +73,4 @@ body {
 object {
 	height: 100%;
 	width: 100%;
-	white-space: nowrap;
 }
