@@ -3,5 +3,15 @@
 		"Model": "ps30m",
 		"Name": "poc1",
 		"Online": true
+	},
+	"230043": {
+		"Model": "ps30m",
+		"Name": "poc2",
+		"Online": true
+	},
+	"230044": {
+		"Model": "ps30m",
+		"Name": "poc3",
+		"Online": true
 	}
 }

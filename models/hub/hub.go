@@ -183,9 +183,9 @@ func (h *Hub) dumpDevices() {
 
 func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/api\n"))
-	w.Write([]byte("/create?id&model&name\n"))
-	w.Write([]byte("/delete?id\n"))
-	w.Write([]byte("/deploy?id\n"))
+	w.Write([]byte("/create?id={id}&model={model}&name={name}\n"))
+	w.Write([]byte("/delete?id={id}\n"))
+	w.Write([]byte("/deploy?id={id}\n"))
 }
 
 func (h *Hub) _create(id, model, name string)  error {

@@ -2,8 +2,10 @@ package ps30m
 
 import (
 	"embed"
+	"encoding/json"
 	"html/template"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/merliot/dean"
@@ -55,6 +57,46 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 		"state":     p.save,
 		"get/state": p.getState,
 		"regs/update": p.regsUpdate,
+	}
+}
+
+func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("/api\n"))
+	w.Write([]byte("/readreg?addr={addr}&type={type}\n"))
+	w.Write([]byte("\ttype = 0 holding register\n"))
+	w.Write([]byte("\ttype = 1 input register\n"))
+}
+
+type reg struct {
+	Addr uint16
+	Type uint16
+	Value uint16
+	Err error
+}
+
+func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
+	var reg reg
+	addr := r.URL.Query().Get("addr")
+	regtype := r.URL.Query().Get("type")
+	reg.Addr, _ := strconv.atoi(addr)
+	reg.Type, _ := strconv.atoi(regtype)
+	switch reg.Type {
+	case 0:
+		reg.Value, reg.Err = p.client.ReadRegister(uint16(regaddr), modbus.HOLDING_REGISTER)
+	case 1:
+		reg.Value, reg.Err = p.client.ReadRegister(uint16(regaddr), modbus.INPUT_REGISTER)
+	}
+	json.NewEncoder(w).Encode(reg)
+}
+
+func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/api":
+		h.api(w, r)
+	case "/readreg":
+		h.readreg(w, r)
+	default:
+		h.Common.API(fs, tmpls, w, r)
 	}
 }
 
