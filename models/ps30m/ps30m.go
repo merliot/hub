@@ -69,18 +69,18 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 
 type reg struct {
 	Addr uint16
-	Type modbus.RegType
-	Value uint16
+	Value any
 	Err error
 }
 
 func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
 	var reg reg
-	regaddr, _ := strconv.Atoi(r.URL.Query().Get("addr"))
+	var regaddr int
+
+	regaddr, reg.Err = strconv.Atoi(r.URL.Query().Get("addr"))
 	reg.Addr = uint16(regaddr)
-	regtype, _ := strconv.Atoi(r.URL.Query().Get("type"))
-	reg.Type = modbus.RegType(regtype)
-	reg.Value, reg.Err = p.client.ReadRegister(reg.Addr, reg.Type) 
+	reg.Value = p.Regs[reg.Addr]
+
 	json.NewEncoder(w).Encode(reg)
 }
 
