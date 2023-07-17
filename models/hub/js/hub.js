@@ -82,10 +82,8 @@ function stageCreate() {
 
 function showApi() {
 	var apihub = document.getElementById("api-hub")
-	apihub.textContent = ''
 	apihub.data = "/api"
 	var apidev = document.getElementById("api-dev")
-	apidev.textContent = ''
 	apidev.data = "/" + selected + "/api"
 	dialogApi.showModal()
 }

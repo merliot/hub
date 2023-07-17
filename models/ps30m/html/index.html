@@ -19,10 +19,16 @@
 
 		<fieldset>
 			<legend>Holding Registers</legend>
-			<textarea id="regs" readonly rows="5"></textarea>
+			<textarea id="regs" readonly rows="6"></textarea>
+		</fieldset>
+
+		<fieldset>
+			<legend>Array Current</legend>
+			<canvas id="array-current"></canvas>
 		</fieldset>
 
 		<script src="js/common.js"></script>
+		<script src="js/chart.min.js"></script>
 		<script src="js/ps30m.js"></script>
 		<script>run("[ps30m]", "{{.WebSocket}}")</script>
 	</body>
