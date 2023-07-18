@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -26,16 +27,27 @@ const (
 	LoadState = 0x002E
 )
 
+type record [3]float32
+
 type Ps30m struct {
 	*common.Common
-	client *modbus.ModbusClient
 	Regs map[uint16] any // keyed by addr
+	Seconds []record
+	Minutes []record
+	Hours []record
+	Days []record
+	client *modbus.ModbusClient
+	demo bool
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
 	return &Ps30m{
 		Common: common.New(id, model, name).(*common.Common),
+		Seconds: make([]record, 0),
+		Minutes: make([]record, 0),
+		Hours: make([]record, 0),
+		Days: make([]record, 0),
 	}
 }
 
@@ -116,12 +128,118 @@ func (p *Ps30m) readRegU16(addr uint16) uint16 {
 	return value
 }
 
+func (p *Ps30m) Demo() {
+	p.demo = true
+}
+
+var sun = [...]float32{
+	0.0, 0.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 1.5,
+	2.5, 4.0, 7.0, 9.0,
+	12.0, 13.0, 13.0, 12.0,
+	9.0, 7.0, 4.0, 2.5,
+	1.0, 0.0, 0.0, 0.0,
+}
+
+func ave(recs []record) record {
+	var rec record
+	for j := 0; j < len(rec); j++ {
+		var sum float32
+		for i := 0; i < len(recs); i++ {
+			sum += recs[i][j]
+		}
+		rec[j] = sum / float32(len(recs))
+	}
+	return rec
+}
+
+func (p *Ps30m) send(tag string, rec record) {
+	println(tag)
+}
+
+func (p *Ps30m) store(recs *[]record, rec record, size int, tag string) {
+	*recs = append(*recs, rec)
+	if len(*recs) > size {
+		*recs = (*recs)[1:]
+	}
+	p.send(tag, (*recs)[len(*recs)-1])
+}
+
+func (p *Ps30m) sample(next func () record) {
+	ticker := time.NewTicker(time.Second)
+
+	for {
+		for day := 0; day < 365; day++ {
+			for hr := 0; hr < 24; hr++ {
+				for min := 0; min < 60; min++ {
+					for sec := 0; sec < 60; sec++ {
+						select {
+						case <-ticker.C:
+							p.store(&p.Seconds, next(), 60, "second")
+						}
+					}
+					p.store(&p.Minutes, ave(p.Seconds), 60, "minute")
+				}
+				p.store(&p.Hours, ave(p.Minutes), 24, "hour")
+			}
+			p.store(&p.Days, ave(p.Hours), 365, "day")
+		}
+	}
+}
+
+func (p *Ps30m) sampleDemo(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) record {
+	var rec record
+
+	hour := time.Now().Hour()
+	rec[0] = sun[hour] + rand.Float32()
+	rec[1] = 13.0 + rand.Float32()
+	rec[2] = 3 + rand.Float32()
+
+	update.Regs[AdcIa] =  rec[0]
+	update.Regs[AdcVbterm] = rec[1]
+	update.Regs[AdcIl] = rec[2]
+	update.Regs[ChargeState] = 0
+	update.Regs[LoadState] = 0
+
+	i.Inject(msg.Marshal(update))
+
+	return rec
+}
+
+func (p *Ps30m) runDemo(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) {
+	p.sample(func() record {
+		return p.sampleDemo(i, msg, update)
+	})
+}
+
+func (p *Ps30m) sampleRun(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) record {
+	var rec record
+
+	rec[0] = p.readRegF32(AdcIa)
+	rec[1] = p.readRegF32(AdcVbterm)
+	rec[2] = p.readRegF32(AdcIl)
+
+	update.Regs[AdcIa] = rec[0]
+	update.Regs[AdcVbterm] = rec[1]
+	update.Regs[AdcIl] = rec[2]
+	update.Regs[ChargeState] = p.readRegU16(ChargeState)
+	update.Regs[LoadState] = p.readRegU16(LoadState)
+	i.Inject(msg.Marshal(&update))
+
+	return rec
+}
+
 func (p *Ps30m) Run(i *dean.Injector) {
 	var err error
 	var msg dean.Msg
 	var update = RegsUpdateMsg{
 		Path: "regs/update",
 		Regs: make(map[uint16] any),
+	}
+
+	if p.demo {
+		p.runDemo(i, &msg, &update)
+		return
 	}
 
 	p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
@@ -140,13 +258,7 @@ func (p *Ps30m) Run(i *dean.Injector) {
 		panic(err.Error())
 	}
 
-	for {
-		update.Regs[AdcIa] = p.readRegF32(AdcIa)
-		update.Regs[AdcVbterm] = p.readRegF32(AdcVbterm)
-		update.Regs[AdcIl] = p.readRegF32(AdcIl)
-		update.Regs[ChargeState] = p.readRegU16(ChargeState)
-		update.Regs[LoadState] = p.readRegU16(LoadState)
-		i.Inject(msg.Marshal(&update))
-		time.Sleep(time.Second)
-	}
+	p.sample(func() record {
+		return p.sampleRun(i, &msg, &update)
+	})
 }

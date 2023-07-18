@@ -1,3 +1,17 @@
+let acChart = new Chart(document.getElementById("array-current"), {
+	data: {
+		labels: [],
+		datasets: [{
+			type: 'bar',
+			label: 'Array Current',
+			data: [],
+		}],
+	},
+	options: {
+		animation: false,
+	},
+});
+
 function init() {
 }
 
@@ -24,15 +38,9 @@ function showRegs(msg) {
 }
 
 function showArrayCurrent() {
-	  const data = [
-		{ year: 2010, count: 10 },
-		{ year: 2011, count: 20 },
-		{ year: 2012, count: 15 },
-		{ year: 2013, count: 25 },
-		{ year: 2014, count: 22 },
-		{ year: 2015, count: 30 },
-		{ year: 2016, count: 28 },
-	];
+	acChart.data.labels = Array(60).fill("");
+	acChart.data.datasets[0].data = Array(60).fill(null);
+	acChart.update()
 }
 
 function show() {

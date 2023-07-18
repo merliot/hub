@@ -8,15 +8,19 @@ import (
 )
 
 func main() {
-	thing := ps30m.New("230042", "ps30m", "poc1")
-
-	server := dean.NewServer(thing)
-
 	port, _ := os.LookupEnv("PORT")
 	user, _ := os.LookupEnv("USER")
 	passwd, _ := os.LookupEnv("PASSWD")
+	demo, _ := os.LookupEnv("DEMO")
 
-	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/1500", thing.Announce())
+	thing := ps30m.New("230042", "ps30m", "poc1").(*ps30m.Ps30m)
+
+	if demo != "" {
+		thing.Demo()
+	}
+
+	server := dean.NewServer(thing)
+	server.DialWebSocket(user, passwd, "ws://localhost:8000/ws/1500", thing.Announce())
 	//server.DialWebSocket("user", "passwd", "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {
