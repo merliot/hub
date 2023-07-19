@@ -20,8 +20,8 @@ func main() {
 	}
 
 	server := dean.NewServer(thing)
-	server.DialWebSocket(user, passwd, "ws://localhost:8000/ws/1500", thing.Announce())
-	//server.DialWebSocket("user", "passwd", "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
+	//server.DialWebSocket(user, passwd, "ws://localhost:8000/ws/1500", thing.Announce())
+	server.DialWebSocket(user, passwd, "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port
