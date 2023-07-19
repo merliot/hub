@@ -2,11 +2,9 @@ package ps30m
 
 import (
 	"embed"
-	"encoding/json"
 	"html/template"
 	"net/http"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/merliot/dean"
@@ -31,7 +29,8 @@ type record [3]float32
 
 type Ps30m struct {
 	*common.Common
-	Regs map[uint16] any // keyed by addr
+	ChargeStatus uint16
+	LoadStatus uint16
 	Seconds []record
 	Minutes []record
 	Hours []record
@@ -69,6 +68,10 @@ func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
 	*recs = append([]record{rec}, (*recs)[:n]...)
 }
 
+func (p *Ps30m) updateStatus(msg *dean.Msg) {
+	msg.Unmarshal(p).Broadcast()
+}
+
 type RecUpdateMsg struct {
 	Path string
 	Record record
@@ -96,6 +99,7 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"state":     p.save,
 		"get/state": p.getState,
+		"update/status": p.updateStatus,
 		"update/second": p.updateRecord,
 		"update/minute": p.updateRecord,
 		"update/hour": p.updateRecord,
@@ -105,36 +109,12 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 
 func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/" + p.Id() + "/api\n"))
-	w.Write([]byte("/" + p.Id() + "/readreg?addr={addr}&type={type}\n"))
-	w.Write([]byte("\ttype = 0 holding register\n"))
-	w.Write([]byte("\ttype = 1 input register\n"))
-}
-
-type reg struct {
-	Addr uint16
-	Value any
-	Err error
-}
-
-func (p *Ps30m) readreg(w http.ResponseWriter, r *http.Request) {
-	var reg reg
-	var regaddr int64
-
-	regaddr, reg.Err = strconv.ParseInt(r.URL.Query().Get("addr"), 0, 16)
-	reg.Addr = uint16(regaddr)
-	reg.Value = p.Regs[reg.Addr]
-
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "\t")
-	enc.Encode(reg)
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "api":
 		p.api(w, r)
-	case "readreg":
-		p.readreg(w, r)
 	default:
 		p.Common.API(fs, tmpls, w, r)
 	}
@@ -163,34 +143,6 @@ func (p *Ps30m) Demo() {
 	p.demo = true
 }
 
-var sun = [...]float32{
-	0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 1.0, 1.5,
-	2.5, 4.0, 7.0, 9.0,
-	12.0, 13.0, 13.0, 12.0,
-	9.0, 7.0, 4.0, 2.5,
-	1.0, 0.0, 0.0, 0.0,
-}
-
-/*
-func (p *Ps30m) sampleRun(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) record {
-	var rec record
-
-	rec[0] = p.readRegF32(AdcIa)
-	rec[1] = p.readRegF32(AdcVbterm)
-	rec[2] = p.readRegF32(AdcIl)
-
-	update.Regs[AdcIa] = rec[0]
-	update.Regs[AdcVbterm] = rec[1]
-	update.Regs[AdcIl] = rec[2]
-	update.Regs[ChargeState] = p.readRegU16(ChargeState)
-	update.Regs[LoadState] = p.readRegU16(LoadState)
-	i.Inject(msg.Marshal(&update))
-
-	return rec
-}
-*/
-
 func ave(recs []record) record {
 	var rec record
 	for j := 0; j < len(rec); j++ {
@@ -201,6 +153,15 @@ func ave(recs []record) record {
 		rec[j] = sum / float32(len(recs))
 	}
 	return rec
+}
+
+var sun = [...]float32{
+	0.0, 0.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 1.5,
+	2.5, 4.0, 7.0, 9.0,
+	12.0, 13.0, 13.0, 12.0,
+	9.0, 7.0, 4.0, 2.5,
+	1.0, 0.0, 0.0, 0.0,
 }
 
 func (p *Ps30m) nextRecord() (rec record) {
@@ -227,6 +188,25 @@ func (p *Ps30m) sendRecord(i *dean.Injector, tag string, rec record) {
 	i.Inject(msg.Marshal(&update))
 }
 
+type StatusMsg struct {
+	Path string
+	ChargeState uint16
+	LoadState uint16
+}
+
+func (p *Ps30m) sendStatus(i *dean.Injector) {
+	var msg dean.Msg
+	var update = StatusMsg{Path: "update/status"}
+	if p.demo {
+		update.ChargeState = 1
+		update.LoadState   = 3
+	} else {
+		update.ChargeState = p.readRegU16(ChargeState)
+		update.LoadState   = p.readRegU16(LoadState)
+	}
+	i.Inject(msg.Marshal(&update))
+}
+
 func (p *Ps30m) sample(i *dean.Injector) {
 	ticker := time.NewTicker(time.Second)
 
@@ -237,6 +217,7 @@ func (p *Ps30m) sample(i *dean.Injector) {
 					for sec := 0; sec < 60; sec++ {
 						select {
 						case <-ticker.C:
+							p.sendStatus(i)
 							p.sendRecord(i, "second", p.nextRecord())
 						}
 					}

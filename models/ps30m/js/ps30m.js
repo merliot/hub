@@ -44,14 +44,11 @@ function loadState(state) {
 	return names[state]
 }
 
-function showRegs(msg) {
-	let regs = document.getElementById("regs")
-	regs.value = ""
-	regs.value += "Array Current (A):            " + msg.Regs[17].toFixed(2) + "\r\n"
-	regs.value += "Battery Terminal Voltage (V): " + msg.Regs[18].toFixed(2) + "\r\n"
-	regs.value += "Load Current (A):             " + msg.Regs[22].toFixed(2) + "\r\n"
-	regs.value += "Charge State:                 " + chargeState(msg.Regs[33]) + "\r\n"
-	regs.value += "Load State:                   " + loadState(msg.Regs[46]) + "\r\n"
+function showStatus() {
+	let textarea = document.getElementById("status")
+	textarea.value = ""
+	textarea.value += "Charge State:   " + chargeState(state.ChargeState) + "\r\n"
+	textarea.value += "Load State:     " + loadState(state.LoadState) + "\r\n"
 }
 
 function showChartRecords(array, size) {
@@ -90,6 +87,7 @@ function showChart() {
 
 function show() {
 	showSystem()
+	showStatus()
 	showChart()
 }
 
@@ -105,11 +103,11 @@ function saveRecord(array, record, size) {
 
 function handle(msg) {
 	switch(msg.Path) {
-			/*
-	case "regs/update":
-		showRegs(msg)
+	case "update/status":
+		state.ChargeState = msg.ChargeState
+		state.LoadState = msg.LoadState
+		showStatus()
 		break
-		*/
 	case "update/second":
 		saveRecord(state.Seconds, msg.Record, 60)
 		showChart()
