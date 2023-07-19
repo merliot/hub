@@ -60,15 +60,46 @@ func (p *Ps30m) getState(msg *dean.Msg) {
 	msg.Marshal(p).Reply()
 }
 
-func (p *Ps30m) regsUpdate(msg *dean.Msg) {
-	msg.Unmarshal(p).Broadcast()
+func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
+	n := len(*recs)
+	if n >= size {
+		n = size -1
+	}
+	// newest record at recs[0], oldest at recs[n-1]
+	*recs = append([]record{rec}, (*recs)[:n]...)
+}
+
+type RecUpdateMsg struct {
+	Path string
+	Record record
+}
+
+func (p *Ps30m) updateRecord(msg *dean.Msg) {
+	var update RecUpdateMsg
+	msg.Unmarshal(&update)
+
+	switch update.Path {
+	case "update/second":
+		p.saveRecord(&p.Seconds, update.Record, 60)
+	case "update/minute":
+		p.saveRecord(&p.Minutes, update.Record, 60)
+	case "update/hour":
+		p.saveRecord(&p.Hours, update.Record, 24)
+	case "update/day":
+		p.saveRecord(&p.Days, update.Record, 365)
+	}
+
+	msg.Broadcast()
 }
 
 func (p *Ps30m) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"state":     p.save,
 		"get/state": p.getState,
-		"regs/update": p.regsUpdate,
+		"update/second": p.updateRecord,
+		"update/minute": p.updateRecord,
+		"update/hour": p.updateRecord,
+		"update/day": p.updateRecord,
 	}
 }
 
@@ -141,77 +172,7 @@ var sun = [...]float32{
 	1.0, 0.0, 0.0, 0.0,
 }
 
-func ave(recs []record) record {
-	var rec record
-	for j := 0; j < len(rec); j++ {
-		var sum float32
-		for i := 0; i < len(recs); i++ {
-			sum += recs[i][j]
-		}
-		rec[j] = sum / float32(len(recs))
-	}
-	return rec
-}
-
-func (p *Ps30m) send(tag string, rec record) {
-	println(tag)
-}
-
-func (p *Ps30m) store(recs *[]record, rec record, size int, tag string) {
-	*recs = append(*recs, rec)
-	if len(*recs) > size {
-		*recs = (*recs)[1:]
-	}
-	p.send(tag, (*recs)[len(*recs)-1])
-}
-
-func (p *Ps30m) sample(next func () record) {
-	ticker := time.NewTicker(time.Second)
-
-	for {
-		for day := 0; day < 365; day++ {
-			for hr := 0; hr < 24; hr++ {
-				for min := 0; min < 60; min++ {
-					for sec := 0; sec < 60; sec++ {
-						select {
-						case <-ticker.C:
-							p.store(&p.Seconds, next(), 60, "second")
-						}
-					}
-					p.store(&p.Minutes, ave(p.Seconds), 60, "minute")
-				}
-				p.store(&p.Hours, ave(p.Minutes), 24, "hour")
-			}
-			p.store(&p.Days, ave(p.Hours), 365, "day")
-		}
-	}
-}
-
-func (p *Ps30m) sampleDemo(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) record {
-	var rec record
-
-	hour := time.Now().Hour()
-	rec[0] = sun[hour] + rand.Float32()
-	rec[1] = 13.0 + rand.Float32()
-	rec[2] = 3 + rand.Float32()
-
-	update.Regs[AdcIa] =  rec[0]
-	update.Regs[AdcVbterm] = rec[1]
-	update.Regs[AdcIl] = rec[2]
-	update.Regs[ChargeState] = 0
-	update.Regs[LoadState] = 0
-
-	i.Inject(msg.Marshal(update))
-
-	return rec
-}
-
-func (p *Ps30m) runDemo(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) {
-	p.sample(func() record {
-		return p.sampleDemo(i, msg, update)
-	})
-}
-
+/*
 func (p *Ps30m) sampleRun(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg) record {
 	var rec record
 
@@ -228,37 +189,86 @@ func (p *Ps30m) sampleRun(i *dean.Injector, msg *dean.Msg, update *RegsUpdateMsg
 
 	return rec
 }
+*/
 
-func (p *Ps30m) Run(i *dean.Injector) {
-	var err error
-	var msg dean.Msg
-	var update = RegsUpdateMsg{
-		Path: "regs/update",
-		Regs: make(map[uint16] any),
+func ave(recs []record) record {
+	var rec record
+	for j := 0; j < len(rec); j++ {
+		var sum float32
+		for i := 0; i < len(recs); i++ {
+			sum += recs[i][j]
+		}
+		rec[j] = sum / float32(len(recs))
 	}
+	return rec
+}
 
+func (p *Ps30m) nextRecord() (rec record) {
 	if p.demo {
-		p.runDemo(i, &msg, &update)
+		hour := time.Now().Hour()
+		rec[0] = sun[hour] + rand.Float32()
+		rec[1] = 13.0 + rand.Float32()
+		rec[2] = 3 + rand.Float32()
 		return
 	}
 
-	p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
-		URL:      "rtu:///dev/ttyUSB0",
-		Speed:    9600,
-		DataBits: 8,
-		Parity:   modbus.PARITY_NONE,
-		StopBits: 2,
-		Timeout:  300 * time.Millisecond,
-	})
-	if err != nil {
-		panic(err.Error())
+	rec[0] = p.readRegF32(AdcIa)
+	rec[1] = p.readRegF32(AdcVbterm)
+	rec[2] = p.readRegF32(AdcIl)
+	return
+}
+
+func (p *Ps30m) sendRecord(i *dean.Injector, tag string, rec record) {
+	var msg dean.Msg
+	var update = RecUpdateMsg{
+		Path: "update/" + tag,
+		Record: rec,
+	}
+	i.Inject(msg.Marshal(&update))
+}
+
+func (p *Ps30m) sample(i *dean.Injector) {
+	ticker := time.NewTicker(time.Second)
+
+	for {
+		for day := 0; day < 365; day++ {
+			for hr := 0; hr < 24; hr++ {
+				for min := 0; min < 60; min++ {
+					for sec := 0; sec < 60; sec++ {
+						select {
+						case <-ticker.C:
+							p.sendRecord(i, "second", p.nextRecord())
+						}
+					}
+					p.sendRecord(i, "minute", ave(p.Seconds[:60]))
+				}
+				p.sendRecord(i, "hour", ave(p.Minutes[:60]))
+			}
+			p.sendRecord(i, "day", ave(p.Hours[:24]))
+		}
+	}
+}
+
+func (p *Ps30m) Run(i *dean.Injector) {
+	var err error
+
+	if !p.demo {
+		p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
+			URL:      "rtu:///dev/ttyUSB0",
+			Speed:    9600,
+			DataBits: 8,
+			Parity:   modbus.PARITY_NONE,
+			StopBits: 2,
+			Timeout:  300 * time.Millisecond,
+		})
+		if err != nil {
+			panic(err.Error())
+		}
+
+		if err = p.client.Open(); err != nil {
+			panic(err.Error())
+		}
 	}
 
-	if err = p.client.Open(); err != nil {
-		panic(err.Error())
-	}
-
-	p.sample(func() record {
-		return p.sampleRun(i, &msg, &update)
-	})
+	p.sample(i)
 }
