@@ -17,6 +17,7 @@ func main() {
 	hub := hub.New("swpoc01", "swpoc", "swpoc01").(*hub.Hub)
 
 	server := dean.NewServer(hub)
+	hub.UseServer(server)
 
 	server.Addr = ":8000"
 	if port, ok := os.LookupEnv("PORT"); ok {
@@ -29,11 +30,11 @@ func main() {
 		}
 	}
 
-	hub.Register("relays", relays.New)
-	hub.Register("gps", gps.New)
-	hub.Register("sense", sense.New)
-	hub.Register("led", led.New)
-	hub.Register("ps30m", ps30m.New)
+	server.RegisterModel("relays", relays.New)
+	server.RegisterModel("gps", gps.New)
+	server.RegisterModel("sense", sense.New)
+	server.RegisterModel("led", led.New)
+	server.RegisterModel("ps30m", ps30m.New)
 
 	go server.ListenAndServe()
 	server.Run()
