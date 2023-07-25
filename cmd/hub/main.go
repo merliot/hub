@@ -13,9 +13,10 @@ import (
 
 func main() {
 
-	hub := hub.New("swpoc01", "swpoc", "swpoc01")
+	hub := hub.New("swpoc01", "swpoc", "swpoc01").(*hub.Hub)
 
 	server := dean.NewServer(hub)
+	hub.UseServer(server)
 
 	server.Addr = ":8000"
 	if port, ok := os.LookupEnv("PORT"); ok {

@@ -1,7 +1,12 @@
 {
-	"88_ae_dd_0a_70_92": {
-		"Model": "relays",
-		"Name": "Relays",
+	"id1": {
+		"Model": "led",
+		"Name": "id1",
+		"Online": false
+	},
+	"id2": {
+		"Model": "led",
+		"Name": "id2",
 		"Online": false
 	}
 }
