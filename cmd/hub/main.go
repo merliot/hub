@@ -4,12 +4,12 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/hub"
-	"github.com/merliot/sw-poc/models/relays"
 	"github.com/merliot/sw-poc/models/gps"
-	"github.com/merliot/sw-poc/models/sense"
+	"github.com/merliot/sw-poc/models/hub"
 	"github.com/merliot/sw-poc/models/led"
 	"github.com/merliot/sw-poc/models/ps30m"
+	"github.com/merliot/sw-poc/models/relays"
+	"github.com/merliot/sw-poc/models/sense"
 )
 
 func main() {

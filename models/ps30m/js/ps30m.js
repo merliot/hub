@@ -85,7 +85,15 @@ function showChart() {
 	}
 }
 
+function clearHistory() {
+	state.Seconds = []
+	state.Minutes = []
+	state.Hours = []
+	state.Days = []
+}
+
 function show() {
+	clearHistory()
 	showSystem()
 	showStatus()
 	showChart()

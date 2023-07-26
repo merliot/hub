@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/relays"
 	"github.com/merliot/sw-poc/id"
+	"github.com/merliot/sw-poc/models/relays"
 )
 
 func main() {

@@ -83,7 +83,7 @@ func (g *Gps) Run(i *dean.Injector) {
 			continue
 		}
 		g.Lat, g.Long = lat, long
-		update.Lat, update.Long  = lat, long
+		update.Lat, update.Long = lat, long
 		i.Inject(msg.Marshal(update))
 	}
 }

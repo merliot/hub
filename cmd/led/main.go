@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/led"
 	"github.com/merliot/sw-poc/id"
+	"github.com/merliot/sw-poc/models/led"
 )
 
 func main() {
 	id := id.MAC()
-	thing := led.New(id, "led", "led_" + id)
+	thing := led.New(id, "led", "led_"+id)
 	server := dean.NewServer(thing)
 	server.Addr = ":8005"
 	server.DialWebSocket("user", "passwd", "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
@@ -16,4 +16,3 @@ func main() {
 	go server.ListenAndServe()
 	server.Run()
 }
-

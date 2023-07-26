@@ -3,8 +3,8 @@ package ps30m
 import (
 	"embed"
 	"html/template"
-	"net/http"
 	"math/rand"
+	"net/http"
 	"time"
 
 	"github.com/merliot/dean"
@@ -18,11 +18,11 @@ var fs embed.FS
 var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 const (
-	AdcIa = 0x0011
-	AdcVbterm = 0x0012
-	AdcIl = 0x0016
+	AdcIa       = 0x0011
+	AdcVbterm   = 0x0012
+	AdcIl       = 0x0016
 	ChargeState = 0x0021
-	LoadState = 0x002E
+	LoadState   = 0x002E
 )
 
 type record [3]float32
@@ -30,23 +30,23 @@ type record [3]float32
 type Ps30m struct {
 	*common.Common
 	ChargeStatus uint16
-	LoadStatus uint16
-	Seconds []record
-	Minutes []record
-	Hours []record
-	Days []record
-	client *modbus.ModbusClient
-	demo bool
+	LoadStatus   uint16
+	Seconds      []record
+	Minutes      []record
+	Hours        []record
+	Days         []record
+	client       *modbus.ModbusClient
+	demo         bool
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
 	return &Ps30m{
-		Common: common.New(id, model, name).(*common.Common),
+		Common:  common.New(id, model, name).(*common.Common),
 		Seconds: make([]record, 0),
 		Minutes: make([]record, 0),
-		Hours: make([]record, 0),
-		Days: make([]record, 0),
+		Hours:   make([]record, 0),
+		Days:    make([]record, 0),
 	}
 }
 
@@ -62,7 +62,7 @@ func (p *Ps30m) getState(msg *dean.Msg) {
 func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
 	n := len(*recs)
 	if n >= size {
-		n = size -1
+		n = size - 1
 	}
 	// newest record at recs[0], oldest at recs[n-1]
 	*recs = append([]record{rec}, (*recs)[:n]...)
@@ -73,7 +73,7 @@ func (p *Ps30m) updateStatus(msg *dean.Msg) {
 }
 
 type RecUpdateMsg struct {
-	Path string
+	Path   string
 	Record record
 }
 
@@ -97,13 +97,13 @@ func (p *Ps30m) updateRecord(msg *dean.Msg) {
 
 func (p *Ps30m) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     p.save,
-		"get/state": p.getState,
+		"state":         p.save,
+		"get/state":     p.getState,
 		"update/status": p.updateStatus,
 		"update/second": p.updateRecord,
 		"update/minute": p.updateRecord,
-		"update/hour": p.updateRecord,
-		"update/day": p.updateRecord,
+		"update/hour":   p.updateRecord,
+		"update/day":    p.updateRecord,
 	}
 }
 
@@ -126,7 +126,7 @@ func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type RegsUpdateMsg struct {
 	Path string
-	Regs map[uint16] any // keyed by addr
+	Regs map[uint16]any // keyed by addr
 }
 
 func (p *Ps30m) readRegF32(addr uint16) float32 {
@@ -182,16 +182,16 @@ func (p *Ps30m) nextRecord() (rec record) {
 func (p *Ps30m) sendRecord(i *dean.Injector, tag string, rec record) {
 	var msg dean.Msg
 	var update = RecUpdateMsg{
-		Path: "update/" + tag,
+		Path:   "update/" + tag,
 		Record: rec,
 	}
 	i.Inject(msg.Marshal(&update))
 }
 
 type StatusMsg struct {
-	Path string
+	Path        string
 	ChargeState uint16
-	LoadState uint16
+	LoadState   uint16
 }
 
 func (p *Ps30m) sendStatus(i *dean.Injector) {
@@ -199,10 +199,10 @@ func (p *Ps30m) sendStatus(i *dean.Injector) {
 	var update = StatusMsg{Path: "update/status"}
 	if p.demo {
 		update.ChargeState = 1
-		update.LoadState   = 3
+		update.LoadState = 3
 	} else {
 		update.ChargeState = p.readRegU16(ChargeState)
-		update.LoadState   = p.readRegU16(LoadState)
+		update.LoadState = p.readRegU16(LoadState)
 	}
 	i.Inject(msg.Marshal(&update))
 }

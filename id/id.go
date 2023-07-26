@@ -18,4 +18,3 @@ func MAC() string {
 	}
 	return "unknown"
 }
-

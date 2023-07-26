@@ -18,18 +18,18 @@ var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Sense struct {
 	*common.Common
-	Lux int
+	Lux    int
 	bh1750 *i2c.BH1750Driver
 }
 
 type Update struct {
 	Path string
-	Lux int
+	Lux  int
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW SENSE")
-	return &Sense {
+	return &Sense{
 		Common: common.New(id, model, name).(*common.Common),
 	}
 }
@@ -79,7 +79,7 @@ func (s *Sense) Run(i *dean.Injector) {
 		}
 		if lux != s.Lux {
 			s.Lux = lux
-			update.Lux  = lux
+			update.Lux = lux
 			i.Inject(msg.Marshal(update))
 		}
 		time.Sleep(time.Second)

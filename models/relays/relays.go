@@ -61,9 +61,9 @@ func (r *Relays) click(msg *dean.Msg) {
 
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":      r.save,
-		"get/state":  r.getState,
-		"click":      r.click,
+		"state":     r.save,
+		"get/state": r.getState,
+		"click":     r.click,
 	}
 }
 
