@@ -2,16 +2,16 @@
 	"230042": {
 		"Model": "ps30m",
 		"Name": "poc1",
-		"Online": true
+		"Online": false
 	},
 	"230043": {
 		"Model": "ps30m",
 		"Name": "poc2",
-		"Online": true
+		"Online": false
 	},
 	"230044": {
 		"Model": "ps30m",
 		"Name": "poc3",
-		"Online": true
+		"Online": false
 	}
 }

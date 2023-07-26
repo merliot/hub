@@ -90,7 +90,6 @@ type DeviceCreateMsg struct {
 }
 
 func (h *Hub) createDevice(id, model, name string) error {
-	println("createDevice", id, model, name)
 	var msg dean.Msg
 	err := h.server.CreateThing(id, model, name)
 	if err == nil {
