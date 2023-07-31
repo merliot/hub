@@ -1,0 +1,2 @@
+for f in `find . -name common.js`; do cp models/common/js/common.js $f >/dev/null 2>&1; done
+for f in `find . -name common.css`; do cp models/common/css/common.css $f >/dev/null 2>&1; done

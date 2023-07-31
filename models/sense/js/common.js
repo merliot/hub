@@ -7,14 +7,14 @@ var overlay = document.getElementById("overlay")
 function showSystem() {
 	let system = document.getElementById("system")
 	system.value = ""
-	system.value += "ID:      " + state.Identity.Id + "\r\n"
-	system.value += "Model:   " + state.Identity.Model + "\r\n"
-	system.value += "Name:    " + state.Identity.Name
+	system.value += "ID:      " + state.Id + "\r\n"
+	system.value += "Model:   " + state.Model + "\r\n"
+	system.value += "Name:    " + state.Name
 }
 
-function offline() {
+function wsclose() {
+	close()
 	overlay.style.display = "block"
-	hide()
 	clearInterval(pingID)
 }
 
@@ -22,11 +22,11 @@ function ping() {
 	conn.send("ping")
 }
 
-function online() {
-	show()
+function wsopen() {
 	overlay.style.display = "none"
 	// for Koyeb work-around, ping every 60s to keep websocket alive
 	pingID = setInterval(ping, 1 * 60 * 1000)
+	open()
 }
 
 function run(prefix, ws) {
@@ -43,7 +43,7 @@ function run(prefix, ws) {
 
 	conn.onclose = function(evt) {
 		console.log(prefix, 'close')
-		offline()
+		wsclose()
 		setTimeout(run(prefix, ws), 1000)
 	}
 
@@ -59,7 +59,15 @@ function run(prefix, ws) {
 		switch(msg.Path) {
 		case "state":
 			state = msg
+			wsopen()
+			break
+		case "online":
+			state.Online = true
 			online()
+			break
+		case "offline":
+			state.Online = false
+			offline()
 			break
 		default:
 			handle(msg)

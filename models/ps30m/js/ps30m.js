@@ -62,7 +62,7 @@ function showChartRecords(array, size) {
 	chart.update()
 }
 
-function showChart() {
+function showChart(clear) {
 	let btns = document.getElementsByName("period")
 	for (i = 0; i < btns.length; i++) {
 		if (btns[i].checked) {
@@ -92,14 +92,19 @@ function clearHistory() {
 	state.Days = []
 }
 
-function show() {
-	clearHistory()
+function open() {
 	showSystem()
 	showStatus()
-	showChart()
+	showChart(true)
 }
 
-function hide() {
+function close() {
+}
+
+function online() {
+}
+
+function offline() {
 }
 
 function saveRecord(array, record, size) {
@@ -118,19 +123,19 @@ function handle(msg) {
 		break
 	case "update/second":
 		saveRecord(state.Seconds, msg.Record, 60)
-		showChart()
+		showChart(false)
 		break
 	case "update/minute":
 		saveRecord(state.Minutes, msg.Record, 60)
-		showChart()
+		showChart(false)
 		break
 	case "update/hour":
 		saveRecord(state.Hours, msg.Record, 24)
-		showChart()
+		showChart(false)
 		break
 	case "update/day":
 		saveRecord(state.Days, msg.Record, 365)
-		showChart()
+		showChart(false)
 		break
 	}
 }

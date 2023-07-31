@@ -155,7 +155,7 @@ function loadExplorer() {
 	}
 }
 
-function show() {
+function open() {
 	loadExplorer()
 	stageCreate()
 	stageApi()
@@ -164,7 +164,13 @@ function show() {
 	stageDeploy()
 }
 
-function hide() {
+function close() {
+}
+
+function online() {
+}
+
+function offline() {
 }
 
 function update(child) {

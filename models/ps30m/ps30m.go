@@ -108,7 +108,8 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 }
 
 func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("/" + p.Id() + "/api\n"))
+	id, _, _ := p.Identity()
+	w.Write([]byte("/" + id + "/api\n"))
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
