@@ -51,7 +51,7 @@ function create() {
 	var model = document.getElementById("create-model")
 	var id = document.getElementById("create-id")
 	var name = document.getElementById("create-name")
-	conn.send(JSON.stringify({Path: "create", Id: id.value, Model: model.value, Name: name.value}))
+	conn.send(JSON.stringify({Path: "create/device", Id: id.value, Model: model.value, Name: name.value}))
 }
 
 function showCreate() {
@@ -96,7 +96,7 @@ function stageApi() {
 }
 
 function deletef() {
-	conn.send(JSON.stringify({Path: "delete", Id: selected}))
+	conn.send(JSON.stringify({Path: "delete/device", Id: selected}))
 }
 
 function showDelete() {
