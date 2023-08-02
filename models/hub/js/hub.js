@@ -58,11 +58,19 @@ function unclickDev(id) {
 	view.textContent = ''
 }
 
-function create() {
-	var model = document.getElementById("create-model")
+async function create() {
 	var id = document.getElementById("create-id")
+	var model = document.getElementById("create-model")
 	var name = document.getElementById("create-name")
-	conn.send(JSON.stringify({Path: "create/device", Id: id.value, Model: model.value, Name: name.value}))
+
+	let response = await fetch("/create?id=" + id.value + "&model=" + model.value + "&name=" + name.value)
+	if (response.status == 201) {
+		dialogCreate.close()
+	} else {
+		let data = await response.text()
+		var err = document.getElementById("create-err")
+		err.innerText = data
+	}
 }
 
 function showCreate() {
@@ -106,8 +114,15 @@ function stageApi() {
 	btnClose.onclick = function(){dialogApi.close()}
 }
 
-function deletef() {
-	conn.send(JSON.stringify({Path: "delete/device", Id: selected}))
+async function deletef() {
+	let response = await fetch("/delete?id=" + selected)
+	if (response.status == 200) {
+		dialogDelete.close()
+	} else {
+		let data = await response.text()
+		var err = document.getElementById("delete-err")
+		err.innerText = data
+	}
 }
 
 function showDelete() {
@@ -188,42 +203,17 @@ function offline() {
 function update(child) {
 }
 
-function createDeviceResult(msg) {
-	if (msg.Err == "") {
-		dialogCreate.close()
-		clickDev(msg.Id)
-	} else {
-		var err = document.getElementById("create-err")
-		err.innerText = msg.Err
-	}
-}
-
-function deleteDeviceResult(msg) {
-	if (msg.Err == "") {
-		dialogDelete.close()
-	} else {
-		var err = document.getElementById("delete-err")
-		err.innerText = msg.Err
-	}
-}
-
 function handle(msg) {
 	switch(msg.Path) {
 	case "connected":
 	case "disconnected":
 		update(msg)
 		break
-	case "create/device":
+	case "created/device":
 		insertDevice(msg.Id, msg)
 		break
-	case "create/device/result":
-		createDeviceResult(msg)
-		break
-	case "delete/device":
+	case "deleted/device":
 		removeDevice(msg.Id)
-		break
-	case "delete/device/result":
-		deleteDeviceResult(msg)
 		break
 	}
 }

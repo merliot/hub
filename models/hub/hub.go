@@ -148,6 +148,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Device id '%s' created", id)
 }
 
 func (h *Hub) deleteDevice(id string) error {
@@ -164,7 +165,10 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	err := h.deleteDevice(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Device id '%s' deleted", id)
 }
 
 func (h *Hub) _deploy(id string) error {
