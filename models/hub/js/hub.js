@@ -37,6 +37,7 @@ function clickDev(id) {
 	view.textContent = ''
 	view.appendChild(obj)
 
+	// grey out previous selected tab
 	if (typeof selected !== "undefined") {
 		var seldiv = document.getElementById("device-" + selected)
 		seldiv.style.background = "lightgrey"
@@ -45,6 +46,16 @@ function clickDev(id) {
 	selected = id
 	var seldiv = document.getElementById("device-" + selected)
 	seldiv.style.background = "white"
+
+	document.getElementById("delete").disabled = false
+	document.getElementById("deploy").disabled = false
+}
+
+function unclickDev(id) {
+	document.getElementById("delete").disabled = true
+	document.getElementById("deploy").disabled = true
+	selected = undefined
+	view.textContent = ''
 }
 
 function create() {
@@ -142,10 +153,11 @@ function insertDevice(id, dev) {
 
 function removeDevice(id) {
 	var div = document.getElementById("device-" + id)
-	selected = undefined
-	view.textContent = ''
 	explorer.removeChild(div)
 	delete state.Devices[id]
+	if (selected == id) {
+		unclickDev(id)
+	}
 }
 
 function loadExplorer() {
@@ -176,25 +188,23 @@ function offline() {
 function update(child) {
 }
 
-function createBad(msg) {
-	var err = document.getElementById("create-err")
-	err.innerText = msg.Err
+function createDeviceResult(msg) {
+	if (msg.Err == "") {
+		dialogCreate.close()
+		clickDev(msg.Id)
+	} else {
+		var err = document.getElementById("create-err")
+		err.innerText = msg.Err
+	}
 }
 
-function createGood(msg) {
-	dialogCreate.close()
-	insertDevice(msg.Id, msg)
-	clickDev(msg.Id)
-}
-
-function deleteBad(msg) {
-	var err = document.getElementById("delete-err")
-	err.innerText = msg.Err
-}
-
-function deleteGood(msg) {
-	dialogDelete.close()
-	removeDevice(msg.Id)
+function deleteDeviceResult(msg) {
+	if (msg.Err == "") {
+		dialogDelete.close()
+	} else {
+		var err = document.getElementById("delete-err")
+		err.innerText = msg.Err
+	}
 }
 
 function handle(msg) {
@@ -203,17 +213,17 @@ function handle(msg) {
 	case "disconnected":
 		update(msg)
 		break
-	case "create/bad":
-		createBad(msg)
+	case "create/device":
+		insertDevice(msg.Id, msg)
 		break
-	case "create/good":
-		createGood(msg)
+	case "create/device/result":
+		createDeviceResult(msg)
 		break
-	case "delete/bad":
-		deleteBad(msg)
+	case "delete/device":
+		removeDevice(msg.Id)
 		break
-	case "delete/good":
-		deleteGood(msg)
+	case "delete/device/result":
+		deleteDeviceResult(msg)
 		break
 	}
 }

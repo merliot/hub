@@ -73,27 +73,43 @@ type DeviceCreateMsg struct {
 	Id    string
 	Model string
 	Name  string
+	Err   string
 }
 
-func (h *Hub) createDevice(msg *dean.Msg) {
+func (h *Hub) _createDevice(msg *dean.Msg) {
 	var create DeviceCreateMsg
 	msg.Unmarshal(&create)
-	if err := _createDevice(create.Id, create.Model, create.Name); err == nil {
-		msg.Broadcast()
+
+	err := h.createDevice(create.Id, create.Model, create.Name)
+	if err == nil {
+		msg.Marshal(&create).Reply().Broadcast()
+	} else {
+		create.Err = err.Error()
 	}
+
+	create.Path = "create/device/result"
+	msg.Marshal(&create).Reply()
 }
 
 type DeviceDeleteMsg struct {
-	Path string
-	Id   string
+	Path  string
+	Id    string
+	Err   string
 }
 
-func (h *Hub) deleteDevice(msg *dean.Msg) {
+func (h *Hub) _deleteDevice(msg *dean.Msg) {
 	var del DeviceDeleteMsg
 	msg.Unmarshal(&del)
-	if err := _deleteDevice(del.Id); err == nil {
-		msg.Broadcast()
+
+	err := h.deleteDevice(del.Id)
+	if err == nil {
+		msg.Marshal(&del).Reply().Broadcast()
+	} else {
+		del.Err = err.Error()
 	}
+
+	del.Path = "delete/device/result"
+	msg.Marshal(&del).Reply()
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -101,8 +117,8 @@ func (h *Hub) Subscribers() dean.Subscribers {
 		"get/state":     h.getState,
 		"connected":     h.connect(true),
 		"disconnected":  h.connect(false),
-		"create/device": h.createDevice,
-		"delete/device": h.deleteDevice,
+		"create/device": h._createDevice,
+		"delete/device": h._deleteDevice,
 	}
 }
 
@@ -113,13 +129,11 @@ func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/deploy?id={id}\n"))
 }
 
-func (h *Hub) _createDevice(id, model, name string) error {
-	var msg dean.Msg
+func (h *Hub) createDevice(id, model, name string) error {
 	err := h.server.CreateThing(id, model, name)
 	if err == nil {
 		h.Devices[id] = &Device{Model: model, Name: name}
 		h.storeDevices()
-		h.async <- msg.Marshal(&DeviceCreateMsg{"device/create", id, model, name})
 	}
 	return err
 }
@@ -128,26 +142,26 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	model := r.URL.Query().Get("model")
 	name := r.URL.Query().Get("name")
-	err := h._createDevice(id, model, name)
+	err := h.createDevice(id, model, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *Hub) _deleteDevice(id string) error {
-	var msg dean.Msg
+func (h *Hub) deleteDevice(id string) error {
 	err := h.server.DeleteThing(id)
 	if err == nil {
 		delete(h.Devices, id)
 		h.storeDevices()
-		h.async <- msg.Marshal(&DeviceDeleteMsg{"device/delete", id})
 	}
 	return err
 }
 
 func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	err := h._deleteDevice(id)
+	err := h.deleteDevice(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -194,7 +208,7 @@ func (h *Hub) restoreDevices() {
 	bytes, _ := os.ReadFile("devices.json")
 	json.Unmarshal(bytes, &devices)
 	for id, dev := range devices {
-		err := h._createDevice(id, dev.Model, dev.Name)
+		err := h.createDevice(id, dev.Model, dev.Name)
 		if err != nil {
 			fmt.Printf("Error creating device Id '%s': %s\n", id, err)
 		}
