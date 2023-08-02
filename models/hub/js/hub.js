@@ -64,6 +64,7 @@ async function create() {
 	var name = document.getElementById("create-name")
 
 	let response = await fetch("/create?id=" + id.value + "&model=" + model.value + "&name=" + name.value)
+
 	if (response.status == 201) {
 		dialogCreate.close()
 	} else {
@@ -116,6 +117,7 @@ function stageApi() {
 
 async function deletef() {
 	let response = await fetch("/delete?id=" + selected)
+
 	if (response.status == 200) {
 		dialogDelete.close()
 	} else {

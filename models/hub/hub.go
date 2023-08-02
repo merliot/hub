@@ -68,57 +68,11 @@ func (h *Hub) connect(online bool) func(*dean.Msg) {
 	}
 }
 
-type DeviceCreateMsg struct {
-	Path  string
-	Id    string
-	Model string
-	Name  string
-	Err   string
-}
-
-func (h *Hub) _createDevice(msg *dean.Msg) {
-	var create DeviceCreateMsg
-	msg.Unmarshal(&create)
-
-	err := h.createDevice(create.Id, create.Model, create.Name)
-	if err == nil {
-		msg.Marshal(&create).Reply().Broadcast()
-	} else {
-		create.Err = err.Error()
-	}
-
-	create.Path = "create/device/result"
-	msg.Marshal(&create).Reply()
-}
-
-type DeviceDeleteMsg struct {
-	Path  string
-	Id    string
-	Err   string
-}
-
-func (h *Hub) _deleteDevice(msg *dean.Msg) {
-	var del DeviceDeleteMsg
-	msg.Unmarshal(&del)
-
-	err := h.deleteDevice(del.Id)
-	if err == nil {
-		msg.Marshal(&del).Reply().Broadcast()
-	} else {
-		del.Err = err.Error()
-	}
-
-	del.Path = "delete/device/result"
-	msg.Marshal(&del).Reply()
-}
-
 func (h *Hub) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"get/state":     h.getState,
 		"connected":     h.connect(true),
 		"disconnected":  h.connect(false),
-		"create/device": h._createDevice,
-		"delete/device": h._deleteDevice,
 	}
 }
 
@@ -185,7 +139,9 @@ func (h *Hub) apiDeploy(w http.ResponseWriter, r *http.Request) {
 	err := h._deploy(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
