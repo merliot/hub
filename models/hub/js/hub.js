@@ -51,11 +51,16 @@ function clickDev(id) {
 	document.getElementById("deploy").disabled = false
 }
 
-function unclickDev(id) {
+function unclickDev(prev) {
 	document.getElementById("delete").disabled = true
 	document.getElementById("deploy").disabled = true
 	selected = undefined
 	view.textContent = ''
+	if (prev) {
+		parts = prev.id.split('-')
+		prevId = parts[1]
+		clickDev(prevId)
+	}
 }
 
 async function create() {
@@ -156,12 +161,27 @@ function stageDeploy() {
 	btn.onclick = function(){clickDeploy()}
 }
 
+function setDeviceIcon(img, online) {
+	if (img) {
+		img.src = online ? "/images/online.png" : "/images/offline.png"
+	}
+}
+
 function insertDevice(id, dev) {
 	var div = document.createElement("div")
 	div.onclick = function (){clickDev(id)}
 	div.id = "device-" + id
 	div.className = "devBtn"
-	div.appendChild(document.createTextNode(dev.Name))
+
+	var img = document.createElement("img")
+	img.id = "device-" + id + "-status"
+	img.className = "statusIcon"
+	setDeviceIcon(img, dev.Online)
+	div.appendChild(img)
+
+	var text = document.createTextNode(dev.Name)
+	div.appendChild(text)
+
 	explorer.appendChild(div)
 	if (explorer.children.length == 1) {
 		clickDev(id)
@@ -170,14 +190,16 @@ function insertDevice(id, dev) {
 
 function removeDevice(id) {
 	var div = document.getElementById("device-" + id)
+	var prev = div.previousElementSibling
 	explorer.removeChild(div)
 	delete state.Devices[id]
 	if (selected == id) {
-		unclickDev(id)
+		unclickDev(prev)
 	}
 }
 
 function loadExplorer() {
+	selected = undefined
 	explorer.textContent = ''
 	for (let id in state.Devices) {
 		insertDevice(id, state.Devices[id])
@@ -196,20 +218,23 @@ function open() {
 function close() {
 }
 
-function online() {
+function connected(id) {
+	var img = document.getElementById("device-" + id + "-status")
+	setDeviceIcon(img, true)
 }
 
-function offline() {
-}
-
-function update(child) {
+function disconnected(id) {
+	var img = document.getElementById("device-" + id + "-status")
+	setDeviceIcon(img, false)
 }
 
 function handle(msg) {
 	switch(msg.Path) {
 	case "connected":
+		connected(msg.Id)
+		break
 	case "disconnected":
-		update(msg)
+		disconnected(msg.Id)
 		break
 	case "created/device":
 		insertDevice(msg.Id, msg)

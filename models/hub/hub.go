@@ -30,7 +30,6 @@ type Hub struct {
 	Devices
 	Models
 	server *dean.Server
-	async  chan *dean.Msg
 }
 
 func New(id, model, name string) dean.Thinger {
@@ -38,7 +37,6 @@ func New(id, model, name string) dean.Thinger {
 	return &Hub{
 		Common:  common.New(id, model, name).(*common.Common),
 		Devices: make(Devices),
-		async:   make(chan *dean.Msg, 10),
 	}
 }
 
@@ -68,11 +66,31 @@ func (h *Hub) connect(online bool) func(*dean.Msg) {
 	}
 }
 
+func (h *Hub) createdThing(msg *dean.Msg) {
+	var create dean.ThingMsgCreated
+	msg.Unmarshal(&create)
+	h.Devices[create.Id] = &Device{Model: create.Model, Name: create.Name}
+	h.storeDevices()
+	create.Path = "created/device"
+	msg.Marshal(&create).Broadcast()
+}
+
+func (h *Hub) deletedThing(msg *dean.Msg) {
+	var del dean.ThingMsgDeleted
+	msg.Unmarshal(&del)
+	delete(h.Devices, del.Id)
+	h.storeDevices()
+	del.Path = "deleted/device"
+	msg.Marshal(&del).Broadcast()
+}
+
 func (h *Hub) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"get/state":     h.getState,
 		"connected":     h.connect(true),
 		"disconnected":  h.connect(false),
+		"created/thing": h.createdThing,
+		"deleted/thing": h.deletedThing,
 	}
 }
 
@@ -83,20 +101,11 @@ func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/deploy?id={id}\n"))
 }
 
-func (h *Hub) createDevice(id, model, name string) error {
-	err := h.server.CreateThing(id, model, name)
-	if err == nil {
-		h.Devices[id] = &Device{Model: model, Name: name}
-		h.storeDevices()
-	}
-	return err
-}
-
 func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	model := r.URL.Query().Get("model")
 	name := r.URL.Query().Get("name")
-	err := h.createDevice(id, model, name)
+	err := h.server.CreateThing(id, model, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -105,18 +114,9 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Device id '%s' created", id)
 }
 
-func (h *Hub) deleteDevice(id string) error {
-	err := h.server.DeleteThing(id)
-	if err == nil {
-		delete(h.Devices, id)
-		h.storeDevices()
-	}
-	return err
-}
-
 func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	err := h.deleteDevice(id)
+	err := h.server.DeleteThing(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -168,7 +168,7 @@ func (h *Hub) restoreDevices() {
 	bytes, _ := os.ReadFile("devices.json")
 	json.Unmarshal(bytes, &devices)
 	for id, dev := range devices {
-		err := h.createDevice(id, dev.Model, dev.Name)
+		err := h.server.CreateThing(id, dev.Model, dev.Name)
 		if err != nil {
 			fmt.Printf("Error creating device Id '%s': %s\n", id, err)
 		}
@@ -188,11 +188,5 @@ func (h *Hub) dumpDevices() {
 func (h *Hub) Run(i *dean.Injector) {
 	h.Models = h.server.GetModels()
 	h.restoreDevices()
-
-	for {
-		select {
-		case msg := <-h.async:
-			i.Inject(msg)
-		}
-	}
+	select {}
 }

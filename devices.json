@@ -13,10 +13,5 @@
 		"Model": "ps30m",
 		"Name": "poc3",
 		"Online": false
-	},
-	"foo": {
-		"Model": "ps30m",
-		"Name": "foo",
-		"Online": false
 	}
 }

@@ -51,12 +51,16 @@ func New(id, model, name string) dean.Thinger {
 }
 
 func (p *Ps30m) save(msg *dean.Msg) {
-	msg.Unmarshal(p)
+	msg.Unmarshal(p).Broadcast()
 }
 
 func (p *Ps30m) getState(msg *dean.Msg) {
 	p.Path = "state"
 	msg.Marshal(p).Reply()
+}
+
+func (p *Ps30m) updateStatus(msg *dean.Msg) {
+	msg.Unmarshal(p).Broadcast()
 }
 
 func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
@@ -68,31 +72,18 @@ func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
 	*recs = append([]record{rec}, (*recs)[:n]...)
 }
 
-func (p *Ps30m) updateStatus(msg *dean.Msg) {
-	msg.Unmarshal(p).Broadcast()
-}
-
 type RecUpdateMsg struct {
 	Path   string
 	Record record
 }
 
-func (p *Ps30m) updateRecord(msg *dean.Msg) {
-	var update RecUpdateMsg
-	msg.Unmarshal(&update)
-
-	switch update.Path {
-	case "update/second":
-		p.saveRecord(&p.Seconds, update.Record, 60)
-	case "update/minute":
-		p.saveRecord(&p.Minutes, update.Record, 60)
-	case "update/hour":
-		p.saveRecord(&p.Hours, update.Record, 24)
-	case "update/day":
-		p.saveRecord(&p.Days, update.Record, 365)
+func (p *Ps30m) updateRecord(recs *[]record, size int) func(*dean.Msg) {
+	return func(msg *dean.Msg) {
+		var update RecUpdateMsg
+		msg.Unmarshal(&update)
+		p.saveRecord(recs, update.Record, size)
+		msg.Broadcast()
 	}
-
-	msg.Broadcast()
 }
 
 func (p *Ps30m) Subscribers() dean.Subscribers {
@@ -100,10 +91,10 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 		"state":         p.save,
 		"get/state":     p.getState,
 		"update/status": p.updateStatus,
-		"update/second": p.updateRecord,
-		"update/minute": p.updateRecord,
-		"update/hour":   p.updateRecord,
-		"update/day":    p.updateRecord,
+		"update/second": p.updateRecord(&p.Seconds, 60),
+		"update/minute": p.updateRecord(&p.Minutes, 60),
+		"update/hour":   p.updateRecord(&p.Hours, 24),
+		"update/day":    p.updateRecord(&p.Days, 365),
 	}
 }
 
