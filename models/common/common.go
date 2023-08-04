@@ -16,7 +16,7 @@ type Common struct {
 func New(id, model, name string) dean.Thinger {
 	println("NEW COMMON")
 	return &Common{
-		Thing:    dean.NewThing(id, model, name),
+		Thing: dean.NewThing(id, model, name),
 	}
 }
 
