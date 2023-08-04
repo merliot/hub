@@ -14,7 +14,6 @@ function showSystem() {
 
 function wsclose() {
 	close()
-	overlay.style.display = "block"
 	clearInterval(pingID)
 }
 
@@ -23,7 +22,6 @@ function ping() {
 }
 
 function wsopen() {
-	overlay.style.display = "none"
 	// for Koyeb work-around, ping every 60s to keep websocket alive
 	pingID = setInterval(ping, 1 * 60 * 1000)
 	open()

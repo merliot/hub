@@ -1,3 +1,4 @@
+var overlay = document.getElementById("overlay")
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
 var dialogCreate = document.getElementById("create-dialog")
@@ -207,6 +208,7 @@ function loadExplorer() {
 }
 
 function open() {
+	state.Online ? online() : offline()
 	loadExplorer()
 	stageCreate()
 	stageApi()
@@ -216,6 +218,15 @@ function open() {
 }
 
 function close() {
+	offline()
+}
+
+function online() {
+	overlay.innerHTML = ""
+}
+
+function offline() {
+	overlay.innerHTML = "Offline"
 }
 
 function connected(id) {

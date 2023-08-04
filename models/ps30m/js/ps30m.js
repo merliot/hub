@@ -1,3 +1,5 @@
+var overlay = document.getElementById("overlay")
+
 let chart = new Chart(document.getElementById("chart"), {
 	data: {
 		labels: [],
@@ -85,26 +87,23 @@ function showChart(clear) {
 	}
 }
 
-function clearHistory() {
-	state.Seconds = []
-	state.Minutes = []
-	state.Hours = []
-	state.Days = []
-}
-
 function open() {
+	state.Online ? online() : offline()
 	showSystem()
 	showStatus()
 	showChart(true)
 }
 
 function close() {
+	offline()
 }
 
 function online() {
+	overlay.innerHTML = ""
 }
 
 function offline() {
+	overlay.innerHTML = "Offline"
 }
 
 function saveRecord(array, record, size) {
