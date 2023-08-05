@@ -23,8 +23,7 @@ function ping() {
 
 function wsopen() {
 	// for Koyeb work-around, ping every 60s to keep websocket alive
-	pingID = setInterval(ping, 1 * 10 * 1000)
-	//pingID = setInterval(ping, 1 * 60 * 1000)
+	pingID = setInterval(ping, 1 * 60 * 1000)
 	open()
 }
 
