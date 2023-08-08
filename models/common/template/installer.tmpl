@@ -4,11 +4,34 @@ package main
 
 import (
 	"embed"
+	"io"
+	"os"
 )
 
-//go:embed {{.model}} {{.model}}.service
+//go:embed {{.model}} {{.model}}.service {{.model}}.conf
 var fs embed.FS
 
 func main() {
-	println("copy bin to /usr/local/bin")
+	src, err := fs.Open("{{.model}}")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer src.Close()
+
+	dstName := "/usr/local/bin/{{.model}}"
+	dst, err := os.Create(dstName)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Make the file executable
+	if err := os.Chmod(dstName, 0755); err != nil {
+		panic(err.Error())
+	}
 }

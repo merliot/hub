@@ -144,6 +144,11 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
+	// Make the file executable (e.g., 0755 permission)
+	if err := os.Chmod(installer, 0755); err != nil {
+		return err
+	}
+
 	// Set the Content-Disposition header to suggest the original filename for download
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
 
