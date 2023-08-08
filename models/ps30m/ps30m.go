@@ -13,9 +13,9 @@ import (
 	"github.com/x448/float16"
 )
 
-//go:embed css html js
+//go:embed css template js
 var fs embed.FS
-var tmpls = template.Must(template.ParseFS(fs, "html/*"))
+var tmpls = template.Must(template.ParseFS(fs, "template/*"))
 
 const (
 	AdcIa       = 0x0011
@@ -99,14 +99,22 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 }
 
 func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
-	id, _, _ := p.Identity()
-	w.Write([]byte("/" + id + "/api\n"))
+	w.Write([]byte("/api\n"))
+	w.Write([]byte("/deploy?target={target}\n"))
+}
+
+func (p *Ps30m) deploy(w http.ResponseWriter, r *http.Request) {
+	if err := p.Deploy(tmpls, w, r); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
 func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "api":
+	case "/api":
 		p.api(w, r)
+	case "/deploy":
+		p.deploy(w, r)
 	default:
 		p.Common.API(fs, tmpls, w, r)
 	}
@@ -223,11 +231,12 @@ func (p *Ps30m) sample(i *dean.Injector) {
 }
 
 func (p *Ps30m) Run(i *dean.Injector) {
+	const serial = "rtu:///dev/ttyUSB0"
 	var err error
 
 	if !p.demo {
 		p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
-			URL:      "rtu:///dev/ttyUSB0",
+			URL:      serial,
 			Speed:    9600,
 			DataBits: 8,
 			Parity:   modbus.PARITY_NONE,
@@ -235,11 +244,13 @@ func (p *Ps30m) Run(i *dean.Injector) {
 			Timeout:  300 * time.Millisecond,
 		})
 		if err != nil {
-			panic(err.Error())
+			println("Create modbus client failed:", err.Error())
+			return
 		}
 
 		if err = p.client.Open(); err != nil {
-			panic(err.Error())
+			println("Open modbus client at", serial, "failed:", err.Error())
+			return
 		}
 	}
 

@@ -98,7 +98,6 @@ func (h *Hub) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/api\n"))
 	w.Write([]byte("/create?id={id}&model={model}&name={name}\n"))
 	w.Write([]byte("/delete?id={id}\n"))
-	w.Write([]byte("/deploy?id={id}\n"))
 }
 
 func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
@@ -125,25 +124,6 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Device id '%s' deleted", id)
 }
 
-func (h *Hub) _deploy(id string) error {
-	_, ok := h.Devices[id]
-	if !ok {
-		return fmt.Errorf("Device ID '%s' doesn't exist!", id)
-	}
-	// TODO build binary and download
-	return nil
-}
-
-func (h *Hub) apiDeploy(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	err := h._deploy(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-}
-
 func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api":
@@ -152,8 +132,6 @@ func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, 
 		h.apiCreate(w, r)
 	case "/delete":
 		h.apiDelete(w, r)
-	case "/deploy":
-		h.apiDeploy(w, r)
 	default:
 		h.Common.API(fs, tmpls, w, r)
 	}
