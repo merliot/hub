@@ -105,7 +105,7 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/deploy?target={target}\n"))
 }
 
-func (p *Ps30m) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
+func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "", "/":
 		p.Index(indexTmpl, w, r)
@@ -116,10 +116,6 @@ func (p *Ps30m) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
 	default:
 		p.Common.API(fs, w, r)
 	}
-}
-
-func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	p.API(fs, w, r)
 }
 
 type RegsUpdateMsg struct {

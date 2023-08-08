@@ -4,12 +4,8 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/gps"
 	"github.com/merliot/sw-poc/models/hub"
-	"github.com/merliot/sw-poc/models/led"
 	"github.com/merliot/sw-poc/models/ps30m"
-	"github.com/merliot/sw-poc/models/relays"
-	"github.com/merliot/sw-poc/models/sense"
 )
 
 func main() {
@@ -30,10 +26,6 @@ func main() {
 		}
 	}
 
-	server.RegisterModel("relays", relays.New)
-	server.RegisterModel("gps", gps.New)
-	server.RegisterModel("sense", sense.New)
-	server.RegisterModel("led", led.New)
 	server.RegisterModel("ps30m", ps30m.New)
 
 	go server.ListenAndServe()

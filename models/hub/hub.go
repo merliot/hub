@@ -12,9 +12,10 @@ import (
 	"github.com/merliot/sw-poc/models/common"
 )
 
-//go:embed css html images js
+//go:embed css images js template
 var fs embed.FS
-var tmpls = template.Must(template.ParseFS(fs, "html/*"))
+
+var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
 
 type Device struct {
 	Model  string
@@ -124,8 +125,10 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Device id '%s' deleted", id)
 }
 
-func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
+func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
+	case "", "/":
+		h.Index(indexTmpl, w, r)
 	case "/api":
 		h.api(w, r)
 	case "/create":
@@ -133,12 +136,8 @@ func (h *Hub) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, 
 	case "/delete":
 		h.apiDelete(w, r)
 	default:
-		h.Common.API(fs, tmpls, w, r)
+		h.Common.API(fs, w, r)
 	}
-}
-
-func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.API(fs, tmpls, w, r)
 }
 
 func (h *Hub) restoreDevices() {

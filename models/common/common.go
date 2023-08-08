@@ -31,8 +31,9 @@ func New(id, model, name string) dean.Thinger {
 }
 
 func (c *Common) API(embedFs embed.FS, w http.ResponseWriter, r *http.Request) {
+	println(r.URL.Path)
 	switch r.URL.Path {
-	case "/css/common.css", "/js/common.js":
+	case "/css/common.css", "css/common.css", "/js/common.js", "js/common.js":
 		http.FileServer(http.FS(commonFs)).ServeHTTP(w, r)
 	default:
 		http.FileServer(http.FS(embedFs)).ServeHTTP(w, r)
