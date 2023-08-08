@@ -13,9 +13,11 @@ import (
 	"github.com/x448/float16"
 )
 
-//go:embed css template js
+//go:embed css js template
 var fs embed.FS
-var tmpls = template.Must(template.ParseFS(fs, "template/*"))
+
+var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
+var buildTmpl = template.Must(template.ParseFS(fs, "template/build.tmpl"))
 
 const (
 	AdcIa       = 0x0011
@@ -103,25 +105,21 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/deploy?target={target}\n"))
 }
 
-func (p *Ps30m) deploy(w http.ResponseWriter, r *http.Request) {
-	if err := p.Deploy(tmpls, w, r); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-func (p *Ps30m) API(fs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
+func (p *Ps30m) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
+	case "", "/":
+		p.Index(indexTmpl, w, r)
 	case "/api":
 		p.api(w, r)
 	case "/deploy":
-		p.deploy(w, r)
+		p.Deploy(buildTmpl, w, r)
 	default:
-		p.Common.API(fs, tmpls, w, r)
+		p.Common.API(fs, w, r)
 	}
 }
 
 func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	p.API(fs, tmpls, w, r)
+	p.API(fs, w, r)
 }
 
 type RegsUpdateMsg struct {

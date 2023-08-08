@@ -7,10 +7,16 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
 
 	"github.com/merliot/dean"
 )
+
+//go:embed css js template
+var commonFs embed.FS
+
+var pkgTmpl = template.Must(template.ParseFS(commonFs, "template/installer.tmpl"))
+var serviceTmpl = template.Must(template.ParseFS(commonFs, "template/service.tmpl"))
+var logTmpl = template.Must(template.ParseFS(commonFs, "template/log.tmpl"))
 
 type Common struct {
 	dean.Thing
@@ -24,25 +30,33 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func parseTemplate(data any, tmpls *template.Template, w http.ResponseWriter, name string) {
-	err := tmpls.ExecuteTemplate(w, name, data)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	}
-}
-
-func (c *Common) API(embedFs embed.FS, tmpls *template.Template, w http.ResponseWriter, r *http.Request) {
+func (c *Common) API(embedFs embed.FS, w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "", "/":
-		id, _, _ := c.Identity()
-		c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
-		parseTemplate(c, tmpls, w, "index.html")
+	case "/css/common.css", "/js/common.js":
+		http.FileServer(http.FS(commonFs)).ServeHTTP(w, r)
 	default:
 		http.FileServer(http.FS(embedFs)).ServeHTTP(w, r)
 	}
 }
 
-func (c *Common) Deploy(tmpls *template.Template, w http.ResponseWriter, r *http.Request) error {
+func (c *Common) Index(indexTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
+	id, _, _ := c.Identity()
+	c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
+	if err := indexTmpl.Execute(w, c); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func genFile(tmpl *template.Template, name string, values map[string]string) error {
+	file , err := os.Create(name)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return tmpl.Execute(file, values)
+}
+
+func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r *http.Request) error {
 
 	var values = make(map[string]string)
 
@@ -61,6 +75,13 @@ func (c *Common) Deploy(tmpls *template.Template, w http.ResponseWriter, r *http
 	values["model"] = model
 	values["name"] = name
 
+	// Get the current working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	defer os.Chdir(wd)
+
 	// Create temp build directory in /tmp
 	dir, err := os.MkdirTemp("", id + "-")
 	if err != nil {
@@ -69,45 +90,32 @@ func (c *Common) Deploy(tmpls *template.Template, w http.ResponseWriter, r *http
 //	defer os.RemoveAll(dir)
 	println(dir)
 
-	// Generate build.go from build.tmpl, passing in request params
-	destination := filepath.Join(dir, "build.go")
-	outputFile, err := os.Create(destination)
-	if err != nil {
-		return err
-	}
-	defer outputFile.Close()
-
-	err = tmpls.ExecuteTemplate(outputFile, "build.tmpl", values)
-	if err != nil {
-		return err
-	}
-
-	// Generate pkg.go from pkg.tmpl, passing in request params
-	destination = filepath.Join(dir, "pkg.go")
-	outputFile, err = os.Create(destination)
-	if err != nil {
-		return err
-	}
-	defer outputFile.Close()
-
-	err = tmpls.ExecuteTemplate(outputFile, "pkg.tmpl", values)
-	if err != nil {
-		return err
-	}
-
-	// Build main.go -> model (binary)
-
-	// Get the current working directory
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	defer os.Chdir(wd)
-
 	// Change the working directory to temp build directory
 	if err = os.Chdir(dir); err != nil {
 		return err
 	}
+
+	// Generate build.go from build.tmpl
+	if err := genFile(buildTmpl, "build.go", values); err != nil {
+		return err
+	}
+
+	// Generate installer.go from installer.tmpl
+	if err := genFile(pkgTmpl, "installer.go", values); err != nil {
+		return err
+	}
+
+	// Generate model.service from service.tmpl
+	if err := genFile(serviceTmpl, model + ".service", values); err != nil {
+		return err
+	}
+
+	// Generate model.conf from log.tmpl
+	if err := genFile(logTmpl, model + ".conf", values); err != nil {
+		return err
+	}
+
+	// Build main.go -> model (binary)
 
 	cmd := exec.Command("go", "mod", "init", model)
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -127,11 +135,25 @@ func (c *Common) Deploy(tmpls *template.Template, w http.ResponseWriter, r *http
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	cmd = exec.Command("go", "build", "-o", id, "pkg.go")
+	// Build installer and serve as download-able file
+
+	installer := id + "-installer"
+	cmd = exec.Command("go", "build", "-o", installer, "installer.go")
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
+	// Set the Content-Disposition header to suggest the original filename for download
+	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
+
+	http.ServeFile(w, r, installer)
+
 	return nil
+}
+
+func (c *Common) Deploy(buildTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
+	if err := c._deploy(buildTmpl, w, r); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
