@@ -109,9 +109,9 @@ func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "", "/":
 		p.Index(indexTmpl, w, r)
-	case "/api":
+	case "api", "/api":
 		p.api(w, r)
-	case "/deploy":
+	case "deploy", "/deploy":
 		p.Deploy(buildTmpl, w, r)
 	default:
 		p.Common.API(fs, w, r)
