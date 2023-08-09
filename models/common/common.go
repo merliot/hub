@@ -135,6 +135,11 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
+	// Make the file executable (e.g., 0755 permission)
+	if err := os.Chmod(model, 0755); err != nil {
+		return err
+	}
+
 	// Build installer and serve as download-able file
 
 	installer := id + "-installer"
@@ -142,11 +147,6 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
-	}
-
-	// Make the file executable (e.g., 0755 permission)
-	if err := os.Chmod(installer, 0755); err != nil {
-		return err
 	}
 
 	// Set the Content-Disposition header to suggest the original filename for download
