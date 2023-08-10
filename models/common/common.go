@@ -74,6 +74,12 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	values["id"] = id
 	values["model"] = model
 	values["name"] = name
+	values["hub"] = r.Host
+
+	if user, passwd, ok := r.BasicAuth(); ok {
+		values["user"] = user
+		values["passwd"] = passwd
+	}
 
 	// Get the current working directory
 	wd, err := os.Getwd()
