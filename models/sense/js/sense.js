@@ -34,7 +34,7 @@ function init() {
 }
 
 function show() {
-	showSystem()
+	showDevice()
 	gauge.set(state.Lux)
 }
 

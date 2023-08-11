@@ -4,7 +4,7 @@ var pingID
 
 var overlay = document.getElementById("overlay")
 
-function showSystem() {
+function showDevice() {
 	let system = document.getElementById("system")
 	system.value = ""
 	system.value += "ID:      " + state.Id + "\r\n"

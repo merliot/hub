@@ -89,7 +89,7 @@ function showChart(clear) {
 
 function open() {
 	state.Online ? online() : offline()
-	showSystem()
+	showDevice()
 	showStatus()
 	showChart(true)
 }

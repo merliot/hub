@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"strings"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/sw-poc/models/common"
@@ -61,7 +62,7 @@ func (g *Gps) Subscribers() dean.Subscribers {
 	}
 }
 
-func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
+func (g *Gps) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/api\n"))
 	w.Write([]byte("/deploy?target={target}\n"))
 }

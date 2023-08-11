@@ -2,7 +2,7 @@ function init() {
 }
 
 function show() {
-	showSystem()
+	showDevice()
 }
 
 function hide() {

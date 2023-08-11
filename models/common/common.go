@@ -80,6 +80,7 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 
 	values["id"] = id
 	values["model"] = model
+	values["modelStruct"] = strings.Title(model)
 	values["name"] = name
 	values["hub"] = r.Host
 	values["scheme"] = "wss://"

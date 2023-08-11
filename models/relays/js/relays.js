@@ -7,7 +7,7 @@ function init() {
 }
 
 function show() {
-	showSystem()
+	showDevice()
 	for (var i = 0; i < relays.length; i++) {
 		relays[i].checked = state.States[i]
 		relays[i].disabled = false

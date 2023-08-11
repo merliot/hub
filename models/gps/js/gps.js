@@ -1,3 +1,5 @@
+var overlay = document.getElementById("overlay")
+
 var map
 var marker
 
@@ -9,22 +11,34 @@ function init() {
 	<!-- Create a Leaflet map using OpenStreetMap -->
 	map = L.map('map').setZoom(13)
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	    maxZoom: 19,
-	    attribution: '© OpenStreetMap'
+		maxZoom: 19,
+		attribution: '© OpenStreetMap',
 	}).addTo(map)
 
-	<!-- Create a map marker with popup that has [Id, Model, Name] -- !>
-	popup = "ID: {{.Id}}<br>Model: {{.Model}}<br>Name: {{.Name}}"
-	marker = L.marker([0, 0]).addTo(map).bindPopup(popup);
+	marker = L.marker([0, 0]).addTo(map)
 }
 
-function show() {
-	showSystem()
+function showMarker() {
 	marker.setLatLng([state.Lat, state.Long])
 	map.panTo([state.Lat, state.Long])
 }
 
-function hide() {
+function open() {
+	state.Online ? online() : offline()
+	showDevice()
+	showMarker()
+}
+
+function close() {
+	offline()
+}
+
+function online() {
+	overlay.innerHTML = ""
+}
+
+function offline() {
+	overlay.innerHTML = "Offline"
 }
 
 function handle(msg) {
