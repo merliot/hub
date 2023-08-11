@@ -74,29 +74,6 @@
 			</div>
 		</dialog>
 
-		<dialog id="deploy-dialog">
-			<div class="divFlexCol">
-				<div id="divFlexRow">
-					<label for="deploy-target">Target:</label>
-					<select name="deploy-target" id="deploy-target">
-						<option value="rpi">Raspberry Pi</option>
-					</select>
-				</div>
-				<div id="divFlexRow">
-					<label for="deploy-http">Run local Web Server:</label>
-					<input type="checkbox" id="deploy-http">
-				</div>
-				<div class="divFlexCol">
-					<p>Download Link:</p>
-					<a id="deploy-link"></a>
-				</div>
-			</div>
-			<hr>
-			<div class="btnsRow">
-				<button id="deploy-close">Close</button>
-			</div>
-		</dialog>
-
 		<script src="js/common.js"></script>
 		<script src="js/hub.js"></script>
 		<script>run("[hub]", "{{.WebSocket}}")</script>

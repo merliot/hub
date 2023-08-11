@@ -5,36 +5,14 @@ var dialogCreate = document.getElementById("create-dialog")
 var dialogApi = document.getElementById("api-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
 var selected // currently selected device ID
+var sub = ""
 
 function init() {
 }
 
-function updateDeployLink() {
-	var link = document.getElementById("deploy-link")
-	var target = document.getElementById("deploy-target")
-	var http = document.getElementById("deploy-http")
-	var url = "https://sw-poc.merliot.net/deploy?id=" + selected +
-		"&target=" + target.value +
-		"&http=" + http.checked
-	link.href = url
-	link.innerHTML = url
-}
-
-function clickDeploy() {
-	var dialogDeploy = document.getElementById("deploy-dialog")
-	var btnClose = document.getElementById("deploy-close")
-	var selectTarget = document.getElementById("deploy-target")
-	var checkboxHttp = document.getElementById("deploy-http")
-	btnClose.onclick = function(){dialogDeploy.close()}
-	selectTarget.onchange = function(){updateDeployLink()}
-	checkboxHttp.onchange = function(){updateDeployLink()}
-	updateDeployLink()
-	dialogDeploy.showModal()
-}
-
 function clickDev(id) {
 	var obj = document.createElement("object")
-	obj.data = "/" + id + "/"
+	obj.data = "/" + id + "/" + sub
 	view.textContent = ''
 	view.appendChild(obj)
 
@@ -159,7 +137,15 @@ function stageSave() {
 
 function stageDeploy() {
 	var btn = document.getElementById("deploy")
-	btn.onclick = function(){clickDeploy()}
+	btn.onclick = function(){
+		btn.classList.toggle("active")
+		if (btn.classList.contains("active")) {
+			sub = "deploy.html"
+		} else {
+			sub = ""
+		}
+		clickDev(selected)
+	}
 }
 
 function setDeviceIcon(img, online) {

@@ -51,6 +51,14 @@ body {
 	width: 400px;
 }
 
+#deploy {
+}
+
+#deploy.active {
+	background-color: darkgrey;
+	border-style: inset;
+}
+
 .divFlexRow {
 	display: flex;
 }

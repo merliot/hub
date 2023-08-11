@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/merliot/dean"
 )
@@ -31,8 +32,8 @@ func New(id, model, name string) dean.Thinger {
 }
 
 func (c *Common) API(embedFs embed.FS, w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/css/common.css", "css/common.css", "/js/common.js", "js/common.js":
+	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "css/common.css", "js/common.js":
 		http.FileServer(http.FS(commonFs)).ServeHTTP(w, r)
 	default:
 		http.FileServer(http.FS(embedFs)).ServeHTTP(w, r)
@@ -43,6 +44,12 @@ func (c *Common) Index(indexTmpl *template.Template, w http.ResponseWriter, r *h
 	id, _, _ := c.Identity()
 	c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
 	if err := indexTmpl.Execute(w, c); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (c *Common) ShowDeploy(deployTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
+	if err := deployTmpl.Execute(w, c); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
@@ -75,10 +82,20 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	values["model"] = model
 	values["name"] = name
 	values["hub"] = r.Host
+	values["scheme"] = "wss://"
+	if r.TLS == nil {
+		values["scheme"] = "ws://"
+	}
 
 	if user, passwd, ok := r.BasicAuth(); ok {
 		values["user"] = user
 		values["passwd"] = passwd
+	}
+
+	envs := []string{}
+	switch values["target"] {
+	case "rpi":
+		envs = []string{"GOOS=linux", "GOARCH=arm", "GOARM=5"}
 	}
 
 	// Get the current working directory
@@ -136,6 +153,7 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	}
 
 	cmd = exec.Command("go", "build", "-o", model, "build.go")
+	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -150,6 +168,7 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 
 	installer := id + "-installer"
 	cmd = exec.Command("go", "build", "-o", installer, "installer.go")
+	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)

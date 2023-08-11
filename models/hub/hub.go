@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/sw-poc/models/common"
@@ -126,14 +127,14 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "", "/":
+	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "":
 		h.Index(indexTmpl, w, r)
-	case "/api":
+	case "api":
 		h.api(w, r)
-	case "/create":
+	case "create":
 		h.apiCreate(w, r)
-	case "/delete":
+	case "delete":
 		h.apiDelete(w, r)
 	default:
 		h.Common.API(fs, w, r)

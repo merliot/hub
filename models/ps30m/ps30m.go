@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/merliot/dean"
@@ -18,6 +19,7 @@ var fs embed.FS
 
 var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
 var buildTmpl = template.Must(template.ParseFS(fs, "template/build.tmpl"))
+var deployTmpl = template.Must(template.ParseFS(fs, "template/deploy.tmpl"))
 
 const (
 	AdcIa       = 0x0011
@@ -106,12 +108,14 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "", "/":
+	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "":
 		p.Index(indexTmpl, w, r)
-	case "api", "/api":
+	case "api":
 		p.api(w, r)
-	case "deploy", "/deploy":
+	case "deploy.html":
+		p.ShowDeploy(deployTmpl, w, r)
+	case "deploy":
 		p.Deploy(buildTmpl, w, r)
 	default:
 		p.Common.API(fs, w, r)

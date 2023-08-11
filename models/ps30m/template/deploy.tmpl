@@ -1,0 +1,47 @@
+<html lang="en">
+	<head>
+		<meta name="viewport"
+		      content="width=device-width, initial-scale=1">
+		<title>MorningStar ProStar PS-30M</title>
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+
+	</head>
+
+	<body>
+		<fieldset>
+			<legend>System Info</legend>
+			<textarea id="system" readonly rows="3">
+ID:      {{.Id}}
+Model:   {{.Model}}
+Name:    {{.Name}}</textarea>
+		</fieldset>
+
+		<fieldset>
+			<legend>Deploy</legend>
+			<div class="divFlexCol">
+				<div id="divFlexRow">
+					<label for="deploy-target">Target:</label>
+					<select name="deploy-target" id="deploy-target">
+						<option value="rpi">Raspberry Pi</option>
+					</select>
+				</div>
+				<div id="divFlexRow">
+					<label for="deploy-demo">Demo Mode:</label>
+					<input type="checkbox" id="deploy-demo">
+				</div>
+				<div id="divFlexRow">
+					<label for="deploy-http">Run local Web Server:</label>
+					<input type="checkbox" id="deploy-http">
+				</div>
+				<hr>
+				<div class="divFlexCol">
+					<p>Download Link:</p>
+					<a id="download-link" href="#"></a>
+				</div>
+			</div>
+		</fieldset>
+
+		<script src="js/deploy.js"></script>
+		<script>stageDeploy()</script>
+	</body>
+</html>

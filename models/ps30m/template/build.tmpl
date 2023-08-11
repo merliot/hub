@@ -17,7 +17,7 @@ func main() {
 	server := dean.NewServer(thing)
 
 	if "{{.hub}}" != "" {
-		server.DialWebSocket("{{.user}}", "{{.passwd}}", "wss://{{.hub}}/ws/1500", thing.Announce())
+		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.scheme}}{{.hub}}/ws/1500", thing.Announce())
 	}
 
 	if "{{.port}}" != "" {
