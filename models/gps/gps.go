@@ -26,6 +26,7 @@ type Gps struct {
 	*common.Common
 	Lat  float64
 	Long float64
+	demo bool
 }
 
 type Update struct {
@@ -115,6 +116,11 @@ func distance(lat1, lon1, lat2, lon2 float64) float64 {
 }
 
 func (g *Gps) Run(i *dean.Injector) {
+
+	if g.demo {
+		g.runDemo(i)
+	}
+
 	var msg dean.Msg
 	var update = Update{Path: "update"}
 

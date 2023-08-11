@@ -16,7 +16,7 @@ func main() {
 	thing := gps.New("foo", "gps", "foo").(*gps.Gps)
 
 	if demo != "" {
-//		thing.Demo()
+		thing.Demo()
 	}
 
 	server := dean.NewServer(thing)
