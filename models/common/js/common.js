@@ -73,3 +73,42 @@ function run(prefix, ws) {
 		}
 	}
 }
+
+function downloadFile(event) {
+	event.preventDefault()
+	var downloadURL = event.target.innerText
+
+	// Create an SVG spinner element with animation
+	const spinner = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+	spinner.setAttribute("width", "20");
+	spinner.setAttribute("height", "20");
+	spinner.innerHTML = '<circle cx="10" cy="10" r="7" stroke="gray" stroke-width="2" fill="transparent"></circle>';
+	spinner.style.animation = "spin 1s linear infinite"; // Add animation style
+	event.target.parentNode.insertBefore(spinner, event.target.nextSibling);
+
+	fetch(downloadURL)
+	.then(response => {
+		// Extract the filename from Content-Disposition header
+		const contentDisposition = response.headers.get('Content-Disposition')
+		const match = contentDisposition.match(/filename=([^;]+)/)
+		const filename = match ? match[1] : 'downloaded-file';  // Use a default filename if not found
+		return Promise.all([response.blob(), filename])
+	})
+	.then(([blob, filename]) => {
+		// Remove the spinner
+		spinner.parentNode.removeChild(spinner)
+		// Create a temporary link element to trigger the download
+		const a = document.createElement('a')
+		a.href = URL.createObjectURL(blob)
+		a.style.display = 'none'
+		a.download = filename
+		document.body.appendChild(a)
+		a.click();  // Simulate a click on the link
+		document.body.removeChild(a)
+	})
+	.catch(error => {
+		console.error('Error downloading file:', error)
+		// Remove the spinner on error
+		spinner.parentNode.removeChild(spinner)
+	})
+}

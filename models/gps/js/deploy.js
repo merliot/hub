@@ -10,7 +10,6 @@ function updateDeployLink() {
 		"&demo=" + demo.checked +
 		"&http=" + http.checked
 	var downloadURL = baseURL + linkURL
-	link.href = downloadURL
 	link.innerHTML = downloadURL
 }
 
@@ -18,8 +17,10 @@ function stageDeploy() {
 	var selectTarget = document.getElementById("deploy-target")
 	var checkboxDemo = document.getElementById("deploy-demo")
 	var checkboxHttp = document.getElementById("deploy-http")
+	var downloadLink = document.getElementById("download-link")
 	selectTarget.onchange = function(){updateDeployLink()}
 	checkboxDemo.onchange = function(){updateDeployLink()}
 	checkboxHttp.onchange = function(){updateDeployLink()}
+	downloadLink.addEventListener("click", downloadFile)
 	updateDeployLink()
 }
