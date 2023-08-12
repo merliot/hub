@@ -78,13 +78,7 @@ function downloadFile(event) {
 	event.preventDefault()
 	var downloadURL = event.target.innerText
 
-	// Create an SVG spinner element with animation
-	const spinner = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-	spinner.setAttribute("width", "20");
-	spinner.setAttribute("height", "20");
-	spinner.innerHTML = '<circle cx="10" cy="10" r="7" stroke="gray" stroke-width="2" fill="transparent"></circle>';
-	spinner.style.animation = "spin 1s linear infinite"; // Add animation style
-	event.target.parentNode.insertBefore(spinner, event.target.nextSibling);
+	// TODO spinner animation when downloading file
 
 	fetch(downloadURL)
 	.then(response => {
@@ -95,8 +89,6 @@ function downloadFile(event) {
 		return Promise.all([response.blob(), filename])
 	})
 	.then(([blob, filename]) => {
-		// Remove the spinner
-		spinner.parentNode.removeChild(spinner)
 		// Create a temporary link element to trigger the download
 		const a = document.createElement('a')
 		a.href = URL.createObjectURL(blob)
@@ -108,7 +100,5 @@ function downloadFile(event) {
 	})
 	.catch(error => {
 		console.error('Error downloading file:', error)
-		// Remove the spinner on error
-		spinner.parentNode.removeChild(spinner)
 	})
 }

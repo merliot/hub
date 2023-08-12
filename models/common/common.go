@@ -31,13 +31,15 @@ func New(id, model, name string) dean.Thinger {
 	}
 }
 
-func (c *Common) API(embedFs embed.FS, w http.ResponseWriter, r *http.Request) {
-	switch strings.TrimPrefix(r.URL.Path, "/") {
-	case "css/common.css", "js/common.js":
+func (c *Common) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
+	_, err := fs.Open(strings.TrimPrefix(r.URL.Path, "/"))
+	if os.IsNotExist(err) {
+		// Not found in fs, try common fs
 		http.FileServer(http.FS(commonFs)).ServeHTTP(w, r)
-	default:
-		http.FileServer(http.FS(embedFs)).ServeHTTP(w, r)
+	} else {
+		http.FileServer(http.FS(fs)).ServeHTTP(w, r)
 	}
+
 }
 
 func (c *Common) Index(indexTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
