@@ -17,10 +17,7 @@ import (
 
 //go:embed css js template
 var fs embed.FS
-
-var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
-var buildTmpl = template.Must(template.ParseFS(fs, "template/build.tmpl"))
-var deployTmpl = template.Must(template.ParseFS(fs, "template/deploy.tmpl"))
+var tmpls = template.Must(template.ParseFS(fs, "template/*"))
 
 type Gps struct {
 	*common.Common
@@ -71,13 +68,13 @@ func (g *Gps) api(w http.ResponseWriter, r *http.Request) {
 func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "":
-		g.Index(indexTmpl, w, r)
+		g.Index(tmpls.Lookup("index.html"), w, r)
 	case "api":
 		g.api(w, r)
 	case "deploy.html":
-		g.ShowDeploy(deployTmpl, w, r)
+		g.ShowDeploy(tmpls.Lookup("deploy.tmpl"), w, r)
 	case "deploy":
-		g.Deploy(buildTmpl, w, r)
+		g.Deploy(tmpls.Lookup("build.tmpl"), w, r)
 	default:
 		g.Common.API(fs, w, r)
 	}
