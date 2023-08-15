@@ -23,7 +23,8 @@ type Gps struct {
 	Long float64
 	demo bool
 	templates *template.Template
-
+	ttyDevice string
+	ttyBaud   int
 }
 
 type Update struct {
@@ -38,7 +39,14 @@ func New(id, model, name string) dean.Thinger {
 	g.Common = common.New(id, model, name).(*common.Common)
 	g.CompositeFs.AddFS(fs)
 	g.templates = g.CompositeFs.ParseFS("template/*")
+	g.ttyDevice = "/dev/ttyUSB0"
+	g.ttyBaud = 9600
 	return g
+}
+
+func (g *Gps) SetSerial(dev string, baud int) {
+	g.ttyDevice = dev
+	g.ttyBaud = baud
 }
 
 func (g *Gps) save(msg *dean.Msg) {
@@ -84,7 +92,7 @@ func (g *Gps) Run(i *dean.Injector) {
 	var msg dean.Msg
 	var update = Update{Path: "update"}
 
-	cfg := &serial.Config{Name: "/dev/ttyS0", Baud: 9600}
+	cfg := &serial.Config{Name: g.ttyDevice, Baud: g.ttyBaud}
 	ser, err := serial.OpenPort(cfg)
 	if err != nil {
 		log.Fatal(err)
