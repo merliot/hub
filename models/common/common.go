@@ -110,9 +110,9 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	envs := []string{}
 	switch values["target"] {
 	case "x86_64":
-		envs = []string{"GOOS=linux", "GOARCH=amd64"}
+		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 	case "rpi":
-		envs = []string{"GOOS=linux", "GOARCH=arm", "GOARM=5"}
+		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
 	}
 
 	// Get the current working directory
