@@ -35,6 +35,8 @@ func removemodel() {
 }
 
 func installFile(srcName, dstName string, mode os.FileMode) {
+	exec.Command("systemctl", "stop", "{{.model}}").Run()
+
 	src, err := fs.Open(srcName)
 	if err != nil {
 		panic(err.Error())

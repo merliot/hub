@@ -3,6 +3,7 @@ package gps
 import (
 	"bufio"
 	"embed"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -112,4 +113,6 @@ func (g *Gps) Run(i *dean.Injector) {
 		update.Lat, update.Long = lat, long
 		i.Inject(msg.Marshal(update))
 	}
+
+	log.Fatal(fmt.Errorf("Disconnected from %s", g.ttyDevice))
 }

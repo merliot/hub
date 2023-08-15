@@ -22,7 +22,7 @@ func main() {
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)
 
-	server.DialWebSocket(user, passwd, "ws://nuc:8000/ws/1500", thing.Announce())
+	server.DialWebSocket(user, passwd, "ws://127.0.0.1:8000/ws/1500", thing.Announce())
 	//server.DialWebSocket(user, passwd, "wss://demo.merliot.net/ws/1500", thing.Announce())
 	//server.DialWebSocket(user, passwd, "wss://hub.merliot.net/ws/1500", thing.Announce())
 
