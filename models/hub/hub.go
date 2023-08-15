@@ -16,8 +16,6 @@ import (
 //go:embed css images js template
 var fs embed.FS
 
-var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
-
 type Device struct {
 	Model  string
 	Name   string
@@ -31,15 +29,18 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	server *dean.Server
+	server    *dean.Server
+	templates *template.Template
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
-	return &Hub{
-		Common:  common.New(id, model, name).(*common.Common),
-		Devices: make(Devices),
-	}
+	h := &Hub{}
+	h.Common = common.New(id, model, name).(*common.Common)
+	h.Devices = make(Devices)
+	h.CompositeFs.AddFS(fs)
+	h.templates = h.CompositeFs.ParseFS("template/*")
+	return h
 }
 
 func (h *Hub) UseServer(server *dean.Server) {
@@ -128,8 +129,6 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
-	case "":
-		h.Index(indexTmpl, w, r)
 	case "api":
 		h.api(w, r)
 	case "create":
@@ -137,7 +136,7 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "delete":
 		h.apiDelete(w, r)
 	default:
-		h.Common.API(fs, w, r)
+		h.API(h.templates, w, r)
 	}
 }
 

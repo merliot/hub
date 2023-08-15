@@ -25,7 +25,6 @@ function showMarker() {
 
 function open() {
 	state.Online ? online() : offline()
-	showDevice()
 	showMarker()
 }
 
@@ -46,7 +45,7 @@ function handle(msg) {
 	case "update":
 		state.Lat = msg.Lat
 		state.Long = msg.Long
-		show()
+		showMarker()
 		break
 	}
 }

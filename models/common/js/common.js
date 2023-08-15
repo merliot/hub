@@ -4,14 +4,6 @@ var pingID
 
 var overlay = document.getElementById("overlay")
 
-function showDevice() {
-	let system = document.getElementById("system")
-	system.value = ""
-	system.value += "ID:      " + state.Id + "\r\n"
-	system.value += "Model:   " + state.Model + "\r\n"
-	system.value += "Name:    " + state.Name
-}
-
 function wsclose() {
 	close()
 	clearInterval(pingID)

@@ -13,59 +13,71 @@ import (
 )
 
 //go:embed css js template
-var commonFs embed.FS
-
-var pkgTmpl = template.Must(template.ParseFS(commonFs, "template/installer.tmpl"))
-var serviceTmpl = template.Must(template.ParseFS(commonFs, "template/service.tmpl"))
-var logTmpl = template.Must(template.ParseFS(commonFs, "template/log.tmpl"))
+var fs embed.FS
 
 type Common struct {
 	dean.Thing
-	WebSocket string `json:"-"`
+	WebSocket   string `json:"-"`
+	CompositeFs *dean.CompositeFS `json:"-"`
+	templates   *template.Template
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW COMMON")
-	return &Common{
-		Thing: dean.NewThing(id, model, name),
-	}
+	c := &Common{}
+	c.Thing = dean.NewThing(id, model, name)
+	c.CompositeFs = dean.NewCompositeFS()
+	c.CompositeFs.AddFS(fs)
+	c.templates = c.CompositeFs.ParseFS("template/*")
+	return c
 }
 
-func (c *Common) API(fs embed.FS, w http.ResponseWriter, r *http.Request) {
-	_, err := fs.Open(strings.TrimPrefix(r.URL.Path, "/"))
-	if os.IsNotExist(err) {
-		// Not found in fs, try common fs
-		http.FileServer(http.FS(commonFs)).ServeHTTP(w, r)
+func RenderTemplate(templates *template.Template, w http.ResponseWriter, name string, data any) {
+	tmpl := templates.Lookup(name)
+	if tmpl != nil {
+		if err := tmpl.Execute(w, data); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
 	} else {
-		http.FileServer(http.FS(fs)).ServeHTTP(w, r)
+		http.Error(w, "Template '" + name + "' not found", http.StatusBadRequest)
 	}
-
 }
 
-func (c *Common) Index(indexTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
+func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *http.Request) {
+
 	id, _, _ := c.Identity()
 	c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
-	if err := indexTmpl.Execute(w, c); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "", "index.html":
+		RenderTemplate(templates, w, "index.html", c)
+	case "deploy.html":
+		RenderTemplate(templates, w, "deploy.tmpl", c)
+	case "deploy":
+		c.deploy(templates, w, r)
+	default:
+		http.FileServer(http.FS(c.CompositeFs)).ServeHTTP(w, r)
 	}
 }
 
-func (c *Common) ShowDeploy(deployTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
-	if err := deployTmpl.Execute(w, c); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
+func genFile(templates *template.Template, template string, name string,
+	values map[string]string) error {
 
-func genFile(tmpl *template.Template, name string, values map[string]string) error {
+	tmpl := templates.Lookup(template)
+	if tmpl == nil {
+		return fmt.Errorf("Template '%s' not found", template)
+	}
+
 	file , err := os.Create(name)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
+
 	return tmpl.Execute(file, values)
 }
 
-func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r *http.Request) error {
+func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r *http.Request) error {
 
 	var values = make(map[string]string)
 
@@ -122,22 +134,22 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	}
 
 	// Generate build.go from build.tmpl
-	if err := genFile(buildTmpl, "build.go", values); err != nil {
+	if err := genFile(templates, "build.tmpl", "build.go", values); err != nil {
 		return err
 	}
 
 	// Generate installer.go from installer.tmpl
-	if err := genFile(pkgTmpl, "installer.go", values); err != nil {
+	if err := genFile(templates, "installer.tmpl", "installer.go", values); err != nil {
 		return err
 	}
 
 	// Generate model.service from service.tmpl
-	if err := genFile(serviceTmpl, model + ".service", values); err != nil {
+	if err := genFile(templates, "service.tmpl", model + ".service", values); err != nil {
 		return err
 	}
 
 	// Generate model.conf from log.tmpl
-	if err := genFile(logTmpl, model + ".conf", values); err != nil {
+	if err := genFile(templates, "log.tmpl", model + ".conf", values); err != nil {
 		return err
 	}
 
@@ -185,8 +197,8 @@ func (c *Common) _deploy(buildTmpl *template.Template, w http.ResponseWriter, r 
 	return nil
 }
 
-func (c *Common) Deploy(buildTmpl *template.Template, w http.ResponseWriter, r *http.Request) {
-	if err := c._deploy(buildTmpl, w, r); err != nil {
+func (c *Common) deploy(templates *template.Template, w http.ResponseWriter, r *http.Request) {
+	if err := c._deploy(templates, w, r); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

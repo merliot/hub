@@ -1,0 +1,59 @@
+		<div id="all">
+			<div id="header">
+				<div class="btnsRow">
+					<button id="create">Create</button>
+				</div>
+				<div class="btnsRow">
+					<button id="api">Api</button>
+					<button id="delete">Delete</button>
+					<button id="save">Save</button>
+					<button id="deploy">Deploy</button>
+				</div>
+			</div>
+			<div id="bod">
+				<div id="explorer"></div>
+				<div id="view"></div>
+			</div>
+		</div>
+
+		<dialog id="api-dialog">
+			<div class="divFlexCol">
+				<p>Hub REST Api:</p>
+				<object id="api-hub"></object>
+				<p>Device REST Api:</p>
+				<object id="api-dev"></object>
+			</div>
+			<hr>
+			<div class="btnsRow">
+				<button id="api-close">Close</button>
+			</div>
+		</dialog>
+
+		<dialog id="create-dialog">
+			<div class="divFlexCol">
+				<label for="create-model">Model:</label>
+				<select name="model" id="create-model"></select>
+				<label for="create-id">ID</label>
+				<input type="text" id="create-id">
+				<label for="create-name">Name</label>
+				<input type="text" id="create-name">
+				<em id="create-err"></em>
+			</div>
+			<hr>
+			<div class="btnsRow">
+				<button id="create-close">Close</button>
+				<button id="create-create">Create</button>
+			</div>
+		</dialog>
+
+		<dialog id="delete-dialog">
+			<div class="divFlexCol">
+				<span id="delete-prompt"></span>
+				<em id="delete-err"></em>
+			</div>
+			<hr>
+			<div class="btnsRow">
+				<button id="delete-close">Close</button>
+				<button id="delete-delete">Delete</button>
+			</div>
+		</dialog>

@@ -17,10 +17,6 @@ import (
 //go:embed css js template
 var fs embed.FS
 
-var indexTmpl = template.Must(template.ParseFS(fs, "template/index.html"))
-var buildTmpl = template.Must(template.ParseFS(fs, "template/build.tmpl"))
-var deployTmpl = template.Must(template.ParseFS(fs, "template/deploy.tmpl"))
-
 const (
 	AdcIa       = 0x0011
 	AdcVbterm   = 0x0012
@@ -41,17 +37,20 @@ type Ps30m struct {
 	Days         []record
 	client       *modbus.ModbusClient
 	demo         bool
+	templates    *template.Template
 }
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
-	return &Ps30m{
-		Common:  common.New(id, model, name).(*common.Common),
-		Seconds: make([]record, 0),
-		Minutes: make([]record, 0),
-		Hours:   make([]record, 0),
-		Days:    make([]record, 0),
-	}
+	p := &Ps30m{}
+	p.Common = common.New(id, model, name).(*common.Common)
+	p.Seconds = make([]record, 0)
+	p.Minutes = make([]record, 0)
+	p.Hours = make([]record, 0)
+	p.Days = make([]record, 0)
+	p.CompositeFs.AddFS(fs)
+	p.templates = p.CompositeFs.ParseFS("template/*")
+	return p
 }
 
 func (p *Ps30m) save(msg *dean.Msg) {
@@ -109,16 +108,10 @@ func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 
 func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
-	case "":
-		p.Index(indexTmpl, w, r)
 	case "api":
 		p.api(w, r)
-	case "deploy.html":
-		p.ShowDeploy(deployTmpl, w, r)
-	case "deploy":
-		p.Deploy(buildTmpl, w, r)
 	default:
-		p.Common.API(fs, w, r)
+		p.API(p.templates, w, r)
 	}
 }
 

@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	hub := hub.New("swpoc01", "swpoc", "swpoc01").(*hub.Hub)
+	hub := hub.New("swpoc01", "hub", "swpoc01").(*hub.Hub)
 
 	server := dean.NewServer(hub)
 	hub.UseServer(server)

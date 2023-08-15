@@ -1,8 +1,9 @@
 <html lang="en">
 	<head>
-		<meta name="viewport"
-		      content="width=device-width, initial-scale=1">
-		<title>MorningStar ProStar PS-30M</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Deploy {{.Model}}</title>
+
 		<link rel="stylesheet" type="text/css" href="css/common.css">
 
 	</head>
@@ -20,13 +21,6 @@ Name:    {{.Name}}</textarea>
 			<legend>Deploy</legend>
 			<div class="divFlexCol">
 				<div id="divFlexRow">
-					<label for="deploy-target">Target:</label>
-					<select name="deploy-target" id="deploy-target">
-						<option value="x86_64">Linux x86_64</option>
-						<option value="rpi">Raspberry Pi</option>
-					</select>
-				</div>
-				<div id="divFlexRow">
 					<label for="deploy-demo">Demo Mode:</label>
 					<input type="checkbox" id="deploy-demo">
 				</div>
@@ -34,6 +28,8 @@ Name:    {{.Name}}</textarea>
 					<label for="deploy-http">Run local Web Server:</label>
 					<input type="checkbox" id="deploy-http">
 				</div>
+				<hr>
+{{template "deploy-body.tmpl" .}}
 				<hr>
 				<div class="divFlexCol">
 					<p>Download Link:</p>
