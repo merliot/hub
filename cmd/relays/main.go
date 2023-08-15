@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/id"
-	"github.com/merliot/sw-poc/models/relays"
+	"github.com/merliot/hub/id"
+	"github.com/merliot/hub/models/relays"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	passwd, _ := os.LookupEnv("PASSWD")
 
 	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/1500", thing.Announce())
-	//server.DialWebSocket("user", "passwd", "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
+	//server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

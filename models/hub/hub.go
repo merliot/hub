@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
+	"github.com/merliot/hub/models/common"
 )
 
 //go:embed css images js template

@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
-	"github.com/merliot/sw-poc/models/gps/nmea"
+	"github.com/merliot/hub/models/common"
+	"github.com/merliot/hub/models/gps/nmea"
 	"github.com/tarm/serial"
 )
 

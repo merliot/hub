@@ -1,4 +1,4 @@
-module github.com/merliot/sw-poc
+module github.com/merliot/hub
 
 go 1.19
 

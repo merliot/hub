@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
+	"github.com/merliot/hub/models/common"
 	"github.com/simonvetter/modbus"
 	"github.com/x448/float16"
 )

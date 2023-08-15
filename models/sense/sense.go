@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
+	"github.com/merliot/hub/models/common"
 	"gobot.io/x/gobot/drivers/i2c"
 	"gobot.io/x/gobot/platforms/raspi"
 )

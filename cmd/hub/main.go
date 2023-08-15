@@ -4,14 +4,14 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/hub"
-	"github.com/merliot/sw-poc/models/ps30m"
-	"github.com/merliot/sw-poc/models/gps"
+	"github.com/merliot/hub/models/hub"
+	"github.com/merliot/hub/models/ps30m"
+	"github.com/merliot/hub/models/gps"
 )
 
 func main() {
 
-	hub := hub.New("swpoc01", "hub", "swpoc01").(*hub.Hub)
+	hub := hub.New("hub01", "hub", "hub01").(*hub.Hub)
 
 	server := dean.NewServer(hub)
 	hub.UseServer(server)

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
+	"github.com/merliot/hub/models/common"
 )
 
 //go:embed css html js

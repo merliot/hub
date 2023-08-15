@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/gps"
+	"github.com/merliot/hub/models/gps"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 
 	server.DialWebSocket(user, passwd, "ws://nuc:8000/ws/1500", thing.Announce())
 	//server.DialWebSocket(user, passwd, "wss://demo.merliot.net/ws/1500", thing.Announce())
-	//server.DialWebSocket(user, passwd, "wss://sw-poc.merliot.net/ws/1500", thing.Announce())
+	//server.DialWebSocket(user, passwd, "wss://hub.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

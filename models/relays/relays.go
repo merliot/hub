@@ -8,7 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/sw-poc/models/common"
+	"github.com/merliot/hub/models/common"
 	"gobot.io/x/gobot/drivers/gpio"
 	"gobot.io/x/gobot/platforms/raspi"
 )
