@@ -174,11 +174,6 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	// Make the file executable (e.g., 0755 permission)
-	if err := os.Chmod(model, 0755); err != nil {
-		return err
-	}
-
 	// Build installer and serve as download-able file
 
 	installer := id + "-installer"

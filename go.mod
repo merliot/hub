@@ -3,6 +3,7 @@ module github.com/merliot/hub
 go 1.19
 
 require (
+	github.com/adrianmo/go-nmea v1.8.0
 	github.com/merliot/dean v0.0.0-20230815085039-da4322447129
 	github.com/merliot/dean-lib v0.0.0-20230731034537-285c1ef7e9e1
 	github.com/simonvetter/modbus v1.6.0
@@ -12,7 +13,6 @@ require (
 )
 
 require (
-	github.com/adrianmo/go-nmea v1.8.0 // indirect
 	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
