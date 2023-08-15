@@ -3,7 +3,7 @@ module github.com/merliot/sw-poc
 go 1.19
 
 require (
-	github.com/merliot/dean v0.0.0-20230805073300-48c2f7048ae0
+	github.com/merliot/dean v0.0.0-20230815085039-da4322447129
 	github.com/merliot/dean-lib v0.0.0-20230731034537-285c1ef7e9e1
 	github.com/simonvetter/modbus v1.6.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
