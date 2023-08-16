@@ -170,9 +170,6 @@ function insertDevice(id, dev) {
 	div.appendChild(text)
 
 	explorer.appendChild(div)
-	if (explorer.children.length == 1) {
-		clickDev(id)
-	}
 }
 
 function removeDevice(id) {
@@ -186,10 +183,20 @@ function removeDevice(id) {
 }
 
 function loadExplorer() {
-	selected = undefined
 	explorer.textContent = ''
+	view.textContent = ''
 	for (let id in state.Devices) {
 		insertDevice(id, state.Devices[id])
+		if (typeof selected !== "undefined") {
+			if (id == selected) {
+				clickDev(id)
+			}
+		}
+	}
+	if (typeof selected === "undefined") {
+		if (Object.keys(state.Devices).length > 0) {
+			clickDev(Object.keys(state.Devices)[0])
+		}
 	}
 }
 
