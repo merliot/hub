@@ -1,5 +1,5 @@
 html * {
-	font-family: "Courier New", Courier, monospace;
+	font-family: monospace, Courier, "Courier New";
 }
 
 #overlay {
