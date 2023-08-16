@@ -107,7 +107,7 @@ func installService() {
 
 func main() {
 
-	remove := flag.Bool("uninstall", false, "Uninstall {{.model}}")
+	remove := flag.Bool("u", false, "Uninstall {{.model}}")
 	flag.Parse()
 
 	user, _ := user.Current()
