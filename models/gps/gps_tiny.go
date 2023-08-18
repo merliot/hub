@@ -3,29 +3,12 @@
 package gps
 
 import (
-	"net/http"
 	"machine"
 	"time"
 
 	"github.com/merliot/dean"
 	_ "github.com/merliot/dean/tinynet"
 	"github.com/merliot/hub/models/gps/nmea"
-)
-
-type gpsOS struct {
-}
-
-func (g *Gps) gpsOSInit() {
-}
-
-func (g *Gps) API(w http.ResponseWriter, r *http.Request) {
-}
-
-var (
-	uart     = machine.UART0
-	tx       = machine.UART0_TX_PIN
-	rx       = machine.UART0_RX_PIN
-	baudrate = 9600
 )
 
 func (g *Gps) parse(text string) (float64, float64, bool) {
@@ -47,7 +30,7 @@ func (g *Gps) run(inj *dean.Injector) {
 	var update = Update{Path: "update"}
 	var buf [128]byte
 
-	uart.Configure(machine.UARTConfig{TX: tx, RX: rx, BaudRate: uint32(baudrate)})
+	uart.Configure(machine.UARTConfig{TX: tx, RX: rx, BaudRate: uint32(g.ttyBaud)})
 
 	for i := 0;; {
 		for uart.Buffered() > 0 {
