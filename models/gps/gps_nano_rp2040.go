@@ -7,12 +7,6 @@ import (
 	"machine"
 )
 
-var (
-	uart     = machine.UART0
-	tx       = machine.UART0_TX_PIN
-	rx       = machine.UART0_RX_PIN
-)
-
 // TODO: remove when RNG is working on rp2040
 
 func init() {
