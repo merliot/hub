@@ -16,7 +16,4 @@ EXPOSE 8000
 # RUN wget https://github.com/tinygo-org/tinygo/releases/download/v0.28.1/tinygo_0.28.1_amd64.deb
 # RUN dpkg -i tinygo_0.28.1_amd64.deb
 
-RUN wget "https://drive.google.com/uc?export=download&id=1SYGPHBlLHvDyg12yfhqGHI7m0iBc94H1"
-RUN dpkg -i release.deb
-
 CMD ["/hub"]
