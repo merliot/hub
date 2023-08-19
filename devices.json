@@ -18,5 +18,10 @@
 		"Model": "gps",
 		"Name": "foo",
 		"Online": false
+	},
+	"foo2": {
+		"Model": "gps",
+		"Name": "foo2",
+		"Online": false
 	}
 }
