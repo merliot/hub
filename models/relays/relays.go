@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
@@ -13,14 +14,14 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-//go:embed css html js
+//go:embed *
 var fs embed.FS
-var tmpls = template.Must(template.ParseFS(fs, "html/*"))
 
 type Relays struct {
 	*common.Common
 	relays [4]*gpio.RelayDriver
 	States [4]bool
+	templates *template.Template
 }
 
 type MsgClick struct {
@@ -31,13 +32,15 @@ type MsgClick struct {
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")
-	return &Relays{
-		Common: common.New(id, model, name).(*common.Common),
-	}
+	r := &Relays{}
+	r.Common = common.New(id, model, name).(*common.Common)
+	r.CompositeFs.AddFS(fs)
+	r.templates = r.CompositeFs.ParseFS("template/*")
+	return r
 }
 
 func (r *Relays) save(msg *dean.Msg) {
-	msg.Unmarshal(r)
+	msg.Unmarshal(r).Broadcast()
 }
 
 func (r *Relays) getState(msg *dean.Msg) {
@@ -67,8 +70,18 @@ func (r *Relays) Subscribers() dean.Subscribers {
 	}
 }
 
+func (r *Relays) api(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("/api\n"))
+	w.Write([]byte("/deploy?target={target}\n"))
+}
+
 func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.API(fs, tmpls, w, req)
+	switch strings.TrimPrefix(req.URL.Path, "/") {
+	case "api":
+		r.api(w, req)
+	default:
+		r.Common.API(r.templates, w, req)
+	}
 }
 
 func (r *Relays) Run(i *dean.Injector) {

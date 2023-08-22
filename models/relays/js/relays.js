@@ -1,3 +1,5 @@
+var overlay = document.getElementById("overlay")
+
 var relays = []
 
 function init() {
@@ -6,18 +8,12 @@ function init() {
 	}
 }
 
-function show() {
-	showDevice()
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].checked = state.States[i]
-		relays[i].disabled = false
-	}
+function open() {
+	state.Online ? online() : offline()
 }
 
-function hide() {
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].disabled = true
-	}
+function close() {
+	offline()
 }
 
 function sendClick(relay, num) {
@@ -26,6 +22,21 @@ function sendClick(relay, num) {
 
 function saveClick(msg) {
 	relays[msg.Relay].checked = msg.State
+}
+
+function online() {
+	overlay.innerHTML = ""
+	for (var i = 0; i < relays.length; i++) {
+		relays[i].checked = state.States[i]
+		relays[i].disabled = false
+	}
+}
+
+function offline() {
+	for (var i = 0; i < relays.length; i++) {
+		relays[i].disabled = true
+	}
+	overlay.innerHTML = "Offline"
 }
 
 function handle(msg) {

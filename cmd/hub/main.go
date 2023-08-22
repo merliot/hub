@@ -7,6 +7,7 @@ import (
 	"github.com/merliot/hub/models/hub"
 	"github.com/merliot/hub/models/ps30m"
 	"github.com/merliot/hub/models/gps"
+	"github.com/merliot/hub/models/relays"
 )
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 
 	server.RegisterModel("ps30m", ps30m.New)
 	server.RegisterModel("gps", gps.New)
+	server.RegisterModel("relays", relays.New)
 
 	go server.ListenAndServe()
 	server.Run()
