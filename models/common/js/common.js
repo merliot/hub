@@ -94,3 +94,29 @@ function downloadFile(event) {
 		console.error('Error downloading file:', error)
 	})
 }
+
+function stageDeploy() {
+	var downloadLink = document.getElementById("download-link")
+	var form = document.getElementById("deploy-form")
+	form.addEventListener('input', function (event) {
+		updateDeployLink()
+	})
+	downloadLink.addEventListener("click", downloadFile)
+	updateDeployLink()
+}
+
+function updateDeployLink() {
+	var link = document.getElementById("download-link")
+	var form = document.getElementById("deploy-form")
+
+	var currentURL = window.location.href
+	var lastIndex = currentURL.lastIndexOf('/');
+	var baseURL = currentURL.substring(0, lastIndex);
+
+	var formData = new FormData(form)
+	var query = new URLSearchParams(formData).toString()
+	var linkURL = "/deploy?" + query
+
+	var downloadURL = baseURL + linkURL
+	link.innerHTML = downloadURL
+}

@@ -86,8 +86,8 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 		return err
 	}
 
-	// Generate build.go from build.tmpl
-	if err := genFile(templates, "build.tmpl", "build.go", values); err != nil {
+	// Generate build.go from server.tmpl
+	if err := genFile(templates, "server.tmpl", "build.go", values); err != nil {
 		return err
 	}
 
