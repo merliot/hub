@@ -140,7 +140,8 @@ function stageDeploy() {
 	btn.onclick = function(){
 		btn.classList.toggle("active")
 		if (btn.classList.contains("active")) {
-			sub = "deploy.html"
+			//sub = "deploy.html"
+			sub = "code"
 		} else {
 			sub = ""
 		}

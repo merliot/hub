@@ -16,7 +16,7 @@ import (
 	"github.com/tarm/serial"
 )
 
-//go:embed css js template
+//go:embed *
 var fs embed.FS
 
 type gpsOS struct {

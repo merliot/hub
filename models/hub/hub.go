@@ -13,7 +13,7 @@ import (
 	"github.com/merliot/hub/models/common"
 )
 
-//go:embed css images js template
+//go:embed *
 var fs embed.FS
 
 type Device struct {
