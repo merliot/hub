@@ -26,13 +26,14 @@ function clickDev(id) {
 	var seldiv = document.getElementById("device-" + selected)
 	seldiv.style.background = "white"
 
-	document.getElementById("delete").disabled = false
-	document.getElementById("deploy").disabled = false
+	const buttons = document.querySelectorAll('.toggle-btn');
+	buttons.forEach(button => { button.disabled = false })
 }
 
 function unclickDev(prev) {
-	document.getElementById("delete").disabled = true
-	document.getElementById("deploy").disabled = true
+	const buttons = document.querySelectorAll('.toggle-btn');
+	buttons.forEach(button => { button.disabled = true })
+
 	selected = undefined
 	view.textContent = ''
 	if (prev) {
@@ -92,16 +93,6 @@ function showDelete() {
 	dialogDelete.showModal()
 }
 
-function toggleButton(button, otherButton, value) {
-	if (button.classList.toggle("active")) {
-		otherButton.classList.remove("active");
-		sub = value;
-	} else {
-		sub = "";
-	}
-	clickDev(selected)
-}
-
 function stageButtons() {
 
 	// Create button
@@ -147,13 +138,26 @@ function stageButtons() {
 	var btn = document.getElementById("save")
 	btn.onclick = function(){alert("not implemented")}
 
-	// Deploy and Code buttons
+	// Toggle buttons
 
-	var btnDeploy = document.getElementById("deploy");
-	var btnCode = document.getElementById("code");
+	const buttons = document.querySelectorAll('.toggle-btn');
 
-	btnDeploy.addEventListener('click', () => toggleButton(btnDeploy, btnCode, "deploy.html"));
-	btnCode.addEventListener('click', () => toggleButton(btnCode, btnDeploy, "code"));
+	buttons.forEach(button => {
+		button.addEventListener('click', () => {
+			// Check if the clicked button is already pressed
+			const wasPressed = button.classList.contains('pressed')
+			// Unpress all buttons
+			buttons.forEach(btn => btn.classList.remove('pressed'))
+			// If the clicked button wasn't pressed, press it and set sub
+			if (!wasPressed) {
+				button.classList.add('pressed')
+				sub = button.getAttribute('data-sub-value')
+			} else {
+				sub = ""
+			}
+			clickDev(selected)
+		})
+	})
 }
 
 function setDeviceIcon(img, online) {

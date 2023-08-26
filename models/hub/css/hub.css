@@ -54,7 +54,7 @@ body {
 #deploy {
 }
 
-.active {
+.pressed {
 	background-color: darkgrey;
 	border-style: inset;
 }

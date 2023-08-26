@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/hub/models/common"
 	"github.com/merliot/hub/models/gps/nmea"
 	"github.com/tarm/serial"
 )
@@ -40,12 +41,15 @@ func (g *Gps) SetSerial(dev string, baud int) {
 func (g *Gps) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/api\n"))
 	w.Write([]byte("/deploy?target={target}\n"))
+	w.Write([]byte("/state\n"))
 }
 
 func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "api":
 		g.api(w, r)
+	case "state":
+		common.ShowState(g.templates, w, g)
 	default:
 		g.Common.API(g.templates, w, r)
 	}

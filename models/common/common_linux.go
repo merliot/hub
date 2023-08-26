@@ -3,6 +3,7 @@
 package common
 
 import (
+	"encoding/json"
 	"embed"
 	"html/template"
 	"io/fs"
@@ -51,6 +52,12 @@ func (c *Common) showCode(templates *template.Template, w http.ResponseWriter, r
 	RenderTemplate(templates, w, "code.tmpl", names)
 }
 
+func ShowState(templates *template.Template, w http.ResponseWriter, data any) {
+	state, _ := json.MarshalIndent(data, "", "\t")
+	w.Header().Set("Content-Type", "text/html")
+	RenderTemplate(templates, w, "state.tmpl", string(state))
+}
+
 // Set Content-Type: "text/plain" on go, js, css, and template files
 var textFile = regexp.MustCompile("\\.(go|tmpl|js|css)$")
 
@@ -62,12 +69,14 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "", "index.html":
 		RenderTemplate(templates, w, "index.tmpl", c)
-	case "deploy.html":
+	case "deploy-dialog":
 		RenderTemplate(templates, w, "deploy.tmpl", c)
 	case "deploy":
 		c.deploy(templates, w, r)
 	case "code":
 		c.showCode(templates, w, r)
+	case "state":
+		ShowState(templates, w, c)
 	default:
 		if textFile.MatchString(r.RequestURI) {
 			w.Header().Set("Content-Type", "text/plain")

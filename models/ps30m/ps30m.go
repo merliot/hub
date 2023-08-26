@@ -104,12 +104,15 @@ func (p *Ps30m) Subscribers() dean.Subscribers {
 func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/api\n"))
 	w.Write([]byte("/deploy?target={target}\n"))
+	w.Write([]byte("/state\n"))
 }
 
 func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "api":
 		p.api(w, r)
+	case "state":
+		common.ShowState(p.templates, w, p)
 	default:
 		p.API(p.templates, w, r)
 	}

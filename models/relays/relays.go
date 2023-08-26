@@ -73,12 +73,15 @@ func (r *Relays) Subscribers() dean.Subscribers {
 func (r *Relays) api(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("/api\n"))
 	w.Write([]byte("/deploy?target={target}\n"))
+	w.Write([]byte("/state\n"))
 }
 
 func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch strings.TrimPrefix(req.URL.Path, "/") {
 	case "api":
 		r.api(w, req)
+	case "state":
+		common.ShowState(r.templates, w, r)
 	default:
 		r.Common.API(r.templates, w, req)
 	}
