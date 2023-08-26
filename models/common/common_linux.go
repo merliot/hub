@@ -54,7 +54,6 @@ func (c *Common) showCode(templates *template.Template, w http.ResponseWriter, r
 
 func ShowState(templates *template.Template, w http.ResponseWriter, data any) {
 	state, _ := json.MarshalIndent(data, "", "\t")
-	w.Header().Set("Content-Type", "text/html")
 	RenderTemplate(templates, w, "state.tmpl", string(state))
 }
 
