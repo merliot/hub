@@ -64,39 +64,12 @@ function showCreate() {
 	dialogCreate.showModal()
 }
 
-function stageCreate() {
-	var btnCreate = document.getElementById("create")
-	btnCreate.onclick = function(){showCreate()}
-
-	var btnClose = document.getElementById("create-close")
-	btnClose.onclick = function(){dialogCreate.close()}
-
-	var btnCreate = document.getElementById("create-create")
-	btnCreate.onclick = function(){create()}
-
-	var createModel = document.getElementById("create-model")
-	createModel.textContent = ''
-	for (let i in state.Models) {
-		var option = document.createElement("option")
-		option.value = state.Models[i]
-		option.text = state.Models[i]
-		createModel.appendChild(option)
-	}
-}
-
 function showApi() {
 	var apihub = document.getElementById("api-hub")
 	apihub.data = "/api"
 	var apidev = document.getElementById("api-dev")
 	apidev.data = "/" + selected + "/api"
 	dialogApi.showModal()
-}
-
-function stageApi() {
-	var btnApi = document.getElementById("api")
-	btnApi.onclick = function(){showApi()}
-	var btnClose = document.getElementById("api-close")
-	btnClose.onclick = function(){dialogApi.close()}
 }
 
 async function deletef() {
@@ -119,7 +92,47 @@ function showDelete() {
 	dialogDelete.showModal()
 }
 
-function stageDelete() {
+function toggleButton(button, otherButton, value) {
+	if (button.classList.toggle("active")) {
+		otherButton.classList.remove("active");
+		sub = value;
+	} else {
+		sub = "";
+	}
+	clickDev(selected)
+}
+
+function stageButtons() {
+
+	// Create button
+
+	var btnCreate = document.getElementById("create")
+	btnCreate.onclick = function(){showCreate()}
+
+	var btnClose = document.getElementById("create-close")
+	btnClose.onclick = function(){dialogCreate.close()}
+
+	var btnCreate = document.getElementById("create-create")
+	btnCreate.onclick = function(){create()}
+
+	var createModel = document.getElementById("create-model")
+	createModel.textContent = ''
+	for (let i in state.Models) {
+		var option = document.createElement("option")
+		option.value = state.Models[i]
+		option.text = state.Models[i]
+		createModel.appendChild(option)
+	}
+
+	// API button
+
+	var btnApi = document.getElementById("api")
+	btnApi.onclick = function(){showApi()}
+	var btnClose = document.getElementById("api-close")
+	btnClose.onclick = function(){dialogApi.close()}
+
+	// Delete button shows delete modal dialog
+
 	var btn = document.getElementById("delete")
 	btn.onclick = function(){showDelete()}
 
@@ -128,25 +141,19 @@ function stageDelete() {
 
 	var btnCreate = document.getElementById("delete-delete")
 	btnCreate.onclick = function(){deletef()}
-}
 
-function stageSave() {
+	// Save button saves devices.json to repo
+
 	var btn = document.getElementById("save")
 	btn.onclick = function(){alert("not implemented")}
-}
 
-function stageDeploy() {
-	var btn = document.getElementById("deploy")
-	btn.onclick = function(){
-		btn.classList.toggle("active")
-		if (btn.classList.contains("active")) {
-			//sub = "deploy.html"
-			sub = "code"
-		} else {
-			sub = ""
-		}
-		clickDev(selected)
-	}
+	// Deploy and Code buttons
+
+	var btnDeploy = document.getElementById("deploy");
+	var btnCode = document.getElementById("code");
+
+	btnDeploy.addEventListener('click', () => toggleButton(btnDeploy, btnCode, "deploy.html"));
+	btnCode.addEventListener('click', () => toggleButton(btnCode, btnDeploy, "code"));
 }
 
 function setDeviceIcon(img, online) {
@@ -204,11 +211,7 @@ function loadExplorer() {
 function open() {
 	state.Online ? online() : offline()
 	loadExplorer()
-	stageCreate()
-	stageApi()
-	stageDelete()
-	stageSave()
-	stageDeploy()
+	stageButtons()
 }
 
 function close() {
