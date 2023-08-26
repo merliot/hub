@@ -8,6 +8,7 @@ var selected // currently selected device ID
 var sub = ""
 
 function init() {
+	sub = ""
 }
 
 function clickDev(id) {
