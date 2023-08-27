@@ -7,6 +7,48 @@ var dialogDelete = document.getElementById("delete-dialog")
 var selected // currently selected device ID
 var sub = ""
 
+// Create button opens create model dialog
+
+document.getElementById("create").onclick = function(){showCreate()}
+document.getElementById("create-close").onclick = function(){dialogCreate.close()}
+document.getElementById("create-create").onclick = function(){create()}
+
+// API button opens API modal dialog
+
+document.getElementById("api").onclick = function(){showApi()}
+document.getElementById("api-close").onclick = function(){dialogApi.close()}
+
+// Delete button open delete modal dialog
+
+document.getElementById("delete").onclick = function(){showDelete()}
+document.getElementById("delete-close").onclick = function(){dialogDelete.close()}
+document.getElementById("delete-delete").onclick = function(){deletef()}
+
+// Save button saves devices.json to repo
+
+document.getElementById("save").onclick = function(){alert("not implemented")}
+
+// Toggle buttons
+
+const buttons = document.querySelectorAll('.toggle-btn');
+
+buttons.forEach(button => {
+	button.addEventListener('click', () => {
+		// Check if the clicked button is already pressed
+		const wasPressed = button.classList.contains('pressed')
+		// Unpress all buttons
+		buttons.forEach(btn => btn.classList.remove('pressed'))
+		// If the clicked button wasn't pressed, press it and set sub
+		if (!wasPressed) {
+			button.classList.add('pressed')
+			sub = button.getAttribute('data-sub-value')
+		} else {
+			sub = ""
+		}
+		clickDev(selected)
+	})
+})
+
 function init() {
 	sub = ""
 }
@@ -61,6 +103,14 @@ async function create() {
 }
 
 function showCreate() {
+	var createModel = document.getElementById("create-model")
+	createModel.textContent = ''
+	for (let i in state.Models) {
+		var option = document.createElement("option")
+		option.value = state.Models[i]
+		option.text = state.Models[i]
+		createModel.appendChild(option)
+	}
 	var err = document.getElementById("create-err")
 	err.innerText = ""
 	dialogCreate.showModal()
@@ -92,73 +142,6 @@ function showDelete() {
 	var delprompt = document.getElementById("delete-prompt")
 	delprompt.innerText = "Delete device ID " + selected + "?"
 	dialogDelete.showModal()
-}
-
-function stageButtons() {
-
-	// Create button
-
-	var btnCreate = document.getElementById("create")
-	btnCreate.onclick = function(){showCreate()}
-
-	var btnClose = document.getElementById("create-close")
-	btnClose.onclick = function(){dialogCreate.close()}
-
-	var btnCreate = document.getElementById("create-create")
-	btnCreate.onclick = function(){create()}
-
-	var createModel = document.getElementById("create-model")
-	createModel.textContent = ''
-	for (let i in state.Models) {
-		var option = document.createElement("option")
-		option.value = state.Models[i]
-		option.text = state.Models[i]
-		createModel.appendChild(option)
-	}
-
-	// API button
-
-	var btnApi = document.getElementById("api")
-	btnApi.onclick = function(){showApi()}
-	var btnClose = document.getElementById("api-close")
-	btnClose.onclick = function(){dialogApi.close()}
-
-	// Delete button shows delete modal dialog
-
-	var btn = document.getElementById("delete")
-	btn.onclick = function(){showDelete()}
-
-	var btnClose = document.getElementById("delete-close")
-	btnClose.onclick = function(){dialogDelete.close()}
-
-	var btnCreate = document.getElementById("delete-delete")
-	btnCreate.onclick = function(){deletef()}
-
-	// Save button saves devices.json to repo
-
-	var btn = document.getElementById("save")
-	btn.onclick = function(){alert("not implemented")}
-
-	// Toggle buttons
-
-	const buttons = document.querySelectorAll('.toggle-btn');
-
-	buttons.forEach(button => {
-		button.addEventListener('click', () => {
-			// Check if the clicked button is already pressed
-			const wasPressed = button.classList.contains('pressed')
-			// Unpress all buttons
-			buttons.forEach(btn => btn.classList.remove('pressed'))
-			// If the clicked button wasn't pressed, press it and set sub
-			if (!wasPressed) {
-				button.classList.add('pressed')
-				sub = button.getAttribute('data-sub-value')
-			} else {
-				sub = ""
-			}
-			clickDev(selected)
-		})
-	})
 }
 
 function setDeviceIcon(img, online) {
@@ -216,7 +199,6 @@ function loadExplorer() {
 function open() {
 	state.Online ? online() : offline()
 	loadExplorer()
-	stageButtons()
 }
 
 function close() {
