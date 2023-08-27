@@ -114,7 +114,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	cmd = exec.Command("go", "mod", "tidy")
+	cmd = exec.Command("go", "mod", "tidy", "-e")
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
