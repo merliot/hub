@@ -50,7 +50,6 @@ buttons.forEach(button => {
 })
 
 function init() {
-	sub = ""
 }
 
 function clickDev(id) {
