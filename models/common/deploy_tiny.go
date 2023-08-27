@@ -1,4 +1,5 @@
 //go:build tinygo
+
 package common
 
 import (

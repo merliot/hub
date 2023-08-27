@@ -19,8 +19,8 @@ var fs embed.FS
 
 type Relays struct {
 	*common.Common
-	relays [4]*gpio.RelayDriver
-	States [4]bool
+	relays    [4]*gpio.RelayDriver
+	States    [4]bool
 	templates *template.Template
 }
 

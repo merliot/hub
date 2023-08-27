@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/hub/models/gps"
 	"github.com/merliot/hub/models/hub"
 	"github.com/merliot/hub/models/ps30m"
-	"github.com/merliot/hub/models/gps"
 	"github.com/merliot/hub/models/relays"
 )
 

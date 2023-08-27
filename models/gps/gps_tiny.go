@@ -3,8 +3,8 @@
 package gps
 
 import (
-	"net/http"
 	"machine"
+	"net/http"
 	"time"
 
 	"github.com/merliot/dean"
@@ -49,7 +49,7 @@ func (g *Gps) run(inj *dean.Injector) {
 
 	uart.Configure(machine.UARTConfig{TX: tx, RX: rx, BaudRate: uint32(baudrate)})
 
-	for i := 0;; {
+	for i := 0; ; {
 		for uart.Buffered() > 0 {
 			b, _ := uart.ReadByte()
 			switch b {

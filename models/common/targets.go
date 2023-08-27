@@ -17,4 +17,3 @@ func makeTargets(targets []string) Targets {
 	}
 	return filtered
 }
-

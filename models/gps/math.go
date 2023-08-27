@@ -35,5 +35,3 @@ func distance(lat1, lon1, lat2, lon2 float64) float64 {
 
 	return 2 * r * math.Asin(math.Sqrt(h))
 }
-
-

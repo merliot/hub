@@ -3,8 +3,8 @@
 package common
 
 import (
-	"encoding/json"
 	"embed"
+	"encoding/json"
 	"html/template"
 	"io/fs"
 	"net/http"
@@ -18,7 +18,7 @@ import (
 var commonFs embed.FS
 
 type commonOS struct {
-	WebSocket   string `json:"-"`
+	WebSocket   string            `json:"-"`
 	CompositeFs *dean.CompositeFS `json:"-"`
 	templates   *template.Template
 }
@@ -36,7 +36,7 @@ func RenderTemplate(templates *template.Template, w http.ResponseWriter, name st
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 	} else {
-		http.Error(w, "Template '" + name + "' not found", http.StatusBadRequest)
+		http.Error(w, "Template '"+name+"' not found", http.StatusBadRequest)
 	}
 }
 

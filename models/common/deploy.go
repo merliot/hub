@@ -19,7 +19,7 @@ func genFile(templates *template.Template, template string, name string,
 		return fmt.Errorf("Template '%s' not found", template)
 	}
 
-	file , err := os.Create(name)
+	file, err := os.Create(name)
 	if err != nil {
 		return err
 	}
@@ -74,11 +74,11 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	defer os.Chdir(wd)
 
 	// Create temp build directory in /tmp
-	dir, err := os.MkdirTemp("", id + "-")
+	dir, err := os.MkdirTemp("", id+"-")
 	if err != nil {
 		return err
 	}
-//	defer os.RemoveAll(dir)
+	//	defer os.RemoveAll(dir)
 	println(dir)
 
 	// Change the working directory to temp build directory
@@ -97,12 +97,12 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	}
 
 	// Generate model.service from service.tmpl
-	if err := genFile(templates, "service.tmpl", model + ".service", values); err != nil {
+	if err := genFile(templates, "service.tmpl", model+".service", values); err != nil {
 		return err
 	}
 
 	// Generate model.conf from log.tmpl
-	if err := genFile(templates, "log.tmpl", model + ".conf", values); err != nil {
+	if err := genFile(templates, "log.tmpl", model+".conf", values); err != nil {
 		return err
 	}
 

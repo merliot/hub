@@ -5,11 +5,11 @@ package gps
 import (
 	"bufio"
 	"embed"
+	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
-	"log"
-	"fmt"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
