@@ -95,16 +95,6 @@ function downloadFile(event) {
 	})
 }
 
-function stageDeploy() {
-	var downloadLink = document.getElementById("download-link")
-	var form = document.getElementById("deploy-form")
-	form.addEventListener('input', function (event) {
-		updateDeployLink()
-	})
-	downloadLink.addEventListener("click", downloadFile)
-	updateDeployLink()
-}
-
 function updateDeployLink() {
 	var link = document.getElementById("download-link")
 	var form = document.getElementById("deploy-form")
@@ -119,4 +109,27 @@ function updateDeployLink() {
 
 	var downloadURL = baseURL + linkURL
 	link.innerHTML = downloadURL
+}
+
+function stageDeploy() {
+	document.getElementById("download-link").addEventListener("click", downloadFile)
+
+	var deployCheckbox = document.getElementById("deploy-backup")
+	var backupHub = document.getElementById("deploy-backup-hub")
+
+	deployCheckbox.addEventListener("change", function() {
+		if (this.checked) {
+			backupHub.disabled = false;
+			backupHub.name = "backup-hub";
+		} else {
+			backupHub.disabled = true;
+			backupHub.name = "";
+		}
+		updateDeployLink()
+	})
+
+	document.getElementById("deploy-form").addEventListener('input', function (event) {
+		updateDeployLink()
+	})
+	updateDeployLink()
 }

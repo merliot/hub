@@ -43,7 +43,6 @@ Name:    {{.Name}}</textarea>
 						<label for="deploy-backup-hub">URL:</label>
 						<input type="text" name="backup-hub" id="deploy-backup-hub" disabled>
 					</div>
-					<hr>
 {{template "deploy-body.tmpl" .}}
 					<hr>
 					<div class="divFlexCol">
@@ -56,5 +55,6 @@ Name:    {{.Name}}</textarea>
 
 		<script src="js/common.js"></script>
 		<script>stageDeploy()</script>
+		<script src="js/deploy.js"></script>
 	</body>
 </html>
