@@ -31,9 +31,9 @@ Name:    {{.Name}}</textarea>
 					</div>
 					<div id="divFlexRow">
 						<label for="deploy-backup">Backup Hub:</label>
-						<input type="checkbox" name="backup" id="deploy-backup">
-						<label for="deploy-backup-url">URL:</label>
-						<input type="text" name="backup-url" id="deploy-backup-url">
+						<input type="checkbox" id="deploy-backup">
+						<label for="deploy-backup-hub">URL:</label>
+						<input type="text" name="backup-hub" id="deploy-backup-hub" disabled>
 					</div>
 					<hr>
 {{template "deploy-body.tmpl" .}}
