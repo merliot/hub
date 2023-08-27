@@ -22,6 +22,14 @@ Name:    {{.Name}}</textarea>
 			<form id="deploy-form">
 				<div class="divFlexCol">
 					<div id="divFlexRow">
+						<label for="deploy-target">Target:</label>
+						<select name="deploy-target" id="deploy-target">
+{{ range $key, $value := .Targets }}
+							<option value="{{ $key }}">{{ $value }}</option>
+{{ end }}
+						</select>
+					</div>
+					<div id="divFlexRow">
 						<label for="deploy-demo">Demo Mode:</label>
 						<input type="checkbox" name="demo" id="deploy-demo">
 					</div>

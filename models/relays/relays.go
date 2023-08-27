@@ -30,10 +30,12 @@ type MsgClick struct {
 	State bool
 }
 
+var targets = []string{"x86-64", "rpi", "nano-rp2040"}
+
 func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")
 	r := &Relays{}
-	r.Common = common.New(id, model, name).(*common.Common)
+	r.Common = common.New(id, model, name, targets).(*common.Common)
 	r.CompositeFs.AddFS(fs)
 	r.templates = r.CompositeFs.ParseFS("template/*")
 	return r

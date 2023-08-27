@@ -40,10 +40,12 @@ type Ps30m struct {
 	templates    *template.Template
 }
 
+var targets = []string{"x86-64", "rpi"}
+
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
 	p := &Ps30m{}
-	p.Common = common.New(id, model, name).(*common.Common)
+	p.Common = common.New(id, model, name, targets).(*common.Common)
 	p.Seconds = make([]record, 0)
 	p.Minutes = make([]record, 0)
 	p.Hours = make([]record, 0)

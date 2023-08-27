@@ -33,10 +33,12 @@ type Hub struct {
 	templates *template.Template
 }
 
+var targets = []string{"x86-64", "rpi"}
+
 func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	h := &Hub{}
-	h.Common = common.New(id, model, name).(*common.Common)
+	h.Common = common.New(id, model, name, targets).(*common.Common)
 	h.Devices = make(Devices)
 	h.CompositeFs.AddFS(fs)
 	h.templates = h.CompositeFs.ParseFS("template/*")

@@ -19,10 +19,12 @@ type Update struct {
 	Long float64
 }
 
+var targets = []string{"x86-64", "rpi", "nano-rp2040"}
+
 func New(id, model, name string) dean.Thinger {
 	println("NEW GPS")
 	g := &Gps{}
-	g.Common = common.New(id, model, name).(*common.Common)
+	g.Common = common.New(id, model, name, targets).(*common.Common)
 	g.gpsOSInit()
 	return g
 }

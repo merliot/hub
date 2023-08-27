@@ -6,13 +6,15 @@ import (
 
 type Common struct {
 	dean.Thing
+	Targets `json:"-"`
 	commonOS
 }
 
-func New(id, model, name string) dean.Thinger {
+func New(id, model, name string, targets []string) dean.Thinger {
 	println("NEW COMMON")
 	c := &Common{}
 	c.Thing = dean.NewThing(id, model, name)
+	c.Targets = makeTargets(targets)
 	c.commonOSInit()
 	return c
 }
