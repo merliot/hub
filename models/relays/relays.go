@@ -87,7 +87,7 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (g *Gps) Demo() {
+func (r *Relays) Demo() {
 }
 
 func (r *Relays) Run(i *dean.Injector) {
