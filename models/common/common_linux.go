@@ -3,14 +3,19 @@
 package common
 
 import (
+	"bufio"
 	"embed"
 	"encoding/json"
 	"html/template"
+	"io/ioutil"
 	"io/fs"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"github.com/merliot/dean"
 )
 
@@ -57,15 +62,39 @@ func ShowState(templates *template.Template, w http.ResponseWriter, data any) {
 	RenderTemplate(templates, w, "state.tmpl", string(state))
 }
 
+func (c *Common) renderMarkdown(path string, w http.ResponseWriter) {
+	file, err := c.CompositeFs.Open(path)
+	if err != nil {
+		http.Error(w, "File '"+path+"' not found", http.StatusNotFound)
+		return
+	}
+	reader := bufio.NewReader(file)
+
+	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
+	p := parser.NewWithExtensions(extensions)
+	md, _ := ioutil.ReadAll(reader)
+	doc := p.Parse(md)
+
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+
+	w.Header().Set("Content-Type", "text/html")
+	w.Write(markdown.Render(doc, renderer))
+}
+
 // Set Content-Type: "text/plain" on go, js, css, and template files
 var textFile = regexp.MustCompile("\\.(go|tmpl|js|css)$")
+// Markdown files get converted to html
+var markdownFile = regexp.MustCompile("\\.md$")
 
 func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *http.Request) {
 
 	id, _, _ := c.Identity()
 	c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
+	path := r.URL.Path
 
-	switch strings.TrimPrefix(r.URL.Path, "/") {
+	switch strings.TrimPrefix(path, "/") {
 	case "", "index.html":
 		RenderTemplate(templates, w, "index.tmpl", c)
 	case "deploy-dialog":
@@ -77,7 +106,11 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 	case "state":
 		ShowState(templates, w, c)
 	default:
-		if textFile.MatchString(r.RequestURI) {
+		if markdownFile.MatchString(path) {
+			c.renderMarkdown(path, w)
+			return
+		}
+		if textFile.MatchString(path) {
 			w.Header().Set("Content-Type", "text/plain")
 		}
 		http.FileServer(http.FS(c.CompositeFs)).ServeHTTP(w, r)
