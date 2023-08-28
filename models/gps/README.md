@@ -8,6 +8,6 @@ Uses [Grove GPS (Air530)](https://www.seeedstudio.com/Grove-GPS-Air530-p-4584.ht
 
 #### Target Install Instructions
 
-- [Linux x86-64](README-x86_64.md)
+- [Linux x86-64](./README-x86_64.md)
 - [Raspberry Pi](README-rpi.md)
 - [Arduino Nano Connect rp2040](README-nano_rp2040.md)
