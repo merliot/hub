@@ -70,7 +70,8 @@ function downloadFile(event) {
 	event.preventDefault()
 	var downloadURL = event.target.innerText
 
-	// TODO spinner animation when downloading file
+	var gopher = document.getElementById("gopher")
+	gopher.style.display = "block"
 
 	fetch(downloadURL)
 	.then(response => {
@@ -89,9 +90,11 @@ function downloadFile(event) {
 		document.body.appendChild(a)
 		a.click();  // Simulate a click on the link
 		document.body.removeChild(a)
+		gopher.style.display = "none"
 	})
 	.catch(error => {
 		console.error('Error downloading file:', error)
+		gopher.style.display = "none"
 	})
 }
 

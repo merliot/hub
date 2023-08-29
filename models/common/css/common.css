@@ -22,3 +22,17 @@ textarea {
 	border: none;
 	width: 100%;
 }
+
+.divFlexRow {
+	display: flex;
+}
+
+.divFlexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+hr {
+  margin-left: 0;
+  margin-right: 0;
+}

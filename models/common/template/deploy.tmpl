@@ -21,7 +21,7 @@ Name:    {{.Name}}</textarea>
 			<legend>Deploy</legend>
 			<form id="deploy-form">
 				<div class="divFlexCol">
-					<div id="divFlexRow">
+					<div class="divFlexRow">
 						<label for="deploy-target">Target:</label>
 						<select name="deploy-target" id="deploy-target">
 {{ range $key, $value := .Targets }}
@@ -29,15 +29,15 @@ Name:    {{.Name}}</textarea>
 {{ end }}
 						</select>
 					</div>
-					<div id="divFlexRow">
+					<div class="divFlexRow">
 						<label for="deploy-demo">Demo Mode:</label>
 						<input type="checkbox" name="demo" id="deploy-demo">
 					</div>
-					<div id="divFlexRow">
+					<div class="divFlexRow">
 						<label for="deploy-http">Run local Web Server:</label>
 						<input type="checkbox" name="http" id="deploy-http">
 					</div>
-					<div id="divFlexRow">
+					<div class="divFlexRow">
 						<label for="deploy-backup">Backup Hub:</label>
 						<input type="checkbox" id="deploy-backup">
 						<label for="deploy-backup-hub">URL:</label>
@@ -46,7 +46,10 @@ Name:    {{.Name}}</textarea>
 {{template "deploy-body.tmpl" .}}
 					<hr>
 					<div class="divFlexCol">
-						<p>Download Link:</p>
+						<div class="divFlexRow">
+							<p>Download Link:</p>
+							<img id="gopher" src="images/gopher-workout.gif" style="display:none" width=30px>
+						</div>
 						<a id="download-link" href="#"></a>
 					</div>
 				</div>

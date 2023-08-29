@@ -59,15 +59,6 @@ body {
 	border-style: inset;
 }
 
-.divFlexRow {
-	display: flex;
-}
-
-.divFlexCol {
-	display: flex;
-	flex-direction: column;
-}
-
 .btnsRow {
 	display: flex;
 }
