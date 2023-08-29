@@ -20,12 +20,12 @@ Connect the Air530 GPS module to a USB-to-UART dongle, such as:
 
 ![](images/usb-uart.jpg)
 
-| Air530  | USB-UART |
-| ------- | ---------|
-| Vcc | Vcc |
-| Gnd | Gnd |
-| Tx | Rx |
-| Rx | Tx |
+Air530  | USB-UART
+------- | ---------
+Vcc | Vcc
+Gnd | Gnd
+Tx | Rx
+Rx | Tx
 
 Plug the dongle into a USB port on a Linux system.  You can verify the GPS module output using minicom.  The device is /dev/ttyUSB0, 9600 baud:
 
@@ -45,11 +45,11 @@ Connecting the Air530 directly to the Raspberry Pi UART...(TODO finish this)
 
 Connect the Air530 to the Arduino Nano Connect:
 
-| Air530  | Nano Connect |
-| ------- | -------------|
-| Vcc | +3v3 |
-| Gnd | Gnd |
-| Tx | Rx (GPIO1) |
-| Rx | Tx (GPIO0) |
+Air530  | Nano Connect
+------- | -------------
+Vcc | +3v3
+Gnd | Gnd
+Tx | Rx (GPIO1)
+Rx | Tx (GPIO0)
 
 Proceed with the install instructions.
