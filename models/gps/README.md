@@ -29,7 +29,7 @@ Rx | Tx
 
 Plug the dongle into a USB port on a Linux system.  You can verify the GPS module output using minicom.  The device is /dev/ttyUSB0, 9600 baud:
 
-```
+```bash
 sudo minicom -D /dev/ttyUSB0 -b 9600
 ```
 
