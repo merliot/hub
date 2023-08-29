@@ -16,6 +16,15 @@ Connect the Air530 GPS module to a USB-to-UART dongle, such as:
 
 ![](images/usb-uart.jpg)
 
+Connect as follows:
+
+| Air530  | USB-UART |
+| ------- | ---------|
+| Vcc | Vcc |
+| Gnc | Gnd |
+| Tx | Rx |
+| Rx | Tx |
+
 Plug the dongle into a USB port on a Linux system.  You can verify the GPS module output using minicom.  The device is /dev/ttyUSB0, 9600 baud:
 
 ```
