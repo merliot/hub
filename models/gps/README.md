@@ -8,6 +8,10 @@ Uses [Grove GPS (Air530)](https://www.seeedstudio.com/Grove-GPS-Air530-p-4584.ht
 
 ![](images/air530.webp)
 
+### Battery
+
+Use a CR1220 battery in the GPS module to decrease start-up time from power-on to first valid GPS report.  Without the battery, after power-on, it can take 10+ minutes to lock onto GPS.  With the battery, it will take a few seconds.
+
 ### Wiring
 
 #### Linux x86-64
@@ -16,12 +20,10 @@ Connect the Air530 GPS module to a USB-to-UART dongle, such as:
 
 ![](images/usb-uart.jpg)
 
-Connect as follows:
-
 | Air530  | USB-UART |
 | ------- | ---------|
 | Vcc | Vcc |
-| Gnc | Gnd |
+| Gnd | Gnd |
 | Tx | Rx |
 | Rx | Tx |
 
@@ -31,13 +33,23 @@ Plug the dongle into a USB port on a Linux system.  You can verify the GPS modul
 sudo minicom -D /dev/ttyUSB0 -b 9600
 ```
 
+Proceed with the install instructions.
+
 #### Raspberry Pi
 
+You can use a USB-UART dongle as above for Linux and the wiring is the same.
 
+Connecting the Air530 directly to the Raspberry Pi UART...(TODO finish this)
 
+#### Arduino Nano Connect (rp2040)
 
-#### Target Install Instructions
+Connect the Air530 to the Arduino Nano Connect:
 
-- [Linux x86-64](./README-x86_64.md)
-- [Raspberry Pi](README-rpi.md)
-- [Arduino Nano Connect rp2040](README-nano_rp2040.md)
+| Air530  | Nano Connect |
+| ------- | -------------|
+| Vcc | +3v3 |
+| Gnd | Gnd |
+| Tx | Rx (GPIO1) |
+| Rx | Tx (GPIO0) |
+
+Proceed with the install instructions.
