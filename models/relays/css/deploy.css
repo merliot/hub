@@ -1,0 +1,17 @@
+.nameItem {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.icon {
+	cursor: pointer;
+	margin-left: 10px;
+	display: inline-block;
+	border: 1px solid #000;
+	border-radius: 10%; /* makes it rounded */
+	width: 24px;        /* define width and height to ensure it's a perfect circle */
+	height: 24px;
+	text-align: center;
+	line-height: 24px;  /* centers the symbol vertically */
+}
