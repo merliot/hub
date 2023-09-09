@@ -1,14 +1,31 @@
 <hr>
 <div id="relaysList" class="divFlexCol">
-	<!-- The first relay item as a default. -->
-	<div class="relayItem divFlexRow">
+	<div class="divFlexRow">
 		<label class="relayLabel">Relay #1</label>
-		<input type="text" placeholder="Name" name="relay_1">
-		<select class="gpio" name="gpio_1">
+		<input type="text" placeholder="Name" name="relay1">
+		<select class="gpio" name="gpio1">
 			<!-- Options populated via JS -->
 		</select>
-		<span class="trashIcon" onclick="deleteRelay(this);">&#x1F5D1;</span>
+	</div>
+	<div class="divFlexRow">
+		<label class="relayLabel">Relay #2</label>
+		<input type="text" placeholder="Name" name="relay2">
+		<select class="gpio" name="gpio2">
+			<!-- Options populated via JS -->
+		</select>
+	</div>
+	<div class="divFlexRow">
+		<label class="relayLabel">Relay #3</label>
+		<input type="text" placeholder="Name" name="relay3">
+		<select class="gpio" name="gpio1">
+			<!-- Options populated via JS -->
+		</select>
+	</div>
+	<div class="divFlexRow">
+		<label class="relayLabel">Relay #4</label>
+		<input type="text" placeholder="Name" name="relay4">
+		<select class="gpio" name="gpio1">
+			<!-- Options populated via JS -->
+		</select>
 	</div>
 </div>
-
-<span class="icon addIcon" onclick="addRelay();">&#x2B;</span>
