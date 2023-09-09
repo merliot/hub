@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -48,9 +49,21 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	values["modelStruct"] = strings.Title(model)
 	values["name"] = name
 	values["hub"] = r.Host
-	values["scheme"] = "wss://"
+	values["wsscheme"] = "wss://"
 	if r.TLS == nil {
-		values["scheme"] = "ws://"
+		values["wsscheme"] = "ws://"
+	}
+
+	if values["backuphub"] != "" {
+		u, err := url.Parse(values["backuphub"])
+		if err != nil {
+			return err
+		}
+		values["backuphub"] = u.Host
+		values["backupwsscheme"] = "ws://"
+		if u.Scheme == "https" {
+			values["backupwsscheme"] = "wss://"
+		}
 	}
 
 	if user, passwd, ok := r.BasicAuth(); ok {
@@ -88,6 +101,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 
 	// Generate build.go from server.tmpl
 	if err := genFile(templates, "server.tmpl", "build.go", values); err != nil {
+		println(err.Error())
 		return err
 	}
 

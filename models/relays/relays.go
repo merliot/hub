@@ -41,6 +41,10 @@ func New(id, model, name string) dean.Thinger {
 	return r
 }
 
+func (r *Relays) SetRelay(relay int, name, gpio string) {
+	println("SetRelay", relay, name, gpio)
+}
+
 func (r *Relays) save(msg *dean.Msg) {
 	msg.Unmarshal(r).Broadcast()
 }

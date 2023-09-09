@@ -14,10 +14,15 @@ func main() {
 		thing.Demo()
 	}
 
+{{template "server-extras.tmpl" .}}
 	server := dean.NewServer(thing)
 
 	if "{{.hub}}" != "" {
-		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.scheme}}{{.hub}}/ws/1500", thing.Announce())
+		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.wsscheme}}{{.hub}}/ws/1500", thing.Announce())
+	}
+
+	if "{{.backuphub}}" != "" {
+		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.backupwsscheme}}{{.backuphub}}/ws/1500", thing.Announce())
 	}
 
 	if "{{.http}}" == "on" {
