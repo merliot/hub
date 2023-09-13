@@ -2,11 +2,13 @@ package relays
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
@@ -17,11 +19,37 @@ import (
 //go:embed *
 var fs embed.FS
 
+type Relay struct {
+	Name   string
+	Gpio   string
+	State  bool
+	driver *gpio.RelayDriver
+}
+
+func (r *Relay) Start() {
+	if r.driver != nil {
+		r.driver.Start()
+	}
+}
+
+func (r *Relay) On() {
+	if r.driver != nil {
+		r.driver.On()
+	}
+}
+
+func (r *Relay) Off() {
+	if r.driver != nil {
+		r.driver.Off()
+	}
+}
+
 type Relays struct {
 	*common.Common
-	relays    [4]*gpio.RelayDriver
-	States    [4]bool
+	Relays    [4]Relay
+	adaptor   *raspi.Adaptor
 	templates *template.Template
+	demo      bool
 }
 
 type MsgClick struct {
@@ -37,12 +65,9 @@ func New(id, model, name string) dean.Thinger {
 	r := &Relays{}
 	r.Common = common.New(id, model, name, targets).(*common.Common)
 	r.CompositeFs.AddFS(fs)
+	r.adaptor = raspi.NewAdaptor()
 	r.templates = r.CompositeFs.ParseFS("template/*")
 	return r
-}
-
-func (r *Relays) SetRelay(relay int, name, gpio string) {
-	println("SetRelay", relay, name, gpio)
 }
 
 func (r *Relays) save(msg *dean.Msg) {
@@ -57,12 +82,13 @@ func (r *Relays) getState(msg *dean.Msg) {
 func (r *Relays) click(msg *dean.Msg) {
 	var msgClick MsgClick
 	msg.Unmarshal(&msgClick)
-	r.States[msgClick.Relay] = msgClick.State
+	relay := r.Relays[msgClick.Relay]
+	relay.State = msgClick.State
 	if r.IsMetal() {
 		if msgClick.State {
-			r.relays[msgClick.Relay].On()
+			relay.On()
 		} else {
-			r.relays[msgClick.Relay].Off()
+			relay.On()
 		}
 	}
 	msg.Broadcast()
@@ -94,30 +120,45 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (r *Relays) Demo() {
+	r.demo = true
+}
+
+func (r *Relays) SetRelay(num int, name, pin string) {
+	relay := &r.Relays[num]
+	if !r.demo {
+		relay.driver = gpio.NewRelayDriver(r.adaptor, pin)
+	}
+	if name == "" {
+		name = fmt.Sprintf("Relay #%d", num)
+	}
+	relay.Name = name
+	relay.Gpio = pin
 }
 
 func (r *Relays) Run(i *dean.Injector) {
 
-	adaptor := raspi.NewAdaptor()
-	adaptor.Connect()
+	// Fail safe by turning off relays
+	failSafe := func () {
+		if recover() != nil {
+			for _, relay := range r.Relays {
+				relay.Off()
+			}
+		}
+	}
+	defer failSafe()
 
-	r.relays[0] = gpio.NewRelayDriver(adaptor, "31") // GPIO 6
-	r.relays[1] = gpio.NewRelayDriver(adaptor, "33") // GPIO 13
-	r.relays[2] = gpio.NewRelayDriver(adaptor, "35") // GPIO 19
-	r.relays[3] = gpio.NewRelayDriver(adaptor, "37") // GPIO 26
+	r.adaptor.Connect()
 
-	for _, relay := range r.relays {
+	for _, relay := range r.Relays {
 		relay.Start()
 		relay.Off()
 	}
 
 	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 
 	select {
 	case <-c:
-		for _, relay := range r.relays {
-			relay.Off()
-		}
+		failSafe()
 	}
 }

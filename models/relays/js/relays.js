@@ -1,11 +1,6 @@
 var overlay = document.getElementById("overlay")
 
-var relays = []
-
 function init() {
-	for (var i = 0; i < 4; i++) {
-		relays[i] = document.getElementById("relay" + i)
-	}
 }
 
 function open() {
@@ -26,15 +21,27 @@ function saveClick(msg) {
 
 function online() {
 	overlay.innerHTML = ""
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].checked = state.States[i]
-		relays[i].disabled = false
+	for (var i = 1; i <= 4; i++) {
+		checkbox = document.getElementById("relay" + i)
+		label = document.querySelector('label[for="relay'+i+'"]')
+		relay = state.Relays[i - 1]
+		label.textContent = relay.Name
+		if (relay.Name === "") {
+			checkbox.style.display = "none"
+			checkbox.checked = false
+			checkbox.disabled = true
+		} else {
+			checkbox.style.display = "block"
+			checkbox.checked = relay.State
+			checkbox.disabled = false
+		}
 	}
 }
 
 function offline() {
-	for (var i = 0; i < relays.length; i++) {
-		relays[i].disabled = true
+	for (var i = 1; i <= 4; i++) {
+		checkbox = document.getElementById("relay" + i)
+		checkbox.disabled = true
 	}
 	overlay.innerHTML = "Offline"
 }

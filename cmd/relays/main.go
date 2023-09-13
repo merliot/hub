@@ -8,7 +8,11 @@ import (
 )
 
 func main() {
-	thing := relays.New("relays01", "relays", "relays")
+	thing := relays.New("relays01", "relays", "relays").(*relays.Relays)
+
+	thing.Demo()
+	thing.SetRelay(1, "Kitchen", "32")
+	thing.SetRelay(2, "Living Room", "33")
 
 	server := dean.NewServer(thing)
 
