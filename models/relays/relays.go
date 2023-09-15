@@ -82,7 +82,7 @@ func (r *Relays) getState(msg *dean.Msg) {
 func (r *Relays) click(msg *dean.Msg) {
 	var msgClick MsgClick
 	msg.Unmarshal(&msgClick)
-	relay := r.Relays[msgClick.Relay]
+	relay := &r.Relays[msgClick.Relay]
 	relay.State = msgClick.State
 	if r.IsMetal() {
 		if msgClick.State {

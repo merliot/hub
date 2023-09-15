@@ -1,6 +1,23 @@
 var overlay = document.getElementById("overlay")
 
 function init() {
+	var relayImages = document.querySelectorAll(".relay-img");
+
+	relayImages.forEach(function(img, index) {
+		img.addEventListener("click", function() {
+			var currentSrc = this.getAttribute("src");
+			var relay = state.Relays[index]
+
+			if (currentSrc === "images/relay-off.png") {
+				relay.State = true
+				this.setAttribute("src", "images/relay-on.png");
+			} else {
+				relay.State = false
+				this.setAttribute("src", "images/relay-off.png");
+			}
+			conn.send(JSON.stringify({Path: "click", Relay: index, State: relay.State}))
+		});
+	});
 }
 
 function open() {
@@ -11,38 +28,41 @@ function close() {
 	offline()
 }
 
-function sendClick(relay, num) {
-	conn.send(JSON.stringify({Path: "click", Relay: num, State: relay.checked}))
-}
-
 function saveClick(msg) {
-	relays[msg.Relay].checked = msg.State
+	var relay = state.Relays[msg.Relay-1]
+	var image = document.getElementById("relay" + msg.Relay + "-img")
+	relay.State = msg.State
+	if (relay.State) {
+		image.src = "images/relay-on.png"
+	} else {
+		image.src = "images/relay-off.png"
+	}
 }
 
 function online() {
 	overlay.innerHTML = ""
 	for (var i = 1; i <= 4; i++) {
-		checkbox = document.getElementById("relay" + i)
-		label = document.querySelector('label[for="relay'+i+'"]')
-		relay = state.Relays[i - 1]
-		label.textContent = relay.Name
+		div = document.getElementById("relay" + i)
+		label = document.getElementById("relay" + i + "-name")
+		image = document.getElementById("relay" + i + "-img")
+		relay = state.Relays[i-1]
 		if (relay.Name === "") {
-			checkbox.style.display = "none"
-			checkbox.checked = false
-			checkbox.disabled = true
+			div.style.display = "none"
+			label.textContent = "<unused>"
+			image.src = "images/relay-off.png"
 		} else {
-			checkbox.style.display = "block"
-			checkbox.checked = relay.State
-			checkbox.disabled = false
+			div.style.display = "flex"
+			label.textContent = relay.Name
+			if (relay.State) {
+				image.src = "images/relay-on.png"
+			} else {
+				image.src = "images/relay-off.png"
+			}
 		}
 	}
 }
 
 function offline() {
-	for (var i = 1; i <= 4; i++) {
-		checkbox = document.getElementById("relay" + i)
-		checkbox.disabled = true
-	}
 	overlay.innerHTML = "Offline"
 }
 

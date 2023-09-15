@@ -1,0 +1,12 @@
+.relays {
+	justify-content: space-evenly;
+}
+
+.relay {
+	align-items: center;
+}
+
+.relay-img {
+	width: 64px;
+	height: 32px;
+}
