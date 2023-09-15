@@ -11,8 +11,11 @@ import (
 )
 
 func main() {
-
 	hub := hub.New("hub01", "hub", "hub01").(*hub.Hub)
+
+	ssid := os.Getenv("SSID")
+	passphrase := os.Getenv("PASSPHRASE")
+	hub.WifiAuth(ssid, passphrase)
 
 	server := dean.NewServer(hub)
 	hub.UseServer(server)

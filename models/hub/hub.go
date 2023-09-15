@@ -31,6 +31,8 @@ type Hub struct {
 	Models
 	server    *dean.Server
 	templates *template.Template
+	ssid       string
+	passphrase string
 }
 
 var targets = []string{"x86-64", "rpi"}
@@ -47,6 +49,11 @@ func New(id, model, name string) dean.Thinger {
 
 func (h *Hub) UseServer(server *dean.Server) {
 	h.server = server
+}
+
+func (h *Hub) WifiAuth(ssid, passphrase string) {
+	h.ssid = ssid
+	h.passphrase = passphrase
 }
 
 func (h *Hub) getState(msg *dean.Msg) {
