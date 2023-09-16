@@ -47,7 +47,7 @@ func New(id, model, name string) dean.Thinger {
 	return h
 }
 
-func (h *Hub) UseServer(server *dean.Server) {
+func (h *Hub) Server(server *dean.Server) {
 	h.server = server
 }
 
@@ -116,11 +116,13 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	model := r.URL.Query().Get("model")
 	name := r.URL.Query().Get("name")
-	err := h.server.CreateThing(id, model, name)
+	thinger, err := h.server.CreateThing(id, model, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	wifiver := thinger.(common.Wifiver)
+	wifiver.SetWifiAuth(h.ssid, h.passphrase)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Device id '%s' created", id)
 }
@@ -154,10 +156,12 @@ func (h *Hub) restoreDevices() {
 	bytes, _ := os.ReadFile("devices.json")
 	json.Unmarshal(bytes, &devices)
 	for id, dev := range devices {
-		err := h.server.CreateThing(id, dev.Model, dev.Name)
+		thinger, err := h.server.CreateThing(id, dev.Model, dev.Name)
 		if err != nil {
 			fmt.Printf("Error creating device Id '%s': %s\n", id, err)
 		}
+		wifiver := thinger.(common.Wifiver)
+		wifiver.SetWifiAuth(h.ssid, h.passphrase)
 	}
 }
 

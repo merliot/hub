@@ -70,13 +70,25 @@ function downloadFile(event) {
 	event.preventDefault()
 	var downloadURL = event.target.innerText
 
+	var downloadError = document.getElementById("download-error")
+	downloadError.style.display = "none"
+
 	var gopher = document.getElementById("gopher")
 	gopher.style.display = "block"
 
 	fetch(downloadURL)
 	.then(response => {
-		// Extract the filename from Content-Disposition header
+		if (!response.ok) {
+			// If we didn't get a 2xx response, throw an error with the response text
+			return response.text().then(text => { throw new Error(text) })
+		}
+
 		const contentDisposition = response.headers.get('Content-Disposition')
+		if (!contentDisposition) {
+			throw new Error('Content-Disposition header missing')
+		}
+
+		// Extract the filename from Content-Disposition header
 		const match = contentDisposition.match(/filename=([^;]+)/)
 		const filename = match ? match[1] : 'downloaded-file';  // Use a default filename if not found
 		return Promise.all([response.blob(), filename])
@@ -94,6 +106,8 @@ function downloadFile(event) {
 	})
 	.catch(error => {
 		console.error('Error downloading file:', error)
+		downloadError.innerText = error
+		downloadError.style.display = "block"
 		gopher.style.display = "none"
 	})
 }

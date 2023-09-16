@@ -32,6 +32,11 @@ textarea {
 	flex-direction: column;
 }
 
+#download-error {
+	color: red;
+	padding-top: 20px;
+}
+
 hr {
   margin-left: 0;
   margin-right: 0;

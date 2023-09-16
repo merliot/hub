@@ -3,6 +3,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -29,55 +30,10 @@ func genFile(templates *template.Template, template string, name string,
 	return tmpl.Execute(file, values)
 }
 
-func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r *http.Request) error {
+func (c *Common) deployGo(values map[string]string, envs []string,
+	templates *template.Template, w http.ResponseWriter, r *http.Request) error {
 
-	var values = make(map[string]string)
-
-	// Squash request params down to first value for each key.  The resulting
-	// map[string]string is much nicer to pass to html/template as data value.
-
-	for k, v := range r.URL.Query() {
-		if len(v) > 0 {
-			values[k] = v[0]
-		}
-	}
-
-	id, model, name := c.Identity()
-
-	values["id"] = id
-	values["model"] = model
-	values["modelStruct"] = strings.Title(model)
-	values["name"] = name
-	values["hub"] = r.Host
-	values["wsscheme"] = "wss://"
-	if r.TLS == nil {
-		values["wsscheme"] = "ws://"
-	}
-
-	if values["backuphub"] != "" {
-		u, err := url.Parse(values["backuphub"])
-		if err != nil {
-			return err
-		}
-		values["backuphub"] = u.Host
-		values["backupwsscheme"] = "ws://"
-		if u.Scheme == "https" {
-			values["backupwsscheme"] = "wss://"
-		}
-	}
-
-	if user, passwd, ok := r.BasicAuth(); ok {
-		values["user"] = user
-		values["passwd"] = passwd
-	}
-
-	envs := []string{}
-	switch values["target"] {
-	case "x86_64":
-		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
-	case "rpi":
-		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
-	}
+	id, model, _ := c.Identity()
 
 	// Get the current working directory
 	wd, err := os.Getwd()
@@ -101,7 +57,6 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 
 	// Generate build.go from server.tmpl
 	if err := genFile(templates, "server.tmpl", "build.go", values); err != nil {
-		println(err.Error())
 		return err
 	}
 
@@ -155,6 +110,84 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
 
 	http.ServeFile(w, r, installer)
+
+	return nil
+}
+
+func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
+
+	var values = make(map[string]string)
+
+	// Squash request params down to first value for each key.  The resulting
+	// map[string]string is much nicer to pass to html/template as data value.
+
+	for k, v := range r.URL.Query() {
+		if len(v) > 0 {
+			values[k] = v[0]
+		}
+	}
+
+	id, model, name := c.Identity()
+
+	values["id"] = id
+	values["model"] = model
+	values["modelStruct"] = strings.Title(model)
+	values["name"] = name
+	values["hub"] = r.Host
+	values["wsscheme"] = "wss://"
+	if r.TLS == nil {
+		values["wsscheme"] = "ws://"
+	}
+
+	if values["backuphub"] != "" {
+		u, err := url.Parse(values["backuphub"])
+		if err != nil {
+			return nil, err
+		}
+		values["backuphub"] = u.Host
+		values["backupwsscheme"] = "ws://"
+		if u.Scheme == "https" {
+			values["backupwsscheme"] = "wss://"
+		}
+	}
+
+	if user, passwd, ok := r.BasicAuth(); ok {
+		values["user"] = user
+		values["passwd"] = passwd
+	}
+
+	values["ssid"] = c.ssid
+	values["passphrase"] = c.passphrase
+
+	return values, nil
+}
+
+func (c *Common) buildEnvs(values map[string]string) []string {
+	envs := []string{}
+	switch values["target"] {
+	case "x86_64":
+		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
+	case "rpi":
+		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
+	}
+	return envs
+}
+
+func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r *http.Request) error {
+
+	values, err := c.buildValues(r)
+	if err != nil {
+		return err
+	}
+
+	envs := c.buildEnvs(values)
+
+	switch values["target"] {
+	case "x86_64", "rpi":
+		return c.deployGo(values, envs, templates, w, r)
+	default:
+		return errors.New("Target not supported")
+	}
 
 	return nil
 }

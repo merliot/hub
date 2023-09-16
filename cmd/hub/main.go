@@ -18,7 +18,7 @@ func main() {
 	hub.WifiAuth(ssid, passphrase)
 
 	server := dean.NewServer(hub)
-	hub.UseServer(server)
+	hub.Server(server)
 
 	server.Addr = ":8000"
 	if port, ok := os.LookupEnv("PORT"); ok {
