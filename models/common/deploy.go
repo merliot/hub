@@ -162,7 +162,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 func (c *Common) buildEnvs(values map[string]string) []string {
 	envs := []string{}
 	switch values["target"] {
-	case "x86_64":
+	case "x86-64":
 		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 	case "rpi":
 		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
@@ -179,8 +179,9 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 
 	envs := c.buildEnvs(values)
 
+	println(values["target"])
 	switch values["target"] {
-	case "x86_64", "rpi":
+	case "x86-64", "rpi":
 		return c.deployGo(values, envs, templates, w, r)
 	default:
 		return errors.New("Target not supported")
