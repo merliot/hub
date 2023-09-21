@@ -10,9 +10,15 @@ import (
 func main() {
 	thing := relays.New("relays01", "relays", "relays").(*relays.Relays)
 
-	thing.Demo()
-	thing.SetRelay(1, "Kitchen", "32")
-	thing.SetRelay(2, "Living Room", "33")
+	demo, _ := os.LookupEnv("DEMO")
+	if demo != "" {
+		thing.Demo()
+	}
+
+	thing.SetRelay(0, "Kitchen", "31")
+	thing.SetRelay(1, "Living Room", "33")
+	thing.SetRelay(2, "Bath Room", "35")
+	thing.SetRelay(3, "Bed Room", "37")
 
 	server := dean.NewServer(thing)
 
@@ -20,7 +26,7 @@ func main() {
 	user, _ := os.LookupEnv("USER")
 	passwd, _ := os.LookupEnv("PASSWD")
 
-	server.DialWebSocket(user, passwd, "ws://127.0.0.1:8000/ws/1500", thing.Announce())
+	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/1500", thing.Announce())
 	//server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {

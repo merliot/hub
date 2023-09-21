@@ -88,7 +88,7 @@ func (r *Relays) click(msg *dean.Msg) {
 		if msgClick.State {
 			relay.On()
 		} else {
-			relay.On()
+			relay.Off()
 		}
 	}
 	msg.Broadcast()
@@ -125,9 +125,6 @@ func (r *Relays) Demo() {
 
 func (r *Relays) SetRelay(num int, name, pin string) {
 	relay := &r.Relays[num]
-	if !r.demo {
-		relay.driver = gpio.NewRelayDriver(r.adaptor, pin)
-	}
 	if name == "" {
 		name = fmt.Sprintf("Relay #%d", num)
 	}
@@ -149,7 +146,12 @@ func (r *Relays) Run(i *dean.Injector) {
 
 	r.adaptor.Connect()
 
-	for _, relay := range r.Relays {
+	for i, _ := range r.Relays {
+		relay := &r.Relays[i]
+		if r.demo || relay.Gpio == "" {
+			continue
+		}
+		relay.driver = gpio.NewRelayDriver(r.adaptor, relay.Gpio)
 		relay.Start()
 		relay.Off()
 	}
