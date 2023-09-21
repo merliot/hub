@@ -29,7 +29,7 @@ function close() {
 }
 
 function saveClick(msg) {
-	var relay = state.Relays[msg.Relay-1]
+	var relay = state.Relays[msg.Relay]
 	var image = document.getElementById("relay" + msg.Relay + "-img")
 	relay.State = msg.State
 	if (relay.State) {
@@ -41,11 +41,11 @@ function saveClick(msg) {
 
 function online() {
 	overlay.innerHTML = ""
-	for (var i = 1; i <= 4; i++) {
+	for (var i = 0; i < 4; i++) {
 		div = document.getElementById("relay" + i)
 		label = document.getElementById("relay" + i + "-name")
 		image = document.getElementById("relay" + i + "-img")
-		relay = state.Relays[i-1]
+		relay = state.Relays[i]
 		if (relay.Name === "") {
 			div.style.display = "none"
 			label.textContent = "<unused>"
