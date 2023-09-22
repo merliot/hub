@@ -14,7 +14,7 @@ type Common struct {
 	commonOS
 	ssid       string
 	passphrase string
-	lastURL    string
+	deployURL  string
 }
 
 func New(id, model, name string, targets []string) dean.Thinger {
@@ -31,6 +31,6 @@ func (c *Common) SetWifiAuth(ssid, passphrase string) {
 	c.passphrase = passphrase
 }
 
-func (c *Common) SetLastURL(url string) {
-	c.lastURL = url
+func (c *Common) SetDeployURL(url string) {
+	c.deployURL = url
 }

@@ -129,7 +129,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 
 	id, model, name := c.Identity()
 
-	values["lastURL"] = r.URL.String()
+	values["deployURL"] = r.URL.String()
 	values["id"] = id
 	values["model"] = model
 	values["modelStruct"] = strings.Title(model)
