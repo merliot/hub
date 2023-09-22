@@ -1,23 +1,6 @@
 var overlay = document.getElementById("overlay")
 
 function init() {
-	var relayImages = document.querySelectorAll(".relay-img");
-
-	relayImages.forEach(function(img, index) {
-		img.addEventListener("click", function() {
-			var currentSrc = this.getAttribute("src");
-			var relay = state.Relays[index]
-
-			if (currentSrc === "images/relay-off.png") {
-				relay.State = true
-				this.setAttribute("src", "images/relay-on.png");
-			} else {
-				relay.State = false
-				this.setAttribute("src", "images/relay-off.png");
-			}
-			conn.send(JSON.stringify({Path: "click", Relay: index, State: relay.State}))
-		});
-	});
 }
 
 function open() {
@@ -28,15 +11,26 @@ function close() {
 	offline()
 }
 
-function saveClick(msg) {
-	var relay = state.Relays[msg.Relay]
-	var image = document.getElementById("relay" + msg.Relay + "-img")
-	relay.State = msg.State
+function setRelayImg(relay, image) {
 	if (relay.State) {
 		image.src = "images/relay-on.png"
 	} else {
 		image.src = "images/relay-off.png"
 	}
+}
+
+function saveClick(msg) {
+	var image = document.getElementById("relay" + msg.Relay + "-img")
+	var relay = state.Relays[msg.Relay]
+	relay.State = msg.State
+	setRelayImg(relay, image)
+}
+
+function relayClick(image, index) {
+	var relay = state.Relays[index]
+	relay.State = !relay.State
+	setRelayImg(relay, image)
+	conn.send(JSON.stringify({Path: "click", Relay: index, State: relay.State}))
 }
 
 function online() {
