@@ -105,6 +105,8 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 		c.showCode(templates, w, r)
 	case "state":
 		ShowState(templates, w, c)
+	case "last-url":
+		w.Write([]byte(c.lastURL))
 	default:
 		if markdownFile.MatchString(path) {
 			c.renderMarkdown(path, w)

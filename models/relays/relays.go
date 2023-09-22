@@ -126,7 +126,7 @@ func (r *Relays) Demo() {
 func (r *Relays) SetRelay(num int, name, pin string) {
 	relay := &r.Relays[num]
 	if name == "" {
-		name = fmt.Sprintf("Relay #%d", num)
+		name = fmt.Sprintf("Relay #%d", num+1)
 	}
 	relay.Name = name
 	relay.Gpio = pin
