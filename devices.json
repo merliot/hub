@@ -14,6 +14,16 @@
 		"Name": "poc3",
 		"Online": false
 	},
+	"bar": {
+		"Model": "gps",
+		"Name": "Home",
+		"Online": false
+	},
+	"bar1": {
+		"Model": "relays",
+		"Name": "Home1",
+		"Online": false
+	},
 	"foo": {
 		"Model": "gps",
 		"Name": "foo",

@@ -1,7 +1,7 @@
 const deployTargetGpios = {
     "x86-64": [],
-    "rpi": ["gpio20", "gpio23", "gpio25", "gpio30"],
-    "nano-rp2040": ["gpio0", "gpio3", "gpio25", "gpio3"],
+    "rpi": ["31", "33", "35", "37"],
+    "nano-rp2040": ["0", "3", "25", "3"],
 };
 
 let target = document.getElementById('deploy-target')
@@ -9,7 +9,7 @@ let gpios = deployTargetGpios[target.value];
 
 // Function to refresh all select options based on current selections
 function refreshGpioOptions() {
-    const selects = document.querySelectorAll('.gpio');
+    const selects = document.querySelectorAll('.gpioPin');
     const usedGpios = [];
 
     // Find all currently selected GPIOs
@@ -38,7 +38,7 @@ function refreshGpioOptions() {
 }
 
 function clearGpioOptions() {
-    const selects = document.querySelectorAll('.gpio');
+    const selects = document.querySelectorAll('.gpioPin');
     selects.forEach(select => {
         select.value = ""
     });
@@ -55,7 +55,7 @@ target.addEventListener('change', function() {
 });
 
 // Attach event listeners to the gpio dropdowns to ensure no duplicate selections
-document.querySelectorAll('.gpio').forEach(select => {
+document.querySelectorAll('.gpioPin').forEach(select => {
     select.addEventListener('change', refreshGpioOptions);
 });
 

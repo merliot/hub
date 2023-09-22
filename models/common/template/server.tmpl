@@ -14,6 +14,8 @@ func main() {
 		thing.Demo()
 	}
 
+	thing.SetLastURL("{{.lastURL}}")
+
 {{template "server-extras.tmpl" .}}
 	server := dean.NewServer(thing)
 

@@ -1,31 +1,17 @@
 <hr>
-<div id="relaysList" class="divFlexCol">
-	<div class="divFlexRow">
-		<label class="relayLabel">Relay #1</label>
-		<input type="text" placeholder="Name" name="relay1">
-		<select class="gpio" name="gpio1">
-			<!-- Options populated via JS -->
-		</select>
+<div class="divFlexRow">
+	<div class="divFlexCol">
+		<span>Relay Name</span>
+		<input class="relayName" type="text" placeholder="Relay #1" name="relay1">
+		<input class="relayName" type="text" placeholder="Relay #2" name="relay2">
+		<input class="relayName" type="text" placeholder="Relay #3" name="relay3">
+		<input class="relayName" type="text" placeholder="Relay #4" name="relay4">
 	</div>
-	<div class="divFlexRow">
-		<label class="relayLabel">Relay #2</label>
-		<input type="text" placeholder="Name" name="relay2">
-		<select class="gpio" name="gpio2">
-			<!-- Options populated via JS -->
-		</select>
-	</div>
-	<div class="divFlexRow">
-		<label class="relayLabel">Relay #3</label>
-		<input type="text" placeholder="Name" name="relay3">
-		<select class="gpio" name="gpio1">
-			<!-- Options populated via JS -->
-		</select>
-	</div>
-	<div class="divFlexRow">
-		<label class="relayLabel">Relay #4</label>
-		<input type="text" placeholder="Name" name="relay4">
-		<select class="gpio" name="gpio1">
-			<!-- Options populated via JS -->
-		</select>
+	<div class="divFlexCol">
+		<span>GPIO Pin</span>
+		<select class="gpioPin" name="gpio1"></select>
+		<select class="gpioPin" name="gpio2"></select>
+		<select class="gpioPin" name="gpio3"></select>
+		<select class="gpioPin" name="gpio4"></select>
 	</div>
 </div>
