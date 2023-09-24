@@ -11,10 +11,10 @@ type Wifiver interface {
 type Common struct {
 	dean.Thing
 	Targets `json:"-"`
+	DeployURL  string
 	commonOS
 	ssid       string
 	passphrase string
-	deployURL  string
 }
 
 func New(id, model, name string, targets []string) dean.Thinger {
@@ -29,8 +29,4 @@ func New(id, model, name string, targets []string) dean.Thinger {
 func (c *Common) SetWifiAuth(ssid, passphrase string) {
 	c.ssid = ssid
 	c.passphrase = passphrase
-}
-
-func (c *Common) SetDeployURL(url string) {
-	c.deployURL = url
 }
