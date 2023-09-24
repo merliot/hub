@@ -138,6 +138,7 @@ func firstValue(values url.Values, key string) string {
 
 func (r *Relays) parseParams() {
 	values := r.ParseDeployParams()
+	fmt.Printf("%+v\n", values)
 	r.Demo = (firstValue(values, "demo") == "on")
 	for i, _ := range r.Relays {
 		num := strconv.Itoa(i + 1)
