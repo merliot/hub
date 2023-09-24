@@ -120,7 +120,7 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (r *Relays) SetRelay(num int, name, pin string) {
+func (r *Relays) setRelay(num int, name, pin string) {
 	relay := &r.Relays[num]
 	if name == "" {
 		name = fmt.Sprintf("Relay #%d", num+1)
@@ -138,13 +138,12 @@ func firstValue(values url.Values, key string) string {
 
 func (r *Relays) parseParams() {
 	values := r.ParseDeployParams()
-	fmt.Printf("%+v\n", values)
 	r.Demo = (firstValue(values, "demo") == "on")
 	for i, _ := range r.Relays {
 		num := strconv.Itoa(i + 1)
 		name := firstValue(values, "relay" + num)
 		pin := firstValue(values, "gpio" + num)
-		r.SetRelay(i, name, pin)
+		r.setRelay(i, name, pin)
 	}
 }
 

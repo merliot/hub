@@ -1,6 +1,7 @@
 package common
 
 import (
+	"html"
 	"net/url"
 
 	"github.com/merliot/dean"
@@ -30,7 +31,7 @@ func New(id, model, name string, targets []string) dean.Thinger {
 }
 
 func (c *Common) ParseDeployParams() url.Values {
-	unescaped, _ := url.QueryUnescape(c.DeployParams)
+	unescaped := html.UnescapeString(c.DeployParams)
 	values, _ := url.ParseQuery(unescaped)
 	return values
 }
