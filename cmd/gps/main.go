@@ -15,9 +15,7 @@ func main() {
 
 	thing := gps.New("foo", "gps", "foo").(*gps.Gps)
 
-	if demo != "" {
-		thing.Demo()
-	}
+	thing.Demo = (demo != "")
 
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)

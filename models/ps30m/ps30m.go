@@ -36,7 +36,6 @@ type Ps30m struct {
 	Hours        []record
 	Days         []record
 	client       *modbus.ModbusClient
-	demo         bool
 	templates    *template.Template
 }
 
@@ -135,10 +134,6 @@ func (p *Ps30m) readRegU16(addr uint16) uint16 {
 	return value
 }
 
-func (p *Ps30m) Demo() {
-	p.demo = true
-}
-
 func ave(recs []record) record {
 	var rec record
 	for j := 0; j < len(rec); j++ {
@@ -161,7 +156,7 @@ var sun = [...]float32{
 }
 
 func (p *Ps30m) nextRecord() (rec record) {
-	if p.demo {
+	if p.Demo {
 		hour := time.Now().Hour()
 		rec[0] = sun[hour] + rand.Float32()
 		rec[1] = 13.0 + rand.Float32()
@@ -193,7 +188,7 @@ type StatusMsg struct {
 func (p *Ps30m) sendStatus(i *dean.Injector) {
 	var msg dean.Msg
 	var update = StatusMsg{Path: "update/status"}
-	if p.demo {
+	if p.Demo {
 		update.ChargeState = 1
 		update.LoadState = 3
 	} else {
@@ -230,7 +225,7 @@ func (p *Ps30m) Run(i *dean.Injector) {
 	const serial = "rtu:///dev/ttyUSB0"
 	var err error
 
-	if !p.demo {
+	if !p.Demo {
 		p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
 			URL:      serial,
 			Speed:    9600,

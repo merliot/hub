@@ -121,7 +121,3 @@ func (g *Gps) runDemo(i *dean.Injector) {
 		time.Sleep(time.Minute)
 	}
 }
-
-func (g *Gps) Demo() {
-	g.demo = true
-}

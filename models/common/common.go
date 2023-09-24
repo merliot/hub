@@ -1,6 +1,8 @@
 package common
 
 import (
+	"net/url"
+
 	"github.com/merliot/dean"
 )
 
@@ -12,9 +14,10 @@ type Common struct {
 	dean.Thing
 	Targets `json:"-"`
 	DeployParams string
+	Demo         bool `json:"-"`
+	ssid         string
+	passphrase   string
 	commonOS
-	ssid       string
-	passphrase string
 }
 
 func New(id, model, name string, targets []string) dean.Thinger {
@@ -24,6 +27,11 @@ func New(id, model, name string, targets []string) dean.Thinger {
 	c.Targets = makeTargets(targets)
 	c.commonOSInit()
 	return c
+}
+
+func (c *Common) ParseDeployParams() url.Values {
+	values, _ := url.ParseQuery(c.DeployParams)
+	return values
 }
 
 func (c *Common) SetWifiAuth(ssid, passphrase string) {

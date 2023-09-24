@@ -9,7 +9,6 @@ type Gps struct {
 	*common.Common
 	Lat  float64
 	Long float64
-	demo bool
 	gpsOS
 }
 
@@ -51,7 +50,7 @@ func (g *Gps) Subscribers() dean.Subscribers {
 }
 
 func (g *Gps) Run(i *dean.Injector) {
-	if g.demo {
+	if g.Demo {
 		g.runDemo(i)
 	}
 	g.run(i)

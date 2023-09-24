@@ -15,9 +15,7 @@ func main() {
 
 	thing := ps30m.New("230042", "ps30m", "poc1").(*ps30m.Ps30m)
 
-	if demo != "" {
-		thing.Demo()
-	}
+	thing.Demo = (demo != "")
 
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)

@@ -11,9 +11,7 @@ func main() {
 	thing := relays.New("relays01", "relays", "relays").(*relays.Relays)
 
 	demo, _ := os.LookupEnv("DEMO")
-	if demo != "" {
-		thing.Demo()
-	}
+	thing.Demo = (demo != "")
 
 	thing.SetRelay(0, "Kitchen", "31")
 	thing.SetRelay(1, "Living Room", "33")

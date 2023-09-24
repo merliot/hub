@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -49,7 +51,6 @@ type Relays struct {
 	Relays    [4]Relay
 	adaptor   *raspi.Adaptor
 	templates *template.Template
-	demo      bool
 }
 
 type MsgClick struct {
@@ -119,10 +120,6 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (r *Relays) Demo() {
-	r.demo = true
-}
-
 func (r *Relays) SetRelay(num int, name, pin string) {
 	relay := &r.Relays[num]
 	if name == "" {
@@ -130,6 +127,24 @@ func (r *Relays) SetRelay(num int, name, pin string) {
 	}
 	relay.Name = name
 	relay.Gpio = pin
+}
+
+func firstValue(values url.Values, key string) string {
+	if v, ok := values[key]; ok {
+		return v[0]
+	}
+	return ""
+}
+
+func (r *Relays) parseParams() {
+	values := r.ParseDeployParams()
+	r.Demo = (firstValue(values, "demo") == "on")
+	for i, _ := range r.Relays {
+		num := strconv.Itoa(i + 1)
+		name := firstValue(values, "relay" + num)
+		pin := firstValue(values, "gpio" + num)
+		r.SetRelay(i, name, pin)
+	}
 }
 
 func (r *Relays) Run(i *dean.Injector) {
@@ -144,11 +159,13 @@ func (r *Relays) Run(i *dean.Injector) {
 	}
 	defer failSafe()
 
+	r.parseParams()
+
 	r.adaptor.Connect()
 
 	for i, _ := range r.Relays {
 		relay := &r.Relays[i]
-		if r.demo || relay.Gpio == "" {
+		if r.Demo || relay.Gpio == "" {
 			continue
 		}
 		relay.driver = gpio.NewRelayDriver(r.adaptor, relay.Gpio)

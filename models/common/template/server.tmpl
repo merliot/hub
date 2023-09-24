@@ -10,13 +10,8 @@ import (
 func main() {
 	thing := {{.model}}.New("{{.id}}", "{{.model}}", "{{.name}}").(*{{.model}}.{{.modelStruct}})
 
-	if "{{.demo}}" == "on" {
-		thing.Demo()
-	}
-
 	thing.DeployParams = "{{.deployParams}}"
 
-{{template "server-extras.tmpl" .}}
 	server := dean.NewServer(thing)
 
 	if "{{.hub}}" != "" {

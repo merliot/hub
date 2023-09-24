@@ -154,6 +154,9 @@ function stageFormData(deployParams) {
 				element.value = value;
 				break;
 			}
+			// Manually dispatch a change event
+			let event = new Event('change', {});
+			element.dispatchEvent(event);
 		}
 	});
 }
