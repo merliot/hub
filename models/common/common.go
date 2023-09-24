@@ -30,7 +30,8 @@ func New(id, model, name string, targets []string) dean.Thinger {
 }
 
 func (c *Common) ParseDeployParams() url.Values {
-	values, _ := url.ParseQuery(c.DeployParams)
+	unescaped, _ := url.QueryUnescape(c.DeployParams)
+	values, _ := url.ParseQuery(unescaped)
 	return values
 }
 
