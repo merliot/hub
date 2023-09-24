@@ -166,7 +166,7 @@ func (c *Common) buildEnvs(values map[string]string) []string {
 	case "x86-64":
 		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 	case "rpi":
-		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
+		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=7"}
 	}
 	return envs
 }
