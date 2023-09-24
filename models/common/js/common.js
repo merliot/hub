@@ -128,13 +128,46 @@ function updateDeployLink() {
 	link.innerHTML = downloadURL
 }
 
-function stageDeploy() {
+function decodeHtmlEntities(input) {
+	var doc = new DOMParser().parseFromString(input, 'text/html');
+	return doc.documentElement.textContent;
+}
+
+function stageFormData(deployParams) {
+	var form = document.getElementById("deploy-form")
+	const params = new URLSearchParams(decodeHtmlEntities(deployParams))
+
+	params.forEach((value, key) => {
+		let element = form.elements[key];
+		if (element) {
+			switch (element.type) {
+			case 'checkbox':
+				element.checked = value === 'on';
+				break;
+			case 'radio':
+				// If there are multiple radio buttons with the
+				// same name, value will determine which one to check
+				element = [...form.elements[key]].find(radio => radio.value === value);
+				if (element) element.checked = true;
+				break;
+			default:
+				element.value = value;
+				break;
+			}
+		}
+	});
+}
+
+function stageDeploy(deployParams) {
+
+	stageFormData(deployParams)
+
 	document.getElementById("download-link").addEventListener("click", downloadFile)
 
-	var deployCheckbox = document.getElementById("deploy-backup")
+	var backup = document.getElementById("deploy-backup")
 	var backupHub = document.getElementById("deploy-backup-hub")
 
-	deployCheckbox.addEventListener("change", function() {
+	backup.addEventListener("change", function() {
 		if (this.checked) {
 			backupHub.disabled = false;
 			backupHub.name = "backup-hub";
@@ -145,7 +178,8 @@ function stageDeploy() {
 		updateDeployLink()
 	})
 
-	document.getElementById("deploy-form").addEventListener('input', function (event) {
+	var form = document.getElementById("deploy-form")
+	form.addEventListener('input', function (event) {
 		updateDeployLink()
 	})
 	updateDeployLink()

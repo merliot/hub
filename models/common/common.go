@@ -11,7 +11,7 @@ type Wifiver interface {
 type Common struct {
 	dean.Thing
 	Targets `json:"-"`
-	DeployURL  string
+	DeployParams string
 	commonOS
 	ssid       string
 	passphrase string

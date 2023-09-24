@@ -14,7 +14,7 @@ func main() {
 		thing.Demo()
 	}
 
-	thing.DeployURL = "{{.deployURL}}"
+	thing.DeployParams = "{{.deployParams}}"
 
 {{template "server-extras.tmpl" .}}
 	server := dean.NewServer(thing)
