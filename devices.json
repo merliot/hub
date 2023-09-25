@@ -28,10 +28,5 @@
 		"Model": "relays",
 		"Name": "relays",
 		"Online": true
-	},
-	"sadfsa": {
-		"Model": "gps",
-		"Name": "asdfsa",
-		"Online": false
 	}
 }
