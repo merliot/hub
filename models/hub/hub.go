@@ -3,10 +3,13 @@ package hub
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/merliot/dean"
@@ -176,7 +179,7 @@ func (h *Hub) restoreDevices() {
 	for id, dev := range devices {
 		thinger, err := h.server.CreateThing(id, dev.Model, dev.Name)
 		if err != nil {
-			fmt.Printf("Error creating device Id '%s': %s\n", id, err)
+			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
 		wifiver := thinger.(common.Wifiver)
@@ -189,10 +192,79 @@ func (h *Hub) storeDevices() {
 	os.WriteFile("devices.json", bytes, 0600)
 }
 
-func (h *Hub) saveDevices() error {
-	println(h.gitKey)
-	println(h.gitAuthor)
+// hasPendingChanges checks if there are any uncommitted changes in the local repo.
+func hasPendingChanges() (bool, error) {
+	cmd := exec.Command("git", "status", "--porcelain")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("failed to check git status: %w", err)
+	}
+	return strings.TrimSpace(string(out)) != "", nil
+}
+
+// commitChanges commits any pending changes in the local repo.
+func commitChanges(commitMessage, author string) error {
+	commitCmd := exec.Command("git", "commit", "-am", commitMessage, "--author", author)
+	out, err := commitCmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to commit changes: %s, %w", out, err)
+	}
+	fmt.Println("Changes committed successfully!")
 	return nil
+}
+
+// pushCommit pushes commits in local repo to remote
+func pushCommit(key string) error {
+	// 1. Write key to temp file
+	tempFile, err := ioutil.TempFile("", "git-ssh-key")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	_, err = tempFile.WriteString(key)
+	if err != nil {
+		return fmt.Errorf("failed to write to temp file: %w", err)
+	}
+	tempFile.Close()
+
+	// 2. Set permissions on the temp file
+	if err = os.Chmod(tempFile.Name(), 0400); err != nil {
+		return fmt.Errorf("failed to set permissions on temp file: %w", err)
+	}
+
+	// 3. Set GIT_SSH_COMMAND environment variable
+	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
+	os.Setenv("GIT_SSH_COMMAND", sshCmd)
+
+	// 4. Execute git push command
+	pushCmd := exec.Command("git", "push")
+	out, err := pushCmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to push commit: %s, %w", out, err)
+	}
+	fmt.Println("Pushed commit successfully!")
+	return nil
+}
+
+func (h *Hub) saveDevices() error {
+	if h.gitAuthor == "" {
+		return errors.New("Can't save: Missing GIT_AUTHOR env var")
+	}
+	if h.gitKey == "" {
+		return errors.New("Can't save: Missing GIT_KEY env var")
+	}
+	changes, err := hasPendingChanges()
+	if err != nil {
+		return err
+	}
+	if !changes {
+		return errors.New("No changes to save")
+	}
+	if err := commitChanges("update devices", h.gitAuthor); err != nil {
+		return err
+	}
+	return pushCommit(h.gitKey)
 }
 
 func (h *Hub) dumpDevices() {
