@@ -34,6 +34,11 @@
 		"Name": "foo2",
 		"Online": false
 	},
+	"h1": {
+		"Model": "hub",
+		"Name": "h1",
+		"Online": false
+	},
 	"relays01": {
 		"Model": "relays",
 		"Name": "relays",

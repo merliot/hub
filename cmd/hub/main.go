@@ -11,14 +11,14 @@ import (
 )
 
 func main() {
-	hub := hub.New("hub01", "hub", "hub01").(*hub.Hub)
+	h := hub.New("hub01", "hub", "hub01").(*hub.Hub)
 
 	ssid := os.Getenv("SSID")
 	passphrase := os.Getenv("PASSPHRASE")
-	hub.WifiAuth(ssid, passphrase)
+	h.WifiAuth(ssid, passphrase)
 
-	server := dean.NewServer(hub)
-	hub.Server(server)
+	server := dean.NewServer(h)
+	h.Server(server)
 
 	server.Addr = ":8000"
 	if port, ok := os.LookupEnv("PORT"); ok {
@@ -34,6 +34,7 @@ func main() {
 	server.RegisterModel("ps30m", ps30m.New)
 	server.RegisterModel("gps", gps.New)
 	server.RegisterModel("relays", relays.New)
+	server.RegisterModel("hub", hub.New)
 
 	go server.ListenAndServe()
 	server.Run()
