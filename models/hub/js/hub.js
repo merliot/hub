@@ -145,10 +145,8 @@ function showDelete() {
 
 async function save() {
 	let response = await fetch("/save")
-	if (response.status != 200) {
-		let data = await response.text()
-		alert(data)
-	}
+	let data = await response.text()
+	alert(data)
 }
 
 function setDeviceIcon(img, online) {
