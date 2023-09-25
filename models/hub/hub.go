@@ -177,6 +177,7 @@ func (h *Hub) restoreDevices() {
 		thinger, err := h.server.CreateThing(id, dev.Model, dev.Name)
 		if err != nil {
 			fmt.Printf("Error creating device Id '%s': %s\n", id, err)
+			continue
 		}
 		wifiver := thinger.(common.Wifiver)
 		wifiver.SetWifiAuth(h.ssid, h.passphrase)

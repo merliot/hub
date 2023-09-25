@@ -19,7 +19,7 @@ func main() {
 
 	gitKey := os.Getenv("GIT_KEY")
 	gitAuthor := os.Getenv("GIT_AUTHOR")
-	h.SetGetHub(gitKey, gitAuthor)
+	h.SetGit(gitKey, gitAuthor)
 
 	server := dean.NewServer(h)
 	h.SetServer(server)
