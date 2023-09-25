@@ -188,7 +188,7 @@ func (h *Hub) storeDevices() {
 	os.WriteFile("devices.json", bytes, 0600)
 }
 
-func (h *Hub) saveDevices() {
+func (h *Hub) saveDevices() error {
 	println(h.gitKey)
 	println(h.gitAuthor)
 	return nil
