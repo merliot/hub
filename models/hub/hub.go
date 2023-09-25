@@ -29,10 +29,12 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	server    *dean.Server
-	templates *template.Template
+	server     *dean.Server
+	templates  *template.Template
 	ssid       string
 	passphrase string
+	gitKey     string
+	gitAuthor  string
 }
 
 var targets = []string{"x86-64", "rpi"}
@@ -47,13 +49,18 @@ func New(id, model, name string) dean.Thinger {
 	return h
 }
 
-func (h *Hub) Server(server *dean.Server) {
+func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
 }
 
-func (h *Hub) WifiAuth(ssid, passphrase string) {
+func (h *Hub) SetWifiAuth(ssid, passphrase string) {
 	h.ssid = ssid
 	h.passphrase = passphrase
+}
+
+func (h *Hub) SetGit(key, author string) {
+	h.gitKey = key
+	h.gitAuthor = author
 }
 
 func (h *Hub) getState(msg *dean.Msg) {
@@ -138,6 +145,15 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Device id '%s' deleted", id)
 }
 
+func (h *Hub) apiSave(w http.ResponseWriter, r *http.Request) {
+	if err := h.saveDevices(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Devices saved")
+}
+
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "api":
@@ -146,6 +162,8 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.apiCreate(w, r)
 	case "delete":
 		h.apiDelete(w, r)
+	case "save":
+		h.apiSave(w, r)
 	default:
 		h.API(h.templates, w, r)
 	}
@@ -168,6 +186,12 @@ func (h *Hub) restoreDevices() {
 func (h *Hub) storeDevices() {
 	bytes, _ := json.MarshalIndent(h.Devices, "", "\t")
 	os.WriteFile("devices.json", bytes, 0600)
+}
+
+func (h *Hub) saveDevices() {
+	println(h.gitKey)
+	println(h.gitAuthor)
+	return nil
 }
 
 func (h *Hub) dumpDevices() {

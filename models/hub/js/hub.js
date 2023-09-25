@@ -26,7 +26,7 @@ document.getElementById("delete-delete").onclick = function(){deletef()}
 
 // Save button saves devices.json to repo
 
-document.getElementById("save").onclick = function(){alert("not implemented")}
+document.getElementById("save").onclick = function(){save()}
 
 // Toggle buttons
 
@@ -141,6 +141,14 @@ function showDelete() {
 	var delprompt = document.getElementById("delete-prompt")
 	delprompt.innerText = "Delete device ID " + selected + "?"
 	dialogDelete.showModal()
+}
+
+async function save() {
+	let response = await fetch("/save")
+	if (response.status != 200) {
+		let data = await response.text()
+		alert(data)
+	}
 }
 
 function setDeviceIcon(img, online) {

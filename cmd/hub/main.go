@@ -15,10 +15,14 @@ func main() {
 
 	ssid := os.Getenv("SSID")
 	passphrase := os.Getenv("PASSPHRASE")
-	h.WifiAuth(ssid, passphrase)
+	h.SetWifiAuth(ssid, passphrase)
+
+	gitKey := os.Getenv("GIT_KEY")
+	gitAuthor := os.Getenv("GIT_AUTHOR")
+	h.SetGetHub(gitKey, gitAuthor)
 
 	server := dean.NewServer(h)
-	h.Server(server)
+	h.SetServer(server)
 
 	server.Addr = ":8000"
 	if port, ok := os.LookupEnv("PORT"); ok {
@@ -34,7 +38,7 @@ func main() {
 	server.RegisterModel("ps30m", ps30m.New)
 	server.RegisterModel("gps", gps.New)
 	server.RegisterModel("relays", relays.New)
-	server.RegisterModel("hub", hub.New)
+	//server.RegisterModel("hub", hub.New)
 
 	go server.ListenAndServe()
 	server.Run()
