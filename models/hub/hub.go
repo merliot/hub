@@ -204,8 +204,13 @@ func hasPendingChanges() (bool, error) {
 
 // commitChanges commits any pending changes in the local repo.
 func commitChanges(commitMessage, author string) error {
-	commitCmd := exec.Command("git", "commit", "-am", commitMessage,
-		"--author", author, "--committer", author)
+	// Setting environment variables for GIT_AUTHOR and GIT_COMMITTER
+	os.Setenv("GIT_AUTHOR_NAME", strings.Split(author, " <")[0])
+	os.Setenv("GIT_AUTHOR_EMAIL", strings.Trim(strings.Split(author, "<")[1], "> "))
+	os.Setenv("GIT_COMMITTER_NAME", strings.Split(author, " <")[0])
+	os.Setenv("GIT_COMMITTER_EMAIL", strings.Trim(strings.Split(author, "<")[1], "> "))
+
+	commitCmd := exec.Command("git", "commit", "-am", commitMessage)
 	out, err := commitCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %s, %w", out, err)
