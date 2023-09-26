@@ -147,22 +147,26 @@ func (r *Relays) parseParams() {
 	}
 }
 
+// FailSafe by turning off all gpios
+func (r *Relays) failSafe() {
+	pins := r.Targets["rpi"].GpioPins
+	for _, pin := range pins {
+		rpin := strconv.Itoa(pin)
+		driver := gpio.NewRelayDriver(r.adaptor, rpin)
+		driver.Start()
+		driver.Off()
+	}
+}
+
 func (r *Relays) Run(i *dean.Injector) {
 
-	pins := r.Targets["rpi"].GpioPins
-
-	// Fail safe by turning off all gpios
-	failSafe := func () {
+	defer func() {
 		if recover() != nil {
-			for _, pin := range pins {
-				rpin := strconv.Itoa(pin)
-				driver := gpio.NewRelayDriver(r.adaptor, rpin)
-				driver.Start()
-				driver.Off()
-			}
+			r.failSafe()
 		}
-	}
-	defer failSafe()
+	}()
+
+	pins := r.Targets["rpi"].GpioPins
 
 	r.parseParams()
 
@@ -186,6 +190,6 @@ func (r *Relays) Run(i *dean.Injector) {
 
 	select {
 	case <-c:
-		failSafe()
+		r.failSafe()
 	}
 }
