@@ -26,7 +26,7 @@ Name:    {{.Name}}</textarea>
 						<label for="deploy-target">Target:</label>
 						<select name="target" id="deploy-target">
 {{ range $key, $value := .Targets }}
-							<option value="{{ $key }}">{{ $value }}</option>
+							<option value="{{ $key }}">{{ $value.FullName }}</option>
 {{ end }}
 						</select>
 					</div>
@@ -64,7 +64,9 @@ Name:    {{.Name}}</textarea>
 		</fieldset>
 
 		<script src="js/common.js"></script>
+		<script src="js/deployTargetGpios.js"></script>
 		<script src="js/deploy.js"></script>
+
 		<script>stageDeploy("{{.DeployParams}}")</script>
 	</body>
 </html>

@@ -27,6 +27,6 @@
 	"relays01": {
 		"Model": "relays",
 		"Name": "relays",
-		"Online": true
+		"Online": false
 	}
 }

@@ -120,13 +120,13 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (r *Relays) setRelay(num int, name, pin string) {
+func (r *Relays) setRelay(num int, name, gpio string) {
 	relay := &r.Relays[num]
 	if name == "" {
 		name = fmt.Sprintf("Relay #%d", num+1)
 	}
 	relay.Name = name
-	relay.Gpio = pin
+	relay.Gpio = gpio
 }
 
 func firstValue(values url.Values, key string) string {
@@ -142,18 +142,23 @@ func (r *Relays) parseParams() {
 	for i, _ := range r.Relays {
 		num := strconv.Itoa(i + 1)
 		name := firstValue(values, "relay" + num)
-		pin := firstValue(values, "gpio" + num)
-		r.setRelay(i, name, pin)
+		gpio := firstValue(values, "gpio" + num)
+		r.setRelay(i, name, gpio)
 	}
 }
 
 func (r *Relays) Run(i *dean.Injector) {
 
-	// Fail safe by turning off relays
+	pins := r.Targets["rpi"].GpioPins
+
+	// Fail safe by turning off all gpios
 	failSafe := func () {
 		if recover() != nil {
-			for _, relay := range r.Relays {
-				relay.Off()
+			for _, pin := range pins {
+				rpin := strconv.Itoa(pin)
+				driver := gpio.NewRelayDriver(r.adaptor, rpin)
+				driver.Start()
+				driver.Off()
 			}
 		}
 	}
@@ -168,9 +173,12 @@ func (r *Relays) Run(i *dean.Injector) {
 		if r.Demo || relay.Gpio == "" {
 			continue
 		}
-		relay.driver = gpio.NewRelayDriver(r.adaptor, relay.Gpio)
-		relay.Start()
-		relay.Off()
+		if pin, ok := pins[relay.Gpio]; ok {
+			rpin := strconv.Itoa(pin)
+			relay.driver = gpio.NewRelayDriver(r.adaptor, rpin)
+			relay.Start()
+			relay.Off()
+		}
 	}
 
 	c := make(chan os.Signal)
