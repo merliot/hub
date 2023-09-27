@@ -95,7 +95,9 @@ func (r *Relays) getDeploy(msg *dean.Msg) {
 }
 
 func (r *Relays) deploySave(msg *dean.Msg) {
-	msg.Unmarshal(r)
+	var deploy DeployMsg
+	msg.Unmarshal(&deploy)
+	r.DeployParams = deploy.DeployParams
 }
 
 func (r *Relays) click(msg *dean.Msg) {
