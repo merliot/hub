@@ -2,7 +2,6 @@ var overlay = document.getElementById("overlay")
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
 var dialogCreate = document.getElementById("create-dialog")
-var dialogApi = document.getElementById("api-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
 var selected // currently selected device ID
 var sub = ""
@@ -12,11 +11,6 @@ var sub = ""
 document.getElementById("create").onclick = function(){showCreate()}
 document.getElementById("create-close").onclick = function(){dialogCreate.close()}
 document.getElementById("create-create").onclick = function(){create()}
-
-// API button opens API modal dialog
-
-document.getElementById("api").onclick = function(){showApi()}
-document.getElementById("api-close").onclick = function(){dialogApi.close()}
 
 // Delete button open delete modal dialog
 
@@ -113,14 +107,6 @@ function showCreate() {
 	var err = document.getElementById("create-err")
 	err.innerText = ""
 	dialogCreate.showModal()
-}
-
-function showApi() {
-	var apihub = document.getElementById("api-hub")
-	apihub.data = "/api"
-	var apidev = document.getElementById("api-dev")
-	apidev.data = "/" + selected + "/api"
-	dialogApi.showModal()
 }
 
 async function deletef() {
