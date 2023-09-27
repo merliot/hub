@@ -135,7 +135,7 @@ function decodeHtmlEntities(input) {
 
 function stageFormData(deployParams) {
 	var form = document.getElementById("deploy-form")
-	const params = new URLSearchParams(decodeHtmlEntities(deployParams))
+	const params = new URLSearchParams(deployParams)
 
 	params.forEach((value, key) => {
 		let element = form.elements[key];

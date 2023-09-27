@@ -9,6 +9,7 @@ import (
 
 type Wifiver interface {
 	SetWifiAuth(ssid, passphrase string)
+	SetDeployParams(params string)
 }
 
 type Common struct {
@@ -31,12 +32,15 @@ func New(id, model, name string, targets []string) dean.Thinger {
 }
 
 func (c *Common) ParseDeployParams() url.Values {
-	unescaped := html.UnescapeString(c.DeployParams)
-	values, _ := url.ParseQuery(unescaped)
+	values, _ := url.ParseQuery(c.DeployParams)
 	return values
 }
 
 func (c *Common) SetWifiAuth(ssid, passphrase string) {
 	c.ssid = ssid
 	c.passphrase = passphrase
+}
+
+func (c *Common) SetDeployParams(params string) {
+	c.DeployParams = html.UnescapeString(params)
 }

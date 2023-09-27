@@ -13,7 +13,7 @@ func main() {
 	demo, _ := os.LookupEnv("DEMO")
 	thing.Demo = (demo != "")
 
-	thing.DeployParams = "target=rpi&amp;http=on&amp;relay1=&amp;relay2=&amp;relay3=&amp;relay4=&amp;gpio1=GPIO06&amp;gpio2=GPIO13&amp;gpio3=GPIO19&amp;gpio4=GPIO26"
+	thing.SetDeployParams("target=rpi&amp;http=on&amp;relay1=&amp;relay2=&amp;relay3=&amp;relay4=&amp;gpio1=GPIO06&amp;gpio2=GPIO13&amp;gpio3=GPIO19&amp;gpio4=GPIO26")
 
 	server := dean.NewServer(thing)
 
