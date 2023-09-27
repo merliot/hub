@@ -75,7 +75,7 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 		return err
 	}
 
-	// Build main.go -> model (binary)
+	// Build build.go -> model (binary)
 
 	cmd := exec.Command("go", "mod", "init", model)
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -105,6 +105,67 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
+
+	// Set the Content-Disposition header to suggest the original filename for download
+	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
+
+	http.ServeFile(w, r, installer)
+
+	return nil
+}
+
+func (c *Common) deployTinyGo(values map[string]string, templates *template.Template,
+	w http.ResponseWriter, r *http.Request) error {
+
+	id, model, _ := c.Identity()
+
+	// Get the current working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	defer os.Chdir(wd)
+
+	// Create temp build directory in /tmp
+	dir, err := os.MkdirTemp("", id+"-")
+	if err != nil {
+		return err
+	}
+	//	defer os.RemoveAll(dir)
+	println(dir)
+
+	// Change the working directory to temp build directory
+	if err = os.Chdir(dir); err != nil {
+		return err
+	}
+
+	// Generate build.go from runner.tmpl
+	if err := genFile(templates, "runner.tmpl", "build.go", values); err != nil {
+		return err
+	}
+
+	// Build build.go -> model (binary)
+
+	cmd := exec.Command("go", "mod", "init", model)
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+
+	cmd = exec.Command("go", "mod", "tidy", "-e")
+	stdoutStderr, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+
+	cmd = exec.Command("go", "build", "-o", model, "build.go")
+	cmd.Env = append(cmd.Environ(), envs...)
+	stdoutStderr, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+
+	installer := id + "-installer.u2f"
 
 	// Set the Content-Disposition header to suggest the original filename for download
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
@@ -185,6 +246,8 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	switch values["target"] {
 	case "x86-64", "rpi":
 		return c.deployGo(values, envs, templates, w, r)
+	case "nano-rp2040":
+		return c.deployTinyGo(values, templates, w, r)
 	default:
 		return errors.New("Target not supported")
 	}
