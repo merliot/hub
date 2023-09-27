@@ -7,15 +7,15 @@ import (
 	"github.com/merliot/dean"
 )
 
-type Wifiver interface {
+type Devicer interface {
 	SetWifiAuth(ssid, passphrase string)
 }
 
 type Common struct {
 	dean.Thing
 	Targets `json:"-"`
-	DeployParams string
-	Demo         bool `json:"-"`
+	Demo         bool   `json:"-"`
+	DeployParams string `json:"-"`
 	ssid         string
 	passphrase   string
 	commonOS

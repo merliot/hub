@@ -73,11 +73,29 @@ func New(id, model, name string) dean.Thinger {
 
 func (r *Relays) save(msg *dean.Msg) {
 	msg.Unmarshal(r).Broadcast()
+	msg.Marshal(&dean.ThingMsg{"get/deploy"}).Reply()
 }
 
 func (r *Relays) getState(msg *dean.Msg) {
 	r.Path = "state"
 	msg.Marshal(r).Reply()
+}
+
+type DeployMsg struct {
+	Path         string
+	DeployParams string
+}
+
+func (r *Relays) getDeploy(msg *dean.Msg) {
+	var deploy = DeployMsg{
+		Path: "deploy",
+		DeployParams: r.DeployParams,
+	}
+	msg.Marshal(&deploy).Reply()
+}
+
+func (r *Relays) deploySave(msg *dean.Msg) {
+	msg.Unmarshal(r)
 }
 
 func (r *Relays) click(msg *dean.Msg) {
@@ -97,9 +115,11 @@ func (r *Relays) click(msg *dean.Msg) {
 
 func (r *Relays) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     r.save,
-		"get/state": r.getState,
-		"click":     r.click,
+		"state":      r.save,
+		"get/state":  r.getState,
+		"deploy":     r.deploySave,
+		"get/deploy": r.getDeploy,
+		"click":      r.click,
 	}
 }
 

@@ -131,8 +131,8 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	wifiver := thinger.(common.Wifiver)
-	wifiver.SetWifiAuth(h.ssid, h.passphrase)
+	device := thinger.(common.Devicer)
+	device.SetWifiAuth(h.ssid, h.passphrase)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Device id '%s' created", id)
 }
@@ -182,8 +182,8 @@ func (h *Hub) restoreDevices() {
 			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
-		wifiver := thinger.(common.Wifiver)
-		wifiver.SetWifiAuth(h.ssid, h.passphrase)
+		device := thinger.(common.Devicer)
+		device.SetWifiAuth(h.ssid, h.passphrase)
 	}
 }
 
@@ -254,6 +254,7 @@ func pushCommit(key string) error {
 }
 
 func (h *Hub) saveDevices() error {
+	h.storeDevices()
 	if h.gitAuthor == "" {
 		return errors.New("Can't save: Missing GIT_AUTHOR env var")
 	}
