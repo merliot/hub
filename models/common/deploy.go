@@ -33,28 +33,6 @@ func genFile(templates *template.Template, template string, name string,
 func (c *Common) deployGo(values map[string]string, envs []string,
 	templates *template.Template, w http.ResponseWriter, r *http.Request) error {
 
-	id, model, _ := c.Identity()
-
-	// Get the current working directory
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	defer os.Chdir(wd)
-
-	// Create temp build directory in /tmp
-	dir, err := os.MkdirTemp("", id+"-")
-	if err != nil {
-		return err
-	}
-	//	defer os.RemoveAll(dir)
-	println(dir)
-
-	// Change the working directory to temp build directory
-	if err = os.Chdir(dir); err != nil {
-		return err
-	}
-
 	// Generate build.go from server.tmpl
 	if err := genFile(templates, "server.tmpl", "build.go", values); err != nil {
 		return err
@@ -66,18 +44,18 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 	}
 
 	// Generate model.service from service.tmpl
-	if err := genFile(templates, "service.tmpl", model+".service", values); err != nil {
+	if err := genFile(templates, "service.tmpl", c.Model+".service", values); err != nil {
 		return err
 	}
 
 	// Generate model.conf from log.tmpl
-	if err := genFile(templates, "log.tmpl", model+".conf", values); err != nil {
+	if err := genFile(templates, "log.tmpl", c.Model+".conf", values); err != nil {
 		return err
 	}
 
 	// Build build.go -> model (binary)
 
-	cmd := exec.Command("go", "mod", "init", model)
+	cmd := exec.Command("go", "mod", "init", c.Model)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -89,7 +67,7 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	cmd = exec.Command("go", "build", "-o", model, "build.go")
+	cmd = exec.Command("go", "build", "-o", c.Model, "build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
@@ -98,7 +76,7 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 
 	// Build installer and serve as download-able file
 
-	installer := id + "-installer"
+	installer := c.Id + "-installer"
 	cmd = exec.Command("go", "build", "-o", installer, "installer.go")
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
@@ -114,30 +92,8 @@ func (c *Common) deployGo(values map[string]string, envs []string,
 	return nil
 }
 
-func (c *Common) deployTinyGo(values map[string]string, templates *template.Template,
-	w http.ResponseWriter, r *http.Request) error {
-
-	id, model, _ := c.Identity()
-
-	// Get the current working directory
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	defer os.Chdir(wd)
-
-	// Create temp build directory in /tmp
-	dir, err := os.MkdirTemp("", id+"-")
-	if err != nil {
-		return err
-	}
-	//	defer os.RemoveAll(dir)
-	println(dir)
-
-	// Change the working directory to temp build directory
-	if err = os.Chdir(dir); err != nil {
-		return err
-	}
+func (c *Common) deployTinyGo(values map[string]string, envs []string,
+	templates *template.Template, w http.ResponseWriter, r *http.Request) error {
 
 	// Generate build.go from runner.tmpl
 	if err := genFile(templates, "runner.tmpl", "build.go", values); err != nil {
@@ -146,7 +102,7 @@ func (c *Common) deployTinyGo(values map[string]string, templates *template.Temp
 
 	// Build build.go -> model (binary)
 
-	cmd := exec.Command("go", "mod", "init", model)
+	cmd := exec.Command("go", "mod", "init", c.Model)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -158,14 +114,15 @@ func (c *Common) deployTinyGo(values map[string]string, templates *template.Temp
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	cmd = exec.Command("go", "build", "-o", model, "build.go")
+	installer := c.Id + "-installer.u2f"
+	target := values["target"]
+
+	cmd = exec.Command("tinygo", "build", "-target", target, "-stack-size", "4kb", "-o", installer, "build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
-
-	installer := id + "-installer.u2f"
 
 	// Set the Content-Disposition header to suggest the original filename for download
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
@@ -188,13 +145,11 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 		}
 	}
 
-	id, model, name := c.Identity()
-
 	values["deployParams"] = c.DeployParams
-	values["id"] = id
-	values["model"] = model
-	values["modelStruct"] = strings.Title(model)
-	values["name"] = name
+	values["id"] = c.Id
+	values["model"] = c.Model
+	values["modelStruct"] = strings.Title(c.Model)
+	values["name"] = c.Name
 	values["hub"] = r.Host
 	values["wsscheme"] = scheme
 
@@ -242,12 +197,31 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 
 	envs := c.buildEnvs(values)
 
-	println(values["target"])
+	// Get the current working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	defer os.Chdir(wd)
+
+	// Create temp build directory in /tmp
+	dir, err := os.MkdirTemp("", c.Id+"-")
+	if err != nil {
+		return err
+	}
+	//	defer os.RemoveAll(dir)
+	println(dir)
+
+	// Change the working directory to temp build directory
+	if err = os.Chdir(dir); err != nil {
+		return err
+	}
+
 	switch values["target"] {
 	case "x86-64", "rpi":
 		return c.deployGo(values, envs, templates, w, r)
 	case "nano-rp2040":
-		return c.deployTinyGo(values, templates, w, r)
+		return c.deployTinyGo(values, envs, templates, w, r)
 	default:
 		return errors.New("Target not supported")
 	}
