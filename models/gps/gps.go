@@ -24,7 +24,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW GPS")
 	g := &Gps{}
 	g.Common = common.New(id, model, name, targets).(*common.Common)
-	g.gpsOSInit()
+	g.gpsOSNew()
 	return g
 }
 
@@ -52,6 +52,7 @@ func (g *Gps) Subscribers() dean.Subscribers {
 func (g *Gps) Run(i *dean.Injector) {
 	if g.Demo {
 		g.runDemo(i)
+		return
 	}
 	g.run(i)
 }

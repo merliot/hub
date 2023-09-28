@@ -15,10 +15,7 @@ import (
 type gpsOS struct {
 }
 
-func (g *Gps) gpsOSInit() {
-}
-
-func (g *Gps) API(w http.ResponseWriter, r *http.Request) {
+func (g *Gps) gpsOSNew() {
 }
 
 var (

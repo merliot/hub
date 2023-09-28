@@ -1,56 +1,18 @@
 package relays
 
 import (
-	"embed"
 	"fmt"
-	"html/template"
-	"net/http"
 	"net/url"
-	"os"
-	"os/signal"
 	"strconv"
-	"strings"
-	"syscall"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
-	"gobot.io/x/gobot/drivers/gpio"
-	"gobot.io/x/gobot/platforms/raspi"
 )
-
-//go:embed *
-var fs embed.FS
-
-type Relay struct {
-	Name   string
-	Gpio   string
-	State  bool
-	driver *gpio.RelayDriver
-}
-
-func (r *Relay) Start() {
-	if r.driver != nil {
-		r.driver.Start()
-	}
-}
-
-func (r *Relay) On() {
-	if r.driver != nil {
-		r.driver.On()
-	}
-}
-
-func (r *Relay) Off() {
-	if r.driver != nil {
-		r.driver.Off()
-	}
-}
 
 type Relays struct {
 	*common.Common
 	Relays    [4]Relay
-	adaptor   *raspi.Adaptor
-	templates *template.Template
+	relaysOS
 }
 
 type MsgClick struct {
@@ -65,9 +27,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")
 	r := &Relays{}
 	r.Common = common.New(id, model, name, targets).(*common.Common)
-	r.CompositeFs.AddFS(fs)
-	r.adaptor = raspi.NewAdaptor()
-	r.templates = r.CompositeFs.ParseFS("template/*")
+	r.relaysOSNew()
 	return r
 }
 
@@ -103,23 +63,6 @@ func (r *Relays) Subscribers() dean.Subscribers {
 	}
 }
 
-func (r *Relays) api(w http.ResponseWriter, req *http.Request) {
-	w.Write([]byte("/api\n"))
-	w.Write([]byte("/deploy?target={target}\n"))
-	w.Write([]byte("/state\n"))
-}
-
-func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch strings.TrimPrefix(req.URL.Path, "/") {
-	case "api":
-		r.api(w, req)
-	case "state":
-		common.ShowState(r.templates, w, r)
-	default:
-		r.Common.API(r.templates, w, req)
-	}
-}
-
 func (r *Relays) setRelay(num int, name, gpio string) {
 	relay := &r.Relays[num]
 	if name == "" {
@@ -147,49 +90,11 @@ func (r *Relays) parseParams() {
 	}
 }
 
-// FailSafe by turning off all gpios
-func (r *Relays) failSafe() {
-	pins := r.Targets["rpi"].GpioPins
-	for _, pin := range pins {
-		rpin := strconv.Itoa(pin)
-		driver := gpio.NewRelayDriver(r.adaptor, rpin)
-		driver.Start()
-		driver.Off()
-	}
-}
-
 func (r *Relays) Run(i *dean.Injector) {
-
-	defer func() {
-		if recover() != nil {
-			r.failSafe()
-		}
-	}()
-
-	pins := r.Targets["rpi"].GpioPins
-
 	r.parseParams()
-
-	r.adaptor.Connect()
-
-	for i, _ := range r.Relays {
-		relay := &r.Relays[i]
-		if r.Demo || relay.Gpio == "" {
-			continue
-		}
-		if pin, ok := pins[relay.Gpio]; ok {
-			rpin := strconv.Itoa(pin)
-			relay.driver = gpio.NewRelayDriver(r.adaptor, rpin)
-			relay.Start()
-			relay.Off()
-		}
+	if r.Demo {
+		r.runDemo(i)
+		return
 	}
-
-	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
-
-	select {
-	case <-c:
-		r.failSafe()
-	}
+	r.runOS(i)
 }

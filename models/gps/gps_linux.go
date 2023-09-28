@@ -26,7 +26,7 @@ type gpsOS struct {
 	ttyBaud   int
 }
 
-func (g *Gps) gpsOSInit() {
+func (g *Gps) gpsOSNew() {
 	g.CompositeFs.AddFS(fs)
 	g.templates = g.CompositeFs.ParseFS("template/*")
 	g.ttyDevice = "/dev/ttyUSB0"

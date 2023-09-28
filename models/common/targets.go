@@ -8,9 +8,11 @@ import (
 	"strings"
 )
 
+type GpioPins map[string]int
+
 type Target struct {
 	FullName string
-	GpioPins map[string]int
+	GpioPins
 }
 
 type Targets map[string]Target
@@ -21,11 +23,11 @@ type Targets map[string]Target
 var supportedTargets = Targets{
 	"x86-64": Target{
 		FullName: "Linux x86_64",
-		GpioPins: map[string]int{},
+		GpioPins: GpioPins{},
 	},
 	"rpi": Target{
 		FullName: "Raspberry Pi",
-		GpioPins: map[string]int{
+		GpioPins: GpioPins{
 			// maps GPIO label to physical pin number (see gobot.io)
 			"GPIO04": 7,
 			"GPIO17": 11,
@@ -48,7 +50,7 @@ var supportedTargets = Targets{
 	},
 	"nano-rp2040": Target{
 		FullName: "Arduino Nano Connect rp2040",
-		GpioPins: map[string]int{
+		GpioPins: GpioPins{
 			// maps label to GPIO
 			"D2":  25,
 			"D3":  15,
