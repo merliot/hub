@@ -104,6 +104,7 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 	h.storeDevices()
 	del.Path = "deleted/device"
 	msg.Marshal(&del).Broadcast()
+	delDev(del.Id)
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -126,13 +127,16 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	model := r.URL.Query().Get("model")
 	name := r.URL.Query().Get("name")
+
 	thinger, err := h.server.CreateThing(id, model, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	wifiver := thinger.(common.Wifiver)
-	wifiver.SetWifiAuth(h.ssid, h.passphrase)
+
+	device := thinger.(common.Devicer)
+	device.SetWifiAuth(h.ssid, h.passphrase)
+
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Device id '%s' created", id)
 }
@@ -182,14 +186,36 @@ func (h *Hub) restoreDevices() {
 			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
-		wifiver := thinger.(common.Wifiver)
-		wifiver.SetWifiAuth(h.ssid, h.passphrase)
+		device := thinger.(common.Devicer)
+		device.SetWifiAuth(h.ssid, h.passphrase)
+		device.Load()
 	}
 }
 
 func (h *Hub) storeDevices() {
 	bytes, _ := json.MarshalIndent(h.Devices, "", "\t")
 	os.WriteFile("devices.json", bytes, 0600)
+}
+
+func delDev(id string) {
+	os.Remove("devs/" + id + ".json")
+}
+
+// addDevChanges git adds new/deleted files
+func addDevChanges() error {
+	// Stage new and modified files
+	cmd := exec.Command("git", "add", "devs/")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to git add devs/: %w", err)
+	}
+	// Stage deletions
+	cmd = exec.Command("git", "add", "-u", "devs/")
+	_, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to git add -u devs/: %w", err)
+	}
+	return nil
 }
 
 // hasPendingChanges checks if there are any uncommitted changes in the local repo.
@@ -259,6 +285,9 @@ func (h *Hub) saveDevices() error {
 	}
 	if h.gitKey == "" {
 		return errors.New("Can't save: Missing GIT_KEY env var")
+	}
+	if err := addDevChanges(); err != nil {
+		return err
 	}
 	changes, err := hasPendingChanges()
 	if err != nil {

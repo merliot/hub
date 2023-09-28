@@ -129,7 +129,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 
 	id, model, name := c.Identity()
 
-	values["deployParams"] = r.URL.RawQuery
+	values["deployParams"] = c.DeployParams
 	values["id"] = id
 	values["model"] = model
 	values["modelStruct"] = strings.Title(model)
@@ -193,7 +193,10 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 }
 
 func (c *Common) deploy(templates *template.Template, w http.ResponseWriter, r *http.Request) {
+	c.DeployParams = r.URL.RawQuery
 	if err := c._deploy(templates, w, r); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	c.Save()
 }
