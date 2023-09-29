@@ -32,7 +32,8 @@ func (r *Relay) Off() {
 
 func (r *Relays) runOS(i *dean.Injector) {
 
-	tinynet.NetConnect(r.ssid, r.passphrase)
+	ssid, pass := r.GetWifiAuth()
+	tinynet.NetConnect(ssid, pass)
 
 	for i, _ := range r.Relays {
 		relay := &r.Relays[i]

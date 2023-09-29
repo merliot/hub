@@ -39,6 +39,10 @@ func (c *Common) SetWifiAuth(ssid, passphrase string) {
 	c.passphrase = passphrase
 }
 
+func (c *Common) GetWifiAuth() (ssid, passphrase string) {
+	return c.ssid, c.passphrase
+}
+
 func (c *Common) ParseDeployParams() url.Values {
 	values, _ := url.ParseQuery(c.DeployParams)
 	return values
