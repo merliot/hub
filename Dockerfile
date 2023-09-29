@@ -12,6 +12,8 @@ COPY . ./
 RUN go work use .
 RUN CGO_ENABLED=0 GOOS=linux go build -tags wss -o /hub ./cmd/hub
 
+WORKDIR /app
+
 EXPOSE 8000
 
 CMD ["/hub"]

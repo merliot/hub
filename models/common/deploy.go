@@ -205,7 +205,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	defer os.Chdir(wd)
 
 	// Create temp build directory in /tmp
-	dir, err := os.MkdirTemp("", c.Id+"-")
+	dir, err := os.MkdirTemp("./", c.Id+"-")
 	if err != nil {
 		return err
 	}
