@@ -10,6 +10,7 @@ import (
 func main() {
 	thing := {{.model}}.New("{{.id}}", "{{.model}}", "{{.name}}").(*{{.model}}.{{.modelStruct}})
 
+	thing.SetWifiAuth("{{.ssid}}", "{{.passphrase}}")
 	thing.SetDeployParams("{{.deployParams}}")
 
 	runner := dean.NewRunner(thing)

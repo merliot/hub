@@ -55,20 +55,6 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 
 	// Build build.go -> model (binary)
 
-	/*
-	cmd := exec.Command("go", "mod", "init", c.Model)
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
-	}
-
-	cmd = exec.Command("go", "mod", "tidy", "-e")
-	stdoutStderr, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
-	}
-	*/
-
 	cmd := exec.Command("go", "build", "-o", dir+"/"+c.Model, dir+"/build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -102,21 +88,7 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 		return err
 	}
 
-	// Build build.go -> model (binary)
-
-	/*
-	cmd := exec.Command("go", "mod", "init", c.Model)
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
-	}
-
-	cmd = exec.Command("go", "mod", "tidy", "-e")
-	stdoutStderr, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
-	}
-	*/
+	// Build build.go -> u2f binary
 
 	installer := c.Id + "-installer.u2f"
 	target := values["target"]

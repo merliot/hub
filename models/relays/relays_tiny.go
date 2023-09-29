@@ -6,7 +6,7 @@ import (
 	"machine"
 
 	"github.com/merliot/dean"
-	_ "github.com/merliot/dean/tinynet"
+	"github.com/merliot/dean/tinynet"
 )
 
 type relaysOS struct {
@@ -31,6 +31,9 @@ func (r *Relay) Off() {
 }
 
 func (r *Relays) runOS(i *dean.Injector) {
+
+	tinynet.NetConnect(r.ssid, r.passphrase)
+
 	for i, _ := range r.Relays {
 		relay := &r.Relays[i]
 		if relay.Gpio == "" {
