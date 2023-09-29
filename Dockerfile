@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN go work use .
+#RUN go work use .
 RUN CGO_ENABLED=0 GOOS=linux go build -tags wss -o /hub ./cmd/hub
 
 EXPOSE 8000
