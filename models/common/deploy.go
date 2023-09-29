@@ -69,9 +69,9 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 	}
 	*/
 
-	cmd = exec.Command("go", "build", "-o", dir+"/"+c.Model, dir+"/build.go")
+	cmd := exec.Command("go", "build", "-o", dir+"/"+c.Model, dir+"/build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
-	stdoutStderr, err = cmd.CombinedOutput()
+	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
@@ -121,10 +121,10 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 	installer := c.Id + "-installer.u2f"
 	target := values["target"]
 
-	cmd = exec.Command("tinygo", "build", "-target", target, "-stack-size", "8kb",
+	cmd := exec.Command("tinygo", "build", "-target", target, "-stack-size", "8kb",
 		"-o", dir+"/"+installer, dir+"/build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
-	stdoutStderr, err = cmd.CombinedOutput()
+	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
