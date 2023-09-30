@@ -98,7 +98,7 @@ func (r *Relays) runOS(i *dean.Injector) {
 
 	r.adaptor.Connect()
 
-	for i, _ := range r.Relays {
+	for i := range r.Relays {
 		relay := &r.Relays[i]
 		if relay.Gpio == "" {
 			continue

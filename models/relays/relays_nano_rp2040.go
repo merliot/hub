@@ -13,7 +13,6 @@ func (r *Relays) pins() common.GpioPins {
 	return r.Targets["nano-rp2040"].GpioPins
 }
 
-
 // TODO: remove when RNG is working on rp2040
 
 func init() {
@@ -40,4 +39,3 @@ func (r *reader) Read(b []byte) (n int, err error) {
 	}
 	return len(b), nil
 }
-

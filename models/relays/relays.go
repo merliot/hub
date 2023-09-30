@@ -11,7 +11,7 @@ import (
 
 type Relays struct {
 	*common.Common
-	Relays    [4]Relay
+	Relays [4]Relay
 	relaysOS
 }
 
@@ -82,10 +82,10 @@ func firstValue(values url.Values, key string) string {
 func (r *Relays) parseParams() {
 	values := r.ParseDeployParams()
 	r.Demo = (firstValue(values, "demo") == "on")
-	for i, _ := range r.Relays {
+	for i := range r.Relays {
 		num := strconv.Itoa(i + 1)
-		name := firstValue(values, "relay" + num)
-		gpio := firstValue(values, "gpio" + num)
+		name := firstValue(values, "relay"+num)
+		gpio := firstValue(values, "gpio"+num)
 		r.setRelay(i, name, gpio)
 	}
 }

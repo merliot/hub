@@ -17,9 +17,9 @@ type Devicer interface {
 
 type Common struct {
 	dean.Thing
-	Targets `json:"-"`
+	Targets      `json:"-"`
 	DeployParams string `json:"-"`
-	Demo         bool `json:"-"`
+	Demo         bool   `json:"-"`
 	ssid         string
 	passphrase   string
 	commonOS
@@ -62,6 +62,6 @@ func (c *Common) Load() {
 func (c *Common) Save() {
 	bytes, err := json.MarshalIndent(c.DeployParams, "", "\t")
 	if err == nil {
-		os.WriteFile("devs/" + c.Id + ".json", bytes, 0600)
+		os.WriteFile("devs/"+c.Id+".json", bytes, 0600)
 	}
 }

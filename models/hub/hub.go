@@ -32,10 +32,10 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	server     *dean.Server
-	templates  *template.Template
-	gitKey     string
-	gitAuthor  string
+	server    *dean.Server
+	templates *template.Template
+	gitKey    string
+	gitAuthor string
 }
 
 var targets = []string{"x86-64", "rpi"}

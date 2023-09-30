@@ -15,10 +15,10 @@ func (r *Relays) relaysOSNew() {
 }
 
 type Relay struct {
-	Name   string
-	Gpio   string
-	State  bool
-	pin    machine.Pin
+	Name  string
+	Gpio  string
+	State bool
+	pin   machine.Pin
 }
 
 func (r *Relay) On() {
@@ -35,7 +35,7 @@ func (r *Relay) Off() {
 
 func (r *Relays) runOS(i *dean.Injector) {
 
-	for i, _ := range r.Relays {
+	for i := range r.Relays {
 		relay := &r.Relays[i]
 		relay.pin = machine.NoPin
 		if pin, ok := r.pins()[relay.Gpio]; ok {
@@ -44,5 +44,5 @@ func (r *Relays) runOS(i *dean.Injector) {
 		}
 	}
 
-	select{}
+	select {}
 }

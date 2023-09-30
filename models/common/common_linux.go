@@ -7,8 +7,8 @@ import (
 	"embed"
 	"encoding/json"
 	"html/template"
-	"io/ioutil"
 	"io/fs"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -85,6 +85,7 @@ func (c *Common) renderMarkdown(path string, w http.ResponseWriter) {
 
 // Set Content-Type: "text/plain" on go, js, css, and template files
 var textFile = regexp.MustCompile("\\.(go|tmpl|js|css)$")
+
 // Markdown files get converted to html
 var markdownFile = regexp.MustCompile("\\.md$")
 
