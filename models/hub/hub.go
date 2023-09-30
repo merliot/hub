@@ -34,8 +34,6 @@ type Hub struct {
 	Models
 	server     *dean.Server
 	templates  *template.Template
-	ssid       string
-	passphrase string
 	gitKey     string
 	gitAuthor  string
 }
@@ -54,11 +52,6 @@ func New(id, model, name string) dean.Thinger {
 
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
-}
-
-func (h *Hub) SetWifiAuth(ssid, passphrase string) {
-	h.ssid = ssid
-	h.passphrase = passphrase
 }
 
 func (h *Hub) SetGit(key, author string) {
@@ -135,7 +128,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	device := thinger.(common.Devicer)
-	device.SetWifiAuth(h.ssid, h.passphrase)
+	device.SetWifiAuth(h.GetWifiAuth())
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Device id '%s' created", id)
@@ -187,7 +180,7 @@ func (h *Hub) restoreDevices() {
 			continue
 		}
 		device := thinger.(common.Devicer)
-		device.SetWifiAuth(h.ssid, h.passphrase)
+		device.SetWifiAuth(h.GetWifiAuth())
 		device.Load()
 	}
 }

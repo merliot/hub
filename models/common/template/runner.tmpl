@@ -4,13 +4,16 @@ package main
 
 import (
 	"github.com/merliot/dean"
+	"github.com/merliot/dean/tinynet"
 	"github.com/merliot/hub/models/{{.model}}"
 )
 
 func main() {
+
+	tinynet.NetConnect("{{.ssid}}", "{{.passphrase}}")
+
 	thing := {{.model}}.New("{{.id}}", "{{.model}}", "{{.name}}").(*{{.model}}.{{.modelStruct}})
 
-	thing.SetWifiAuth("{{.ssid}}", "{{.passphrase}}")
 	thing.SetDeployParams("{{.deployParams}}")
 
 	runner := dean.NewRunner(thing)

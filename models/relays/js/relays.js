@@ -40,7 +40,7 @@ function online() {
 		label = document.getElementById("relay" + i + "-name")
 		image = document.getElementById("relay" + i + "-img")
 		relay = state.Relays[i]
-		if (relay.Name === "") {
+		if (relay.Gpio === "") {
 			div.style.display = "none"
 			label.textContent = "<unused>"
 			image.src = "images/relay-off.png"

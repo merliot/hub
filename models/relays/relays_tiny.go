@@ -6,7 +6,6 @@ import (
 	"machine"
 
 	"github.com/merliot/dean"
-	"github.com/merliot/dean/tinynet"
 )
 
 type relaysOS struct {
@@ -23,25 +22,25 @@ type Relay struct {
 }
 
 func (r *Relay) On() {
-	r.pin.High()
+	if r.pin != machine.NoPin {
+		r.pin.High()
+	}
 }
 
 func (r *Relay) Off() {
-	r.pin.Low()
+	if r.pin != machine.NoPin {
+		r.pin.Low()
+	}
 }
 
 func (r *Relays) runOS(i *dean.Injector) {
 
-	ssid, pass := r.GetWifiAuth()
-	tinynet.NetConnect(ssid, pass)
-
 	for i, _ := range r.Relays {
 		relay := &r.Relays[i]
-		if relay.Gpio == "" {
-			continue
-		}
+		relay.pin = machine.NoPin
 		if pin, ok := r.pins()[relay.Gpio]; ok {
 			relay.pin = machine.Pin(pin)
+			relay.pin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 		}
 	}
 

@@ -88,9 +88,9 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 		return err
 	}
 
-	// Build build.go -> u2f binary
+	// Build build.go -> uf2 binary
 
-	installer := c.Id + "-installer.u2f"
+	installer := c.Id + "-installer.uf2"
 	target := values["target"]
 
 	cmd := exec.Command("tinygo", "build", "-target", target, "-stack-size", "8kb",
