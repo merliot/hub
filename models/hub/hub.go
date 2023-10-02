@@ -268,13 +268,13 @@ func pushCommit(remote, key string) error {
 	}
 
 	// 3. Ensure ssh-agent is running and add key to agent
-	cmd := exec.Command("bash", "-c", `eval "$(ssh-agent -s)"`)
-	output, err := cmd.CombinedOutput()
+	cmd = exec.Command("bash", "-c", `eval "$(ssh-agent -s)"`)
+	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to start ssh-agent: %w", err)
 	}
-	cmd := exec.Command("ssh-add", tempFile.Name())
-	output, err := cmd.CombinedOutput()
+	cmd = exec.Command("ssh-add", tempFile.Name())
+	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to add key to ssh-agent: %w", err)
 	}
