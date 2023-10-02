@@ -254,7 +254,7 @@ func pushCommit(remote, key string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	defer os.Remove(tempFile.Name())
+	//defer os.Remove(tempFile.Name())
 
 	_, err = tempFile.WriteString(key)
 	if err != nil {
