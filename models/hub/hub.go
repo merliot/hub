@@ -266,6 +266,7 @@ func pushCommit(remote, key string) error {
 
 	keyBytes := []byte(key)
 	replaceSpaceWithLF(keyBytes[35:len(keyBytes) - 33])
+	keyBytes = append(keyBytes, "\n")
 
 	_, err = tempFile.Write(keyBytes)
 	if err != nil {
