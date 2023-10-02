@@ -28,5 +28,10 @@
 		"Model": "relays",
 		"Name": "nano-relays",
 		"Online": false
+	},
+	"r6": {
+		"Model": "relays",
+		"Name": "sdf",
+		"Online": false
 	}
 }
