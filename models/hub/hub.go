@@ -250,20 +250,21 @@ func replaceSpaceWithLF(data []byte) {
 
 // pushCommit pushes commits in local repo to remote
 func pushCommit(remote, key string) error {
-	// 0. Change git remote from HTTPS to SSH
+	// 1. Change git remote from HTTPS to SSH
 	cmd := exec.Command("git", "remote", "set-url", "origin", remote)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
 	}
 
-	// 1. Write key to temp file
+	// 2. Write key to temp file
 	tempFile, err := ioutil.TempFile("", "git-ssh-key")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	//defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile.Name())
 
+	// (key got messed up being stuffed into env var, so un-mess it)
 	keyBytes := []byte(key)
 	replaceSpaceWithLF(keyBytes[35:len(keyBytes) - 33])
 	keyBytes = append(keyBytes, '\n')
@@ -274,30 +275,16 @@ func pushCommit(remote, key string) error {
 	}
 	tempFile.Close()
 
-	// 2. Set permissions on the temp file
+	// 3. Set permissions on the temp file
 	if err = os.Chmod(tempFile.Name(), 0400); err != nil {
 		return fmt.Errorf("failed to set permissions on temp file: %w", err)
 	}
-
-	// 3. Ensure ssh-agent is running and add key to agent
-	/*
-	cmd = exec.Command("bash", "-c", `eval "$(ssh-agent -s)"`)
-	out, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to start ssh-agent: %w", err)
-	}
-	cmd = exec.Command("ssh-add", tempFile.Name())
-	out, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to add key to ssh-agent: %w", err)
-	}
-	*/
 
 	// 4. Set GIT_SSH_COMMAND environment variable
 	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
 	os.Setenv("GIT_SSH_COMMAND", sshCmd)
 
-	// 4. Execute git push command
+	// 5. Execute git push command
 	cmd = exec.Command("git", "push")
 	out, err = cmd.CombinedOutput()
 	if err != nil {
