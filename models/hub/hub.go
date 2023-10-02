@@ -265,7 +265,7 @@ func pushCommit(remote, key string) error {
 	//defer os.Remove(tempFile.Name())
 
 	keyBytes := []byte(key)
-	replaceSpaceWithLF(keyBytes[35:len(keyBytes) - 34])
+	replaceSpaceWithLF(keyBytes[35:len(keyBytes) - 33])
 
 	_, err = tempFile.Write(keyBytes)
 	if err != nil {
