@@ -280,6 +280,7 @@ func pushCommit(remote, key string) error {
 	}
 
 	// 3. Ensure ssh-agent is running and add key to agent
+	/*
 	cmd = exec.Command("bash", "-c", `eval "$(ssh-agent -s)"`)
 	out, err = cmd.CombinedOutput()
 	if err != nil {
@@ -290,10 +291,11 @@ func pushCommit(remote, key string) error {
 	if err != nil {
 		return fmt.Errorf("failed to add key to ssh-agent: %w", err)
 	}
+	*/
 
 	// 4. Set GIT_SSH_COMMAND environment variable
-	//sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
-	//os.Setenv("GIT_SSH_COMMAND", sshCmd)
+	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
+	os.Setenv("GIT_SSH_COMMAND", sshCmd)
 
 	// 4. Execute git push command
 	cmd = exec.Command("git", "push")
