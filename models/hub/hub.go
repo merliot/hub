@@ -268,12 +268,12 @@ func pushCommit(remote, key string) error {
 	}
 
 	// 3. Set GIT_SSH_COMMAND environment variable
-	cmd = fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
-	os.Setenv("GIT_SSH_COMMAND", cmd)
+	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
+	os.Setenv("GIT_SSH_COMMAND", sshCmd)
 
 	// 4. Execute git push command
 	cmd = exec.Command("git", "push")
-	out, err := cmd.CombinedOutput()
+	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
 	}
