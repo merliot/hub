@@ -17,9 +17,10 @@ func main() {
 	passphrase := os.Getenv("PASSPHRASE")
 	h.SetWifiAuth(ssid, passphrase)
 
+	gitRemote := os.Getenv("GIT_REMOTE")
 	gitKey := os.Getenv("GIT_KEY")
 	gitAuthor := os.Getenv("GIT_AUTHOR")
-	h.SetGit(gitKey, gitAuthor)
+	h.SetGit(gitRemote, gitKey, gitAuthor)
 
 	server := dean.NewServer(h)
 	h.SetServer(server)

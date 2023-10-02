@@ -35,6 +35,7 @@ type Hub struct {
 	server    *dean.Server
 	templates *template.Template
 	gitKey    string
+	gitRemote string
 	gitAuthor string
 }
 
@@ -54,7 +55,8 @@ func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
 }
 
-func (h *Hub) SetGit(key, author string) {
+func (h *Hub) SetGit(remote, key, author string) {
+	h.gitRemote = remote
 	h.gitKey = key
 	h.gitAuthor = author
 }
@@ -239,7 +241,14 @@ func commitChanges(commitMessage, author string) error {
 }
 
 // pushCommit pushes commits in local repo to remote
-func pushCommit(key string) error {
+func pushCommit(remote, key string) error {
+	// 0. Change git remote from HTTPS to SSH
+	cmd := exec.Command("git", "remote", "set-url", "origin", remote)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to push commit: %s, %w", out, err)
+	}
+
 	// 1. Write key to temp file
 	tempFile, err := ioutil.TempFile("", "git-ssh-key")
 	if err != nil {
@@ -259,12 +268,12 @@ func pushCommit(key string) error {
 	}
 
 	// 3. Set GIT_SSH_COMMAND environment variable
-	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
-	os.Setenv("GIT_SSH_COMMAND", sshCmd)
+	cmd = fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
+	os.Setenv("GIT_SSH_COMMAND", cmd)
 
 	// 4. Execute git push command
-	pushCmd := exec.Command("git", "push")
-	out, err := pushCmd.CombinedOutput()
+	cmd = exec.Command("git", "push")
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
 	}
@@ -275,6 +284,9 @@ func pushCommit(key string) error {
 func (h *Hub) saveDevices() error {
 	if h.gitAuthor == "" {
 		return errors.New("Can't save: Missing GIT_AUTHOR env var")
+	}
+	if h.gitRemote == "" {
+		return errors.New("Can't save: Missing GIT_REMOTE env var")
 	}
 	if h.gitKey == "" {
 		return errors.New("Can't save: Missing GIT_KEY env var")
@@ -292,7 +304,7 @@ func (h *Hub) saveDevices() error {
 	if err := commitChanges("update devices", h.gitAuthor); err != nil {
 		return err
 	}
-	return pushCommit(h.gitKey)
+	return pushCommit(h.gitRemote, h.gitKey)
 }
 
 func (h *Hub) dumpDevices() {
