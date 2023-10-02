@@ -18,5 +18,15 @@
 		"Model": "gps",
 		"Name": "foo",
 		"Online": false
+	},
+	"r1": {
+		"Model": "relays",
+		"Name": "rpi-relays",
+		"Online": false
+	},
+	"r2": {
+		"Model": "relays",
+		"Name": "nano-relays",
+		"Online": false
 	}
 }
