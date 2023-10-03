@@ -179,8 +179,8 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	if err != nil {
 		return err
 	}
-	//	defer os.RemoveAll(dir)
-	println(dir)
+	defer os.RemoveAll(dir)
+	//println(dir)
 
 	switch values["target"] {
 	case "x86-64", "rpi":

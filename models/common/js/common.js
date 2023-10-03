@@ -160,6 +160,19 @@ function stageFormData(deployParams) {
 		}
 	});
 }
+function updateInstructions(target) {
+	var instructions = document.getElementById('deploy-instructions')
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', "docs/install/" + target + ".md", true);
+	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			instructions.innerHTML = this.responseText;
+		} else {
+			instructions.innerHTML = ""
+		}
+	};
+	xhr.send();
+}
 
 function stageDeploy(deployParams) {
 
@@ -180,6 +193,14 @@ function stageDeploy(deployParams) {
 		}
 		updateDeployLink()
 	})
+
+	// Attach an event listener to the deploy-target dropdown to set instructions
+	var target = document.getElementById('deploy-target')
+	target.addEventListener('change', function() {
+		const selectedTarget = this.value;
+		updateInstructions(selectedTarget)
+	});
+	updateInstructions(target.value)
 
 	var form = document.getElementById("deploy-form")
 	form.addEventListener('input', function (event) {
