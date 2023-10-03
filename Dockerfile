@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/merliot/tinygo-docker/tinygo-docker:latest
+FROM ghcr.io/merliot/hub/hub-base:latest
 
 WORKDIR /app/hub
 
