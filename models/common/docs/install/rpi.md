@@ -2,15 +2,21 @@
 
 1. Click the download link to obtain the installer file for your device.
 
-2. Copy the installer file to your Raspberry Pi (if not already downloaded on Raspberry Pi).
+2. (Optional) Verify the MD5 checksum matches the UF2 file MD5 checksum.
 
-3. Make the installer executable:
+    ```
+    $ md5sum installer
+    ```
+
+3. Copy the installer file to your Raspberry Pi (if not already downloaded on Raspberry Pi).
+
+4. Make the installer executable:
 
     ```
     $ chmod +x installer
     ```
 
-4. Run the installer:
+5. Run the installer:
 
     ```
     $ sudo ./installer
