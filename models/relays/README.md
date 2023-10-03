@@ -13,3 +13,5 @@ You can use a relay hat/module connected to the Arduino or Rapsberry Pi.
 Or you can use a transistor circuit directly:
 
 ![](images/relay-ttl.png)
+
+Connect the relay VCC, GND, and inputs to GPIO pins on the Arduino/Raspberry Pi.
