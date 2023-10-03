@@ -70,8 +70,8 @@ function downloadFile(event) {
 	event.preventDefault()
 	var downloadURL = event.target.innerText
 
-	var downloadError = document.getElementById("download-error")
-	downloadError.style.display = "none"
+	var response = document.getElementById("download-response")
+	response.innerText = ""
 
 	var gopher = document.getElementById("gopher")
 	gopher.style.display = "block"
@@ -88,12 +88,16 @@ function downloadFile(event) {
 			throw new Error('Content-Disposition header missing')
 		}
 
+		// Extract Content-MD5 header and decode from base64
+		const base64Md5 = response.headers.get("Content-MD5")
+		const md5sum = atob(base64Md5)
+
 		// Extract the filename from Content-Disposition header
 		const match = contentDisposition.match(/filename=([^;]+)/)
 		const filename = match ? match[1] : 'downloaded-file';  // Use a default filename if not found
-		return Promise.all([response.blob(), filename])
+		return Promise.all([response.blob(), filename, md5sum])
 	})
-	.then(([blob, filename]) => {
+	.then(([blob, filename, md5sum]) => {
 		// Create a temporary link element to trigger the download
 		const a = document.createElement('a')
 		a.href = URL.createObjectURL(blob)
@@ -103,12 +107,14 @@ function downloadFile(event) {
 		a.click();  // Simulate a click on the link
 		document.body.removeChild(a)
 		gopher.style.display = "none"
+		response.innerText = "MD5: " + md5sum
+		response.style.color = "black"
 	})
 	.catch(error => {
 		console.error('Error downloading file:', error)
-		downloadError.innerText = error
-		downloadError.style.display = "block"
 		gopher.style.display = "none"
+		response.innerText = error
+		response.style.color = "red"
 	})
 }
 

@@ -3,6 +3,8 @@
 package common
 
 import (
+	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html/template"
@@ -72,8 +74,19 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
+	// Calculate MD5 checksum of installer
+	cmd = exec.Command("md5sum", dir+"/"+installer)
+	stdoutStderr, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+	md5sum := bytes.Fields(stdoutStderr)[0]
+	md5sumBase64 := base64.StdEncoding.EncodeToString(md5sum)
+
 	// Set the Content-Disposition header to suggest the original filename for download
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
+	// Set the MD5 checksum header
+	w.Header().Set("Content-MD5", md5sumBase64)
 
 	http.ServeFile(w, r, dir+"/"+installer)
 
@@ -101,8 +114,19 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
+	// Calculate MD5 checksum of installer
+	cmd = exec.Command("md5sum", dir+"/"+installer)
+	stdoutStderr, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+	md5sum := bytes.Fields(stdoutStderr)[0]
+	md5sumBase64 := base64.StdEncoding.EncodeToString(md5sum)
+
 	// Set the Content-Disposition header to suggest the original filename for download
 	w.Header().Set("Content-Disposition", "attachment; filename="+installer)
+	// Set the MD5 checksum header
+	w.Header().Set("Content-MD5", md5sumBase64)
 
 	http.ServeFile(w, r, dir+"/"+installer)
 
