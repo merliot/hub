@@ -14,19 +14,19 @@
 		"Name": "poc3",
 		"Online": false
 	},
-	"foo": {
+	"g1": {
 		"Model": "gps",
-		"Name": "foo",
-		"Online": false
+		"Name": "nano-gps",
+		"Online": true
 	},
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
-		"Online": true
+		"Online": false
 	},
 	"r2": {
 		"Model": "relays",
 		"Name": "nano-relays",
-		"Online": true
+		"Online": false
 	}
 }

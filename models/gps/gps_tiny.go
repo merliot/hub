@@ -4,7 +4,6 @@ package gps
 
 import (
 	"machine"
-	"net/http"
 	"time"
 
 	"github.com/merliot/dean"
