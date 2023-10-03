@@ -2,7 +2,7 @@
 
 1. Click the download link to obtain the installer file for your device.
 
-2. (Optional) Verify the MD5 checksum matches the UF2 file MD5 checksum.
+2. (Optional) Verify the MD5 checksum matches the installer file MD5 checksum.
 
     ```
     $ md5sum installer
