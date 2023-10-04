@@ -27,20 +27,6 @@ If you want an https version of the hub, use Dockerfile (not Dockerfile-http).
 > [!NOTE]
 > If you want to save changes, you'll need to fork the repo and run Docker from your fork.
 
-## Quick Start on the Cloud
-
-If you have an account with one of these cloud providers, click the button to deploy a Merliot Hub on the cloud.
-
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
-
-## Deploy
-
-You can deploy a hub locally or remotely (cloud).
-
-To deploy locally, just follow the [Quick Start](#quick-start) instructions above, but first fork this repo and then clone from you're own fork.  If you don't fork, you'll not be able to save hub/device changes.
-
-To deploy remotely, click one of the of the deployment buttons below.
-If you have a Koyeb account, deployment is one click away:
 
 
 
