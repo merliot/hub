@@ -20,13 +20,13 @@ import (
 //go:embed *
 var fs embed.FS
 
-type gpsOS struct {
+type targetStruct struct {
 	templates *template.Template
 	ttyDevice string
 	ttyBaud   int
 }
 
-func (g *Gps) gpsOSNew() {
+func (g *Gps) targetNew() {
 	g.CompositeFs.AddFS(fs)
 	g.templates = g.CompositeFs.ParseFS("template/*")
 	g.ttyDevice = "/dev/ttyUSB0"

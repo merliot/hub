@@ -11,10 +11,10 @@ import (
 	"github.com/merliot/hub/models/gps/nmea"
 )
 
-type gpsOS struct {
+type targetStruct struct {
 }
 
-func (g *Gps) gpsOSNew() {
+func (g *Gps) targetNew() {
 }
 
 var (

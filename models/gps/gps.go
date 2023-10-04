@@ -9,7 +9,7 @@ type Gps struct {
 	*common.Common
 	Lat  float64
 	Long float64
-	gpsOS
+	targetStruct
 }
 
 type Update struct {
@@ -24,7 +24,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW GPS")
 	g := &Gps{}
 	g.Common = common.New(id, model, name, targets).(*common.Common)
-	g.gpsOSNew()
+	g.targetNew()
 	return g
 }
 
@@ -50,9 +50,5 @@ func (g *Gps) Subscribers() dean.Subscribers {
 }
 
 func (g *Gps) Run(i *dean.Injector) {
-	if g.Demo {
-		g.runDemo(i)
-		return
-	}
 	g.run(i)
 }

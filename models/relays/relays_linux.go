@@ -21,12 +21,12 @@ import (
 //go:embed *
 var fs embed.FS
 
-type relaysOS struct {
+type targetStruct struct {
 	templates *template.Template
 	adaptor   *raspi.Adaptor
 }
 
-func (r *Relays) relaysOSNew() {
+func (r *Relays) targetNew() {
 	r.CompositeFs.AddFS(fs)
 	r.templates = r.CompositeFs.ParseFS("template/*")
 	r.adaptor = raspi.NewAdaptor()
@@ -88,7 +88,7 @@ func (r *Relays) failSafe() {
 	}
 }
 
-func (r *Relays) runOS(i *dean.Injector) {
+func (r *Relays) run(i *dean.Injector) {
 
 	defer func() {
 		if recover() != nil {

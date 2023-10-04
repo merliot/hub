@@ -12,7 +12,7 @@ import (
 type Relays struct {
 	*common.Common
 	Relays [4]Relay
-	relaysOS
+	targetStruct
 }
 
 type MsgClick struct {
@@ -27,7 +27,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")
 	r := &Relays{}
 	r.Common = common.New(id, model, name, targets).(*common.Common)
-	r.relaysOSNew()
+	r.targetNew()
 	return r
 }
 
@@ -81,7 +81,6 @@ func firstValue(values url.Values, key string) string {
 
 func (r *Relays) parseParams() {
 	values := r.ParseDeployParams()
-	r.Demo = (firstValue(values, "demo") == "on")
 	for i := range r.Relays {
 		num := strconv.Itoa(i + 1)
 		name := firstValue(values, "relay"+num)
@@ -92,9 +91,5 @@ func (r *Relays) parseParams() {
 
 func (r *Relays) Run(i *dean.Injector) {
 	r.parseParams()
-	if r.Demo {
-		r.runDemo(i)
-		return
-	}
-	r.runOS(i)
+	r.run(i)
 }

@@ -25,6 +25,10 @@ var supportedTargets = Targets{
 		FullName: "Linux x86_64",
 		GpioPins: GpioPins{},
 	},
+	"wioterminal": Target{
+		FullName: "Seeed Wio Terminal",
+		GpioPins: GpioPins{},
+	},
 	"rpi": Target{
 		FullName: "Raspberry Pi",
 		GpioPins: GpioPins{

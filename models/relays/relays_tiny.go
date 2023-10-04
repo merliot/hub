@@ -8,10 +8,10 @@ import (
 	"github.com/merliot/dean"
 )
 
-type relaysOS struct {
+type targetStruct struct {
 }
 
-func (r *Relays) relaysOSNew() {
+func (r *Relays) targetNew() {
 }
 
 type Relay struct {
@@ -33,7 +33,7 @@ func (r *Relay) Off() {
 	}
 }
 
-func (r *Relays) runOS(i *dean.Injector) {
+func (r *Relays) run(i *dean.Injector) {
 
 	for i := range r.Relays {
 		relay := &r.Relays[i]
