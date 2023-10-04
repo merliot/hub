@@ -92,7 +92,7 @@ var markdownFile = regexp.MustCompile("\\.md$")
 func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *http.Request) {
 
 	id, _, _ := c.Identity()
-	c.WebSocket = scheme + r.Host + "/ws/" + id + "/"
+	c.WebSocket = wsScheme + r.Host + "/ws/" + id + "/"
 	path := r.URL.Path
 
 	switch strings.TrimPrefix(path, "/") {

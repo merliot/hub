@@ -10,7 +10,7 @@ RUN go mod download
 COPY . ./
 
 RUN go work use .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /hub ./cmd/hub
+RUN CGO_ENABLED=0 GOOS=linux go build -tags https -o /hub ./cmd/hub
 
 EXPOSE 8000
 

@@ -152,7 +152,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 	values["modelStruct"] = strings.Title(c.Model)
 	values["name"] = c.Name
 	values["hub"] = r.Host
-	values["wsscheme"] = scheme
+	values["wsscheme"] = wsScheme
 
 	if values["backuphub"] != "" {
 		u, err := url.Parse(values["backuphub"])
