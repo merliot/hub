@@ -27,6 +27,8 @@ If you want an https version of the hub, use Dockerfile (not Dockerfile-http).
 > [!NOTE]
 > If you want to save changes, you'll need to fork the repo and run Docker from your fork.
 
+## Support Platforms
+
 
 
 
