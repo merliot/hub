@@ -14,6 +14,11 @@ import (
 	"tinygo.org/x/tinyterm"
 )
 
+const (
+	charWidth = 6
+	charHeight = 10
+)
+
 var (
 	black = color.RGBA{0, 0, 0, 255}
 )
@@ -54,11 +59,17 @@ func (s *Sign) run(i *dean.Injector) {
 
 	s.terminal.Configure(&tinyterm.Config{
 		Font:       s.font,
-		FontHeight: 10,
-		FontOffset: 6,
+		FontHeight: charHeight,
+		FontOffset: charWidth,
 	})
 
-	fmt.Fprintf(s.terminal, "Hello, World!")
+	fmt.Fprintf(s.terminal, "Hello, World!\n")
 
+	s.Display.Width, s.Display.Height = s.display.Size()
+	s.Terminal.Width = s.Display.Width / charWidth
+	s.Terminal.Height = s.Display.Height / charHeight
+
+	fmt.Fprintf(s.terminal, "01234567890123456789012345678901234567890123456789\n")
+	
 	select{}
 }

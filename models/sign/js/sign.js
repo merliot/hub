@@ -13,6 +13,9 @@ function close() {
 
 function online() {
 	overlay.innerHTML = ""
+	var banner = document.getElementById("banner")
+	banner.style.width = state.Terminal.Width + 'ch'
+	banner.style.height = state.Terminal.Height + 'em'
 }
 
 function offline() {
@@ -21,7 +24,6 @@ function offline() {
 
 function handle(msg) {
 	switch(msg.Path) {
-		break
 	}
 }
 

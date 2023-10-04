@@ -5,8 +5,20 @@ import (
 	"github.com/merliot/hub/models/common"
 )
 
+type Display struct {
+	Width  int16
+	Height int16
+}
+
+type Terminal struct {
+	Width  int16
+	Height int16
+}
+
 type Sign struct {
 	*common.Common
+	Display Display
+	Terminal Terminal
 	Banner string
 	targetStruct
 }
