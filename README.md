@@ -7,7 +7,11 @@ Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.o
 
 ## Quick Start
 
-The quick start is to run a Merliot Hub in a local docker container directly from the repo.  Clone this repo and build and run docker from the Dockerfile-http file:
+One-click deploy a Merliot Hub on these cloud providers:
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
+
+Or, deploy a Merliot Hub in your own docker environment:
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -17,6 +21,8 @@ docker run -p 80:8000 hub
 ```
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
+
+If you want an https version of the hub, docker build with Dockerfile (not Dockerfile-http).
 
 > [!NOTE]
 > If you want to save changes, you'll need to fork the repo and run Docker from your fork.
