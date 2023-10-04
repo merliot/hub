@@ -22,7 +22,7 @@ docker run -p 80:8000 hub
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 
-If you want an https version of the hub, docker build with Dockerfile (not Dockerfile-http).
+If you want an https version of the hub, use Dockerfile (not Dockerfile-http).
 
 > [!NOTE]
 > If you want to save changes, you'll need to fork the repo and run Docker from your fork.
