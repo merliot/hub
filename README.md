@@ -23,7 +23,7 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 
 ## Quick Start on the Cloud
 
-If you have an account with one of these cloud providers, click the button to deploy a Merliot Hub in the cloud.
+If you have an account with one of these cloud providers, click the button to deploy a Merliot Hub on the cloud.
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
 
