@@ -33,7 +33,7 @@ func New(id, model, name string) dean.Thinger {
 	return s
 }
 
-func (s *Sign) save(msg *dean.Msg) {
+func (s *Sign) saveState(msg *dean.Msg) {
 	msg.Unmarshal(s).Broadcast()
 }
 
@@ -42,10 +42,20 @@ func (s *Sign) getState(msg *dean.Msg) {
 	msg.Marshal(s).Reply()
 }
 
+func (s *Sign) save(msg *dean.Msg) {
+	msg.Unmarshal(s)
+	if s.IsMetal() {
+		s.refresh()
+		s.store()
+	}
+	msg.Broadcast()
+}
+
 func (s *Sign) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     s.save,
+		"state":     s.saveState,
 		"get/state": s.getState,
+		"save":      s.save,
 	}
 }
 

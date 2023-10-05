@@ -26,6 +26,12 @@ func (s *Sign) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	s.Common.API(s.templates, w, req)
 }
 
+func (s *Sign) refresh() {
+}
+
+func (s *Sign) store() {
+}
+
 func (s *Sign) run(i *dean.Injector) {
 	select {}
 }
