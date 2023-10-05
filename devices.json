@@ -9,25 +9,20 @@
 		"Name": "poc2",
 		"Online": false
 	},
-	"230044": {
-		"Model": "ps30m",
-		"Name": "poc3",
-		"Online": false
-	},
 	"g1": {
 		"Model": "gps",
 		"Name": "nano-gps",
-		"Online": false
+		"Online": true
 	},
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
-		"Online": false
+		"Online": true
 	},
 	"r2": {
 		"Model": "relays",
 		"Name": "nano-relays",
-		"Online": false
+		"Online": true
 	},
 	"s1": {
 		"Model": "sign",
