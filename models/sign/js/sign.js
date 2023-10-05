@@ -1,5 +1,6 @@
 var overlay = document.getElementById("overlay")
 var banner = document.getElementById("banner")
+var clearBtn = document.getElementById("clear")
 var saveBtn = document.getElementById("save")
 
 function init() {
@@ -21,6 +22,10 @@ function save() {
 	conn.send(JSON.stringify({Path: "save", Banner: banner.value}))
 }
 
+function clear() {
+	banner.value = ""
+}
+
 function online() {
 	overlay.innerHTML = ""
 
@@ -33,6 +38,7 @@ function online() {
 	banner.value = state.Banner
 
 	saveBtn.onclick = save
+	clearBtn.onclick = clear
 }
 
 function offline() {
