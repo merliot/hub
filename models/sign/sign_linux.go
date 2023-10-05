@@ -6,8 +6,10 @@ import (
 	"embed"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/hub/models/common"
 )
 
 //go:embed *
@@ -23,7 +25,12 @@ func (s *Sign) targetNew() {
 }
 
 func (s *Sign) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	s.Common.API(s.templates, w, req)
+	switch strings.TrimPrefix(req.URL.Path, "/") {
+	case "state":
+		common.ShowState(s.templates, w, s)
+	default:
+		s.Common.API(s.templates, w, req)
+	}
 }
 
 func (s *Sign) refresh() {
