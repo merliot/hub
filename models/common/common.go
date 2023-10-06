@@ -1,10 +1,8 @@
 package common
 
 import (
-	"encoding/json"
 	"html"
 	"net/url"
-	"os"
 
 	"github.com/merliot/dean"
 )
@@ -50,18 +48,4 @@ func (c *Common) ParseDeployParams() url.Values {
 
 func (c *Common) SetDeployParams(params string) {
 	c.DeployParams = html.UnescapeString(params)
-}
-
-func (c *Common) Load() {
-	bytes, err := os.ReadFile("devs/" + c.Id + ".json")
-	if err == nil {
-		json.Unmarshal(bytes, &c.DeployParams)
-	}
-}
-
-func (c *Common) Save() {
-	bytes, err := json.MarshalIndent(c.DeployParams, "", "\t")
-	if err == nil {
-		os.WriteFile("devs/"+c.Id+".json", bytes, 0600)
-	}
 }

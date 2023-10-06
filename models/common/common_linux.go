@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -115,5 +116,19 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 			w.Header().Set("Content-Type", "text/plain")
 		}
 		http.FileServer(http.FS(c.CompositeFs)).ServeHTTP(w, r)
+	}
+}
+
+func (c *Common) Load() {
+	bytes, err := os.ReadFile("devs/" + c.Id + ".json")
+	if err == nil {
+		json.Unmarshal(bytes, &c.DeployParams)
+	}
+}
+
+func (c *Common) Save() {
+	bytes, err := json.MarshalIndent(c.DeployParams, "", "\t")
+	if err == nil {
+		os.WriteFile("devs/"+c.Id+".json", bytes, 0600)
 	}
 }

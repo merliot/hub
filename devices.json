@@ -12,17 +12,17 @@
 	"g1": {
 		"Model": "gps",
 		"Name": "nano-gps",
-		"Online": true
+		"Online": false
 	},
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
-		"Online": true
+		"Online": false
 	},
 	"r2": {
 		"Model": "relays",
 		"Name": "nano-relays",
-		"Online": true
+		"Online": false
 	},
 	"s1": {
 		"Model": "sign",
