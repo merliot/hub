@@ -24,13 +24,12 @@ docker run -p 80:8000 hub
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 
-If you want an https version of the hub, use Dockerfile (not Dockerfile-http).
+## Support Device Platforms
 
-> [!NOTE]
-> If you want to save changes, you'll need to fork the repo and run Docker from your fork.
-
-## Support Platforms
-
-
+- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
+- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
+- [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
+- [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
+- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
 
