@@ -105,6 +105,8 @@ func (s *Sign) run(i *dean.Injector) {
 	})
 
 	s.display = initdisplay.InitDisplay()
+	s.display.SetRotation(ili9341.Rotation0)
+
 	s.terminal = tinyterm.NewTerminal(s.display)
 	s.terminal.Configure(&tinyterm.Config{
 		Font:       s.font,
