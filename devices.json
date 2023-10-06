@@ -28,5 +28,10 @@
 		"Model": "sign",
 		"Name": "wio-sign",
 		"Online": false
+	},
+	"s2": {
+		"Model": "sign",
+		"Name": "pyportal-sign",
+		"Online": false
 	}
 }

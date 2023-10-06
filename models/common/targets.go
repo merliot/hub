@@ -17,10 +17,6 @@ var supportedTargets = Targets{
 		FullName: "Linux x86_64",
 		GpioPins: GpioPins{},
 	},
-	"wioterminal": Target{
-		FullName: "Seeed Wio Terminal",
-		GpioPins: GpioPins{},
-	},
 	"rpi": Target{
 		FullName: "Raspberry Pi",
 		GpioPins: GpioPins{
@@ -43,6 +39,14 @@ var supportedTargets = Targets{
 			"GPIO20": 38,
 			"GPIO21": 40,
 		},
+	},
+	"pyportal": Target{
+		FullName: "Adafruit PyPortal",
+		GpioPins: GpioPins{},
+	},
+	"wioterminal": Target{
+		FullName: "Seeed Wio Terminal",
+		GpioPins: GpioPins{},
 	},
 	"nano-rp2040": Target{
 		FullName: "Arduino Nano Connect rp2040",

@@ -209,7 +209,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	switch values["target"] {
 	case "x86-64", "rpi":
 		return c.deployGo(dir, values, envs, templates, w, r)
-	case "nano-rp2040", "wioterminal":
+	case "nano-rp2040", "wioterminal", "pyportal":
 		return c.deployTinyGo(dir, values, envs, templates, w, r)
 	default:
 		return errors.New("Target not supported")

@@ -23,7 +23,7 @@ type Sign struct {
 	targetStruct
 }
 
-var targets = []string{"wioterminal"}
+var targets = []string{"wioterminal", "pyportal"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW SIGN")

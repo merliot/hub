@@ -4,6 +4,8 @@
 	font-family: monospace;
 	white-space: nowrap;
 	border: 1px solid black;
+	background-color: black;
+	color: white;
 }
 
 #input {
