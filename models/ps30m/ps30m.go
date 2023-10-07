@@ -38,7 +38,7 @@ type Ps30m struct {
 	templates    *template.Template
 }
 
-var targets = []string{"x86_64", "rpi"}
+var targets = []string{"x86-64", "rpi"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")

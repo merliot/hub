@@ -14,6 +14,11 @@
 		"Name": "nano-gps",
 		"Online": false
 	},
+	"g6": {
+		"Model": "gps",
+		"Name": "demo-gps",
+		"Online": false
+	},
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
@@ -27,7 +32,7 @@
 	"s1": {
 		"Model": "sign",
 		"Name": "wio-sign",
-		"Online": true
+		"Online": false
 	},
 	"s2": {
 		"Model": "sign",

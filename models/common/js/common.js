@@ -166,6 +166,7 @@ function stageFormData(deployParams) {
 		}
 	});
 }
+
 function updateInstructions(target) {
 	var instructions = document.getElementById('deploy-instructions')
 	var xhr = new XMLHttpRequest();
@@ -178,6 +179,21 @@ function updateInstructions(target) {
 		}
 	};
 	xhr.send();
+}
+
+function updateLocalHttpServer(target) {
+	var http = document.getElementById('deploy-http')
+	switch (target) {
+		case "demo":
+		case "x86-64":
+		case "rpi":
+			http.disabled = false
+			break
+		default:
+			http.disabled = true
+			http.checked = false
+			break
+	}
 }
 
 function stageDeploy(deployParams) {
@@ -205,8 +221,10 @@ function stageDeploy(deployParams) {
 	target.addEventListener('change', function() {
 		const selectedTarget = this.value;
 		updateInstructions(selectedTarget)
+		updateLocalHttpServer(selectedTarget)
 	});
 	updateInstructions(target.value)
+	updateLocalHttpServer(target.value)
 
 	var form = document.getElementById("deploy-form")
 	form.addEventListener('input', function (event) {

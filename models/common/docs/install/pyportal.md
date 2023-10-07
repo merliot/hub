@@ -9,4 +9,3 @@
 4. Transfer the downloaded UF2 file to the “PORTALBOOT” USB drive. This action will automatically flash and reboot the PyPortal. Upon startup, the PyPortal will connect to the hub(s).
 
 ![](docs/images/portalboot-install.png)
-

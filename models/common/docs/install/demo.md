@@ -1,6 +1,6 @@
 #### Install Instructions
 
-1. Click the download link to obtain the installer file for your device.  The installer is built to run on Raspberry Pi OS and will install the device as a service with automatic restart on boot.
+1. Click the download link to obtain the Demo installer file.  The installer is built to run on Linux x86-64 and will install the Demo as a service with automatic restart on boot.
 
 2. (Optional) Verify the MD5 checksum matches the installer file MD5 checksum.
 

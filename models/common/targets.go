@@ -17,7 +17,7 @@ var supportedTargets = Targets{
 		FullName: "Demo Mode",
 		GpioPins: GpioPins{},
 	},
-	"x86_64": Target{
+	"x86-64": Target{
 		FullName: "Linux x86-64",
 		GpioPins: GpioPins{},
 	},

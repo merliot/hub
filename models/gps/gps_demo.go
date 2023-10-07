@@ -7,6 +7,7 @@ import (
 	"time"
 	"net/http"
 	"strings"
+	"html/template"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
@@ -118,9 +119,12 @@ var places = [...]place{
 var fs embed.FS
 
 type targetStruct struct {
+	templates *template.Template
 }
 
 func (g *Gps) targetNew() {
+	g.CompositeFs.AddFS(fs)
+	g.templates = g.CompositeFs.ParseFS("template/*")
 }
 
 func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -18,7 +18,7 @@ type Update struct {
 	Long float64
 }
 
-var targets = []string{"demo", "x86_64", "rpi", "nano_rp2040"}
+var targets = []string{"demo", "x86-64", "rpi", "nano-rp2040"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW GPS")

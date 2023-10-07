@@ -57,9 +57,11 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 
 	// Build build.go -> model (binary)
 
-	target := values["target"]
+	// substitute "-" for "_" in target, ala TinyGo, when using as tag
+	target := strings.Replace(values["target"], "-", "_", -1)
 
 	cmd := exec.Command("go", "build", "-o", dir+"/"+c.Model, "-tags", target, dir+"/build.go")
+	println(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -70,6 +72,7 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 
 	installer := c.Id + "-installer"
 	cmd = exec.Command("go", "build", "-o", dir+"/"+installer, dir+"/installer.go")
+	println(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
@@ -78,6 +81,7 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 
 	// Calculate MD5 checksum of installer
 	cmd = exec.Command("md5sum", dir+"/"+installer)
+	println(cmd.String())
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -110,6 +114,7 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 
 	cmd := exec.Command("tinygo", "build", "-target", target, "-stack-size", "8kb",
 		"-o", dir+"/"+installer, dir+"/build.go")
+	println(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -118,6 +123,7 @@ func (c *Common) deployTinyGo(dir string, values map[string]string, envs []strin
 
 	// Calculate MD5 checksum of installer
 	cmd = exec.Command("md5sum", dir+"/"+installer)
+	println(cmd.String())
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -182,7 +188,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 func (c *Common) buildEnvs(values map[string]string) []string {
 	envs := []string{}
 	switch values["target"] {
-	case "demo", "x86_64":
+	case "demo", "x86-64":
 		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 	case "rpi":
 		// TODO: do we want more targets for GOARM=7|8?
@@ -209,7 +215,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	//println(dir)
 
 	switch values["target"] {
-	case "demo", "x86_64", "rpi":
+	case "demo", "x86-64", "rpi":
 		return c.deployGo(dir, values, envs, templates, w, r)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return c.deployTinyGo(dir, values, envs, templates, w, r)
