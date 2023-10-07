@@ -57,7 +57,9 @@ func (c *Common) deployGo(dir string, values map[string]string, envs []string,
 
 	// Build build.go -> model (binary)
 
-	cmd := exec.Command("go", "build", "-o", dir+"/"+c.Model, dir+"/build.go")
+	target := values["target"]
+
+	cmd := exec.Command("go", "build", "-o", dir+"/"+c.Model, "-tags", target, dir+"/build.go")
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -180,7 +182,7 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 func (c *Common) buildEnvs(values map[string]string) []string {
 	envs := []string{}
 	switch values["target"] {
-	case "x86-64":
+	case "demo", "x86_64":
 		envs = []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 	case "rpi":
 		// TODO: do we want more targets for GOARM=7|8?
@@ -207,7 +209,7 @@ func (c *Common) _deploy(templates *template.Template, w http.ResponseWriter, r 
 	//println(dir)
 
 	switch values["target"] {
-	case "x86-64", "rpi":
+	case "demo", "x86_64", "rpi":
 		return c.deployGo(dir, values, envs, templates, w, r)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return c.deployTinyGo(dir, values, envs, templates, w, r)

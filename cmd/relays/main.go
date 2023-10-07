@@ -10,9 +10,6 @@ import (
 func main() {
 	thing := relays.New("relays01", "relays", "relays").(*relays.Relays)
 
-	demo, _ := os.LookupEnv("DEMO")
-	thing.Demo = (demo != "")
-
 	thing.SetDeployParams("target=rpi&amp;http=on&amp;relay1=&amp;relay2=&amp;relay3=&amp;relay4=&amp;gpio1=GPIO06&amp;gpio2=GPIO13&amp;gpio3=GPIO19&amp;gpio4=GPIO26")
 
 	server := dean.NewServer(thing)
@@ -22,7 +19,6 @@ func main() {
 	passwd, _ := os.LookupEnv("PASSWD")
 
 	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/1500", thing.Announce())
-	//server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/1500", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

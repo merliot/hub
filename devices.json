@@ -27,7 +27,7 @@
 	"s1": {
 		"Model": "sign",
 		"Name": "wio-sign",
-		"Online": false
+		"Online": true
 	},
 	"s2": {
 		"Model": "sign",

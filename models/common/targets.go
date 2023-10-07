@@ -13,8 +13,12 @@ type Targets map[string]Target
 // deployTargetGpios.js file.
 
 var supportedTargets = Targets{
-	"x86-64": Target{
-		FullName: "Linux x86_64",
+	"demo": Target{
+		FullName: "Demo Mode",
+		GpioPins: GpioPins{},
+	},
+	"x86_64": Target{
+		FullName: "Linux x86-64",
 		GpioPins: GpioPins{},
 	},
 	"rpi": Target{

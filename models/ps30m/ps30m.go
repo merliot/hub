@@ -3,7 +3,6 @@ package ps30m
 import (
 	"embed"
 	"html/template"
-	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -39,7 +38,7 @@ type Ps30m struct {
 	templates    *template.Template
 }
 
-var targets = []string{"x86-64", "rpi"}
+var targets = []string{"x86_64", "rpi"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
@@ -156,14 +155,6 @@ var sun = [...]float32{
 }
 
 func (p *Ps30m) nextRecord() (rec record) {
-	if p.Demo {
-		hour := time.Now().Hour()
-		rec[0] = sun[hour] + rand.Float32()
-		rec[1] = 13.0 + rand.Float32()
-		rec[2] = 3 + rand.Float32()
-		return
-	}
-
 	rec[0] = p.readRegF32(AdcIa)
 	rec[1] = p.readRegF32(AdcVbterm)
 	rec[2] = p.readRegF32(AdcIl)
@@ -188,13 +179,8 @@ type StatusMsg struct {
 func (p *Ps30m) sendStatus(i *dean.Injector) {
 	var msg dean.Msg
 	var update = StatusMsg{Path: "update/status"}
-	if p.Demo {
-		update.ChargeState = 1
-		update.LoadState = 3
-	} else {
-		update.ChargeState = p.readRegU16(ChargeState)
-		update.LoadState = p.readRegU16(LoadState)
-	}
+	update.ChargeState = p.readRegU16(ChargeState)
+	update.LoadState = p.readRegU16(LoadState)
 	i.Inject(msg.Marshal(&update))
 }
 
@@ -225,24 +211,22 @@ func (p *Ps30m) Run(i *dean.Injector) {
 	const serial = "rtu:///dev/ttyUSB0"
 	var err error
 
-	if !p.Demo {
-		p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
-			URL:      serial,
-			Speed:    9600,
-			DataBits: 8,
-			Parity:   modbus.PARITY_NONE,
-			StopBits: 2,
-			Timeout:  300 * time.Millisecond,
-		})
-		if err != nil {
-			println("Create modbus client failed:", err.Error())
-			return
-		}
+	p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
+		URL:      serial,
+		Speed:    9600,
+		DataBits: 8,
+		Parity:   modbus.PARITY_NONE,
+		StopBits: 2,
+		Timeout:  300 * time.Millisecond,
+	})
+	if err != nil {
+		println("Create modbus client failed:", err.Error())
+		return
+	}
 
-		if err = p.client.Open(); err != nil {
-			println("Open modbus client at", serial, "failed:", err.Error())
-			return
-		}
+	if err = p.client.Open(); err != nil {
+		println("Open modbus client at", serial, "failed:", err.Error())
+		return
 	}
 
 	p.sample(i)

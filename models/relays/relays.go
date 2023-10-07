@@ -21,7 +21,7 @@ type MsgClick struct {
 	State bool
 }
 
-var targets = []string{"rpi", "nano-rp2040"}
+var targets = []string{"rpi", "nano_rp2040"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW RELAYS")

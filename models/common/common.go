@@ -17,7 +17,6 @@ type Common struct {
 	dean.Thing
 	Targets      `json:"-"`
 	DeployParams string `json:"-"`
-	Demo         bool   `json:"-"`
 	ssid         string
 	passphrase   string
 	commonOS

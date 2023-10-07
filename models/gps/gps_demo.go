@@ -1,9 +1,15 @@
+//go:build demo
+
 package gps
 
 import (
+	"embed"
 	"time"
+	"net/http"
+	"strings"
 
 	"github.com/merliot/dean"
+	"github.com/merliot/hub/models/common"
 )
 
 type place struct {
@@ -108,7 +114,25 @@ var places = [...]place{
 	{40.732689, -73.784866},
 }
 
-func (g *Gps) runDemo(i *dean.Injector) {
+//go:embed *
+var fs embed.FS
+
+type targetStruct struct {
+}
+
+func (g *Gps) targetNew() {
+}
+
+func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "state":
+		common.ShowState(g.templates, w, g)
+	default:
+		g.Common.API(g.templates, w, r)
+	}
+}
+
+func (g *Gps) run(i *dean.Injector) {
 	var msg dean.Msg
 	var update = Update{Path: "update"}
 	var next int
