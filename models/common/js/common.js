@@ -182,16 +182,36 @@ function updateInstructions(target) {
 }
 
 function updateLocalHttpServer(target) {
+	var div = document.getElementById('deploy-http-div')
 	var http = document.getElementById('deploy-http')
 	switch (target) {
 		case "demo":
 		case "x86-64":
 		case "rpi":
+			div.style.display = "flex"
 			http.disabled = false
 			break
 		default:
+			div.style.display = "none"
 			http.disabled = true
 			http.checked = false
+			break
+	}
+}
+
+function updateSsid(target) {
+	var div = document.getElementById('deploy-ssid-div')
+	var ssid = document.getElementById('deploy-ssid')
+	switch (target) {
+		case "demo":
+		case "x86-64":
+		case "rpi":
+			div.style.display = "none"
+			ssid.disabled = true
+			break
+		default:
+			div.style.display = "flex"
+			ssid.disabled = false
 			break
 	}
 }
@@ -222,9 +242,11 @@ function stageDeploy(deployParams) {
 		const selectedTarget = this.value;
 		updateInstructions(selectedTarget)
 		updateLocalHttpServer(selectedTarget)
+		updateSsid(selectedTarget)
 	});
 	updateInstructions(target.value)
 	updateLocalHttpServer(target.value)
+	updateSsid(target.value)
 
 	var form = document.getElementById("deploy-form")
 	form.addEventListener('input', function (event) {

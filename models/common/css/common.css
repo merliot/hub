@@ -32,6 +32,14 @@ textarea {
 	flex-direction: column;
 }
 
+#deploy-http-div {
+    display: none;
+}
+
+#deploy-ssid-div {
+    display: none;
+}
+
 #download-response {
 	padding-top: 20px;
 }

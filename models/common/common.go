@@ -7,18 +7,19 @@ import (
 	"github.com/merliot/dean"
 )
 
-type Devicer interface {
+// key: ssid; value: passphrase
+type WifiAuth map[string]string
+
+type Commoner interface {
 	Load()
-	SetWifiAuth(ssid, passphrase string)
-	SetDeployParams(params string)
+	SetWifiAuth(WifiAuth)
 }
 
 type Common struct {
 	dean.Thing
 	Targets      `json:"-"`
+	WifiAuth     `json:"-"`
 	DeployParams string `json:"-"`
-	ssid         string
-	passphrase   string
 	commonOS
 }
 
@@ -27,17 +28,9 @@ func New(id, model, name string, targets []string) dean.Thinger {
 	c := &Common{}
 	c.Thing = dean.NewThing(id, model, name)
 	c.Targets = makeTargets(targets)
+	c.WifiAuth = make(WifiAuth)
 	c.commonOSInit()
 	return c
-}
-
-func (c *Common) SetWifiAuth(ssid, passphrase string) {
-	c.ssid = ssid
-	c.passphrase = passphrase
-}
-
-func (c *Common) GetWifiAuth() (ssid, passphrase string) {
-	return c.ssid, c.passphrase
 }
 
 func (c *Common) ParseDeployParams() url.Values {
@@ -47,4 +40,8 @@ func (c *Common) ParseDeployParams() url.Values {
 
 func (c *Common) SetDeployParams(params string) {
 	c.DeployParams = html.UnescapeString(params)
+}
+
+func (c *Common) SetWifiAuth(auth WifiAuth) {
+	c.WifiAuth = auth
 }

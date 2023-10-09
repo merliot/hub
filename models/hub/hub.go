@@ -129,8 +129,8 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device := thinger.(common.Devicer)
-	device.SetWifiAuth(h.GetWifiAuth())
+	device := thinger.(common.Commoner)
+	device.SetWifiAuth(h.WifiAuth)
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Device id '%s' created", id)
@@ -181,8 +181,8 @@ func (h *Hub) restoreDevices() {
 			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
-		device := thinger.(common.Devicer)
-		device.SetWifiAuth(h.GetWifiAuth())
+		device := thinger.(common.Commoner)
+		device.SetWifiAuth(h.WifiAuth)
 		device.Load()
 	}
 }

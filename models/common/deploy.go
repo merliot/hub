@@ -162,6 +162,10 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 	values["hub"] = r.Host
 	values["wsscheme"] = wsScheme
 
+	if ssid, ok := values["ssid"]; ok {
+		values["passphrase"] = c.WifiAuth[ssid]
+	}
+
 	if values["backuphub"] != "" {
 		u, err := url.Parse(values["backuphub"])
 		if err != nil {
@@ -178,9 +182,6 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 		values["user"] = user
 		values["passwd"] = passwd
 	}
-
-	values["ssid"] = c.ssid
-	values["passphrase"] = c.passphrase
 
 	return values, nil
 }

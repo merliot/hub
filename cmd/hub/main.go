@@ -14,9 +14,7 @@ import (
 func main() {
 	h := hub.New("hub01", "hub", "hub01").(*hub.Hub)
 
-	ssid := os.Getenv("SSID")
-	passphrase := os.Getenv("PASSPHRASE")
-	h.SetWifiAuth(ssid, passphrase)
+	h.ParseWifiAuth()
 
 	gitRemote := os.Getenv("GIT_REMOTE")
 	gitKey := os.Getenv("GIT_KEY")

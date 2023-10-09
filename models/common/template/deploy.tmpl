@@ -30,7 +30,15 @@ Name:    {{.Name}}</textarea>
 {{ end }}
 						</select>
 					</div>
-					<div class="divFlexRow">
+					<div class="divFlexRow" id="deploy-ssid-div">
+						<label for="deploy-ssid">Wifi SSID:</label>
+						<select name="ssid" id="deploy-ssid">
+{{ range $key, $value := .WifiAuth }}
+							<option value="{{ $key }}">{{ $key }}</option>
+{{ end }}
+						</select>
+					</div>
+					<div class="divFlexRow" id="deploy-http-div">
 						<label for="deploy-http">Run local Web Server:</label>
 						<input type="checkbox" name="http" id="deploy-http">
 					</div>
