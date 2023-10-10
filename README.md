@@ -7,24 +7,9 @@
 
 Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-## Quick Start
+## Device Platforms
 
-One-click deploy a Merliot Hub on these cloud providers:
-
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
-
-Or, deploy a Merliot Hub in your own docker environment:
-
-```
-git clone https://github.com/merliot/hub.git
-cd hub
-docker build -tag hub -f Dockerfile-http .
-docker run -p 80:8000 hub
-```
-
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
-
-## Support Device Platforms
+Merliot Hub supports devices created on these platforms:
 
 - [Raspberry Pi 3/4](https://www.raspberrypi.com/)
 - [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
@@ -32,4 +17,63 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 - [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
 - [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
+## Quick Start
 
+Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
+
+```
+git clone https://github.com/merliot/hub.git
+cd hub
+docker build -t hub -f Dockerfile-http .
+docker run -p 80:8000 hub
+```
+
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
+
+Or, one-click deploy a Merliot Hub on these cloud providers:
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
+
+## Saving Changes
+
+Merliot Hub saves device changes back to the hub repo.  To enable saving device changes, use your own copy of the repo:
+
+1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo.
+2. Build the docker image from the fork.
+
+    ```
+    git clone <fork path>/hub.git
+    cd hub
+    docker build -t hub -f Dockerfile-http .
+    ```
+
+4. Pass in to docker GIT_xxx enviroment vars:
+
+    ```
+    docker run -p 80:8000 -e GIT_AUTHOR=<author> -e GIT_KEY=<key> -e GIT_REMOTE=<remote> hub
+    ```
+
+(If using cloud provider, pass the GIT_xxx environment vars using the provider's sercrets to store the GIT_xxx values).
+
+## Environment Variables
+
+The docker container looks for these environment vars on startup to configure the hub:
+
+#### PORT
+Port the hub listens on, default is 8000.
+
+#### GIT_AUTHOR, GIT_REMOTE, GIT_KEY
+Required if saving device changes.
+
+#### BACKUP
+Set as backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
+
+#### USER, PASSWD
+Set user and password for HTTP Basic Authentication on the hub.
+
+#### WIFI_SSID, WIFI_PASSPHRASE
+Set Wifi SSID and passphrase for devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
+
+## Building New Devices
+
+New devices can be built from scratch or by extending existing devices.  The new device is given a unique model name.
