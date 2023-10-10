@@ -173,8 +173,8 @@ function removeDevice(id) {
 	}
 }
 
-function setBackupMode() {
-	if (state.Backup) {
+function setBackupHub() {
+	if (state.BackupHub) {
 		document.title = document.title + " (backup)"
 		createBtn.disabled = true
 		deleteBtn.disabled = true
@@ -204,7 +204,7 @@ function loadExplorer() {
 function open() {
 	state.Online ? online() : offline()
 	loadExplorer()
-	setBackupMode()
+	setBackupHub()
 }
 
 function close() {

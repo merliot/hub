@@ -32,8 +32,9 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	Backup    bool
-	server    *dean.Server
+	BackupHub bool
+	BackupHubURL string
+	server       *dean.Server
 	templates *template.Template
 	gitKey    string
 	gitRemote string

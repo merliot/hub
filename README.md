@@ -65,8 +65,11 @@ Port the hub listens on, default is 8000.
 #### GIT_AUTHOR, GIT_REMOTE, GIT_KEY
 Required if saving device changes.
 
-#### BACKUP
-Set as backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
+#### BACKUP_HUB
+Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
+
+#### BACKUP_HUB_URL
+Set the backup hub URL.
 
 #### USER, PASSWD
 Set user and password for HTTP Basic Authentication on the hub.
