@@ -11,10 +11,10 @@ COPY . ./
 
 RUN go work use .
 
-ARG SCHEME=http
-RUN echo $SCHEME > ./foo.txt
+ARG FOO=banana
+RUN echo $FOO > ./foo.txt
 
-RUN CGO_ENABLED=0 GOOS=linux go build -tags $SCHEME -o /hub ./cmd/hub
+RUN CGO_ENABLED=0 GOOS=linux go build -tags https -o /hub ./cmd/hub
 
 EXPOSE 8000
 
