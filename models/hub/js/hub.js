@@ -1,6 +1,10 @@
 var overlay = document.getElementById("overlay")
 var explorer = document.getElementById("explorer")
 var view = document.getElementById("view")
+var createBtn = document.getElementById("create")
+var deleteBtn = document.getElementById("delete")
+var saveBtn = document.getElementById("save")
+var deployBtn = document.getElementById("deploy")
 var dialogCreate = document.getElementById("create-dialog")
 var dialogDelete = document.getElementById("delete-dialog")
 var selected // currently selected device ID
@@ -8,19 +12,19 @@ var sub = ""
 
 // Create button opens create model dialog
 
-document.getElementById("create").onclick = function(){showCreate()}
+createBtn.onclick = function(){showCreate()}
 document.getElementById("create-close").onclick = function(){dialogCreate.close()}
 document.getElementById("create-create").onclick = function(){create()}
 
 // Delete button open delete modal dialog
 
-document.getElementById("delete").onclick = function(){showDelete()}
+deleteBtn.onclick = function(){showDelete()}
 document.getElementById("delete-close").onclick = function(){dialogDelete.close()}
 document.getElementById("delete-delete").onclick = function(){deletef()}
 
 // Save button saves devices.json to repo
 
-document.getElementById("save").onclick = function(){save()}
+saveBtn.onclick = function(){save()}
 
 // Toggle buttons
 
@@ -169,6 +173,16 @@ function removeDevice(id) {
 	}
 }
 
+function setBackupMode() {
+	if (state.Backup) {
+		document.title = document.title + " (backup)"
+		createBtn.disabled = true
+		deleteBtn.disabled = true
+		saveBtn.disabled = true
+		deployBtn.style.display = "none"
+	}
+}
+
 function loadExplorer() {
 	explorer.textContent = ''
 	view.textContent = ''
@@ -190,6 +204,7 @@ function loadExplorer() {
 function open() {
 	state.Online ? online() : offline()
 	loadExplorer()
+	setBackupMode()
 }
 
 function close() {

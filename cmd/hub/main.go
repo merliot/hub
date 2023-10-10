@@ -21,6 +21,11 @@ func main() {
 	gitAuthor := os.Getenv("GIT_AUTHOR")
 	h.SetGit(gitRemote, gitKey, gitAuthor)
 
+	backup := os.Getenv("BACKUP")
+	if backup != "" {
+		h.Backup = true
+	}
+
 	server := dean.NewServer(h)
 	h.SetServer(server)
 
