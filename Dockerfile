@@ -11,7 +11,7 @@ COPY . ./
 
 RUN go work use .
 
-ARG SCHEME=https
+ARG SCHEME=http
 RUN echo $SCHEME > ./foo.txt
 
 RUN CGO_ENABLED=0 GOOS=linux go build -tags $SCHEME -o /hub ./cmd/hub
