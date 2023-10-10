@@ -24,7 +24,7 @@ Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
 ```
 git clone https://github.com/merliot/hub.git
 cd hub
-docker build -t hub -f Dockerfile-http .
+docker build -t hub -f Dockerfile .
 docker run -p 80:8000 hub
 ```
 
