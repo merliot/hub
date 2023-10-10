@@ -7,24 +7,9 @@
 
 Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-## Quick Start
+## Device Platforms
 
-One-click deploy a Merliot Hub on these cloud providers:
-
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
-
-Or, deploy a Merliot Hub in your own docker environment:
-
-```
-git clone https://github.com/merliot/hub.git
-cd hub
-docker build -tag hub -f Dockerfile-http .
-docker run -p 80:8000 hub
-```
-
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
-
-## Support Device Platforms
+Merliot Hub supports devices created on these platforms:
 
 - [Raspberry Pi 3/4](https://www.raspberrypi.com/)
 - [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
@@ -32,4 +17,19 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 - [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
 - [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
+## Quick Start
 
+Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
+
+```
+git clone https://github.com/merliot/hub.git
+cd hub
+docker build -t hub -f Dockerfile-http .
+docker run -p 80:8000 hub
+```
+
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
+
+Or, one-click deploy a Merliot Hub on these cloud providers:
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
