@@ -16,8 +16,6 @@ func main() {
 
 	h.ParseWifiAuth()
 
-	println("TEST=", os.Getenv("TEST"))
-
 	gitRemote := os.Getenv("GIT_REMOTE")
 	gitKey := os.Getenv("GIT_KEY")
 	gitAuthor := os.Getenv("GIT_AUTHOR")
