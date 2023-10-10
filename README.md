@@ -33,3 +33,24 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 Or, one-click deploy a Merliot Hub on these cloud providers:
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
+
+## Saving Changes
+
+Merliot Hub saves device changes back to the hub repo.  To enable saving device changes, use your own copy of the repo:
+
+1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo.
+2. Build the docker image from the fork.
+
+    ```
+    git clone <fork path>/hub.git
+    cd hub
+    docker build -t hub -f Dockerfile-http .
+    ```
+
+4. Pass in to docker GIT_xxx enviroment vars:
+
+    ```
+    docker run -p 80:8000 -e GIT_AUTHOR=<author> -e GIT_KEY=<key> -e GIT_REMOTE=<remote> hub
+    ```
+
+(If using cloud provider, pass the GIT_xxx environment vars using the provider's sercrets to store the GIT_xxx values).
