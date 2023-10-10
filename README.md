@@ -54,3 +54,22 @@ Merliot Hub saves device changes back to the hub repo.  To enable saving device 
     ```
 
 (If using cloud provider, pass the GIT_xxx environment vars using the provider's sercrets to store the GIT_xxx values).
+
+## Environment Variables
+
+The docker container looks for these environment vars on startup to configure the hub:
+
+#### PORT
+Port the hub listens on, default is 8000.
+
+#### GIT_AUTHOR, GIT_REMOTE, GIT_KEY
+Required if saving device changes.
+
+#### BACKUP
+Set as backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
+
+#### USER, PASSWD
+Set user and password for HTTP Basic Authentication on the hub.
+
+#### WIFI_SSID, WIFI_PASSPHRASE
+Set Wifi SSID and passphrase for devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
