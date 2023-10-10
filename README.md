@@ -32,7 +32,7 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 
 Or, one-click deploy a Merliot Hub on these cloud providers:
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
 ## Saving Changes
 
@@ -53,11 +53,14 @@ Merliot Hub saves device changes back to the hub repo.  To enable saving device 
     docker run -p 80:8000 -e GIT_AUTHOR=<author> -e GIT_KEY=<key> -e GIT_REMOTE=<remote> hub
     ```
 
-(If using cloud provider, pass the GIT_xxx environment vars using the provider's sercrets to store the GIT_xxx values).
+(If using cloud provider, pass the GIT_xxx environment vars using the provider's secrets to store the GIT_xxx values).
 
 ## Environment Variables
 
-The docker container looks for these environment vars on startup to configure the hub:
+The docker container looks for these environment vars on build and startup to configure the hub:
+
+#### SCHEME
+Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
 
 #### PORT
 Port the hub listens on, default is 8000.
