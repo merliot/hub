@@ -1,1 +1,1 @@
-"target=rpi\u0026http=on\u0026relay1=\u0026relay2=\u0026relay3=\u0026relay4=\u0026gpio1=GPIO06\u0026gpio2=GPIO13\u0026gpio3=GPIO19\u0026gpio4=GPIO26"
+"target=rpi\u0026http=on\u0026backuphub=https%3A%2F%2Fhub.merliot.net\u0026relay1=\u0026relay2=\u0026relay3=\u0026relay4=\u0026gpio1=GPIO06\u0026gpio2=GPIO13\u0026gpio3=GPIO19\u0026gpio4=GPIO26"

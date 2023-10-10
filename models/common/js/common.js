@@ -208,12 +208,38 @@ function updateSsid(target) {
 		case "rpi":
 			div.style.display = "none"
 			ssid.disabled = true
+			ssid.name = ""
 			break
 		default:
 			div.style.display = "flex"
 			ssid.disabled = false
+			ssid.name = "ssid"
 			break
 	}
+}
+
+function handleBackup(backup, first) {
+	var backupHub = document.getElementById("deploy-backuphub")
+	if (first) {
+		if (backupHub.value !== "") {
+			backup.checked = true
+		}
+	}
+	if (backup.checked) {
+		backupHub.disabled = false;
+		backupHub.name = "backuphub";
+	} else {
+		backupHub.disabled = true;
+		backupHub.name = "";
+	}
+	updateDeployLink()
+}
+
+function handleTarget(target) {
+	updateInstructions(target)
+	updateLocalHttpServer(target)
+	updateSsid(target)
+	updateDeployLink()
 }
 
 function stageDeploy(deployParams) {
@@ -223,34 +249,16 @@ function stageDeploy(deployParams) {
 	document.getElementById("download-link").addEventListener("click", downloadFile)
 
 	var backup = document.getElementById("deploy-backup")
-	var backupHub = document.getElementById("deploy-backup-hub")
-
-	backup.addEventListener("change", function() {
-		if (this.checked) {
-			backupHub.disabled = false;
-			backupHub.name = "backup-hub";
-		} else {
-			backupHub.disabled = true;
-			backupHub.name = "";
-		}
-		updateDeployLink()
-	})
+	backup.addEventListener("change", function() { handleBackup(backup, false) })
+	handleBackup(backup, true)
 
 	// Attach an event listener to the deploy-target dropdown to set instructions
 	var target = document.getElementById('deploy-target')
-	target.addEventListener('change', function() {
-		const selectedTarget = this.value;
-		updateInstructions(selectedTarget)
-		updateLocalHttpServer(selectedTarget)
-		updateSsid(selectedTarget)
-	});
-	updateInstructions(target.value)
-	updateLocalHttpServer(target.value)
-	updateSsid(target.value)
+	target.addEventListener('change', function() { handleTarget(this.value) })
+	handleTarget(target.value)
 
 	var form = document.getElementById("deploy-form")
-	form.addEventListener('input', function (event) {
-		updateDeployLink()
-	})
+	form.addEventListener('input', function (event) { updateDeployLink() })
+
 	updateDeployLink()
 }
