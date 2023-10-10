@@ -73,3 +73,7 @@ Set user and password for HTTP Basic Authentication on the hub.
 
 #### WIFI_SSID, WIFI_PASSPHRASE
 Set Wifi SSID and passphrase for devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
+
+## Building New Devices
+
+New devices can be built from scratch or by extending existing devices.  The new device is given a unique model name.
