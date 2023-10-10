@@ -9,11 +9,10 @@ RUN go mod download
 
 COPY . ./
 
-ARG FOO=banana
-RUN echo $FOO >./foo.txt
+ARG SCHEME=http
 
 RUN go work use .
-RUN CGO_ENABLED=0 GOOS=linux go build -tags https -o /hub ./cmd/hub
+RUN CGO_ENABLED=0 GOOS=linux go build -tags $SCHEME -o /hub ./cmd/hub
 
 EXPOSE 8000
 
