@@ -32,13 +32,13 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	BackupHub bool
+	BackupHub    bool
 	BackupHubURL string
 	server       *dean.Server
-	templates *template.Template
-	gitKey    string
-	gitRemote string
-	gitAuthor string
+	templates    *template.Template
+	gitKey       string
+	gitRemote    string
+	gitAuthor    string
 }
 
 var targets = []string{"x86-64", "rpi"}
@@ -268,7 +268,7 @@ func pushCommit(remote, key string) error {
 
 	// (key got messed up being stuffed into env var, so un-mess it)
 	keyBytes := []byte(key)
-	replaceSpaceWithLF(keyBytes[35:len(keyBytes) - 33])
+	replaceSpaceWithLF(keyBytes[35 : len(keyBytes)-33])
 	keyBytes = append(keyBytes, '\n')
 
 	_, err = tempFile.Write(keyBytes)

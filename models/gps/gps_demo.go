@@ -4,10 +4,10 @@ package gps
 
 import (
 	"embed"
-	"time"
+	"html/template"
 	"net/http"
 	"strings"
-	"html/template"
+	"time"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"

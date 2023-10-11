@@ -17,9 +17,9 @@ type Terminal struct {
 
 type Sign struct {
 	*common.Common
-	Display Display
+	Display  Display
 	Terminal Terminal
-	Banner string
+	Banner   string
 	targetStruct
 }
 

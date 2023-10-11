@@ -4,15 +4,15 @@ package sign
 
 import (
 	"encoding/json"
-	"image/color"
 	"fmt"
+	"image/color"
 	"machine"
 	"os"
 	"strings"
 
 	"github.com/merliot/dean"
-	"tinygo.org/x/drivers/ili9341"
 	"tinygo.org/x/drivers/examples/ili9341/initdisplay"
+	"tinygo.org/x/drivers/ili9341"
 	"tinygo.org/x/tinyfont"
 	"tinygo.org/x/tinyfont/proggy"
 	"tinygo.org/x/tinyfs/littlefs"
@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	charWidth = 6
+	charWidth  = 6
 	charHeight = 10
 )
 
@@ -30,9 +30,9 @@ var (
 )
 
 type targetStruct struct {
-	display   *ili9341.Device
-	terminal  *tinyterm.Terminal
-	font      *tinyfont.Font
+	display  *ili9341.Device
+	terminal *tinyterm.Terminal
+	font     *tinyfont.Font
 }
 
 func (s *Sign) targetNew() {
@@ -122,5 +122,5 @@ func (s *Sign) run(i *dean.Injector) {
 	s.Terminal.Width = s.Display.Width / charWidth
 	s.Terminal.Height = s.Display.Height / charHeight
 
-	select{}
+	select {}
 }

@@ -15,8 +15,8 @@ func (c *Common) ParseWifiAuth() {
 	}
 	for i := 0; i < 10; i++ {
 		a := strconv.Itoa(i)
-		if ssid, ok := os.LookupEnv("WIFI_SSID_"+a); ok {
-			if passphrase, ok := os.LookupEnv("WIFI_PASSPHRASE_"+a); ok {
+		if ssid, ok := os.LookupEnv("WIFI_SSID_" + a); ok {
+			if passphrase, ok := os.LookupEnv("WIFI_PASSPHRASE_" + a); ok {
 				c.WifiAuth[ssid] = passphrase
 			}
 		}
