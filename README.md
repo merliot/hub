@@ -45,6 +45,16 @@ One-click deploy a Merliot Hub on one of these cloud providers:
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
+## Device
+
+A device is a gadget you build.  The picture-equation for a device is:
+
+![device](images/device.png)
+
+The device dials into the hub so you can monitor and control the device from the hub.  Multiple devices, of different types, can dial into the hub.
+
+The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
+
 ## Device Platforms
 
 Merliot Hub supports devices created on these platforms:
