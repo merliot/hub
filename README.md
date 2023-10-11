@@ -19,6 +19,8 @@ Merliot Hub supports devices created on these platforms:
 
 ## Quick Start
 
+## Quick Start Docker
+
 Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
 
 ```
@@ -30,7 +32,9 @@ docker run -p 80:8000 hub
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
 
-Or, one-click deploy a Merliot Hub on these cloud providers:
+## Quick Start Cloud
+
+One-click deploy a Merliot Hub on one of these cloud providers:
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
