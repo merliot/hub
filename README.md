@@ -27,8 +27,12 @@ go run cmd/hub/main.go
 
 Browse to [http://127.0.0.1:8000](http://127.0.0.1:8000) to view hub and deploy devices.
 
+To create a demo GPS device, click the demo-gps device, and then the deploy button.
+
+![demo-gps](images/demo-gps.png)
+
 > [!NOTE]
-> Deploying to TinyGo devices will not work, currently.  The limitation will be resolved in future TInyGo release.  To deploy on TinyGo devices, use the Docker or cloud methods below.
+> Deploying to TinyGo devices will not work, currently.  The limitation will be resolved in a future TInyGo release.  To deploy on TinyGo devices, use the Docker or cloud methods below.
 
 ## Quick Start Docker
 
@@ -51,7 +55,7 @@ One-click deploy a Merliot Hub on one of these cloud providers:
 
 ## Saving Changes
 
-Merliot Hub saves device changes back to the hub repo.  To enable saving device changes, use your own copy of the repo:
+Merliot Hub saves device changes back to the hub repo.  To enable saving device changes, use your own copy of the repo by making a fork:
 
 1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo.
 2. Build the docker image from the fork.
@@ -59,40 +63,48 @@ Merliot Hub saves device changes back to the hub repo.  To enable saving device 
     ```
     git clone <fork path>/hub.git
     cd hub
-    docker build -t hub -f Dockerfile-http .
+    docker build -t hub -f Dockerfile .
     ```
 
-4. Pass in to docker GIT_xxx enviroment vars:
+3. Pass in to docker GIT_xxx enviroment vars:
 
     ```
     docker run -p 80:8000 -e GIT_AUTHOR=<author> -e GIT_KEY=<key> -e GIT_REMOTE=<remote> hub
     ```
 
-(If using cloud provider, pass the GIT_xxx environment vars using the provider's secrets to store the GIT_xxx values).
+> [!NOTE]
+> If using cloud provider, pass the GIT_xxx environment vars using the provider's secrets to store the GIT_xxx values.
 
 ## Environment Variables
 
 The docker container looks for these environment vars on build and startup to configure the hub:
 
-#### SCHEME
+**SCHEME**
+
 Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
 
-#### PORT
+**PORT**
+
 Port the hub listens on, default is 8000.
 
-#### GIT_AUTHOR, GIT_REMOTE, GIT_KEY
+**GIT_AUTHOR, GIT_REMOTE, GIT_KEY**
+
 Required if saving device changes.
 
-#### BACKUP_HUB
+**BACKUP_HUB**
+
 Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
 
-#### BACKUP_HUB_URL
+**BACKUP_HUB_URL**
+
 Set the backup hub URL.
 
-#### USER, PASSWD
+**USER, PASSWD**
+
 Set user and password for HTTP Basic Authentication on the hub.
 
-#### WIFI_SSID, WIFI_PASSPHRASE
+**WIFI_SSID, WIFI_PASSPHRASE**
+
 Set Wifi SSID and passphrase for devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
 
 ## Building New Devices
