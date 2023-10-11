@@ -51,6 +51,8 @@ A device is a gadget you build.  The picture-equation for a device is:
 
 ![device](images/device.png)
 
+A device comprises a platform, some I/O, and the software (firmware) that runs on the device.  In this picture, the Raspberry Pi is the platform, the I/O is the relay and flow meter.
+
 The device dials into the hub so you can monitor and control the device from the hub.  Multiple devices, of different types, can dial into the hub.
 
 The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
