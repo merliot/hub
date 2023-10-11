@@ -12,7 +12,7 @@ func main() {
 	user, _ := os.LookupEnv("USER")
 	passwd, _ := os.LookupEnv("PASSWD")
 
-	thing := gps.New("foo", "gps", "foo").(*gps.Gps)
+	thing := gps.New("g6", "gps", "demo-gps").(*gps.Gps)
 
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)
