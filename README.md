@@ -7,17 +7,9 @@
 
 Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-## Device Platforms
-
-Merliot Hub supports devices created on these platforms:
-
-- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
-- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
-- [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
-- [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
-- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
-
 ## Quick Start
+
+Dependency: Go version 1.20 or higher
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -53,6 +45,16 @@ One-click deploy a Merliot Hub on one of these cloud providers:
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
+## Device Platforms
+
+Merliot Hub supports devices created on these platforms:
+
+- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
+- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
+- [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
+- [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
+- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
+
 ## Saving Changes
 
 Merliot Hub saves device changes back to the hub repo.  Device changes happen when you create, delete, or deploy a device.  You must [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo to save your changes.  Follow the Quick Start guides, but use your own fork when git cloning.
@@ -61,7 +63,7 @@ The hub need some git credentials to save changes back to the repo.  Pass the GI
 
 ## Environment Variables
 
-The docker container looks for these environment vars on build and at runtime to configure the hub:
+The hub and devices are built with these environment variables.  These are passed in when building the hub, but some are used also when building devices.
 
 **SCHEME**
 
@@ -90,6 +92,10 @@ Set user and password for HTTP Basic Authentication on the hub.  The user will b
 **WIFI_SSID, WIFI_PASSPHRASE**
 
 Set Wifi SSID and passphrase for Wifi-enabled devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
+
+## Hub Memory Requirements
+
+Outside of deploying devices, the hub consumes little memory (or CPU) and can run on Linux machines with a minimum of 256M and 2G disk space.  Of course, a resource-hungry device may want more, but most are effectively idle.  To deploy devices, the hub needs more memory.  To deploy to targets built with Go, the minimum is 512M.  To deploy to targets build with TinyGo, the minimum is 2G RAM.
 
 ## Building New Devices
 
