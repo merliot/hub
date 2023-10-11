@@ -5,19 +5,11 @@
 
 ![Gopher Thing](images/gopher_cloud.png)
 
-Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.org).
-
-## Device Platforms
-
-Merliot Hub supports devices created on these platforms:
-
-- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
-- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
-- [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
-- [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
-- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
+Merliot Hub, written in [Go](go.dev) and [TinyGo](tinygo.org), is a device hub.
 
 ## Quick Start
+
+**Prerequisite**: Go version 1.20 or higher
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -32,11 +24,11 @@ To create a demo GPS device, click the demo-gps device, and then the deploy butt
 ![demo-gps](images/demo-gps.png)
 
 > [!NOTE]
-> Deploying to TinyGo devices will not work, currently.  The limitation will be resolved in a future TInyGo release.  To deploy on TinyGo devices, use the Docker or Cloud Quick Starts below.
+> For this quick start mode, deploying to TinyGo devices will not work, currently.  A future TinyGo release will address this.  To deploy on TinyGo devices, use the Docker or Cloud Quick Starts below.
 
 ## Quick Start Docker
 
-Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
+Deploy Merliot Hub using [docker](https://www.docker.com/):
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -45,13 +37,35 @@ docker build -t hub -f Dockerfile .
 docker run -p 80:8000 hub
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.  Here you can deploy TinyGo devices.
 
 ## Quick Start Cloud
 
 One-click deploy a Merliot Hub on one of these cloud providers:
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
+
+## Device
+
+A device is a gadget you build.  The picture-equation for a device is:
+
+![device](images/device.png)
+
+A device comprises a platform, some I/O, and the software (firmware) that runs on the device.  In this picture, the Raspberry Pi is the platform, the I/O is the relay and flow meter.  The device control code is written in Go; the device view code is written in HTML/JS/CSS.
+
+The device dials into the hub so you can monitor and control the device from the hub.  Multiple devices, of different types, can dial into the hub.
+
+The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
+
+## Device Platforms
+
+Merliot Hub supports devices created on these platforms:
+
+- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
+- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
+- [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
+- [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
+- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
 ## Saving Changes
 
@@ -61,35 +75,39 @@ The hub need some git credentials to save changes back to the repo.  Pass the GI
 
 ## Environment Variables
 
-The docker container looks for these environment vars on build and at runtime to configure the hub:
+These variables configure the hub and devices:
 
-**SCHEME**
+**SCHEME** (hub)
 
 Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
 
-**PORT**
+**PORT** (hub)
 
 Port the hub listens on, default is 8000.
 
-**GIT_AUTHOR, GIT_REMOTE, GIT_KEY**
+**GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
 
 Required if saving device changes.
 
-**BACKUP_HUB**
+**BACKUP_HUB** (hub)
 
 Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
 
-**BACKUP_HUB_URL**
+**BACKUP_HUB_URL** (device)
 
 Set the backup hub URL.  This value is passed to devices when deployed.  The device will dial into both the primary and backup hubs.
 
-**USER, PASSWD**
+**USER, PASSWD** (hub + device)
 
 Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.
 
-**WIFI_SSID, WIFI_PASSPHRASE**
+**WIFI_SSID, WIFI_PASSPHRASE** (device)
 
 Set Wifi SSID and passphrase for Wifi-enabled devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
+
+## Hub Memory Requirements
+
+Outside of deploying devices, the hub consumes little memory (or CPU) and can run on Linux machines with a minimum of 256M and 2G disk space.  Of course, a resource-hungry device may want more, but most are effectively idle.  To deploy devices, the hub needs more memory.  To deploy to targets built with Go, the minimum is 512M.  To deploy to targets build with TinyGo, the minimum is 2G RAM.
 
 ## Building New Devices
 
