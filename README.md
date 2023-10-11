@@ -5,11 +5,11 @@
 
 ![Gopher Thing](images/gopher_cloud.png)
 
-Merliot Hub is a device hub.  It's written in [Go](go.dev) and [TinyGo](tinygo.org).
+Merliot Hub, written in [Go](go.dev) and [TinyGo](tinygo.org), is a device hub.
 
 ## Quick Start
 
-Dependency: Go version 1.20 or higher
+**Prerequisite**: Go version 1.20 or higher
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -24,11 +24,11 @@ To create a demo GPS device, click the demo-gps device, and then the deploy butt
 ![demo-gps](images/demo-gps.png)
 
 > [!NOTE]
-> Deploying to TinyGo devices will not work, currently.  The limitation will be resolved in a future TInyGo release.  To deploy on TinyGo devices, use the Docker or Cloud Quick Starts below.
+> For this quick start mode, deploying to TinyGo devices will not work, currently.  A future TinyGo release will address this.  To deploy on TinyGo devices, use the Docker or Cloud Quick Starts below.
 
 ## Quick Start Docker
 
-Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
+Deploy Merliot Hub using [docker](https://www.docker.com/):
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -37,7 +37,7 @@ docker build -t hub -f Dockerfile .
 docker run -p 80:8000 hub
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.  Here you can deploy TinyGo devices.
 
 ## Quick Start Cloud
 
@@ -75,33 +75,33 @@ The hub need some git credentials to save changes back to the repo.  Pass the GI
 
 ## Environment Variables
 
-The hub and devices are built with these environment variables.  These are passed in when building the hub, but some are used also when building devices.
+These variables configure the hub and devices:
 
-**SCHEME**
+**SCHEME** (hub)
 
 Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
 
-**PORT**
+**PORT** (hub)
 
 Port the hub listens on, default is 8000.
 
-**GIT_AUTHOR, GIT_REMOTE, GIT_KEY**
+**GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
 
 Required if saving device changes.
 
-**BACKUP_HUB**
+**BACKUP_HUB** (hub)
 
 Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
 
-**BACKUP_HUB_URL**
+**BACKUP_HUB_URL** (device)
 
 Set the backup hub URL.  This value is passed to devices when deployed.  The device will dial into both the primary and backup hubs.
 
-**USER, PASSWD**
+**USER, PASSWD** (hub + device)
 
 Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.
 
-**WIFI_SSID, WIFI_PASSPHRASE**
+**WIFI_SSID, WIFI_PASSPHRASE** (device)
 
 Set Wifi SSID and passphrase for Wifi-enabled devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
 
