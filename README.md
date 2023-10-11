@@ -19,6 +19,17 @@ Merliot Hub supports devices created on these platforms:
 
 ## Quick Start
 
+```
+git clone https://github.com/merliot/hub.git
+cd hub
+go run cmd/hub/main.go
+```
+
+Browse to [http://127.0.0.1:8000](http://127.0.0.1:8000) to view hub and deploy devices.
+
+> [!NOTE]
+> Deploying to TinyGo devices will not work.  Current limitation will be resolved in future TInyGo release.  To deploy on TinyGo devices, use the Docker or cloud methods below.
+
 ## Quick Start Docker
 
 Deploy a Merliot Hub in your own [docker](https://www.docker.com/) environment:
@@ -30,7 +41,7 @@ docker build -t hub -f Dockerfile .
 docker run -p 80:8000 hub
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and create devices.
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
 
 ## Quick Start Cloud
 
