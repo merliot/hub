@@ -218,6 +218,23 @@ function updateSsid(target) {
 	}
 }
 
+function handleBackup(backup, first) {
+	var backupHub = document.getElementById("deploy-backuphub")
+	if (first) {
+		if (backupHub.value !== "") {
+			backup.checked = true
+		}
+	}
+	if (backup.checked) {
+		backupHub.disabled = false;
+		backupHub.name = "backuphub";
+	} else {
+		backupHub.disabled = true;
+		backupHub.name = "";
+	}
+	updateDeployLink()
+}
+
 function handleTarget(target) {
 	updateInstructions(target)
 	updateLocalHttpServer(target)
@@ -230,6 +247,10 @@ function stageDeploy(deployParams) {
 	stageFormData(deployParams)
 
 	document.getElementById("download-link").addEventListener("click", downloadFile)
+
+	var backup = document.getElementById("deploy-backup")
+	backup.addEventListener("change", function() { handleBackup(backup, false) })
+	handleBackup(backup, true)
 
 	// Attach an event listener to the deploy-target dropdown to set instructions
 	var target = document.getElementById('deploy-target')

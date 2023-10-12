@@ -42,6 +42,12 @@ Name:    {{.Name}}</textarea>
 						<label for="deploy-http">Run local Web Server:</label>
 						<input type="checkbox" name="http" id="deploy-http">
 					</div>
+					<div class="divFlexRow">
+						<label for="deploy-backup">Backup Hub:</label>
+						<input type="checkbox" id="deploy-backup">
+						<label for="deploy-backuphub">URL:</label>
+						<input type="text" name="backuphub" id="deploy-backuphub">
+					</div>
 {{template "deploy-body.tmpl" .}}
 					<hr>
 					<div class="divFlexCol">

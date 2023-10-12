@@ -93,10 +93,6 @@ Required if saving device changes.
 
 Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
 
-**BACKUP_HUB_URL** (device)
-
-Set the backup hub URL.  This value is passed to devices when deployed.  The device will dial into both the primary and backup hubs.
-
 **USER, PASSWD** (hub + device)
 
 Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.

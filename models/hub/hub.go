@@ -33,7 +33,6 @@ type Hub struct {
 	Devices
 	Models
 	BackupHub    bool
-	BackupHubURL string
 	server       *dean.Server
 	templates    *template.Template
 	gitKey       string

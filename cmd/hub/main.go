@@ -21,7 +21,6 @@ func main() {
 	gitAuthor := os.Getenv("GIT_AUTHOR")
 	h.SetGit(gitRemote, gitKey, gitAuthor)
 
-	h.BackupHubURL = os.Getenv("BACKUP_HUB_URL")
 	_, h.BackupHub = os.LookupEnv("BACKUP_HUB")
 
 	server := dean.NewServer(h)
