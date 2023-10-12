@@ -173,13 +173,14 @@ function removeDevice(id) {
 	}
 }
 
-function setBackupHub() {
+function setBackup() {
 	if (state.BackupHub) {
-		document.title = document.title + " (backup)"
-		createBtn.disabled = true
-		deleteBtn.disabled = true
-		saveBtn.disabled = true
-		deployBtn.style.display = "none"
+		document.title = state.Model + " - " + state.Name + " (backup)"
+	} else {
+		createBtn.disabled = false
+		deleteBtn.disabled = false
+		saveBtn.disabled = false
+		deployBtn.style.display = "block"
 	}
 }
 
@@ -204,7 +205,7 @@ function loadExplorer() {
 function open() {
 	state.Online ? online() : offline()
 	loadExplorer()
-	setBackupHub()
+	setBackup()
 }
 
 function close() {
