@@ -5,7 +5,7 @@
 
 ![Gopher Thing](images/gopher_cloud.png)
 
-Merliot Hub, written in [Go](go.dev) and [TinyGo](tinygo.org), is a device hub.
+Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
 ## Quick Start
 
