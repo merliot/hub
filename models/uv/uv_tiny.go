@@ -32,11 +32,10 @@ func (u *Uv) Run(i *dean.Injector) {
 	println("VEML6070 configured")
 
 	for {
-		intensitymW, _ := sensor.ReadUVALightIntensity()
-		intensityW := float32(intensitymW) / 1000.0
-		riskLevel := RiskLevel(sensor.GetEstimatedRiskLevel(intensitymW))
-		if intensityW != u.Intensity {
-			update.Intensity, update.RiskLevel = intensityW, riskLevel
+		intensity, _ := sensor.ReadUVALightIntensity()
+		riskLevel := RiskLevel(sensor.GetEstimatedRiskLevel(intensity))
+		if intensity != u.Intensity {
+			update.Intensity, update.RiskLevel = intensity, riskLevel
 			i.Inject(msg.Marshal(update))
 		}
 		time.Sleep(time.Second)

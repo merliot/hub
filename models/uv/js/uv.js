@@ -24,7 +24,7 @@ function init() {
 }
 
 function update() {
-	gauge.value = state.Intensity
+	gauge.value = state.Intensity / 1000.0
 }
 
 function open() {

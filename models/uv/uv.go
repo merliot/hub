@@ -17,15 +17,15 @@ const (
 
 type Uv struct {
 	*common.Common
-	// UVA light intensity (irradiance) in Watt per square meter (W/(m*m))
-	Intensity float32
+	// UVA light intensity (irradiance) in Watt per square meter (mW/(m*m))
+	Intensity uint32
 	RiskLevel
 	targetStruct
 }
 
 type Update struct {
 	Path string
-	Intensity float32
+	Intensity uint32
 	RiskLevel
 }
 
