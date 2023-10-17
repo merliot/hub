@@ -1,13 +1,8 @@
 {
 	"230042": {
 		"Model": "ps30m",
-		"Name": "poc1",
-		"Online": false
-	},
-	"230043": {
-		"Model": "ps30m",
-		"Name": "poc2",
-		"Online": false
+		"Name": "rpi-ps30m",
+		"Online": true
 	},
 	"g1": {
 		"Model": "gps",
@@ -22,26 +17,21 @@
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
-		"Online": false
+		"Online": true
 	},
 	"r2": {
 		"Model": "relays",
 		"Name": "nano-relays",
-		"Online": false
-	},
-	"s1": {
-		"Model": "sign",
-		"Name": "wio-sign",
-		"Online": false
+		"Online": true
 	},
 	"s2": {
 		"Model": "sign",
 		"Name": "pyportal-sign",
-		"Online": false
+		"Online": true
 	},
 	"u1": {
 		"Model": "uv",
 		"Name": "nano-uv",
-		"Online": false
+		"Online": true
 	}
 }
