@@ -17,7 +17,7 @@ var gauge = new RadialGauge({
 	width: 300,
 	height: 300,
 	valueInt: 0,
-	valueDec: 0,
+	valueDec: 3,
 })
 
 function init() {
