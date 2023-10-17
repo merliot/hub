@@ -1,6 +1,6 @@
 //go:build nano_rp2040
 
-package gps
+package uv
 
 import (
 	"crypto/rand"

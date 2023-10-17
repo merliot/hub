@@ -38,5 +38,10 @@
 		"Model": "sign",
 		"Name": "pyportal-sign",
 		"Online": false
+	},
+	"u1": {
+		"Model": "uv",
+		"Name": "nano-uv",
+		"Online": false
 	}
 }
