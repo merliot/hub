@@ -15,17 +15,17 @@ const (
 	UVI_RISK_EXTREME
 )
 
-type UV struct {
+type Uv struct {
 	*common.Common
-	// UVA light intensity (irradiance) in milli Watt per square
-	// meter (mW/(m*m))
-	Intensity uint32
+	// UVA light intensity (irradiance) in Watt per square meter (W/(m*m))
+	Intensity float32
 	RiskLevel
+	targetStruct
 }
 
 type Update struct {
 	Path string
-	Intensity uint32
+	Intensity float32
 	RiskLevel
 }
 
@@ -33,25 +33,26 @@ var targets = []string{"nano-rp2040"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW UV")
-	u := &UV{}
+	u := &Uv{}
 	u.Common = common.New(id, model, name, targets).(*common.Common)
+	u.targetNew()
 	return u
 }
 
-func (u *UV) save(msg *dean.Msg) {
+func (u *Uv) save(msg *dean.Msg) {
 	msg.Unmarshal(u).Broadcast()
 }
 
-func (u *UV) getState(msg *dean.Msg) {
+func (u *Uv) getState(msg *dean.Msg) {
 	u.Path = "state"
 	msg.Marshal(u).Reply()
 }
 
-func (u *UV) update(msg *dean.Msg) {
+func (u *Uv) update(msg *dean.Msg) {
 	msg.Unmarshal(u).Broadcast()
 }
 
-func (u *UV) Subscribers() dean.Subscribers {
+func (u *Uv) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"state":     u.save,
 		"get/state": u.getState,

@@ -10,7 +10,13 @@ import (
 	"tinygo.org/x/drivers/veml6070"
 )
 
-func (u *UV) Run(i *dean.Injector) {
+type targetStruct struct {
+}
+
+func (u *Uv) targetNew() {
+}
+
+func (u *Uv) Run(i *dean.Injector) {
 
 	var msg dean.Msg
 	var update = Update{Path: "update"}
@@ -26,10 +32,11 @@ func (u *UV) Run(i *dean.Injector) {
 	println("VEML6070 configured")
 
 	for {
-		intensity, _ := sensor.ReadUVALightIntensity()
-		riskLevel := RiskLevel(sensor.GetEstimatedRiskLevel(intensity))
-		if intensity != u.Intensity {
-			update.Intensity, update.RiskLevel = intensity, riskLevel
+		intensitymW, _ := sensor.ReadUVALightIntensity()
+		intensityW := float32(intensitymW) / 1000.0
+		riskLevel := RiskLevel(sensor.GetEstimatedRiskLevel(intensitymW))
+		if intensityW != u.Intensity {
+			update.Intensity, update.RiskLevel = intensityW, riskLevel
 			i.Inject(msg.Marshal(update))
 		}
 		time.Sleep(time.Second)
