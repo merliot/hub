@@ -3,7 +3,6 @@
 package sign
 
 import (
-	"encoding/json"
 	"fmt"
 	"image/color"
 	"machine"
@@ -51,21 +50,20 @@ func (s *Sign) refresh() {
 }
 
 func (s *Sign) store() {
-	bytes, _ := json.Marshal(s)
-	f, err := fs.OpenFile("state", os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
+	f, err := fs.OpenFile("banner", os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
 	if err != nil {
 		fmt.Fprintln(s.terminal, "error opening file")
 		return
 	}
 	defer f.Close()
-	_, err = f.Write(bytes)
+	_, err = f.Write([]byte(s.Banner))
 	if err != nil {
 		fmt.Fprintln(s.terminal, "error writing to file")
 	}
 }
 
 func (s *Sign) restore() {
-	f, err := fs.Open("state")
+	f, err := fs.Open("banner")
 	if err != nil {
 		fmt.Fprintln(s.terminal, "error opening file")
 		return
@@ -77,7 +75,7 @@ func (s *Sign) restore() {
 		fmt.Fprintln(s.terminal, "error reading file")
 		return
 	}
-	json.Unmarshal(bytes[:n], s)
+	s.Banner = string(bytes[:n])
 }
 
 func (s *Sign) mount() {
@@ -114,13 +112,13 @@ func (s *Sign) run(i *dean.Injector) {
 		FontOffset: charWidth,
 	})
 
-	s.mount()
-	s.restore()
-	s.refresh()
-
 	s.Display.Width, s.Display.Height = s.display.Size()
 	s.Terminal.Width = s.Display.Width / charWidth
 	s.Terminal.Height = s.Display.Height / charHeight
+
+	s.mount()
+	s.restore()
+	s.refresh()
 
 	select {}
 }
