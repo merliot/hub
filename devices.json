@@ -1,0 +1,37 @@
+{
+	"g1": {
+		"Model": "gps",
+		"Name": "nano-gps",
+		"Online": true
+	},
+	"g6": {
+		"Model": "gps",
+		"Name": "demo-gps",
+		"Online": true
+	},
+	"p1": {
+		"Model": "ps30m",
+		"Name": "rpi-ps30m",
+		"Online": true
+	},
+	"r1": {
+		"Model": "relays",
+		"Name": "rpi-relays",
+		"Online": true
+	},
+	"r2": {
+		"Model": "relays",
+		"Name": "nano-relays",
+		"Online": true
+	},
+	"s1": {
+		"Model": "sign",
+		"Name": "pyportal-sign",
+		"Online": true
+	},
+	"u1": {
+		"Model": "uv",
+		"Name": "nano-uv",
+		"Online": false
+	}
+}
