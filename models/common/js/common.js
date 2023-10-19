@@ -1,22 +1,17 @@
 var state
 var conn
 var pingID
+var isAlive
 
 var overlay = document.getElementById("overlay")
 
-function wsclose() {
-	close()
-	clearInterval(pingID)
-}
-
 function ping() {
+	if (!isAlive) {
+		conn.close()
+		return
+	}
+	isAlive = false
 	conn.send("ping")
-}
-
-function wsopen() {
-	// for Koyeb work-around, ping every 60s to keep websocket alive
-	pingID = setInterval(ping, 1 * 60 * 1000)
-	open()
 }
 
 function run(prefix, ws) {
@@ -28,12 +23,15 @@ function run(prefix, ws) {
 
 	conn.onopen = function(evt) {
 		console.log(prefix, 'open')
+		isAlive = true
+		pingID = setInterval(ping, 1000)
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
 	conn.onclose = function(evt) {
 		console.log(prefix, 'close')
-		wsclose()
+		close()
+		clearInterval(pingID)
 		setTimeout(run(prefix, ws), 1000)
 	}
 
@@ -43,13 +41,15 @@ function run(prefix, ws) {
 	}
 
 	conn.onmessage = function(evt) {
+		isAlive = true
+
 		msg = JSON.parse(evt.data)
 		console.log(prefix, msg)
 
 		switch(msg.Path) {
 		case "state":
 			state = msg
-			wsopen()
+			open()
 			break
 		case "online":
 			state.Online = true
