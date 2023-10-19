@@ -85,6 +85,10 @@ Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
 
 Port the hub listens on, default is 8000.
 
+**PPROF_PORT (hub)
+
+Port for golang pprof.  Setting PPROF_PORT=6060 will map /pprof/ to the runtime profiling data for the hub.  Browse to <hub address>/pprof/debug/pprof/.
+
 **GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
 
 Required if saving device changes.
