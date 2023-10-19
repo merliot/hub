@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	"github.com/merliot/dean"
@@ -44,6 +47,12 @@ func main() {
 	server.RegisterModel("sign", sign.New)
 	server.RegisterModel("uv", uv.New)
 	//server.RegisterModel("hub", hub.New)
+
+	if port, ok := os.LookupEnv("PPROF_PORT"); ok {
+		go func() {
+			log.Println(http.ListenAndServe(":" + port, nil))
+		}()
+	}
 
 	go server.ListenAndServe()
 	server.Run()
