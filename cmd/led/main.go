@@ -11,8 +11,8 @@ func main() {
 	thing := led.New(id, "led", "led_"+id)
 	server := dean.NewServer(thing)
 	server.Addr = ":8005"
-	server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/1500", thing.Announce())
-	//server.DialWebSocket("user", "passwd", "ws://192.168.1.213:8000/ws/1500", thing.Announce())
+	server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/", thing.Announce())
+	//server.DialWebSocket("user", "passwd", "ws://192.168.1.213:8000/ws/", thing.Announce())
 	go server.ListenAndServe()
 	server.Run()
 }

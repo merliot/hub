@@ -20,7 +20,7 @@ func main() {
 
 	runner := dean.NewRunner(thing)
 
-	runner.DialWebSocket("", "", "ws://192.168.1.213:8000/ws/1500", thing.Announce())
+	runner.DialWebSocket("", "", "ws://192.168.1.213:8000/ws/", thing.Announce())
 
 	runner.Run()
 }

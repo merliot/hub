@@ -18,7 +18,7 @@ func main() {
 	user, _ := os.LookupEnv("USER")
 	passwd, _ := os.LookupEnv("PASSWD")
 
-	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/1500", thing.Announce())
+	server.DialWebSocket(user, passwd, "ws://192.168.1.213:8000/ws/", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

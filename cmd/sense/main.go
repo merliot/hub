@@ -11,7 +11,7 @@ func main() {
 	thing := sense.New(id, "sense", "sense_"+id)
 	server := dean.NewServer(thing)
 	server.Addr = ":8003"
-	server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/1500", thing.Announce())
+	server.DialWebSocket("user", "passwd", "wss://hub.merliot.net/ws/", thing.Announce())
 	go server.ListenAndServe()
 	server.Run()
 }

@@ -16,11 +16,11 @@ func main() {
 
 {{template "server-extras.tmpl" .}}
 	if "{{.hub}}" != "" {
-		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.wsscheme}}{{.hub}}/ws/1500", thing.Announce())
+		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.wsscheme}}{{.hub}}/ws/", thing.Announce())
 	}
 
 	if "{{.backuphub}}" != "" {
-		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.backupwsscheme}}{{.backuphub}}/ws/1500", thing.Announce())
+		server.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.backupwsscheme}}{{.backuphub}}/ws/", thing.Announce())
 	}
 
 	if "{{.http}}" == "on" {
