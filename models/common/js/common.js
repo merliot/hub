@@ -24,7 +24,7 @@ function run(prefix, ws) {
 	conn.onopen = function(evt) {
 		console.log(prefix, 'open')
 		alive = true
-		pingID = setInterval(ping, 1000)
+		pingID = setInterval(ping, 2000)
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
