@@ -11,7 +11,6 @@ function ping() {
 		return
 	}
 	alive = false
-	console.log("sending ping")
 	conn.send("ping")
 }
 
@@ -44,7 +43,6 @@ function run(prefix, ws) {
 	conn.onmessage = function(evt) {
 
 		if (evt.data == "pong") {
-			console.log(prefix, "received pong")
 			alive = true
 			return
 		}
