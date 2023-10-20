@@ -2,15 +2,18 @@ var state
 var conn
 var pingID
 var alive
+var pingSent
 
 var overlay = document.getElementById("overlay")
 
 function ping() {
 	if (!alive) {
+		console.log("NOT ALIVE", new Date() - pingSent)
 		conn.close()
 		return
 	}
 	alive = false
+	pingSent = new Date()
 	conn.send("ping")
 }
 
@@ -24,7 +27,7 @@ function run(prefix, ws) {
 	conn.onopen = function(evt) {
 		console.log(prefix, 'open')
 		alive = true
-		pingID = setInterval(ping, 2000)
+		pingID = setInterval(ping, 1000)
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 
@@ -43,6 +46,7 @@ function run(prefix, ws) {
 	conn.onmessage = function(evt) {
 
 		if (evt.data == "pong") {
+			console.log(prefix, new Date() - pingSent)
 			alive = true
 			return
 		}
