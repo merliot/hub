@@ -32,7 +32,7 @@ function run(prefix, ws) {
 		console.log(prefix, 'close')
 		close()
 		clearInterval(pingID)
-		setTimeout(run(prefix, ws), 1000)
+		setTimeout(run, 1000, prefix, ws)
 	}
 
 	conn.onerror = function(err) {
