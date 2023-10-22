@@ -93,9 +93,14 @@ var markdownFile = regexp.MustCompile("\\.md$")
 func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *http.Request) {
 
 	id, _, _ := c.Identity()
-	c.WebSocket = wsScheme + r.Host + "/ws/" + id + "/"
-	path := r.URL.Path
 
+	pingPeriod := "60"
+	if c.IsMetal() {
+		pingPeriod = "1"
+	}
+	c.WebSocket = wsScheme + r.Host + "/ws/" + id + "/?ping-period=" + pingPeriod
+
+	path := r.URL.Path
 	switch strings.TrimPrefix(path, "/") {
 	case "", "index.html":
 		RenderTemplate(templates, w, "index.tmpl", c)

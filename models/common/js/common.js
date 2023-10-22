@@ -20,6 +20,10 @@ function ping() {
 
 function run(prefix, ws) {
 
+	const url = new URL(ws);
+	const params = new URLSearchParams(url.search);
+	const pingPeriod = params.get("ping-period");
+
 	init()
 
 	console.log(prefix, 'connecting...')
@@ -28,7 +32,7 @@ function run(prefix, ws) {
 	conn.onopen = function(evt) {
 		console.log(prefix, 'open')
 		alive = true
-		pingID = setInterval(ping, 1000)
+		pingID = setInterval(ping, pingPeriod * 1000)
 		conn.send(JSON.stringify({Path: "get/state"}))
 	}
 

@@ -159,23 +159,23 @@ func (c *Common) buildValues(r *http.Request) (map[string]string, error) {
 	values["model"] = c.Model
 	values["modelStruct"] = strings.Title(c.Model)
 	values["name"] = c.Name
-	values["hub"] = r.Host
-	values["wsscheme"] = wsScheme
 
 	if ssid, ok := values["ssid"]; ok {
 		values["passphrase"] = c.WifiAuth[ssid]
 	}
+
+	values["hub"] = wsScheme + r.Host + "/ws/?ping-period=4"
 
 	if values["backuphub"] != "" {
 		u, err := url.Parse(values["backuphub"])
 		if err != nil {
 			return nil, err
 		}
-		values["backuphub"] = u.Host
-		values["backupwsscheme"] = "ws://"
+		scheme := "ws://"
 		if u.Scheme == "https" {
-			values["backupwsscheme"] = "wss://"
+			scheme = "wss://"
 		}
+		values["backupHub"] = scheme + u.Host + "/ws/?ping-period=4"
 	}
 
 	if user, passwd, ok := r.BasicAuth(); ok {
