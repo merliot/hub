@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"strconv"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -25,11 +26,13 @@ var commonFs embed.FS
 
 type commonOS struct {
 	WebSocket   string            `json:"-"`
+	PingPeriod  int               `json:"-"`
 	CompositeFs *dean.CompositeFS `json:"-"`
 	templates   *template.Template
 }
 
 func (c *Common) commonOSInit() {
+	c.PingPeriod = 60
 	c.CompositeFs = dean.NewCompositeFS()
 	c.CompositeFs.AddFS(commonFs)
 	c.templates = c.CompositeFs.ParseFS("template/*")
@@ -94,10 +97,7 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 
 	id, _, _ := c.Identity()
 
-	pingPeriod := "60"
-	if c.IsMetal() {
-		pingPeriod = "1"
-	}
+	pingPeriod := strconv.Itoa(c.PingPeriod)
 	c.WebSocket = wsScheme + r.Host + "/ws/" + id + "/?ping-period=" + pingPeriod
 
 	path := r.URL.Path

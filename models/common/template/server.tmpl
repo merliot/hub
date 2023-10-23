@@ -11,6 +11,7 @@ func main() {
 	thing := {{.model}}.New("{{.id}}", "{{.model}}", "{{.name}}").(*{{.model}}.{{.modelStruct}})
 
 	thing.SetDeployParams("{{.deployParams}}")
+	thing.PingPeriod = 1
 
 	server := dean.NewServer(thing)
 
