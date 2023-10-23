@@ -15,7 +15,6 @@ func main() {
 	thing := {{.model}}.New("{{.id}}", "{{.model}}", "{{.name}}").(*{{.model}}.{{.modelStruct}})
 
 	thing.SetDeployParams("{{.deployParams}}")
-	thing.PingPeriod = 1
 
 	runner := dean.NewRunner(thing)
 
