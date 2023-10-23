@@ -9,7 +9,7 @@ var overlay = document.getElementById("overlay")
 function ping() {
 	if (!alive) {
 		console.log("NOT ALIVE", new Date() - pingSent)
-		conn.close()
+		conn.send("foo")
 		return
 	}
 	alive = false
