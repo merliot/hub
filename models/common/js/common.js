@@ -9,7 +9,9 @@ var overlay = document.getElementById("overlay")
 function ping() {
 	if (!alive) {
 		console.log("NOT ALIVE", new Date() - pingSent)
-		conn.send("foo")
+		clearInterval(pingID)
+		close()
+		conn.close()
 		return
 	}
 	alive = false
@@ -39,7 +41,6 @@ function run(prefix, ws) {
 		console.log(prefix, 'close')
 		close()
 		setTimeout(run, 1000, prefix, ws)
-		clearInterval(pingID)
 	}
 
 	conn.onerror = function(err) {
