@@ -3,8 +3,27 @@ var overlay = document.getElementById("overlay")
 function init() {
 }
 
+function showRelays() {
+	for (var i = 0; i < 4; i++) {
+		div = document.getElementById("relay" + i)
+		label = document.getElementById("relay" + i + "-name")
+		image = document.getElementById("relay" + i + "-img")
+		relay = state.Relays[i]
+		if (relay.Gpio === "") {
+			div.style.display = "none"
+			label.textContent = "<unused>"
+			image.src = "images/relay-off.png"
+		} else {
+			div.style.display = "flex"
+			label.textContent = relay.Name
+			setRelayImg(relay, image)
+		}
+	}
+}
+
 function open() {
 	state.Online ? online() : offline()
+	showRelays()
 }
 
 function close() {
@@ -35,25 +54,6 @@ function relayClick(image, index) {
 
 function online() {
 	overlay.innerHTML = ""
-	for (var i = 0; i < 4; i++) {
-		div = document.getElementById("relay" + i)
-		label = document.getElementById("relay" + i + "-name")
-		image = document.getElementById("relay" + i + "-img")
-		relay = state.Relays[i]
-		if (relay.Gpio === "") {
-			div.style.display = "none"
-			label.textContent = "<unused>"
-			image.src = "images/relay-off.png"
-		} else {
-			div.style.display = "flex"
-			label.textContent = relay.Name
-			if (relay.State) {
-				image.src = "images/relay-on.png"
-			} else {
-				image.src = "images/relay-off.png"
-			}
-		}
-	}
 }
 
 function offline() {
