@@ -6,17 +6,21 @@ var pingSent
 
 var overlay = document.getElementById("overlay")
 
-function ping() {
+function ping(prefix, period) {
 	if (!alive) {
-		console.log("NOT ALIVE", new Date() - pingSent)
-		clearInterval(pingID)
+		console.log(prefix, "NOT ALIVE", new Date() - pingSent)
+		// conn.Close() waits for ack from server, but server may be
+		// gone, so call close() now, as if the socket closed, and let
+		// conn.Close() close the socket in the background.
 		close()
 		conn.close()
 		return
 	}
 	alive = false
-	pingSent = new Date()
+	console.log(prefix, "ping")
 	conn.send("ping")
+	pingSent = new Date()
+	pingID = setTimeout(ping, period, prefix, period)
 }
 
 function run(prefix, ws) {
@@ -32,14 +36,15 @@ function run(prefix, ws) {
 
 	conn.onopen = function(evt) {
 		console.log(prefix, 'open')
-		alive = true
-		pingID = setInterval(ping, pingPeriod * 1000)
 		conn.send(JSON.stringify({Path: "get/state"}))
+		alive = true
+		ping(prefix, pingPeriod * 1000)
 	}
 
 	conn.onclose = function(evt) {
 		console.log(prefix, 'close')
 		close()
+		clearInterval(pingID)
 		setTimeout(run, 1000, prefix, ws)
 	}
 
@@ -51,7 +56,7 @@ function run(prefix, ws) {
 	conn.onmessage = function(evt) {
 
 		if (evt.data == "pong") {
-			console.log(prefix, new Date() - pingSent)
+			console.log(prefix, "pong", new Date() - pingSent)
 			alive = true
 			return
 		}
