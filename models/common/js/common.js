@@ -9,10 +9,8 @@ var overlay = document.getElementById("overlay")
 function ping(prefix, period) {
 	if (!alive) {
 		console.log(prefix, "NOT ALIVE", new Date() - pingSent)
-		// conn.Close() waits for ack from server, but server may be
-		// gone, so call close() now, as if the socket closed, and let
-		// conn.Close() close the socket in the background.
-		close()
+		// This waits for an ACK from server, but the server
+		// may be gone, it may take a bit to close the websocket
 		conn.close()
 		return
 	}
