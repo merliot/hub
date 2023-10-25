@@ -15,7 +15,7 @@ function ping(prefix, period) {
 		return
 	}
 	alive = false
-	console.log(prefix, "ping")
+	//console.log(prefix, "ping")
 	conn.send("ping")
 	pingSent = new Date()
 	pingID = setTimeout(ping, period, prefix, period)
@@ -54,7 +54,7 @@ function run(prefix, ws) {
 	conn.onmessage = function(evt) {
 
 		if (evt.data == "pong") {
-			console.log(prefix, "pong", new Date() - pingSent)
+	//		console.log(prefix, "pong", new Date() - pingSent)
 			alive = true
 			return
 		}
