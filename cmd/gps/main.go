@@ -17,7 +17,7 @@ func main() {
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)
 
-//	server.DialWebSocket(user, passwd, "ws://127.0.0.1:8000/ws/", thing.Announce())
+	//	server.DialWebSocket(user, passwd, "ws://127.0.0.1:8000/ws/", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

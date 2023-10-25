@@ -24,7 +24,7 @@ type Uv struct {
 }
 
 type Update struct {
-	Path string
+	Path      string
 	Intensity uint32
 	RiskLevel
 }

@@ -50,7 +50,7 @@ func main() {
 
 	if port, ok := os.LookupEnv("PPROF_PORT"); ok {
 		go func() {
-			log.Println(http.ListenAndServe(":" + port, nil))
+			log.Println(http.ListenAndServe(":"+port, nil))
 		}()
 	}
 

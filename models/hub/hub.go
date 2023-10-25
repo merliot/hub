@@ -32,12 +32,12 @@ type Hub struct {
 	*common.Common
 	Devices
 	Models
-	BackupHub    bool
-	server       *dean.Server
-	templates    *template.Template
-	gitKey       string
-	gitRemote    string
-	gitAuthor    string
+	BackupHub bool
+	server    *dean.Server
+	templates *template.Template
+	gitKey    string
+	gitRemote string
+	gitAuthor string
 }
 
 var targets = []string{"x86-64", "rpi"}
