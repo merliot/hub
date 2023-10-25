@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/adrianmo/go-nmea v1.8.0
-	github.com/merliot/dean v0.0.0-20231025041732-a616b069d168
+	github.com/merliot/dean v0.0.0-20231025062428-6259503e338b
 	github.com/merliot/dean-lib v0.0.0-20230731034537-285c1ef7e9e1
 	github.com/simonvetter/modbus v1.6.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
