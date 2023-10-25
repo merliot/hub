@@ -210,6 +210,9 @@ function open() {
 
 function close() {
 	offline()
+	for (let id in state.Devices) {
+		disconnected(id)
+	}
 }
 
 function online() {
