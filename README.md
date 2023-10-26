@@ -37,7 +37,7 @@ docker build -t hub -f Dockerfile .
 docker run -p 80:8000 hub
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.  Here you can deploy TinyGo devices.
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
 
 ## Quick Start Cloud
 
