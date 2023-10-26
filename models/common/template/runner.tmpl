@@ -20,11 +20,11 @@ func main() {
 
 {{template "runner-extras.tmpl" .}}
 	if "{{.hub}}" != "" {
-		runner.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.wsscheme}}{{.hub}}/ws/", thing.Announce())
+		runner.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.hub}}", thing.Announce())
 	}
 
 	if "{{.backuphub}}" != "" {
-		runner.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.backupwsscheme}}{{.backuphub}}/ws/", thing.Announce())
+		runner.DialWebSocket("{{.user}}", "{{.passwd}}", "{{.backupHub}}", thing.Announce())
 	}
 
 	runner.Run()
