@@ -88,18 +88,18 @@ func (h *Hub) createdThing(msg *dean.Msg) {
 	var create dean.ThingMsgCreated
 	msg.Unmarshal(&create)
 	h.Devices[create.Id] = &Device{Model: create.Model, Name: create.Name}
-	h.storeDevices()
 	create.Path = "created/device"
 	msg.Marshal(&create).Broadcast()
+	h.storeDevices()
 }
 
 func (h *Hub) deletedThing(msg *dean.Msg) {
 	var del dean.ThingMsgDeleted
 	msg.Unmarshal(&del)
 	delete(h.Devices, del.Id)
-	h.storeDevices()
 	del.Path = "deleted/device"
 	msg.Marshal(&del).Broadcast()
+	h.storeDevices()
 	delDev(del.Id)
 }
 
