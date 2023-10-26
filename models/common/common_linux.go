@@ -32,8 +32,7 @@ type commonOS struct {
 }
 
 func (c *Common) commonOSInit() {
-	c.PingPeriod = 10
-	//c.PingPeriod = 60
+	c.PingPeriod = 60
 	c.CompositeFs = dean.NewCompositeFS()
 	c.CompositeFs.AddFS(commonFs)
 	c.templates = c.CompositeFs.ParseFS("template/*")
