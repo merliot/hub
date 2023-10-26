@@ -243,6 +243,7 @@ function handle(msg) {
 		disconnected(msg.Id)
 		break
 	case "created/device":
+		state.Devices[msg.Id] = {Model: msg.Model, Name: msg.Name, Online: msg.Online}
 		insertDevice(msg.Id, msg)
 		selectOne()
 		break
