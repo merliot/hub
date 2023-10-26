@@ -184,22 +184,23 @@ function setBackup() {
 	}
 }
 
+function selectOne() {
+	if (typeof selected === "undefined") {
+		if (Object.keys(state.Devices).length > 0) {
+			clickDev(Object.keys(state.Devices)[0])
+		}
+	} else {
+		clickDev(selected)
+	}
+}
+
 function loadExplorer() {
 	explorer.textContent = ''
 	view.textContent = ''
 	for (let id in state.Devices) {
 		insertDevice(id, state.Devices[id])
-		if (typeof selected !== "undefined") {
-			if (id == selected) {
-				clickDev(id)
-			}
-		}
 	}
-	if (typeof selected === "undefined") {
-		if (Object.keys(state.Devices).length > 0) {
-			clickDev(Object.keys(state.Devices)[0])
-		}
-	}
+	selectOne()
 }
 
 function open() {
@@ -243,6 +244,7 @@ function handle(msg) {
 		break
 	case "created/device":
 		insertDevice(msg.Id, msg)
+		selectOne()
 		break
 	case "deleted/device":
 		removeDevice(msg.Id)
