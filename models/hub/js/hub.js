@@ -59,7 +59,9 @@ function clickDev(id) {
 	// grey out previous selected tab
 	if (typeof selected !== "undefined") {
 		var seldiv = document.getElementById("device-" + selected)
-		seldiv.style.background = "lightgrey"
+		if (typeof seldiv !== "undefined") {
+			seldiv.style.background = "lightgrey"
+		}
 	}
 	
 	selected = id
