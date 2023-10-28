@@ -11,8 +11,8 @@ function ping(prefix, period) {
 		console.log(prefix, "NOT ALIVE", new Date() - pingSent)
 		// This waits for an ACK from server, but the server
 		// may be gone, it may take a bit to close the websocket
-		conn.close()
-		return
+		//conn.close()
+		//return
 	}
 	alive = false
 	//console.log(prefix, "ping")
