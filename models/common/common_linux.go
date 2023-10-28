@@ -88,8 +88,11 @@ func (c *Common) renderMarkdown(path string, w http.ResponseWriter) {
 	w.Write(markdown.Render(doc, renderer))
 }
 
-// Set Content-Type: "text/plain" on go, js, css, and template files
+// Set Content-Type: "text/plain" on go, css, and template files
 var textFile = regexp.MustCompile("\\.(go|tmpl|js|css)$")
+
+// Set Content-Type: "application/javascript" on js files
+var scriptFile = regexp.MustCompile("\\.(go|tmpl|js|css)$")
 
 // Markdown files get converted to html
 var markdownFile = regexp.MustCompile("\\.md$")
@@ -120,6 +123,9 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 		}
 		if textFile.MatchString(path) {
 			w.Header().Set("Content-Type", "text/plain")
+		}
+		if scriptFile.MatchString(path) {
+			w.Header().Set("Content-Type", "application/javascript")
 		}
 		http.FileServer(http.FS(c.CompositeFs)).ServeHTTP(w, r)
 	}

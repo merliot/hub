@@ -1,86 +1,107 @@
-var state
-var conn
-var pingID
-var alive
-var pingSent
+class WebSocketController {
 
-var overlay = document.getElementById("overlay")
-
-function ping(prefix, period) {
-	if (!alive) {
-		console.log(prefix, "NOT ALIVE", new Date() - pingSent)
-		// This waits for an ACK from server, but the server
-		// may be gone, it may take a bit to close the websocket
-		//conn.close()
-		//return
-	}
-	alive = false
-	//console.log(prefix, "ping")
-	conn.send("ping")
-	pingSent = new Date()
-	pingID = setTimeout(ping, period, prefix, period)
-}
-
-function run(prefix, ws) {
-
-	const url = new URL(ws);
-	const params = new URLSearchParams(url.search);
-	const pingPeriod = params.get("ping-period");
-
-	init()
-
-	console.log(prefix, 'connecting...')
-	conn = new WebSocket(ws)
-
-	conn.onopen = function(evt) {
-		console.log(prefix, 'open')
-		conn.send(JSON.stringify({Path: "get/state"}))
-		alive = true
-		ping(prefix, pingPeriod * 1000)
+	constructor() {
+		this.state = null;
+		this.conn = null;
+		this.pingID = null;
+		this.pingAlive = false;
+		this.pingSent = null;
+		this.overlay = document.getElementById("overlay");
 	}
 
-	conn.onclose = function(evt) {
-		console.log(prefix, 'close')
-		close()
-		clearInterval(pingID)
-		setTimeout(run, 1000, prefix, ws)
+	run(prefix, ws) {
+
+		const url = new URL(ws);
+		const params = new URLSearchParams(url.search);
+		const pingPeriod = params.get("ping-period") * 1000;
+
+		console.log(prefix, 'connecting...');
+		this.conn = new WebSocket(ws);
+
+		this.conn.onopen = (evt) => {
+			console.log(prefix, 'open');
+			this.conn.send(JSON.stringify({Path: "get/state"}));
+			this.pingAlive = true;
+			this.pingID = setInterval(() => this.ping(prefix), pingPeriod)
+		};
+
+		this.conn.onclose = (evt) => {
+			console.log(prefix, 'close');
+			this.close();
+			clearInterval(this.pingID);
+			setTimeout(() => this.run(prefix, ws), 1000); // Reconnecting after 1 second
+		};
+
+		this.conn.onerror = (err) => {
+			console.log(prefix, 'error', err);
+			this.conn.close();
+		};
+
+		this.conn.onmessage = (evt) => {
+
+			if (evt.data == "pong") {
+				//console.log(prefix, "pong", new Date() - this.pingSent)
+				this.pingAlive = true
+				return
+			}
+
+			var msg = JSON.parse(evt.data)
+			console.log(prefix, msg)
+
+			switch(msg.Path) {
+				case "state":
+					this.state = msg
+					this.open()
+					break
+				case "online":
+					this.state.Online = true
+					this.online()
+					break
+				case "offline":
+					this.state.Online = false
+					this.offline()
+					break
+				default:
+					this.handle(msg)
+					break
+			}
+		};
 	}
 
-	conn.onerror = function(err) {
-		console.log(prefix, 'error', err)
-		conn.close()
-	}
-
-	conn.onmessage = function(evt) {
-
-		if (evt.data == "pong") {
-	//		console.log(prefix, "pong", new Date() - pingSent)
-			alive = true
+	ping(prefix) {
+		if (!this.pingAlive) {
+			console.log(prefix, "NOT ALIVE", new Date() - this.pingSent)
+			// This waits for an ACK from server, but the server
+			// may be gone, it may take a bit to close the websocket
+			this.conn.close()
 			return
 		}
+		this.pingAlive = false
+		this.conn.send("ping")
+		this.pingSent = new Date()
+	}
 
-		msg = JSON.parse(evt.data)
-		console.log(prefix, msg)
+	open() {
+		this.state.Online ? this.online() : this.offline()
+	}
 
-		switch(msg.Path) {
-		case "state":
-			state = msg
-			open()
-			break
-		case "online":
-			state.Online = true
-			online()
-			break
-		case "offline":
-			state.Online = false
-			offline()
-			break
-		default:
-			handle(msg)
-			break
-		}
+	close() {
+		this.offline()
+	}
+
+	online() {
+		this.overlay.innerHTML = ""
+	}
+
+	offline() {
+		this.overlay.innerHTML = "Offline"
+	}
+
+	handle(msg) {
 	}
 }
+
+export { WebSocketController };
 
 function downloadFile(event) {
 	event.preventDefault()
@@ -93,45 +114,45 @@ function downloadFile(event) {
 	gopher.style.display = "block"
 
 	fetch(downloadURL)
-	.then(response => {
-		if (!response.ok) {
-			// If we didn't get a 2xx response, throw an error with the response text
-			return response.text().then(text => { throw new Error(text) })
-		}
+		.then(response => {
+			if (!response.ok) {
+				// If we didn't get a 2xx response, throw an error with the response text
+				return response.text().then(text => { throw new Error(text) })
+			}
 
-		const contentDisposition = response.headers.get('Content-Disposition')
-		if (!contentDisposition) {
-			throw new Error('Content-Disposition header missing')
-		}
+			const contentDisposition = response.headers.get('Content-Disposition')
+			if (!contentDisposition) {
+				throw new Error('Content-Disposition header missing')
+			}
 
-		// Extract Content-MD5 header and decode from base64
-		const base64Md5 = response.headers.get("Content-MD5")
-		const md5sum = atob(base64Md5)
+			// Extract Content-MD5 header and decode from base64
+			const base64Md5 = response.headers.get("Content-MD5")
+			const md5sum = atob(base64Md5)
 
-		// Extract the filename from Content-Disposition header
-		const match = contentDisposition.match(/filename=([^;]+)/)
-		const filename = match ? match[1] : 'downloaded-file';  // Use a default filename if not found
-		return Promise.all([response.blob(), filename, md5sum])
-	})
-	.then(([blob, filename, md5sum]) => {
-		// Create a temporary link element to trigger the download
-		const a = document.createElement('a')
-		a.href = URL.createObjectURL(blob)
-		a.style.display = 'none'
-		a.download = filename
-		document.body.appendChild(a)
-		a.click();  // Simulate a click on the link
-		document.body.removeChild(a)
-		gopher.style.display = "none"
-		response.innerText = "MD5: " + md5sum
-		response.style.color = "black"
-	})
-	.catch(error => {
-		console.error('Error downloading file:', error)
-		gopher.style.display = "none"
-		response.innerText = error
-		response.style.color = "red"
-	})
+			// Extract the filename from Content-Disposition header
+			const match = contentDisposition.match(/filename=([^;]+)/)
+			const filename = match ? match[1] : 'downloaded-file';  // Use a default filename if not found
+			return Promise.all([response.blob(), filename, md5sum])
+		})
+		.then(([blob, filename, md5sum]) => {
+			// Create a temporary link element to trigger the download
+			const a = document.createElement('a')
+			a.href = URL.createObjectURL(blob)
+			a.style.display = 'none'
+			a.download = filename
+			document.body.appendChild(a)
+			a.click();  // Simulate a click on the link
+			document.body.removeChild(a)
+			gopher.style.display = "none"
+			response.innerText = "MD5: " + md5sum
+			response.style.color = "black"
+		})
+		.catch(error => {
+			console.error('Error downloading file:', error)
+			gopher.style.display = "none"
+			response.innerText = error
+			response.style.color = "red"
+		})
 }
 
 function updateDeployLink() {
@@ -163,18 +184,18 @@ function stageFormData(deployParams) {
 		let element = form.elements[key];
 		if (element) {
 			switch (element.type) {
-			case 'checkbox':
-				element.checked = value === 'on';
-				break;
-			case 'radio':
-				// If there are multiple radio buttons with the
-				// same name, value will determine which one to check
-				element = [...form.elements[key]].find(radio => radio.value === value);
-				if (element) element.checked = true;
-				break;
-			default:
-				element.value = value;
-				break;
+				case 'checkbox':
+					element.checked = value === 'on';
+					break;
+				case 'radio':
+					// If there are multiple radio buttons with the
+					// same name, value will determine which one to check
+					element = [...form.elements[key]].find(radio => radio.value === value);
+					if (element) element.checked = true;
+					break;
+				default:
+					element.value = value;
+					break;
 			}
 			// Manually dispatch a change event
 			let event = new Event('change', {});

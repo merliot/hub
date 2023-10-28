@@ -16,8 +16,10 @@
 
 {{template "index-body.tmpl" .}}
 
-		<script src="js/common.js"></script>
-		<script src="js/{{.Model}}.js"></script>
-		<script>run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")</script>
+		<script type="module">
+			import { run } from "./js/{{.Model}}.js"
+			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")
+		</script>
+
 	</body>
 </html>
