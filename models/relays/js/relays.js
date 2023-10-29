@@ -25,10 +25,13 @@ class Relays extends WebSocketController {
 	}
 
 	showRelays() {
-		for (var i = 0; i < 4; i++) {
-			var div = document.getElementById("relay" + i)
-			var label = document.getElementById("relay" + i + "-name")
-			var image = document.getElementById("relay" + i + "-img")
+		for (let i = 0; i < 4; i++) {
+			let div = document.getElementById("relay" + i)
+			let label = document.getElementById("relay" + i + "-name")
+			let image = document.getElementById("relay" + i + "-img")
+			image.onclick = () => {
+				this.relayClick(image, i)
+			}
 			var relay = this.state.Relays[i]
 			if (relay.Gpio === "") {
 				div.style.display = "none"
