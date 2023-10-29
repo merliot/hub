@@ -55,7 +55,7 @@ class Relays extends WebSocketController {
 
 	saveClick(msg) {
 		var image = document.getElementById("relay" + msg.Relay + "-img")
-		var relay = state.Relays[msg.Relay]
+		var relay = this.state.Relays[msg.Relay]
 		relay.State = msg.State
 		this.setRelayImg(relay, image)
 	}
