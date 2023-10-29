@@ -24,6 +24,11 @@ class Gps extends WebSocketController {
 		this.showMarker()
 	}
 
+	close() {
+		this.map.remove()
+		super.close()
+	}
+
 	handle(msg) {
 		switch(msg.Path) {
 		case "update":

@@ -64,10 +64,10 @@ Name:    {{.Name}}</textarea>
 			<div id="deploy-instructions"></div>
 		</fieldset>
 
-		<script src="js/common.js"></script>
-		<script src="js/deployTargetGpios.js"></script>
-		<script src="js/deploy.js"></script>
+		<script type="module">
+			import { stageDeploy } from "./js/common.js"
+			stageDeploy("{{.DeployParams}}")
+		</script>
 
-		<script>stageDeploy("{{.DeployParams}}")</script>
 	</body>
 </html>

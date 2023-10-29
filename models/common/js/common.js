@@ -98,6 +98,7 @@ class WebSocketController {
 	}
 
 	handle(msg) {
+		// drop msg
 	}
 }
 
@@ -299,3 +300,5 @@ function stageDeploy(deployParams) {
 
 	updateDeployLink()
 }
+
+export { stageDeploy };

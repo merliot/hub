@@ -77,9 +77,7 @@ class Hub extends WebSocketController {
 
 	setDeviceIcon(id, online) {
 		var img = document.getElementById("device-" + id + "-status")
-		if (img) {
-			img.src = online ? "/images/online.png" : "/images/offline.png"
-		}
+		img.src = online ? "/images/online.png" : "/images/offline.png"
 	}
 
 	insertDevice(id, dev) {
@@ -91,7 +89,7 @@ class Hub extends WebSocketController {
 		var img = document.createElement("img")
 		img.id = "device-" + id + "-status"
 		img.className = "statusIcon"
-		img.src = "/images/offline.png"
+		img.src = dev.Online ? "/images/online.png" : "/images/offline.png"
 		div.appendChild(img)
 
 		var text = document.createTextNode(dev.Name)
