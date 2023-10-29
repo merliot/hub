@@ -1,55 +1,58 @@
-var overlay = document.getElementById("overlay")
-var banner = document.getElementById("banner")
-var clearBtn = document.getElementById("clear")
-var saveBtn = document.getElementById("save")
+import { WebSocketController } from './common.js'
 
-function init() {
+export function run(prefix, ws) {
+	const sign = new Sign()
+	sign.run(prefix, ws)
 }
 
-function open() {
-	state.Online ? online() : offline()
-}
+class Sign extends WebSocketController {
 
-function close() {
-	offline()
-}
+	constructor() {
+		super()
+		this.banner = document.getElementById("banner")
+		this.clearBtn = document.getElementById("clear")
+		this.saveBtn = document.getElementById("save")
 
-function handleSave(msg) {
-	banner.value = msg.Banner
-}
+		this.clearBtn.onclick = () => this.clear()
+		this.saveBtn.onclick = () => this.save()
+	}
 
-function save() {
-	conn.send(JSON.stringify({Path: "save", Banner: banner.value}))
-}
+	open() {
+		super.open()
+		this.showBanner()
+	}
 
-function clear() {
-	banner.value = ""
-}
-
-function online() {
-	overlay.innerHTML = ""
-
-	let style = window.getComputedStyle(banner);
-	let oneEm = parseFloat(style.fontSize);
-	let heightValue = 1.2 * oneEm * state.Terminal.Height;
-
-	banner.style.width = state.Terminal.Width + 'ch'
-	banner.style.height = `${heightValue}px`;
-	banner.value = state.Banner
-
-	saveBtn.onclick = save
-	clearBtn.onclick = clear
-}
-
-function offline() {
-	overlay.innerHTML = "Offline"
-}
-
-function handle(msg) {
-	switch(msg.Path) {
+	handle(msg) {
+		switch(msg.Path) {
 		case "save":
-			handleSave(msg)
+			this.update(msg)
 			break
+		}
+	}
+
+	clear() {
+		this.State.Banner = ""
+		this.banner.value = ""
+	}
+
+	save() {
+		this.State.Banner = this.banner.value
+		this.conn.send(JSON.stringify({Path: "save", Banner: this.banner.value}))
+	}
+
+	update(msg) {
+		this.State.Banner = msg.Banner
+		this.banner.value = msg.Banner
+	}
+
+	showBanner() {
+		let style = window.getComputedStyle(this.banner);
+		let oneEm = parseFloat(style.fontSize);
+		let heightValue = 1.2 * oneEm * this.state.Terminal.Height;
+
+		this.banner.style.width = this.state.Terminal.Width + 'ch'
+		this.banner.style.height = `${heightValue}px`;
+		this.banner.value = this.state.Banner
+		this.banner.style.display = "block"
 	}
 }
-

@@ -1,51 +1,41 @@
-var overlay = document.getElementById("overlay")
+import { WebSocketController } from './common.js'
 
-var map
-var marker
+export function run(prefix, ws) {
+	const gps = new Gps()
+	gps.run(prefix, ws)
+}
 
-function init() {
-	if (typeof map !== 'undefined') {
-		return
+class Gps extends WebSocketController {
+
+	constructor() {
+		super()
+
+		// Create a Leaflet map using OpenStreetMap
+		this.map = L.map('map').setZoom(13)
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '© OpenStreetMap',
+		}).addTo(this.map)
+		this.marker = L.marker([0, 0]).addTo(this.map)
 	}
 
-	<!-- Create a Leaflet map using OpenStreetMap -->
-	map = L.map('map').setZoom(13)
-	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		maxZoom: 19,
-		attribution: '© OpenStreetMap',
-	}).addTo(map)
+	open() {
+		super.open()
+		this.showMarker()
+	}
 
-	marker = L.marker([0, 0]).addTo(map)
-}
+	handle(msg) {
+		switch(msg.Path) {
+		case "update":
+			this.state.Lat = msg.Lat
+			this.state.Long = msg.Long
+			this.showMarker()
+			break
+		}
+	}
 
-function showMarker() {
-	marker.setLatLng([state.Lat, state.Long])
-	map.panTo([state.Lat, state.Long])
-}
-
-function open() {
-	state.Online ? online() : offline()
-	showMarker()
-}
-
-function close() {
-	offline()
-}
-
-function online() {
-	overlay.innerHTML = ""
-}
-
-function offline() {
-	overlay.innerHTML = "Offline"
-}
-
-function handle(msg) {
-	switch(msg.Path) {
-	case "update":
-		state.Lat = msg.Lat
-		state.Long = msg.Long
-		showMarker()
-		break
+	showMarker() {
+		this.marker.setLatLng([this.state.Lat, this.state.Long])
+		this.map.panTo([this.state.Lat, this.state.Long])
 	}
 }

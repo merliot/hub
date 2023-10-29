@@ -91,7 +91,7 @@ class Hub extends WebSocketController {
 		var img = document.createElement("img")
 		img.id = "device-" + id + "-status"
 		img.className = "statusIcon"
-		this.setDeviceIcon(id, dev.Online)
+		img.src = "/images/offline.png"
 		div.appendChild(img)
 
 		var text = document.createTextNode(dev.Name)
