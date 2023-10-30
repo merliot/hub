@@ -105,5 +105,5 @@ func (s *Skeleton) Subscribers() dean.Subscribers {
 
 func (s *Skeleton) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Use the common API to serve fs
-	g.Common.API(g.templates, w, r)
+	s.Common.API(s.templates, w, r)
 }

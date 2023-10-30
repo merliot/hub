@@ -1,16 +1,6 @@
-## UV Light Intensity Device
+## Skeleton Device
 
-Show the UV light intensity using a VEML6070 digital UV light sensor by Vishay.
+Use this skeleton device to start a new device.  Rename instances of
+"skeleton" with your device model name.
 
-![](images/view.webp)![](images/veml6070.webp)
-
-### Wiring
-
-#### Arduino Nano Connect RP2040
-
-VEML6070 | Nano Connect
--------- | ------------
-Vcc      | +3V3
-Gnd      | Gnd
-SCL      | SCL (GPIO13)
-SCA      | SCA (GPIO12)
+![](images/giphy.gif)
