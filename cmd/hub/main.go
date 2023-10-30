@@ -13,6 +13,7 @@ import (
 	"github.com/merliot/hub/models/relays"
 	"github.com/merliot/hub/models/sign"
 	"github.com/merliot/hub/models/uv"
+	"github.com/merliot/hub/models/skeleton"
 )
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 	server.RegisterModel("relays", relays.New)
 	server.RegisterModel("sign", sign.New)
 	server.RegisterModel("uv", uv.New)
+	server.RegisterModel("skeleton", skeleton.New)
 	//server.RegisterModel("hub", hub.New)
 
 	if port, ok := os.LookupEnv("PPROF_PORT"); ok {
