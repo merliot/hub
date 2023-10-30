@@ -31,17 +31,17 @@ class Sign extends WebSocketController {
 	}
 
 	clear() {
-		this.State.Banner = ""
+		this.state.Banner = ""
 		this.banner.value = ""
 	}
 
 	save() {
-		this.State.Banner = this.banner.value
+		this.state.Banner = this.banner.value
 		this.conn.send(JSON.stringify({Path: "save", Banner: this.banner.value}))
 	}
 
 	update(msg) {
-		this.State.Banner = msg.Banner
+		this.state.Banner = msg.Banner
 		this.banner.value = msg.Banner
 	}
 
