@@ -111,4 +111,4 @@ Outside of deploying devices, the hub consumes little memory (or CPU) and can ru
 
 ## Building New Devices
 
-New devices can be built from scratch or by extending existing devices.  The new device is given a unique model name.
+New devices can be built from scratch or by extending existing devices.  See models/skeleton for bare-bones template for starting a new device.
