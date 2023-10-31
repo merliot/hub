@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
 
-[![Watch the video](images/gopher_cloud.png)](https://youtu.be/oHmQlU-gCKA)
+[![Watch the video](images/gopher-cloud.png)](https://youtu.be/oHmQlU-gCKA)
 
 Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
