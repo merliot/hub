@@ -9,7 +9,8 @@ RUN apt-get update
 RUN apt-get install vim tree -y
 RUN apt-get install build-essential git cmake ninja-build -y
 
-RUN git clone --recursive https://github.com/scottfeldman/tinygo.git
+#RUN git clone --recursive https://github.com/scottfeldman/tinygo.git
+RUN git clone --recursive https://github.com/tinygo-org/tinygo.git
 WORKDIR /app/tinygo
 RUN git checkout net-submodule-netdev3
 RUN git submodule update --init
@@ -22,11 +23,11 @@ RUN make gen-device
 RUN go install
 
 WORKDIR /app
-##RUN git clone https://github.com/tinygo-org/tinygo-drivers.git drivers
-RUN git clone https://github.com/scottfeldman/tinygo-drivers.git drivers
+#RUN git clone https://github.com/scottfeldman/tinygo-drivers.git drivers
+RUN git clone https://github.com/tinygo-org/tinygo-drivers.git drivers
 WORKDIR /app/drivers
-#RUN git checkout scottfeldman-netdev3
-RUN git checkout netdev3
+#RUN git checkout netdev3
+RUN git checkout scottfeldman-netdev3
 
 WORKDIR /app
 RUN go work init
