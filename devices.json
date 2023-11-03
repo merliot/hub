@@ -7,7 +7,7 @@
 	"g6": {
 		"Model": "gps",
 		"Name": "demo-gps",
-		"Online": true
+		"Online": false
 	},
 	"p1": {
 		"Model": "ps30m",
@@ -17,12 +17,12 @@
 	"r1": {
 		"Model": "relays",
 		"Name": "rpi-relays",
-		"Online": true
+		"Online": false
 	},
 	"r2": {
 		"Model": "relays",
 		"Name": "nano-relays",
-		"Online": true
+		"Online": false
 	},
 	"s1": {
 		"Model": "sign",
@@ -32,7 +32,7 @@
 	"sk1": {
 		"Model": "skeleton",
 		"Name": "boo",
-		"Online": true
+		"Online": false
 	},
 	"u1": {
 		"Model": "uv",
