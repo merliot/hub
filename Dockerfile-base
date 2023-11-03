@@ -7,18 +7,19 @@ WORKDIR /app
 
 RUN apt-get update
 RUN apt-get install vim tree -y
+RUN apt-get install build-essential git cmake ninja-build -y
 
 RUN git clone --recursive https://github.com/scottfeldman/tinygo.git
 WORKDIR /app/tinygo
 RUN git checkout net-submodule-netdev3
 RUN git submodule update --init
-RUN echo 'deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-15 main' | tee /etc/apt/sources.list.d/llvm.list
+RUN echo 'deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-16 main' | tee /etc/apt/sources.list.d/llvm.list
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 RUN apt-get update
-RUN apt-get install clang-15 llvm-15-dev lld-15 libclang-15-dev -y
-RUN go install
-RUN make llvm-source
+RUN apt-get install clang-16 llvm-16-dev lld-16 libclang-16-dev -y
+RUN make llvm-source llvm-build
 RUN make gen-device
+RUN go install
 
 WORKDIR /app
 ##RUN git clone https://github.com/tinygo-org/tinygo-drivers.git drivers
