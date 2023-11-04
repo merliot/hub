@@ -12,12 +12,12 @@ func main() {
 	user, _ := os.LookupEnv("USER")
 	passwd, _ := os.LookupEnv("PASSWD")
 
-	thing := ps30m.New("230042", "ps30m", "poc1").(*ps30m.Ps30m)
+	thing := ps30m.New("p1", "ps30m", "rpi-ps30m").(*ps30m.Ps30m)
 
 	server := dean.NewServer(thing)
 	server.BasicAuth(user, passwd)
 
-	server.DialWebSocket(user, passwd, "ws://127.0.0.1:8000/ws/", thing.Announce())
+	server.DialWebSocket(user, passwd, "wss://hub.merliot.net/ws/?ping-period=4", thing.Announce())
 
 	if port != "" {
 		server.Addr = ":" + port

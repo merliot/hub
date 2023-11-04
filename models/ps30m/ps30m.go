@@ -216,7 +216,7 @@ func (p *Ps30m) Run(i *dean.Injector) {
 		Speed:    9600,
 		DataBits: 8,
 		Parity:   modbus.PARITY_NONE,
-		StopBits: 2,
+		StopBits: 1,
 		Timeout:  300 * time.Millisecond,
 	})
 	if err != nil {
@@ -227,6 +227,14 @@ func (p *Ps30m) Run(i *dean.Injector) {
 	if err = p.client.Open(); err != nil {
 		println("Open modbus client at", serial, "failed:", err.Error())
 		return
+	}
+
+	for {
+		for id := uint8(0); id <= 0xFF; id++ {
+			p.client.SetUnitId(id)
+			println(id, p.readRegU16(0x101))
+			time.Sleep(10 * time.Millisecond)
+		}
 	}
 
 	p.sample(i)
