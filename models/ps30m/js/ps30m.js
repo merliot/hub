@@ -41,7 +41,7 @@ class Ps30m extends WebSocketController {
 		});
 		var btns = document.getElementsByName("period")
 		for (var i = 0; i < btns.length; i++) {
-			btns[i].onclick = () => this.showCreate()
+			btns[i].onclick = () => this.showChart()
 		}
 	}
 
