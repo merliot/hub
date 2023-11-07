@@ -1,0 +1,24 @@
+		<fieldset>
+			<legend>Status</legend>
+			<textarea id="status" readonly rows="2"></textarea>
+		</fieldset>
+
+		<fieldset>
+			<legend>History</legend>
+			<div>
+				<input type="radio" id="minute" name="period" value="minute" checked>
+				<label for="minute">Minute</label>
+				<input type="radio" id="hour" name="period" value="hour">
+				<label for="hour">Hour</label>
+				<input type="radio" id="day" name="period" value="day">
+				<label for="day">Day</label>
+				<input type="radio" id="year" name="period" value="year">
+				<label for="year">Year</label>
+			</div>
+			<hr>
+			<div id="chart-div">
+				<canvas id="chart"></canvas>
+			</div>
+		</fieldset>
+
+		<script src="js/chart.js"></script>

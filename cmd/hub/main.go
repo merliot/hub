@@ -10,6 +10,7 @@ import (
 	"github.com/merliot/hub/models/gps"
 	"github.com/merliot/hub/models/hub"
 	"github.com/merliot/hub/models/ps30m"
+	"github.com/merliot/hub/models/hp2430n"
 	"github.com/merliot/hub/models/relays"
 	"github.com/merliot/hub/models/sign"
 	"github.com/merliot/hub/models/uv"
@@ -43,6 +44,7 @@ func main() {
 	}
 
 	server.RegisterModel("ps30m", ps30m.New)
+	server.RegisterModel("hp2430n", hp2430n.New)
 	server.RegisterModel("gps", gps.New)
 	server.RegisterModel("relays", relays.New)
 	server.RegisterModel("sign", sign.New)
