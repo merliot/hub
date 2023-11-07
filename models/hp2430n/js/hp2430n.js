@@ -100,23 +100,53 @@ class Hp2430n extends WebSocketController {
 		}
 	}
 
-	chargeState(state) {
-		const names = ["START", "NIGHT_CHECK", "NIGHT_CHECK", "NIGHT",
-			"FAULT", "BULK", "ABSORPTION", "FLOAT", "EQUALIZE"]
-		return names[state]
+	loadStatus(loadInfo) {
+		var load = (loadInfo >> 8) & 0x80
+		if (load == 0) {
+			return "OFF"
+		} else {
+			return "ON"
+		}
 	}
 
-	loadState(state) {
-		const names = ["START", "LOAD_ON", "LVD_WARNING", "LVD",
-			"FAULT", "DISCONNECT", "LOAD_OFF", "OVERRIDE"]
-		return names[state]
+	loadBrightness(loadInfo) {
+		var bright = (loadInfo >> 8) & 0x7F
+		var percent = (bright / 0x64) * 100
+		return `${percent.toFixed(0)}%`
+	}
+
+	batteryStatus(loadInfo) {
+		switch(loadInfo & 0xff) {
+		case 0:
+			return "Charging Deactivated"
+			break
+		case 1:
+			return "Charging Activated"
+			break
+		case 2:
+			return "MPPT Charging Mode"
+			break
+		case 3:
+			return "Equalizing Charging Mode"
+			break
+		case 4:
+			return "Boost Charging Mode"
+			break
+		case 5:
+			return "Floating Charging Mode"
+			break
+		case 6:
+			return "Constant Current (overpower)"
+			break
+		}
 	}
 
 	showStatus() {
 		var textarea = document.getElementById("status")
 		textarea.value = ""
-		textarea.value += "Charge State:   " + this.chargeState(this.state.ChargeState) + "\r\n"
-		textarea.value += "Load State:     " + this.loadState(this.state.LoadState) + "\r\n"
+		textarea.value += "Load Status:     " + this.loadStatus(this.state.LoadInto) + "\r\n"
+		textarea.value += "Load Brightness: " + this.loadBrightness(this.state.LoadInfo) + "\r\n"
+		textarea.value += "Battery Status:  " + this.batteryStatus(this.state.LoadInfo) + "\r\n"
 	}
 
 	showChartRecords(array, size) {
