@@ -229,10 +229,10 @@ func (p *Ps30m) Run(i *dean.Injector) {
 		return
 	}
 
+	p.client.SetUnitId(1)
 	for {
-		for id := uint8(0); id <= 0xFF; id++ {
-			p.client.SetUnitId(id)
-			println(id, p.readRegU16(0x101))
+		for reg := uint16(0); reg <= 0xFFF; reg++ {
+			println(reg, p.readRegU16(reg))
 			time.Sleep(10 * time.Millisecond)
 		}
 	}
