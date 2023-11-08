@@ -144,7 +144,7 @@ class Hp2430n extends WebSocketController {
 	showStatus() {
 		var textarea = document.getElementById("status")
 		textarea.value = ""
-		textarea.value += "Load Status:     " + this.loadStatus(this.state.LoadInto) + "\r\n"
+		textarea.value += "Load Status:     " + this.loadStatus(this.state.LoadInfo) + "\r\n"
 		textarea.value += "Load Brightness: " + this.loadBrightness(this.state.LoadInfo) + "\r\n"
 		textarea.value += "Battery Status:  " + this.batteryStatus(this.state.LoadInfo) + "\r\n"
 	}

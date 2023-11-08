@@ -9,6 +9,16 @@
 		"Name": "demo-gps",
 		"Online": false
 	},
+	"h1": {
+		"Model": "hp2430n",
+		"Name": "rpi-hp2430n",
+		"Online": false
+	},
+	"h2": {
+		"Model": "hp2430n",
+		"Name": "nano-hp2430n",
+		"Online": false
+	},
 	"p1": {
 		"Model": "ps30m",
 		"Name": "rpi-ps30m",

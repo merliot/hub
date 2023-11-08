@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/merliot/dean"
-	_ "github.com/merliot/dean/tinynet"
 	"github.com/merliot/hub/models/gps/nmea"
 )
 
