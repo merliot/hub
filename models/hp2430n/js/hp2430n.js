@@ -9,177 +9,53 @@ class Hp2430n extends WebSocketController {
 
 	constructor() {
 		super()
-		this.chart = new Chart(document.getElementById("chart"), {
-			data: {
-				labels: [],
-				datasets: [{
-					type: 'line',
-					label: 'Battery Voltage',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'line',
-					label: 'Charging Current',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'line',
-					label: 'Load Voltage',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'line',
-					label: 'Load Current',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'line',
-					label: 'Solar Voltage',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'line',
-					label: 'Solar Current',
-					data: [],
-					pointStyle: false,
-				}],
-			},
-			options: {
-				animation: false,
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					x: {
-						reverse: true,
-					},
-				},
-			},
-		});
-		var btns = document.getElementsByName("period")
-		for (var i = 0; i < btns.length; i++) {
-			btns[i].onclick = () => this.showChart()
-		}
 	}
 
 	open() {
 		super.open()
-		this.showStatus()
-		this.showChart()
+		this.showSystem()
+		this.showBattery()
+		this.showLoad()
+		this.showSolar()
 	}
 
-	handle(msg) {
-		switch(msg.Path) {
-		case "update/status":
-			this.state.ChargeState = msg.ChargeState
-			this.state.LoadState = msg.LoadState
-			this.showStatus()
-			break
-		case "update/second":
-			this.saveRecord(this.state.Seconds, msg.Record, 60)
-			this.showChart()
-			break
-		case "update/minute":
-			this.saveRecord(this.state.Minutes, msg.Record, 60)
-			this.showChart()
-			break
-		case "update/hour":
-			this.saveRecord(this.state.Hours, msg.Record, 24)
-			this.showChart()
-			break
-		case "update/day":
-			this.saveRecord(this.state.Days, msg.Record, 365)
-			this.showChart()
-			break
-		}
+	showSystem() {
+		var ta = document.getElementById("system")
+		ta.value = ""
+		ta.value += "Maximum Voltage Supported (V):  " + this.state.System.MaxVolts + "\r\n"
+		ta.value += "Rated Charging Current (A):     " + this.state.System.ChargeAmps + "\r\n"
+		ta.value += "Rated Discharging Current (A):  " + this.state.System.DischargeAmps + "\r\n"
+		ta.value += "Product Type:                   " + this.state.System.ProductType + "\r\n"
+		ta.value += "Model:                          " + this.state.System.Model + "\r\n"
+		ta.value += "Software Version:               " + this.state.System.SWVersion + "\r\n"
+		ta.value += "Hardware Version:               " + this.state.System.HWVersion + "\r\n"
+		ta.value += "Serial:                         " + this.state.System.Serial + "\r\n"
+		ta.value += "Temp (C):                       " + this.state.System.Temp + "\r\n"
 	}
 
-	saveRecord(array, record, size) {
-		array.unshift(record)
-		if (array.length > size) {
-			array.pop()
-		}
+	showBattery() {
+		var ta = document.getElementById("battery")
+		ta.value = ""
+		ta.value += "Capacity SOC:    " + this.state.Battery.SOC + "\r\n"
+		ta.value += "Voltage (V):     " + this.state.Battery.Volts + "\r\n"
+		ta.value += "Current (A):     " + this.state.Battery.Amps + "\r\n"
+		ta.value += "Temp (C):        " + this.state.Battery.Temp + "\r\n"
+		ta.value += "Charging State:  " + this.state.Battery.ChargeState + "\r\n"
 	}
 
-	loadStatus(loadInfo) {
-		var load = (loadInfo >> 8) & 0x80
-		if (load == 0) {
-			return "OFF"
-		} else {
-			return "ON"
-		}
+	showLoad() {
+		var ta = document.getElementById("load")
+		ta.value = ""
+		ta.value += "Voltage (V):   " + this.state.LoadInfo.Volts + "\r\n"
+		ta.value += "Current (A):   " + this.state.LoadInfo.Amps + "\r\n"
+		ta.value += "Status:        " + this.state.LoadInfo.Status + "\r\n"
+		ta.value += "Brightness:    " + this.state.LoadInfo.Brightness + "\r\n"
 	}
 
-	loadBrightness(loadInfo) {
-		var bright = (loadInfo >> 8) & 0x7F
-		var percent = (bright / 0x64) * 100
-		return `${percent.toFixed(0)}%`
-	}
-
-	batteryStatus(loadInfo) {
-		switch(loadInfo & 0xff) {
-		case 0:
-			return "Charging Deactivated"
-			break
-		case 1:
-			return "Charging Activated"
-			break
-		case 2:
-			return "MPPT Charging Mode"
-			break
-		case 3:
-			return "Equalizing Charging Mode"
-			break
-		case 4:
-			return "Boost Charging Mode"
-			break
-		case 5:
-			return "Floating Charging Mode"
-			break
-		case 6:
-			return "Constant Current (overpower)"
-			break
-		}
-	}
-
-	showStatus() {
-		var textarea = document.getElementById("status")
-		textarea.value = ""
-		textarea.value += "Load Status:     " + this.loadStatus(this.state.LoadInfo) + "\r\n"
-		textarea.value += "Load Brightness: " + this.loadBrightness(this.state.LoadInfo) + "\r\n"
-		textarea.value += "Battery Status:  " + this.batteryStatus(this.state.LoadInfo) + "\r\n"
-	}
-
-	showChartRecords(array, size) {
-		this.chart.data.labels = Array(size).fill("");
-		for (let j = 0; j < this.chart.data.datasets.length; j++) {
-			this.chart.data.datasets[j].data = Array(size).fill(null);
-			for (let i = 0; i < array.length; i++) {
-				this.chart.data.datasets[j].data[i] = array[i][j].toFixed(2)
-			}
-		}
-		this.chart.update()
-	}
-
-	showChart() {
-		var btns = document.getElementsByName("period")
-		for (var i = 0; i < btns.length; i++) {
-			if (btns[i].checked) {
-				switch (btns[i].value) {
-				case "minute":
-					this.showChartRecords(this.state.Seconds, 60)
-					break
-				case "hour":
-					this.showChartRecords(this.state.Minutes, 60)
-					break
-				case "day":
-					this.showChartRecords(this.state.Hours, 24)
-					break
-				case "year":
-					this.showChartRecords(this.state.Days, 365)
-					break
-				}
-				return
-			}
-		}
+	showSolar() {
+		var ta = document.getElementById("solar")
+		ta.value = ""
+		ta.value += "Voltage (V):   " + this.state.Solar.Volts + "\r\n"
+		ta.value += "Current (A):   " + this.state.Solar.Amps + "\r\n"
 	}
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
-	"github.com/merliot/hub/models/charge"
 	"github.com/simonvetter/modbus"
 	"github.com/x448/float16"
 )
@@ -28,7 +27,7 @@ const (
 type record [3]float32
 
 type Ps30m struct {
-	*charge.Charge
+	*common.Common
 	ChargeStatus uint16
 	LoadStatus   uint16
 	Seconds      []record
@@ -44,7 +43,7 @@ var targets = []string{"x86-64", "rpi"}
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
 	p := &Ps30m{}
-	p.Charge = charge.New(id, model, name, targets).(*charge.Charge)
+	p.Common = common.New(id, model, name, targets).(*common.Common)
 	p.Seconds = make([]record, 0)
 	p.Minutes = make([]record, 0)
 	p.Hours = make([]record, 0)

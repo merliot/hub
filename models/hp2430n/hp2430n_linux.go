@@ -7,9 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
 	"github.com/simonvetter/modbus"
 )
@@ -36,6 +34,17 @@ func (h *Hp2430n) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Hp2430n) write(buf []byte) (n int, err error) {
+	// TODO
+	return n, err
+}
+
+func (h *Hp2430n) read(buf []byte) (n int, err error) {
+	// TODO
+	return n, err
+}
+
+/*
 func (h *Hp2430n) readRegU16(addr uint16) uint16 {
 	value, _ := h.client.ReadRegister(addr, modbus.HOLDING_REGISTER)
 	return value
@@ -77,3 +86,4 @@ func (h *Hp2430n) Run(i *dean.Injector) {
 
 	h.sample(i)
 }
+*/

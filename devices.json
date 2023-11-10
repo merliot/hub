@@ -1,52 +1,7 @@
 {
-	"g1": {
-		"Model": "gps",
-		"Name": "nano-gps",
-		"Online": false
-	},
-	"g6": {
-		"Model": "gps",
-		"Name": "demo-gps",
-		"Online": false
-	},
-	"h1": {
-		"Model": "hp2430n",
-		"Name": "rpi-hp2430n",
-		"Online": false
-	},
 	"h2": {
 		"Model": "hp2430n",
 		"Name": "nano-hp2430n",
-		"Online": false
-	},
-	"p1": {
-		"Model": "ps30m",
-		"Name": "rpi-ps30m",
-		"Online": false
-	},
-	"r1": {
-		"Model": "relays",
-		"Name": "rpi-relays",
-		"Online": false
-	},
-	"r2": {
-		"Model": "relays",
-		"Name": "nano-relays",
-		"Online": false
-	},
-	"s1": {
-		"Model": "sign",
-		"Name": "pyportal-sign",
-		"Online": false
-	},
-	"sk1": {
-		"Model": "skeleton",
-		"Name": "boo",
-		"Online": false
-	},
-	"u1": {
-		"Model": "uv",
-		"Name": "nano-uv",
 		"Online": false
 	}
 }

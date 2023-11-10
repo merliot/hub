@@ -94,7 +94,7 @@ func (s *Skeleton) Subscribers() dean.Subscribers {
 
 		//
 		// Add subscribers for other messages here...
-		// 
+		//
 
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/merliot/hub/models/common"
 )
 
-type Move  struct {
+type Move struct {
 	*common.Common
 	Ax, Ay, Az int32
 	Gx, Gy, Gz int32
@@ -13,7 +13,7 @@ type Move  struct {
 }
 
 var CALIBRATE_BEGIN = dean.ThingMsg{Path: "calibrate/begin"}
-var CALIBRATE_END   = dean.ThingMsg{Path: "calibrate/end"}
+var CALIBRATE_END = dean.ThingMsg{Path: "calibrate/end"}
 
 type Update struct {
 	Path       string
