@@ -3,6 +3,7 @@ package hp2430n
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
@@ -12,6 +13,8 @@ const (
 	regMaxVoltage      = 0x000A
 	regBatteryCapacity = 0x0100
 	regLoadInfo        = 0x0120
+	regLoadCmd         = 0x010A
+	regOpDays          = 0x0115
 )
 
 type System struct {
@@ -46,12 +49,67 @@ type Solar struct {
 	Amps  float32
 }
 
+type Daily struct {
+	BattMinVolts      float32
+	BattMaxVolts      float32
+	ChargeMaxAmps     float32
+	DischargeMaxAmps  float32
+	ChargeMaxWatts    uint16
+	DischargeMaxWatts uint16
+	ChargeAmpHrs      uint16
+	DischargeAmpHrs   uint16
+	GenPowerWatts     uint16
+	ConPowerWatts     uint16
+}
+
+type Historical struct {
+	OpDays          uint16
+	OverDischarges  uint16
+	FullCharges     uint16
+	ChargeAmpHrs    uint32
+	DischargeAmpHrs uint32
+	GenPowerWatts   uint32
+	ConPowerWatts   uint32
+}
+
+type msgSystem struct {
+	Path   string
+	System System
+}
+
+type msgBattery struct {
+	Path    string
+	Battery Battery
+}
+
+type msgLoadInfo struct {
+	Path     string
+	LoadInfo LoadInfo
+}
+
+type msgSolar struct {
+	Path  string
+	Solar Solar
+}
+
+type msgDaily struct {
+	Path  string
+	Daily Daily
+}
+
+type msgHistorical struct {
+	Path       string
+	Historical Historical
+}
+
 type Hp2430n struct {
 	*common.Common
-	System   System
-	Battery  Battery
-	LoadInfo LoadInfo
-	Solar    Solar
+	System     System
+	Battery    Battery
+	LoadInfo   LoadInfo
+	Solar      Solar
+	Daily      Daily
+	Historical Historical
 	targetStruct
 }
 
@@ -74,16 +132,16 @@ func (h *Hp2430n) getState(msg *dean.Msg) {
 	msg.Marshal(h).Reply()
 }
 
-/*
-func (h *Hp2430n) updateStatus(msg *dean.Msg) {
-	msg.Unmarshal(h).Broadcast()
-}
-*/
-
 func (h *Hp2430n) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":     h.save,
-		"get/state": h.getState,
+		"state":             h.save,
+		"get/state":         h.getState,
+		"update/system":     h.save,
+		"update/battery":    h.save,
+		"update/load":       h.save,
+		"update/solar":      h.save,
+		"update/dialy":      h.save,
+		"update/historical": h.save,
 	}
 }
 
@@ -95,14 +153,20 @@ func serial(b []byte) string {
 	return fmt.Sprintf("%02X%02X-%02X%02X", b[0], b[1], b[2], b[3])
 }
 
+func swap(b []byte) uint16 {
+	return (uint16(b[0]) << 8) | uint16(b[1])
+}
+
+func swap4(b []byte) uint32 {
+	return (uint32(b[0]) << 24) | (uint32(b[1]) << 16) | (uint32(b[2]) << 8) | uint32(b[3])
+}
+
 func volts(b []byte) float32 {
-	raw := (uint16(b[0]) << 8) | uint16(b[1])
-	return float32(raw) * 0.1
+	return float32(swap(b)) * 0.1
 }
 
 func amps(b []byte) float32 {
-	raw := (uint16(b[0]) << 8) | uint16(b[1])
-	return float32(raw) * 0.01
+	return float32(swap(b)) * 0.01
 }
 
 func chargeState(b byte) string {
@@ -175,43 +239,124 @@ func (h *Hp2430n) readDynamic(c *System, b *Battery, l *LoadInfo, s *Solar) erro
 	return nil
 }
 
+func (h *Hp2430n) readDaily(d *Daily) error {
+
+	// Current Day Info (22 bytes)
+	regs, err := h.readRegisters(regLoadCmd, 11)
+	if err != nil {
+		return err
+	}
+	// skip load cmd regs[0:2]
+	d.BattMinVolts = volts(regs[2:4])
+	d.BattMaxVolts = volts(regs[4:6])
+	d.ChargeMaxAmps = amps(regs[6:8])
+	d.DischargeMaxAmps = amps(regs[8:10])
+	d.ChargeMaxWatts = swap(regs[10:12])
+	d.DischargeMaxWatts = swap(regs[12:14])
+	d.ChargeAmpHrs = swap(regs[14:16])
+	d.DischargeAmpHrs = swap(regs[16:18])
+	d.GenPowerWatts = swap(regs[18:20])
+	d.ConPowerWatts = swap(regs[20:22])
+	return nil
+}
+
+func (h *Hp2430n) readHistorical(d *Historical) error {
+
+	// Historical Info (22 bytes)
+	regs, err := h.readRegisters(regOpDays, 11)
+	if err != nil {
+		return err
+	}
+	d.OpDays = swap(regs[0:2])
+	d.OverDischarges = swap(regs[2:4])
+	d.FullCharges = swap(regs[4:6])
+	d.ChargeAmpHrs = swap4(regs[6:10])
+	d.DischargeAmpHrs = swap4(regs[10:14])
+	d.GenPowerWatts = swap4(regs[14:18])
+	d.ConPowerWatts = swap4(regs[18:22])
+	return nil
+}
+
 func (h *Hp2430n) Run(i *dean.Injector) {
 
+	var msg dean.Msg
+	var system = msgSystem{Path: "update/system"}
+	var battery = msgBattery{Path: "update/battery"}
+	var loadInfo = msgLoadInfo{Path: "update/load"}
+	var solar = msgSolar{Path: "update/solar"}
+	var daily = msgDaily{Path: "update/daily"}
+	var historical = msgHistorical{Path: "update/historical"}
+
+	// Read initial values
+
 	h.Lock()
+
 	if err := h.readSystem(&h.System); err != nil {
 		println(err.Error())
 	}
 	if err := h.readDynamic(&h.System, &h.Battery, &h.LoadInfo, &h.Solar); err != nil {
 		println(err.Error())
 	}
+	if err := h.readDaily(&h.Daily); err != nil {
+		println(err.Error())
+	}
+	if err := h.readHistorical(&h.Historical); err != nil {
+		println(err.Error())
+	}
+
 	h.Unlock()
 
-	select {}
+	// Copy the initial values into the msgs
 
-	/*
-		h.readDynamic()
-		h.readDaily()
-		h.readHistorical()
+	system.System = h.System
+	battery.Battery = h.Battery
+	loadInfo.LoadInfo = h.LoadInfo
+	solar.Solar = h.Solar
+	daily.Daily = h.Daily
+	historical.Historical = h.Historical
 
-		for {
-			regs, err := h.readRegisters(regBatteryVoltage, 8)
-			println("len(regs)", len(regs))
-			if err != nil {
-				println("Error reading registers", err.Error())
-				continue
-			}
-			info, err := h.readRegisters(regLoadInfo, 1)
-			println("len(info)", len(info))
-			if err != nil {
-				println("Error reading registers", err.Error())
-				continue
-			}
-			regs = append(regs, info[0])
+	nextHour := time.Now().Add(time.Hour)
+	ticker := time.NewTicker(5 * time.Second)
 
-			if !slicesAreEqual(regs, h.lastRegs) {
-			}
+	for range ticker.C {
 
-			time.Sleep(time.Second)
+		// Every tick, check if dynamic values have changed
+
+		err := h.readDynamic(&system.System, &battery.Battery, &loadInfo.LoadInfo, &solar.Solar)
+		if err != nil {
+			println(err.Error())
 		}
-	*/
+		if system.System != h.System {
+			i.Inject(msg.Marshal(system))
+		}
+		if battery.Battery != h.Battery {
+			i.Inject(msg.Marshal(battery))
+		}
+		if loadInfo.LoadInfo != h.LoadInfo {
+			i.Inject(msg.Marshal(loadInfo))
+		}
+		if solar.Solar != h.Solar {
+			i.Inject(msg.Marshal(solar))
+		}
+
+		// Every hour, check if daily or historical values have changed
+
+		if time.Now().After(nextHour) {
+			err := h.readDaily(&daily.Daily)
+			if err != nil {
+				println(err.Error())
+			}
+			if daily.Daily != h.Daily {
+				i.Inject(msg.Marshal(daily))
+			}
+			err = h.readHistorical(&historical.Historical)
+			if err != nil {
+				println(err.Error())
+			}
+			if historical.Historical != h.Historical {
+				i.Inject(msg.Marshal(historical))
+			}
+			nextHour = time.Now().Add(time.Hour)
+		}
+	}
 }
