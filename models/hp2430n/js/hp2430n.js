@@ -14,6 +14,7 @@ class Hp2430n extends WebSocketController {
 	open() {
 		super.open()
 		this.showSystem()
+		this.showController()
 		this.showBattery()
 		this.showLoadInfo()
 		this.showSolar()
@@ -31,34 +32,54 @@ class Hp2430n extends WebSocketController {
 		ta.value += "Model:                          " + this.state.System.Model + "\r\n"
 		ta.value += "Software Version:               " + this.state.System.SWVersion + "\r\n"
 		ta.value += "Hardware Version:               " + this.state.System.HWVersion + "\r\n"
-		ta.value += "Serial:                         " + this.state.System.Serial + "\r\n"
-		ta.value += "*Temp (C):                      " + this.state.System.Temp
+		ta.value += "Serial:                         " + this.state.System.Serial
+	}
+
+	showAlarms() {
+		var list = ""
+		for (let i = 0; i < this.state.Controller.Alarms.length; i++) {
+			list += "\r\n    \u26A0 " + this.state.Controller.Alarms[i]
+		}
+		return list
+	}
+
+	showController() {
+		var ta = document.getElementById("controller")
+		ta.value = ""
+		ta.value += "* Temp (C):                     " + this.state.Controller.Temp + "\r\n"
+		ta.value += "* Alarms:                       "
+		if (this.state.Controller.Alarms === null) {
+			ta.value += "<none>"
+		} else {
+			ta.rows = 3 + this.state.Controller.Alarms.length
+			ta.value += this.showAlarms()
+		}
 	}
 
 	showBattery() {
 		var ta = document.getElementById("battery")
 		ta.value = ""
-		ta.value += "*Capacity SOC:                  " + this.state.Battery.SOC + "\r\n"
-		ta.value += "*Voltage (V):                   " + this.state.Battery.Volts + "\r\n"
-		ta.value += "*Current (A):                   " + this.state.Battery.Amps + "\r\n"
-		ta.value += "*Temp (C):                      " + this.state.Battery.Temp + "\r\n"
-		ta.value += "*Charging State:                " + this.state.Battery.ChargeState
+		ta.value += "* Capacity SOC:                 " + this.state.Battery.SOC + "\r\n"
+		ta.value += "* Voltage (V):                  " + this.state.Battery.Volts + "\r\n"
+		ta.value += "* Current (A):                  " + this.state.Battery.Amps + "\r\n"
+		ta.value += "* Temp (C):                     " + this.state.Battery.Temp + "\r\n"
+		ta.value += "* Charging State:               " + this.state.Battery.ChargeState
 	}
 
 	showLoadInfo() {
 		var ta = document.getElementById("load")
 		ta.value = ""
-		ta.value += "*Voltage (V):                   " + this.state.LoadInfo.Volts + "\r\n"
-		ta.value += "*Current (A):                   " + this.state.LoadInfo.Amps + "\r\n"
-		ta.value += "*Status:                        " + this.state.LoadInfo.Status + "\r\n"
-		ta.value += "*Brightness:                    " + this.state.LoadInfo.Brightness
+		ta.value += "* Voltage (V):                  " + this.state.LoadInfo.Volts + "\r\n"
+		ta.value += "* Current (A):                  " + this.state.LoadInfo.Amps + "\r\n"
+		ta.value += "* Status:                       " + this.state.LoadInfo.Status + "\r\n"
+		ta.value += "* Brightness:                   " + this.state.LoadInfo.Brightness
 	}
 
 	showSolar() {
 		var ta = document.getElementById("solar")
 		ta.value = ""
-		ta.value += "*Voltage (V):                   " + this.state.Solar.Volts + "\r\n"
-		ta.value += "*Current (A):                   " + this.state.Solar.Amps
+		ta.value += "* Voltage (V):                  " + this.state.Solar.Volts + "\r\n"
+		ta.value += "* Current (A):                  " + this.state.Solar.Amps
 	}
 
 	showDaily() {
@@ -90,9 +111,9 @@ class Hp2430n extends WebSocketController {
 
 	handle(msg) {
 		switch(msg.Path) {
-		case "update/system":
-			this.state.System = msg.System
-			this.showSystem()
+		case "update/controller":
+			this.state.Controller = msg.Controller
+			this.showController()
 			break
 		case "update/battery":
 			this.state.Battery = msg.Battery

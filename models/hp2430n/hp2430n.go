@@ -15,6 +15,7 @@ const (
 	regLoadInfo        = 0x0120
 	regLoadCmd         = 0x010A
 	regOpDays          = 0x0115
+	regAlarm           = 0x0121
 )
 
 type System struct {
@@ -26,7 +27,26 @@ type System struct {
 	SWVersion     string
 	HWVersion     string
 	Serial        string
-	Temp          uint8 // deg C
+}
+
+type Controller struct {
+	Temp   uint8    // deg C
+	Alarms []string // faults and warnings
+}
+
+func (c Controller) isDiff(other Controller) bool {
+	if c.Temp != other.Temp {
+		return true
+	}
+	if len(c.Alarms) != len(other.Alarms) {
+		return true
+	}
+	for i, v := range c.Alarms {
+		if v != other.Alarms[i] {
+		    return true
+		}
+	}
+	return false
 }
 
 type Battery struct {
@@ -72,9 +92,9 @@ type Historical struct {
 	ConPowerWatts   uint32
 }
 
-type msgSystem struct {
-	Path   string
-	System System
+type msgController struct {
+	Path       string
+	Controller Controller
 }
 
 type msgBattery struct {
@@ -105,6 +125,7 @@ type msgHistorical struct {
 type Hp2430n struct {
 	*common.Common
 	System     System
+	Controller Controller
 	Battery    Battery
 	LoadInfo   LoadInfo
 	Solar      Solar
@@ -136,7 +157,7 @@ func (h *Hp2430n) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"state":             h.save,
 		"get/state":         h.getState,
-		"update/system":     h.save,
+		"update/controller": h.save,
 		"update/battery":    h.save,
 		"update/load":       h.save,
 		"update/solar":      h.save,
@@ -207,7 +228,54 @@ func (h *Hp2430n) readSystem(s *System) error {
 	return nil
 }
 
-func (h *Hp2430n) readDynamic(c *System, b *Battery, l *LoadInfo, s *Solar) error {
+var alarms = []string{
+	"Battery over-discharge",
+	"Battery over-voltage",
+	"Battery under-voltage",
+	"Load short circuit",
+	"Load over-power or load over-current",
+	"Controller temperature too high",
+	"Battery high temperature protection (temperature higher than the upper discharge limit); prohibit charging",
+	"Solar input over-power",
+	"(reserved)",
+	"Solar input side over-voltage",
+	"(reserved)",
+	"Solar panel working point over-voltage",
+	"Solar panel reverse connected",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"(reserved)",
+	"Power main supply",
+	"OO battery detected (SLD)",
+	"Battery high temperature protection (temperature higher than the upper discharge limit); prohibit discharging",
+	"Battery low temperature protection (temperature lower than the lower discharge limit); prohibit discharging",
+	"Over-charge protection; stop charging",
+	"Battery low temperature protection (temperature is lower than the lower limit of charging; stop charging",
+	"Battery reverse connected",
+	"Capacitor over-voltage (reserved)",
+	"Induction probe damaged (street light)",
+	"Load open-circuit (street light)",
+}
+
+func parseAlarms(b []byte) (active []string) {
+	value := swap4(b)
+	for i := 0; i < 32; i++ {
+		// Check if the bit is set
+		if value&(1<<i) != 0 {
+			// Add corresponding alarm
+			active = append(active, alarms[i])
+		}
+	}
+	return
+}
+
+func (h *Hp2430n) readDynamic(c *Controller, b *Battery, l *LoadInfo, s *Solar) error {
 
 	// Controller Dynamic Info (20 bytes)
 	regs, err := h.readRegisters(regBatteryCapacity, 10)
@@ -235,6 +303,13 @@ func (h *Hp2430n) readDynamic(c *System, b *Battery, l *LoadInfo, s *Solar) erro
 	l.Status = (regs[0] & 0x80) == 0x80
 	l.Brightness = uint8(regs[0] & 0x7F)
 	b.ChargeState = chargeState(regs[1])
+
+	// Controller alarm information
+	regs, err = h.readRegisters(regAlarm, 2)
+	if err != nil {
+		return err
+	}
+	c.Alarms = parseAlarms(regs)
 
 	return nil
 }
@@ -280,7 +355,7 @@ func (h *Hp2430n) readHistorical(d *Historical) error {
 func (h *Hp2430n) Run(i *dean.Injector) {
 
 	var msg dean.Msg
-	var system = msgSystem{Path: "update/system"}
+	var controller = msgController{Path: "update/controller"}
 	var battery = msgBattery{Path: "update/battery"}
 	var loadInfo = msgLoadInfo{Path: "update/load"}
 	var solar = msgSolar{Path: "update/solar"}
@@ -294,7 +369,7 @@ func (h *Hp2430n) Run(i *dean.Injector) {
 	if err := h.readSystem(&h.System); err != nil {
 		println(err.Error())
 	}
-	if err := h.readDynamic(&h.System, &h.Battery, &h.LoadInfo, &h.Solar); err != nil {
+	if err := h.readDynamic(&h.Controller, &h.Battery, &h.LoadInfo, &h.Solar); err != nil {
 		println(err.Error())
 	}
 	if err := h.readDaily(&h.Daily); err != nil {
@@ -308,7 +383,7 @@ func (h *Hp2430n) Run(i *dean.Injector) {
 
 	// Copy the initial values into the msgs
 
-	system.System = h.System
+	controller.Controller = h.Controller
 	battery.Battery = h.Battery
 	loadInfo.LoadInfo = h.LoadInfo
 	solar.Solar = h.Solar
@@ -322,12 +397,12 @@ func (h *Hp2430n) Run(i *dean.Injector) {
 
 		// Every tick, check if dynamic values have changed
 
-		err := h.readDynamic(&system.System, &battery.Battery, &loadInfo.LoadInfo, &solar.Solar)
+		err := h.readDynamic(&controller.Controller, &battery.Battery, &loadInfo.LoadInfo, &solar.Solar)
 		if err != nil {
 			println(err.Error())
 		}
-		if system.System != h.System {
-			i.Inject(msg.Marshal(system))
+		if controller.Controller.isDiff(h.Controller) {
+			i.Inject(msg.Marshal(controller))
 		}
 		if battery.Battery != h.Battery {
 			i.Inject(msg.Marshal(battery))
