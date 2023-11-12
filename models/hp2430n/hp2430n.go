@@ -92,6 +92,16 @@ type Historical struct {
 	ConPowerWatts   uint32
 }
 
+type msgStatus struct {
+	Path   string
+	Status string
+}
+
+type msgSystem struct {
+	Path   string
+	System System
+}
+
 type msgController struct {
 	Path       string
 	Controller Controller
@@ -124,6 +134,7 @@ type msgHistorical struct {
 
 type Hp2430n struct {
 	*common.Common
+	Status     string
 	System     System
 	Controller Controller
 	Battery    Battery
@@ -140,6 +151,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW HP2430N")
 	h := &Hp2430n{}
 	h.Common = common.New(id, model, name, targets).(*common.Common)
+	h.Status = "OK"
 	h.targetNew()
 	return h
 }
@@ -157,6 +169,8 @@ func (h *Hp2430n) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"state":             h.save,
 		"get/state":         h.getState,
+		"update/status":     h.save,
+		"update/system":     h.save,
 		"update/controller": h.save,
 		"update/battery":    h.save,
 		"update/load":       h.save,
@@ -352,85 +366,104 @@ func (h *Hp2430n) readHistorical(d *Historical) error {
 	return nil
 }
 
+var status = msgStatus{Path: "update/status"}
+var system = msgSystem{Path: "update/system"}
+var controller = msgController{Path: "update/controller"}
+var battery = msgBattery{Path: "update/battery"}
+var loadInfo = msgLoadInfo{Path: "update/load"}
+var solar = msgSolar{Path: "update/solar"}
+var daily = msgDaily{Path: "update/daily"}
+var historical = msgHistorical{Path: "update/historical"}
+
+func (h *Hp2430n) sendStatus(i *dean.Injector, newStatus string) {
+	if h.Status != newStatus {
+		var msg dean.Msg
+		status.Status = newStatus
+		i.Inject(msg.Marshal(status))
+	}
+}
+
+func (h *Hp2430n) sendSystem(i *dean.Injector) {
+	var msg dean.Msg
+
+	// readSystem blocks until we get a good system info read
+
+	for {
+		if err := h.readSystem(&system.System); err != nil {
+			h.sendStatus(i, err.Error())
+			continue
+		}
+		i.Inject(msg.Marshal(system))
+		break
+	}
+
+	h.sendStatus(i, "OK")
+}
+
+func (h *Hp2430n) sendDynamic(i *dean.Injector) {
+	var msg dean.Msg
+
+	err := h.readDynamic(&controller.Controller, &battery.Battery,
+		&loadInfo.LoadInfo, &solar.Solar)
+	if err != nil {
+		h.sendStatus(i, err.Error())
+		return
+	}
+
+	// If anything has changed, send update msg(s)
+
+	if controller.Controller.isDiff(h.Controller) {
+		i.Inject(msg.Marshal(controller))
+	}
+	if battery.Battery != h.Battery {
+		i.Inject(msg.Marshal(battery))
+	}
+	if loadInfo.LoadInfo != h.LoadInfo {
+		i.Inject(msg.Marshal(loadInfo))
+	}
+	if solar.Solar != h.Solar {
+		i.Inject(msg.Marshal(solar))
+	}
+
+	h.sendStatus(i, "OK")
+}
+
+func (h *Hp2430n) sendHourly(i *dean.Injector) {
+	var msg dean.Msg
+
+	err := h.readDaily(&daily.Daily)
+	if err != nil {
+		h.sendStatus(i, err.Error())
+		return
+	}
+	if daily.Daily != h.Daily {
+		i.Inject(msg.Marshal(daily))
+	}
+	err = h.readHistorical(&historical.Historical)
+	if err != nil {
+		h.sendStatus(i, err.Error())
+		return
+	}
+	if historical.Historical != h.Historical {
+		i.Inject(msg.Marshal(historical))
+	}
+
+	h.sendStatus(i, "OK")
+}
+
 func (h *Hp2430n) Run(i *dean.Injector) {
 
-	var msg dean.Msg
-	var controller = msgController{Path: "update/controller"}
-	var battery = msgBattery{Path: "update/battery"}
-	var loadInfo = msgLoadInfo{Path: "update/load"}
-	var solar = msgSolar{Path: "update/solar"}
-	var daily = msgDaily{Path: "update/daily"}
-	var historical = msgHistorical{Path: "update/historical"}
-
-	// Read initial values
-
-	h.Lock()
-
-	if err := h.readSystem(&h.System); err != nil {
-		println(err.Error())
-	}
-	if err := h.readDynamic(&h.Controller, &h.Battery, &h.LoadInfo, &h.Solar); err != nil {
-		println(err.Error())
-	}
-	if err := h.readDaily(&h.Daily); err != nil {
-		println(err.Error())
-	}
-	if err := h.readHistorical(&h.Historical); err != nil {
-		println(err.Error())
-	}
-
-	h.Unlock()
-
-	// Copy the initial values into the msgs
-
-	controller.Controller = h.Controller
-	battery.Battery = h.Battery
-	loadInfo.LoadInfo = h.LoadInfo
-	solar.Solar = h.Solar
-	daily.Daily = h.Daily
-	historical.Historical = h.Historical
+	h.sendSystem(i)
+	h.sendDynamic(i)
+	h.sendHourly(i)
 
 	nextHour := time.Now().Add(time.Hour)
 	ticker := time.NewTicker(5 * time.Second)
 
 	for range ticker.C {
-
-		// Every tick, check if dynamic values have changed
-
-		err := h.readDynamic(&controller.Controller, &battery.Battery, &loadInfo.LoadInfo, &solar.Solar)
-		if err != nil {
-			println(err.Error())
-		}
-		if controller.Controller.isDiff(h.Controller) {
-			i.Inject(msg.Marshal(controller))
-		}
-		if battery.Battery != h.Battery {
-			i.Inject(msg.Marshal(battery))
-		}
-		if loadInfo.LoadInfo != h.LoadInfo {
-			i.Inject(msg.Marshal(loadInfo))
-		}
-		if solar.Solar != h.Solar {
-			i.Inject(msg.Marshal(solar))
-		}
-
-		// Every hour, check if daily or historical values have changed
-
+		h.sendDynamic(i)
 		if time.Now().After(nextHour) {
-			err := h.readDaily(&daily.Daily)
-			if err != nil {
-				println(err.Error())
-			}
-			if daily.Daily != h.Daily {
-				i.Inject(msg.Marshal(daily))
-			}
-			err = h.readHistorical(&historical.Historical)
-			if err != nil {
-				println(err.Error())
-			}
-			if historical.Historical != h.Historical {
-				i.Inject(msg.Marshal(historical))
-			}
+			h.sendHourly(i)
 			nextHour = time.Now().Add(time.Hour)
 		}
 	}

@@ -13,6 +13,7 @@ class Hp2430n extends WebSocketController {
 
 	open() {
 		super.open()
+		this.showStatus()
 		this.showSystem()
 		this.showController()
 		this.showBattery()
@@ -20,6 +21,14 @@ class Hp2430n extends WebSocketController {
 		this.showSolar()
 		this.showDaily()
 		this.showHistorical()
+	}
+
+	showStatus() {
+		if (this.state.Status === "OK") {
+			this.overlay.innerHTML = ""
+		} else {
+			this.overlay.innerHTML = this.state.Status
+		}
 	}
 
 	showSystem() {
@@ -49,6 +58,7 @@ class Hp2430n extends WebSocketController {
 		ta.value += "* Temp (C):                     " + this.state.Controller.Temp + "\r\n"
 		ta.value += "* Alarms:                       "
 		if (this.state.Controller.Alarms === null) {
+			ta.rows = 2
 			ta.value += "<none>"
 		} else {
 			ta.rows = 3 + this.state.Controller.Alarms.length
@@ -111,6 +121,14 @@ class Hp2430n extends WebSocketController {
 
 	handle(msg) {
 		switch(msg.Path) {
+		case "update/status":
+			this.state.Status = msg.Status
+			this.showStatus()
+			break
+		case "update/system":
+			this.state.System = msg.System
+			this.showSystem()
+			break
 		case "update/controller":
 			this.state.Controller = msg.Controller
 			this.showController()
