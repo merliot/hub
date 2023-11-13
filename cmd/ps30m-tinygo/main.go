@@ -14,7 +14,7 @@ var (
 func main() {
 	tinynet.NetConnect(ssid, pass)
 
-	thing := ps30m.New("p2", "ps30m", "p2").(*ps30m.Ps30m)
+	thing := ps30m.New("p1", "ps30m", "p1").(*ps30m.Ps30m)
 
 	thing.SetDeployParams("target=nano-rp2040")
 

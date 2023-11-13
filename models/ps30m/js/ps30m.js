@@ -25,7 +25,9 @@ class Ps30m extends WebSocketController {
 
 	showStatus() {
 		if (this.state.Status === "OK") {
-			this.overlay.innerHTML = ""
+			if (this.overlay.innerHTML !== "Offline") {
+				this.overlay.innerHTML = ""
+			}
 		} else {
 			this.overlay.innerHTML = this.state.Status
 		}

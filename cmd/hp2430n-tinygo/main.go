@@ -14,7 +14,7 @@ var (
 func main() {
 	tinynet.NetConnect(ssid, pass)
 
-	thing := hp2430n.New("h2", "hp2430n", "nano-hp2430n").(*hp2430n.Hp2430n)
+	thing := hp2430n.New("h1", "hp2430n", "h1").(*hp2430n.Hp2430n)
 
 	thing.SetDeployParams("target=nano-rp2040")
 
