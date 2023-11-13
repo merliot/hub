@@ -1,7 +1,7 @@
 {
-	"h2": {
-		"Model": "hp2430n",
-		"Name": "nano-hp2430n",
-		"Online": false
+	"p2": {
+		"Model": "ps30m",
+		"Name": "p2",
+		"Online": true
 	}
 }

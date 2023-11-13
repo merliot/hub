@@ -9,131 +9,109 @@ class Ps30m extends WebSocketController {
 
 	constructor() {
 		super()
-		this.chart = new Chart(document.getElementById("chart"), {
-			data: {
-				labels: [],
-				datasets: [{
-					type: 'line',
-					label: 'Array Current',
-					data: [],
-					pointStyle: false,
-				}, {
-					type: 'bar',
-					label: 'Battery Terminal Voltage',
-					data: [],
-				}, {
-					type: 'line',
-					label: 'Line Current',
-					data: [],
-					pointStyle: false,
-				}],
-			},
-			options: {
-				animation: false,
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					x: {
-						reverse: true,
-					},
-				},
-			},
-		});
-		var btns = document.getElementsByName("period")
-		for (var i = 0; i < btns.length; i++) {
-			btns[i].onclick = () => this.showChart()
-		}
 	}
 
 	open() {
 		super.open()
 		this.showStatus()
-		this.showChart()
+		this.showSystem()
+		this.showController()
+		this.showBattery()
+		this.showLoadInfo()
+		this.showSolar()
+		this.showDaily()
+		this.showHistorical()
+	}
+
+	showStatus() {
+		if (this.state.Status === "OK") {
+			this.overlay.innerHTML = ""
+		} else {
+			this.overlay.innerHTML = this.state.Status
+		}
+	}
+
+	showSystem() {
+		var ta = document.getElementById("system")
+		ta.value = ""
+		ta.value += "Software Version:            " + this.state.System.SWVersion + "\r\n"
+		ta.value += "Batt Voltage Multiplier:     " + this.state.System.BattVoltMulti
+	}
+
+	showController() {
+		var ta = document.getElementById("controller")
+		ta.value = ""
+		ta.value += "* Current (A):               " + this.state.Controller.Amps
+	}
+
+	showBattery() {
+		var ta = document.getElementById("battery")
+		ta.value = ""
+		ta.value += "* Voltage (V):               " + this.state.Battery.Volts + "\r\n"
+		ta.value += "* Current (A):               " + this.state.Battery.Amps + "\r\n"
+		ta.value += "* Sense Voltage (V):         " + this.state.Battery.SenseVolts + "\r\n"
+		ta.value += "* Slow Filter Voltage (V):   " + this.state.Battery.SlowVolts + "\r\n"
+		ta.value += "* Slow Filter Current (A):   " + this.state.Battery.SlowAmps
+	}
+
+	showLoadInfo() {
+		var ta = document.getElementById("load")
+		ta.value = ""
+		ta.value += "* Voltage (V):               " + this.state.LoadInfo.Volts + "\r\n"
+		ta.value += "* Current (A):               " + this.state.LoadInfo.Amps
+	}
+
+	showSolar() {
+		var ta = document.getElementById("solar")
+		ta.value = ""
+		ta.value += "* Voltage (V):               " + this.state.Solar.Volts + "\r\n"
+		ta.value += "* Current (A):               " + this.state.Solar.Amps
+	}
+
+	showDaily() {
+		var ta = document.getElementById("daily")
+		ta.value = ""
+	}
+
+	showHistorical() {
+		var ta = document.getElementById("historical")
+		ta.value = ""
 	}
 
 	handle(msg) {
 		switch(msg.Path) {
 		case "update/status":
-			this.state.ChargeState = msg.ChargeState
-			this.state.LoadState = msg.LoadState
+			this.state.Status = msg.Status
 			this.showStatus()
 			break
-		case "update/second":
-			this.saveRecord(this.state.Seconds, msg.Record, 60)
-			this.showChart()
+		case "update/system":
+			this.state.System = msg.System
+			this.showSystem()
 			break
-		case "update/minute":
-			this.saveRecord(this.state.Minutes, msg.Record, 60)
-			this.showChart()
+		case "update/controller":
+			this.state.Controller = msg.Controller
+			this.showController()
 			break
-		case "update/hour":
-			this.saveRecord(this.state.Hours, msg.Record, 24)
-			this.showChart()
+		case "update/battery":
+			this.state.Battery = msg.Battery
+			this.showBattery()
 			break
-		case "update/day":
-			this.saveRecord(this.state.Days, msg.Record, 365)
-			this.showChart()
+		case "update/load":
+			this.state.LoadInfo = msg.LoadInfo
+			this.showLoadInfo()
 			break
-		}
-	}
-
-	saveRecord(array, record, size) {
-		array.unshift(record)
-		if (array.length > size) {
-			array.pop()
-		}
-	}
-
-	chargeState(state) {
-		const names = ["START", "NIGHT_CHECK", "NIGHT_CHECK", "NIGHT",
-			"FAULT", "BULK", "ABSORPTION", "FLOAT", "EQUALIZE"]
-		return names[state]
-	}
-
-	loadState(state) {
-		const names = ["START", "LOAD_ON", "LVD_WARNING", "LVD",
-			"FAULT", "DISCONNECT", "LOAD_OFF", "OVERRIDE"]
-		return names[state]
-	}
-
-	showStatus() {
-		var textarea = document.getElementById("status")
-		textarea.value = ""
-		textarea.value += "Charge State:   " + this.chargeState(this.state.ChargeState) + "\r\n"
-		textarea.value += "Load State:     " + this.loadState(this.state.LoadState) + "\r\n"
-	}
-
-	showChartRecords(array, size) {
-		this.chart.data.labels = Array(size).fill("");
-		for (let j = 0; j < this.chart.data.datasets.length; j++) {
-			this.chart.data.datasets[j].data = Array(size).fill(null);
-			for (let i = 0; i < array.length; i++) {
-				this.chart.data.datasets[j].data[i] = array[i][j].toFixed(2)
-			}
-		}
-		this.chart.update()
-	}
-
-	showChart() {
-		var btns = document.getElementsByName("period")
-		for (var i = 0; i < btns.length; i++) {
-			if (btns[i].checked) {
-				switch (btns[i].value) {
-				case "minute":
-					this.showChartRecords(this.state.Seconds, 60)
-					break
-				case "hour":
-					this.showChartRecords(this.state.Minutes, 60)
-					break
-				case "day":
-					this.showChartRecords(this.state.Hours, 24)
-					break
-				case "year":
-					this.showChartRecords(this.state.Days, 365)
-					break
-				}
-				return
-			}
+		case "update/solar":
+			this.state.Solar = msg.Solar
+			this.showSolar()
+			break
+		case "update/daily":
+			this.state.Daily = msg.Daily
+			this.showDaily()
+			break
+		case "update/historical":
+			this.state.Historical = msg.Historical
+			this.showHistorical()
+			break
 		}
 	}
 }
