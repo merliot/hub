@@ -366,27 +366,23 @@ func (h *Hp2430n) readHistorical(d *Historical) error {
 	return nil
 }
 
-var status = msgStatus{Path: "update/status"}
-var system = msgSystem{Path: "update/system"}
-var controller = msgController{Path: "update/controller"}
-var battery = msgBattery{Path: "update/battery"}
-var loadInfo = msgLoadInfo{Path: "update/load"}
-var solar = msgSolar{Path: "update/solar"}
-var daily = msgDaily{Path: "update/daily"}
-var historical = msgHistorical{Path: "update/historical"}
-
 func (h *Hp2430n) sendStatus(i *dean.Injector, newStatus string) {
-	if h.Status != newStatus {
-		var msg dean.Msg
-		status.Status = newStatus
-		i.Inject(msg.Marshal(status))
+	if h.Status == newStatus {
+		return
 	}
+
+	var status = msgStatus{Path: "update/status"}
+	var msg dean.Msg
+
+	status.Status = newStatus
+	i.Inject(msg.Marshal(status))
 }
 
 func (h *Hp2430n) sendSystem(i *dean.Injector) {
+	var system = msgSystem{Path: "update/system"}
 	var msg dean.Msg
 
-	// readSystem blocks until we get a good system info read
+	// sendSystem blocks until we get a good system info read
 
 	for {
 		if err := h.readSystem(&system.System); err != nil {
@@ -401,6 +397,10 @@ func (h *Hp2430n) sendSystem(i *dean.Injector) {
 }
 
 func (h *Hp2430n) sendDynamic(i *dean.Injector) {
+	var controller = msgController{Path: "update/controller"}
+	var battery = msgBattery{Path: "update/battery"}
+	var loadInfo = msgLoadInfo{Path: "update/load"}
+	var solar = msgSolar{Path: "update/solar"}
 	var msg dean.Msg
 
 	err := h.readDynamic(&controller.Controller, &battery.Battery,
@@ -429,6 +429,8 @@ func (h *Hp2430n) sendDynamic(i *dean.Injector) {
 }
 
 func (h *Hp2430n) sendHourly(i *dean.Injector) {
+	var daily = msgDaily{Path: "update/daily"}
+	var historical = msgHistorical{Path: "update/historical"}
 	var msg dean.Msg
 
 	err := h.readDaily(&daily.Daily)

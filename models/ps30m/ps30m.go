@@ -1,41 +1,85 @@
 package ps30m
 
 import (
-	"embed"
-	"html/template"
-	"net/http"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/hub/models/common"
-	"github.com/simonvetter/modbus"
 	"github.com/x448/float16"
 )
 
-//go:embed *
-var fs embed.FS
-
 const (
-	AdcIa       = 0x0011
-	AdcVbterm   = 0x0012
-	AdcIl       = 0x0016
-	ChargeState = 0x0021
-	LoadState   = 0x002E
+	reg_ver_sw          = 0x0000
+	reg_adc_ic_f_shadow = 0x0010
 )
 
-type record [3]float32
+type System struct {
+	SWVersion     string
+	BattVoltMulti uint16
+}
+
+type Controller struct {
+	Amps float32
+}
+
+type Battery struct {
+	Volts      float32
+	Amps       float32
+	SenseVolts float32
+	SlowVolts  float32
+	SlowAmps   float32
+}
+
+type LoadInfo struct {
+	Volts float32
+	Amps  float32
+}
+
+type Solar struct {
+	Volts float32
+	Amps  float32
+}
+
+type msgStatus struct {
+	Path   string
+	Status string
+}
+
+type msgSystem struct {
+	Path   string
+	System System
+}
+
+type msgController struct {
+	Path       string
+	Controller Controller
+}
+
+type msgBattery struct {
+	Path    string
+	Battery Battery
+}
+
+type msgLoadInfo struct {
+	Path     string
+	LoadInfo LoadInfo
+}
+
+type msgSolar struct {
+	Path  string
+	Solar Solar
+}
 
 type Ps30m struct {
 	*common.Common
-	ChargeStatus uint16
-	LoadStatus   uint16
-	Seconds      []record
-	Minutes      []record
-	Hours        []record
-	Days         []record
-	client       *modbus.ModbusClient
-	templates    *template.Template
+	Status string
+	System     System
+	Controller Controller
+	Battery    Battery
+	LoadInfo   LoadInfo
+	Solar      Solar
+	targetStruct
 }
 
 var targets = []string{"x86-64", "rpi"}
@@ -44,12 +88,8 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
 	p := &Ps30m{}
 	p.Common = common.New(id, model, name, targets).(*common.Common)
-	p.Seconds = make([]record, 0)
-	p.Minutes = make([]record, 0)
-	p.Hours = make([]record, 0)
-	p.Days = make([]record, 0)
-	p.CompositeFs.AddFS(fs)
-	p.templates = p.CompositeFs.ParseFS("template/*")
+	p.Status = "OK"
+	p.targetNew()
 	return p
 }
 
@@ -62,172 +102,166 @@ func (p *Ps30m) getState(msg *dean.Msg) {
 	msg.Marshal(p).Reply()
 }
 
-func (p *Ps30m) updateStatus(msg *dean.Msg) {
-	msg.Unmarshal(p).Broadcast()
-}
-
-func (p *Ps30m) saveRecord(recs *[]record, rec record, size int) {
-	n := len(*recs)
-	if n >= size {
-		n = size - 1
-	}
-	// newest record at recs[0], oldest at recs[n-1]
-	*recs = append([]record{rec}, (*recs)[:n]...)
-}
-
-type RecUpdateMsg struct {
-	Path   string
-	Record record
-}
-
-func (p *Ps30m) updateRecord(recs *[]record, size int) func(*dean.Msg) {
-	return func(msg *dean.Msg) {
-		var update RecUpdateMsg
-		msg.Unmarshal(&update)
-		p.saveRecord(recs, update.Record, size)
-		msg.Broadcast()
-	}
-}
-
 func (p *Ps30m) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
-		"state":         p.save,
-		"get/state":     p.getState,
-		"update/status": p.updateStatus,
-		"update/second": p.updateRecord(&p.Seconds, 60),
-		"update/minute": p.updateRecord(&p.Minutes, 60),
-		"update/hour":   p.updateRecord(&p.Hours, 24),
-		"update/day":    p.updateRecord(&p.Days, 365),
+		"state":             p.save,
+		"get/state":         p.getState,
+		"update/status":     p.save,
+		"update/system":     p.save,
+		"update/controller": p.save,
+		"update/battery":    p.save,
+		"update/load":       p.save,
+		"update/solar":      p.save,
 	}
 }
 
-func (p *Ps30m) api(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("/api\n"))
-	w.Write([]byte("/deploy?target={target}\n"))
-	w.Write([]byte("/state\n"))
+func swap(b []byte) uint16 {
+	return (uint16(b[0]) << 8) | uint16(b[1])
 }
 
-func (p *Ps30m) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch strings.TrimPrefix(r.URL.Path, "/") {
-	case "api":
-		p.api(w, r)
-	case "state":
-		common.ShowState(p.templates, w, p)
-	default:
-		p.API(p.templates, w, r)
+func noswap(b []byte) uint16 {
+	return (uint16(b[1]) << 8) | uint16(b[0])
+}
+
+func f16(b []byte) float32 {
+	return float16.Float16(swap(b)).Float32()
+}
+
+// bcdToDecimal converts a BCD-encoded uint16 value to decimal.
+func bcdToDecimal(bcd uint16) string {
+	decimal := uint16(0)
+	multiplier := uint16(1)
+
+	for bcd > 0 {
+		// Extract the rightmost 4 bits (a decimal digit) from BCD
+		digit := bcd & 0xF
+
+		// Add the decimal value of the digit to the result
+		decimal += digit * multiplier
+
+		// Move to the next decimal place
+		multiplier *= 10
+
+		// Shift BCD to the right by 4 bits
+		bcd >>= 4
 	}
+
+	// Convert the decimal value to a string
+	return strconv.FormatUint(uint64(decimal), 10)
 }
 
-type RegsUpdateMsg struct {
-	Path string
-	Regs map[uint16]any // keyed by addr
-}
-
-func (p *Ps30m) readRegF32(addr uint16) float32 {
-	value, _ := p.client.ReadRegister(addr, modbus.HOLDING_REGISTER)
-	return float16.Float16(value).Float32()
-}
-
-func (p *Ps30m) readRegU16(addr uint16) uint16 {
-	value, _ := p.client.ReadRegister(addr, modbus.HOLDING_REGISTER)
-	return value
-}
-
-func ave(recs []record) record {
-	var rec record
-	for j := 0; j < len(rec); j++ {
-		var sum float32
-		for i := 0; i < len(recs); i++ {
-			sum += recs[i][j]
-		}
-		rec[j] = sum / float32(len(recs))
+func (p *Ps30m) readSystem(s *System) error {
+	regs, err := p.readRegisters(reg_ver_sw, 1)
+	//regs, err := p.readRegisters(reg_ver_sw, 2)
+	if err != nil {
+		return err
 	}
-	return rec
+	s.SWVersion = bcdToDecimal(swap(regs[0:2]))
+//	s.BattVoltMulti = noswap(regs[2:4])
+	return nil
 }
 
-var sun = [...]float32{
-	0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 1.0, 1.5,
-	2.5, 4.0, 7.0, 9.0,
-	12.0, 13.0, 13.0, 12.0,
-	9.0, 7.0, 4.0, 2.5,
-	1.0, 0.0, 0.0, 0.0,
+func (p *Ps30m) readDynamic(c *Controller, b *Battery, l *LoadInfo, s *Solar) error {
+
+	regs, err := p.readRegisters(reg_adc_ic_f_shadow, 1)
+	//regs, err := p.readRegisters(reg_adc_ic_f_shadow, 10)
+	if err != nil {
+		return err
+	}
+
+	// Filtered ADC
+	c.Amps = f16(regs[0:2])
+	/*
+	s.Amps = f16(regs[2:4])
+	b.Volts = f16(regs[4:6])
+	s.Volts = f16(regs[6:8])
+	l.Volts = f16(regs[8:10])
+	b.Amps = f16(regs[10:12])
+	l.Amps = f16(regs[12:14])
+	b.SenseVolts = f16(regs[14:16])
+	b.SlowVolts = f16(regs[16:18])
+	b.SlowAmps = f16(regs[18:20])
+	*/
+
+	return nil
 }
 
-func (p *Ps30m) nextRecord() (rec record) {
-	rec[0] = p.readRegF32(AdcIa)
-	rec[1] = p.readRegF32(AdcVbterm)
-	rec[2] = p.readRegF32(AdcIl)
-	return
-}
+func (p *Ps30m) sendStatus(i *dean.Injector, newStatus string) {
+	if p.Status == newStatus {
+		return
+	}
 
-func (p *Ps30m) sendRecord(i *dean.Injector, tag string, rec record) {
+	var status = msgStatus{Path: "update/status"}
 	var msg dean.Msg
-	var update = RecUpdateMsg{
-		Path:   "update/" + tag,
-		Record: rec,
-	}
-	i.Inject(msg.Marshal(&update))
+
+	status.Status = newStatus
+	i.Inject(msg.Marshal(status))
 }
 
-type StatusMsg struct {
-	Path        string
-	ChargeState uint16
-	LoadState   uint16
-}
-
-func (p *Ps30m) sendStatus(i *dean.Injector) {
+func (p *Ps30m) sendSystem(i *dean.Injector) {
+	var system = msgSystem{Path: "update/system"}
 	var msg dean.Msg
-	var update = StatusMsg{Path: "update/status"}
-	update.ChargeState = p.readRegU16(ChargeState)
-	update.LoadState = p.readRegU16(LoadState)
-	i.Inject(msg.Marshal(&update))
-}
 
-func (p *Ps30m) sample(i *dean.Injector) {
-	ticker := time.NewTicker(time.Second)
+	// sendSystem blocks until we get a good system info read
 
 	for {
-		for day := 0; day < 365; day++ {
-			for hr := 0; hr < 24; hr++ {
-				for min := 0; min < 60; min++ {
-					for sec := 0; sec < 60; sec++ {
-						select {
-						case <-ticker.C:
-							p.sendStatus(i)
-							p.sendRecord(i, "second", p.nextRecord())
-						}
-					}
-					p.sendRecord(i, "minute", ave(p.Seconds[:60]))
-				}
-				p.sendRecord(i, "hour", ave(p.Minutes[:60]))
-			}
-			p.sendRecord(i, "day", ave(p.Hours[:24]))
+		if err := p.readSystem(&system.System); err != nil {
+			p.sendStatus(i, err.Error())
+			continue
 		}
+		i.Inject(msg.Marshal(system))
+		break
 	}
+
+	p.sendStatus(i, "OK")
+}
+
+func (p *Ps30m) sendDynamic(i *dean.Injector) {
+	var controller = msgController{Path: "update/controller"}
+	var battery = msgBattery{Path: "update/battery"}
+	var loadInfo = msgLoadInfo{Path: "update/load"}
+	var solar = msgSolar{Path: "update/solar"}
+	var msg dean.Msg
+
+	err := p.readDynamic(&controller.Controller, &battery.Battery,
+		&loadInfo.LoadInfo, &solar.Solar)
+	if err != nil {
+		p.sendStatus(i, err.Error())
+		return
+	}
+
+	// If anything has changed, send update msg(s)
+
+	if controller.Controller != p.Controller {
+		i.Inject(msg.Marshal(controller))
+	}
+	if battery.Battery != p.Battery {
+		i.Inject(msg.Marshal(battery))
+	}
+	if loadInfo.LoadInfo != p.LoadInfo {
+		i.Inject(msg.Marshal(loadInfo))
+	}
+	if solar.Solar != p.Solar {
+		i.Inject(msg.Marshal(solar))
+	}
+
+	p.sendStatus(i, "OK")
 }
 
 func (p *Ps30m) Run(i *dean.Injector) {
-	const serial = "rtu:///dev/ttyUSB0"
-	var err error
 
-	p.client, err = modbus.NewClient(&modbus.ClientConfiguration{
-		URL:      serial,
-		Speed:    9600,
-		DataBits: 8,
-		Parity:   modbus.PARITY_NONE,
-		StopBits: 2,
-		Timeout:  300 * time.Millisecond,
-	})
-	if err != nil {
-		println("Create modbus client failed:", err.Error())
-		return
+	p.sendSystem(i)
+	p.sendDynamic(i)
+	//p.sendHourly(i)
+
+	nextHour := time.Now().Add(time.Hour)
+	ticker := time.NewTicker(5 * time.Second)
+
+	for range ticker.C {
+		p.sendDynamic(i)
+		if time.Now().After(nextHour) {
+			//p.sendHourly(i)
+			nextHour = time.Now().Add(time.Hour)
+		}
 	}
-
-	if err = p.client.Open(); err != nil {
-		println("Open modbus client at", serial, "failed:", err.Error())
-		return
-	}
-
-	p.sample(i)
 }
