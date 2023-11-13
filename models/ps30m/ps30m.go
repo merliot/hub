@@ -151,27 +151,24 @@ func bcdToDecimal(bcd uint16) string {
 }
 
 func (p *Ps30m) readSystem(s *System) error {
-	regs, err := p.readRegisters(reg_ver_sw, 1)
-	//regs, err := p.readRegisters(reg_ver_sw, 2)
+	regs, err := p.readRegisters(reg_ver_sw, 2)
 	if err != nil {
 		return err
 	}
 	s.SWVersion = bcdToDecimal(swap(regs[0:2]))
-//	s.BattVoltMulti = noswap(regs[2:4])
+	s.BattVoltMulti = noswap(regs[2:4])
 	return nil
 }
 
 func (p *Ps30m) readDynamic(c *Controller, b *Battery, l *LoadInfo, s *Solar) error {
 
-	regs, err := p.readRegisters(reg_adc_ic_f_shadow, 1)
-	//regs, err := p.readRegisters(reg_adc_ic_f_shadow, 10)
+	regs, err := p.readRegisters(reg_adc_ic_f_shadow, 10)
 	if err != nil {
 		return err
 	}
 
 	// Filtered ADC
 	c.Amps = f16(regs[0:2])
-	/*
 	s.Amps = f16(regs[2:4])
 	b.Volts = f16(regs[4:6])
 	s.Volts = f16(regs[6:8])
@@ -181,7 +178,6 @@ func (p *Ps30m) readDynamic(c *Controller, b *Battery, l *LoadInfo, s *Solar) er
 	b.SenseVolts = f16(regs[14:16])
 	b.SlowVolts = f16(regs[16:18])
 	b.SlowAmps = f16(regs[18:20])
-	*/
 
 	return nil
 }
