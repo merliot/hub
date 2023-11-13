@@ -140,6 +140,10 @@ func (c *Common) Load() {
 
 func (c *Common) Save() {
 	bytes, err := json.MarshalIndent(c.DeployParams, "", "\t")
+	if _, err := os.Stat("devs/"); os.IsNotExist(err) {
+		// If the directory doesn't exist, create it
+		os.Mkdir("devs/", os.ModePerm)
+	}
 	if err == nil {
 		os.WriteFile("devs/"+c.Id+".json", bytes, 0600)
 	}
