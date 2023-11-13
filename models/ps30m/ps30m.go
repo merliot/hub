@@ -82,7 +82,7 @@ type Ps30m struct {
 	targetStruct
 }
 
-var targets = []string{"x86-64", "rpi"}
+var targets = []string{"x86-64", "rpi", "nano-rp2040"}
 
 func New(id, model, name string) dean.Thinger {
 	println("NEW PS30M")
