@@ -1,52 +1,68 @@
 class WebSocketController {
 
-	constructor() {
+	constructor(prefix) {
+		this.prefix = prefix
 		this.state = null;
 		this.conn = null;
 		this.pingID = null;
 		this.pingAlive = false;
 		this.pingSent = null;
 		this.overlay = document.getElementById("overlay");
+
+		// Add event listener for visibility change
+		document.addEventListener("visibilitychange", () => {
+			if (document.visibilityState === 'visible') {
+				// Page is visible, start or restart the WebSocket
+				this.startWebSocket()
+			} else {
+				// Page is not visible, stop the WebSocket
+				this.stopWebSocket()
+			}
+		})
+
 	}
 
-	run(prefix, ws) {
+	startWebSocket() {
 
-		const url = new URL(ws);
-		const params = new URLSearchParams(url.search);
-		const pingPeriod = params.get("ping-period") * 1000;
+		if (this.conn !== null) {
+			console.log(this.prefix, 'already connected')
+			return
+		}
 
-		console.log(prefix, 'connecting...');
-		this.conn = new WebSocket(ws);
+		console.log(this.prefix, 'connecting...')
+
+		this.conn = new WebSocket(ws)
 
 		this.conn.onopen = (evt) => {
-			console.log(prefix, 'open');
-			this.conn.send(JSON.stringify({Path: "get/state"}));
-			this.pingAlive = true;
-			this.pingID = setInterval(() => this.ping(prefix), pingPeriod)
+			console.log(this.prefix, 'open')
+			this.conn.send(JSON.stringify({Path: "get/state"}))
+			this.pingAlive = true
+			this.pingID = setInterval(() => this.ping(), this.pingPeriod)
 		};
 
 		this.conn.onclose = (evt) => {
-			console.log(prefix, 'close');
-			this.close();
+			console.log(this.prefix, 'close')
+			this.close()
 			clearInterval(this.pingID);
-			setTimeout(() => this.run(prefix, ws), 1000); // Reconnecting after 1 second
+			this.conn = null
+			setTimeout(() => this.startWebSocket(this.prefix, ws), 1000); // Reconnecting after 1 second
 		};
 
 		this.conn.onerror = (err) => {
-			console.log(prefix, 'error', err);
+			console.log(this.prefix, 'error', err);
 			this.conn.close();
 		};
 
 		this.conn.onmessage = (evt) => {
 
 			if (evt.data == "pong") {
-				//console.log(prefix, "pong", new Date() - this.pingSent)
+				//console.log(this.prefix, "pong", new Date() - this.pingSent)
 				this.pingAlive = true
 				return
 			}
 
 			var msg = JSON.parse(evt.data)
-			console.log(prefix, msg)
+			console.log(this.prefix, msg)
 
 			switch(msg.Path) {
 				case "state":
@@ -68,9 +84,20 @@ class WebSocketController {
 		};
 	}
 
-	ping(prefix) {
+	stopWebSocket() {
+	}
+
+	run(prefix, ws) {
+
+		const url = new URL(ws);
+		const params = new URLSearchParams(url.search);
+		this.pingPeriod = params.get("ping-period") * 1000;
+
+	}
+
+	ping() {
 		if (!this.pingAlive) {
-			console.log(prefix, "NOT ALIVE", new Date() - this.pingSent)
+			console.log(this.prefix, "NOT ALIVE", new Date() - this.pingSent)
 			// This waits for an ACK from server, but the server
 			// may be gone, it may take a bit to close the websocket
 			this.conn.close()
