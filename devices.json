@@ -1,12 +1,1 @@
-{
-	"h1": {
-		"Model": "hp2430n",
-		"Name": "h1",
-		"Online": false
-	},
-	"p1": {
-		"Model": "ps30m",
-		"Name": "p1",
-		"Online": false
-	}
-}
+{}
