@@ -74,6 +74,7 @@ class WebSocketController {
 			// This waits for an ACK from server, but the server
 			// may be gone, it may take a bit to close the websocket
 			this.conn.close()
+			clearInterval(this.pingID)
 			return
 		}
 		this.pingAlive = false
