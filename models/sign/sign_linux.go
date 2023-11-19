@@ -29,7 +29,7 @@ func (s *Sign) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case "state":
 		common.ShowState(s.templates, w, s)
 	default:
-		s.Common.API(s.templates, w, req)
+		s.API(s.templates, w, req)
 	}
 }
 

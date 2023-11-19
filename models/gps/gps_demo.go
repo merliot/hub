@@ -132,7 +132,7 @@ func (g *Gps) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "state":
 		common.ShowState(g.templates, w, g)
 	default:
-		g.Common.API(g.templates, w, r)
+		g.API(g.templates, w, r)
 	}
 }
 

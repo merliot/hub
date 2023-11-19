@@ -1,9 +1,10 @@
 //go:build tinygo
 
-package common
+package main
 
 import (
 	"github.com/meriot/dean"
+	"github.com/merliot/hub/models/relays"
 )
 
 var (
@@ -11,10 +12,10 @@ var (
 	pass string
 )
 
-func Run(thing dean.Thinger) {
+func main() {
 	tinynet.NetConnect(ssid, pass)
-	prime := prime.New(thing)
-	runner := dean.NewServer(prime)
+	device := relays.New("r1", "relays", "r1")
+	runner := dean.NewServer(device)
 	runner.DialWebSocket()
 	runner.Run()
 }

@@ -70,7 +70,7 @@ func (r *Relays) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case "state":
 		common.ShowState(r.templates, w, r)
 	default:
-		r.Common.API(r.templates, w, req)
+		r.API(r.templates, w, req)
 	}
 }
 

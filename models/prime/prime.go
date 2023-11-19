@@ -2,7 +2,6 @@ package prime
 
 import (
 	"embed"
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -13,19 +12,25 @@ import (
 //go:embed *
 var fs embed.FS
 
+type Device struct {
+	Id     string
+	Model  string
+	Name   string
+	Online bool
+}
+
 type Prime struct {
 	*common.Common
-	thinger dean.Thinger
+	Device Device
 	templates *template.Template
 }
 
 var targets = []string{"x86-64", "rpi"}
 
-func New(thing dean.Thinger) dean.Thinger {
+func New(id, model, name string) dean.Thinger {
 	println("NEW PRIME")
 	p := &Prime{}
-	p.Common = common.New("p1", "prime", "p1", targets).(*common.Common)
-	p.thinger = thinger
+	p.Common = common.New(id, model, name, targets).(*common.Common)
 	p.CompositeFs.AddFS(fs)
 	p.templates = p.CompositeFs.ParseFS("template/*")
 	return p
@@ -37,9 +42,7 @@ func (p *Prime) getState(msg *dean.Msg) {
 }
 
 func (p *Prime) online(msg *dean.Msg, online bool) {
-	var thing dean.ThingMsgConnect
-	msg.Unmarshal(&thing)
-	fmt.Printf("%+v\r\n", thing)
+	p.Device.Online = online
 	msg.Broadcast()
 }
 
@@ -49,11 +52,20 @@ func (p *Prime) connect(online bool) func(*dean.Msg) {
 	}
 }
 
+func (p *Prime) createdThing(msg *dean.Msg) {
+	var create dean.ThingMsgCreated
+	msg.Unmarshal(&create)
+	p.Device = Device{Id: create.Id, Model: create.Model, Name: create.Name}
+	create.Path = "created/device"
+	msg.Marshal(&create).Broadcast()
+}
+
 func (p *Prime) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"get/state":     p.getState,
 		"connected":     p.connect(true),
 		"disconnected":  p.connect(false),
+		"created/thing": p.createdThing,
 	}
 }
 

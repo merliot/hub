@@ -28,6 +28,6 @@ func (u *Uv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "state":
 		common.ShowState(u.templates, w, u)
 	default:
-		u.Common.API(u.templates, w, r)
+		u.API(u.templates, w, r)
 	}
 }
