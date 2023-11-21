@@ -13,6 +13,7 @@ class Prime extends WebSocketController {
 	}
 
 	open() {
+		super.open()
 		document.title = this.state.Device.Model + " - " + this.state.Device.Name
 		this.view.data = "/" + this.state.Device.Id + "/"
 	}
