@@ -1,20 +1,50 @@
-html * {
-	font-family: monospace, Courier, "Courier New";
-	font-size: 12px;
+body {
+	font-family: 'Arial', sans-serif;
+	background-color: #f4f4f4;
+	margin: 0px;
+	justify-content: center;
+	max-width: 600px;
 }
 
-#overlay {
-	height:0px;
-	overflow:visible;
-	pointer-events:none;
-	background:none !important;
-	position: absolute;
-	z-index: 100;
-	top: 50%;
-	left: 50%;
-	font-size: xxx-large;
-	color: red;
-	transform: translate(-50%,-50%) rotate(-45deg);
+#header {
+	padding: 15px;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#header div {
+	align-items: center;
+}
+
+#icon {
+	width: 40px;
+	height: 40px;
+}
+
+#title {
+	padding-left: 20px;
+	padding-right: 20px;
+	font-size: large;
+}
+
+#status {
+	border-radius: 15px;
+	padding: 5px 10px;
+}
+
+.icon {
+	width: 20px;
+	height: 20px;
+	padding: 0px 10px;
+}
+
+.panel {
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	margin: 0px 15px 15px 15px;
+	box-sizing: border-box;
 }
 
 textarea {

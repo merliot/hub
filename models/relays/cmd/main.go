@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	device := relays.New("r1", "relays", "r1")
+	device := relays.New("relays1", "relays", "relays")
 	server := dean.NewServer(device)
 	server.Dial()
 	server.Run()

@@ -14,7 +14,7 @@ var (
 
 func main() {
 	tinynet.NetConnect(ssid, pass)
-	device := relays.New("r1", "relays", "r1")
+	device := relays.New("relays1", "relays", "relays")
 	runner := dean.NewServer(device)
 	runner.DialWebSocket()
 	runner.Run()

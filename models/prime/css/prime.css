@@ -8,27 +8,6 @@ body {
 	height: 100%;
 }
 
-#header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 10px;
-	background-color: #333;
-}
-
-#hamburger {
-	cursor: pointer;
-	display: flex;
-	flex-direction: column;
-}
-
-.bar {
-	width: 25px;
-	height: 3px;
-	background-color: white;
-	margin: 5px 0;
-}
-
 #view {
 	height: 100%;
 	width: 100%;

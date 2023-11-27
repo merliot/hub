@@ -6,7 +6,7 @@ class WebSocketController {
 		this.pingID = null;
 		this.pingAlive = false;
 		this.pingSent = null;
-		this.overlay = document.getElementById("overlay");
+		this.stat = document.getElementById("status");
 	}
 
 	run(prefix, ws) {
@@ -91,11 +91,15 @@ class WebSocketController {
 	}
 
 	online() {
-		this.overlay.innerHTML = ""
+		this.stat.innerHTML = ""
+		this.stat.style.border = "none"
+		this.stat.style.color = "none"
 	}
 
 	offline() {
-		this.overlay.innerHTML = "Offline"
+		this.stat.innerHTML = "Offline"
+		this.stat.style.border = "solid"
+		this.stat.style.color = "red"
 	}
 
 	handle(msg) {

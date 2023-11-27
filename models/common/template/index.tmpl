@@ -11,16 +11,21 @@
 
 	</head>
 
-	<body>
-		<div id="overlay"></div>
+	<body class="divFlexCol">
 
-		<fieldset>
-			<legend>Device Info</legend>
-			<textarea readonly rows="3">
-ID:      {{.Id}}
-Model:   {{.Model}}
-Name:    {{.Name}}</textarea>
-		</fieldset>
+		<div id="header" class="divFlexRow">
+			<div class="divFlexRow">
+				<img id="icon" src="images/icon.png"></img>
+				<span id="title">{{.Name}}</span>
+			</div>
+			<div class="divFlexRow">
+				<span id="status"></span>
+			</div>
+			<div class="divFlexRow">
+				<a href="deploy-dialog"><img class="icon" src="images/download-icon.png"></a>
+				<a href="info-dialog"><img class="icon" src="images/info-icon.png"></a>
+			</div>
+		</div>
 
 {{template "index-body.tmpl" .}}
 

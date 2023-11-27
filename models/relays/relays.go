@@ -66,7 +66,7 @@ func (r *Relays) Subscribers() dean.Subscribers {
 func (r *Relays) setRelay(num int, name, gpio string) {
 	relay := &r.Relays[num]
 	if name == "" {
-		name = fmt.Sprintf("Relay #%d", num+1)
+		name = fmt.Sprintf("Relay %d", num+1)
 	}
 	relay.Name = name
 	relay.Gpio = gpio
