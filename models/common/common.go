@@ -3,6 +3,7 @@ package common
 import (
 	"html"
 	"net/url"
+	"os"
 
 	"github.com/merliot/dean"
 )
@@ -29,6 +30,7 @@ func New(id, model, name string, targets []string) dean.Thinger {
 	c.Thing = dean.NewThing(id, model, name)
 	c.Targets = makeTargets(targets)
 	c.WifiAuth = make(WifiAuth)
+	c.DeployParams = html.UnescapeString(os.Getenv("DEPLOY_PARAMS"))
 	c.commonOSInit()
 	return c
 }
@@ -36,10 +38,6 @@ func New(id, model, name string, targets []string) dean.Thinger {
 func (c *Common) ParseDeployParams() url.Values {
 	values, _ := url.ParseQuery(c.DeployParams)
 	return values
-}
-
-func (c *Common) SetDeployParams(params string) {
-	c.DeployParams = html.UnescapeString(params)
 }
 
 func (c *Common) SetWifiAuth(auth WifiAuth) {

@@ -4,9 +4,42 @@
 
 .relay {
 	align-items: center;
+	cursor: pointer;
+	width: 64px;
+}
+
+.relay-unused {
+	align-items: center;
+	width: 64px;
+}
+
+.relay-name {
+	text-align: center;
+	font-weight: bold;
+}
+
+.relay-name-unused {
+	text-align: center;
+	color: lightgrey;
+	font-size: smaller;
 }
 
 .relay-img {
 	width: 64px;
-	height: 32px;
+}
+
+.gpio {
+	background: darkorange;
+	color: white;
+	font-size: smaller;
+	border-radius: 3px;
+	padding: 0px 10px 0px 10px;
+	margin: 0px 0px 20px 0px;
+	height: 15px;
+}
+
+.gpio-unused {
+	font-size: smaller;
+	margin: 0px 0px 20px 0px;
+	height: 15px;
 }
