@@ -101,8 +101,6 @@ github.com/merliot/dean v0.0.0-20231025062428-6259503e338b h1:AwwiVnp6aDE8Mt2L55
 github.com/merliot/dean v0.0.0-20231025062428-6259503e338b/go.mod h1:VUXJ/5kx5shVxBvSiZ6Rra5PwpZoJ3DUBpXQdIqtSlU=
 github.com/merliot/dean v0.0.0-20231025075741-646a490ff27e h1:U2iSZKw2q1JraKfWNNGc28dcEqHIIGhQkMhcItqh8m4=
 github.com/merliot/dean v0.0.0-20231025075741-646a490ff27e/go.mod h1:VUXJ/5kx5shVxBvSiZ6Rra5PwpZoJ3DUBpXQdIqtSlU=
-github.com/merliot/dean v0.0.0-20231201053006-c27f801c0c3b h1:LhL/lykrG2vZBdGVXf1lpLSXYVLuXO1Z9MidWuWIyH4=
-github.com/merliot/dean v0.0.0-20231201053006-c27f801c0c3b/go.mod h1:VUXJ/5kx5shVxBvSiZ6Rra5PwpZoJ3DUBpXQdIqtSlU=
 github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b h1:J83D71MK3a/VcirrZaAxKsmPnrNB9C1NHJiGxvEF2CI=
 github.com/merliot/dean-lib v0.0.0-20230630045930-4aee4b3dea2b/go.mod h1:0wwv3sjyw9OJNgnX+LBH4n7IoCi7W5uSLrIO3/hNCxY=
 github.com/merliot/dean-lib v0.0.0-20230709062937-7418dea847c4 h1:xzBU1FFGu4nANpqE914IV+oMwhypMSyIS66rFjNuBZM=
