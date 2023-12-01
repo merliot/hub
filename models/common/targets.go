@@ -15,7 +15,12 @@ type Targets map[string]Target
 var supportedTargets = Targets{
 	"demo": Target{
 		FullName: "Demo Mode",
-		GpioPins: GpioPins{},
+		GpioPins: GpioPins{
+			"DEMO0": 0,
+			"DEMO1": 1,
+			"DEMO2": 2,
+			"DEMO3": 3,
+		},
 	},
 	"x86-64": Target{
 		FullName: "Linux x86-64",

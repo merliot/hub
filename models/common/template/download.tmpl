@@ -5,21 +5,27 @@
 		<title>Deploy {{.Model}}</title>
 
 		<link rel="stylesheet" type="text/css" href="css/common.css">
-		<link rel="stylesheet" type="text/css" href="css/deploy.css">
+		<link rel="stylesheet" type="text/css" href="css/download.css">
 
 	</head>
 
-	<body>
-		<fieldset>
-			<legend>Device Info</legend>
-			<textarea id="system" readonly rows="3">
-ID:      {{.Id}}
-Model:   {{.Model}}
-Name:    {{.Name}}</textarea>
-		</fieldset>
+	<body class="divFlexCol">
 
-		<fieldset>
-			<legend>Deploy</legend>
+		<div id="header" class="divFlexRow">
+			<div class="divFlexRow">
+				<img id="device-icon" src="images/icon.png"></img>
+				<span id="title">{{.Name}}</span>
+			</div>
+		</div>
+
+		<div class="panel divFlexCol">
+			<div class="back divFlexRow">
+				<a href="javascript:window.history.back()">
+					<img class="icon" src="images/back-icon.png">
+				</a>
+				<span>Download</span>
+			</div>
+
 			<form id="deploy-form">
 				<div class="divFlexCol">
 					<div class="divFlexRow">
@@ -40,7 +46,9 @@ Name:    {{.Name}}</textarea>
 					</div>
 					<div class="divFlexRow" id="deploy-http-div">
 						<label for="deploy-http">Run local Web Server:</label>
-						<input type="checkbox" name="http" id="deploy-http">
+						<input type="checkbox" id="deploy-http">
+						<label for="deploy-port">Port:</label>
+						<input type="text" name="port" id="deploy-port">
 					</div>
 					<div class="divFlexRow">
 						<label for="deploy-backup">Backup Hub:</label>
@@ -49,23 +57,19 @@ Name:    {{.Name}}</textarea>
 						<input type="text" name="backuphub" id="deploy-backuphub">
 					</div>
 {{template "deploy-body.tmpl" .}}
-					<hr>
 					<div class="divFlexCol">
 						<div class="divFlexRow">
-							<p>Download Link:</p>
 							<img id="gopher" src="images/gopher-workout.gif" style="display:none" width=30px>
 						</div>
-						<a id="download-link" href="#"></a>
+						<button id="download-btn">Download</button>
 						<span id="download-response"></span>
 					</div>
 				</div>
 			</form>
-			<hr>
-			<div id="deploy-instructions"></div>
-		</fieldset>
+		</div>
 
 		<script type="module">
-			import { stageDeploy } from "./js/common.js"
+			import { stageDeploy } from "./js/download.js"
 			stageDeploy("{{.DeployParams}}")
 		</script>
 

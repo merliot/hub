@@ -12,6 +12,6 @@ func main() {
 	device := prime.New("p1", "prime", "p1")
 	server := dean.NewServer(device)
 	server.RegisterModel("relays", relays.New)
-	server.CreateThing("relays1", "relays", "relays")
+	server.CreateThing("relays01", "relays", "relays")
 	server.Run()
 }

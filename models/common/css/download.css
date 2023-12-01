@@ -1,0 +1,25 @@
+#deploy-http-div {
+    display: none;
+}
+
+#deploy-port {
+	width: 64px;
+}
+
+#deploy-ssid-div {
+    display: none;
+}
+
+#download-btn {
+	color: white;
+	background: blue;
+	border: none;
+	border-radius: 3px;
+	height: 35;
+	width: 100px;
+	font-size: medium;
+}
+
+#download-response {
+	padding-top: 20px;
+}

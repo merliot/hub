@@ -15,7 +15,6 @@
 
 .relay-name {
 	text-align: center;
-	font-weight: bold;
 }
 
 .relay-name-unused {
@@ -42,4 +41,8 @@
 	font-size: smaller;
 	margin: 0px 0px 20px 0px;
 	height: 15px;
+}
+
+#info {
+	text-align: left;
 }

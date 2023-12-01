@@ -16,7 +16,7 @@ body {
 	align-items: center;
 }
 
-#icon {
+#device-icon {
 	width: 40px;
 	height: 40px;
 }
@@ -48,10 +48,8 @@ body {
 	box-sizing: border-box;
 }
 
-textarea {
-	resize: none;
-	border: none;
-	width: 100%;
+.back {
+	margin-bottom: 25px;
 }
 
 .divFlexRow {
@@ -61,18 +59,6 @@ textarea {
 .divFlexCol {
 	display: flex;
 	flex-direction: column;
-}
-
-#deploy-http-div {
-    display: none;
-}
-
-#deploy-ssid-div {
-    display: none;
-}
-
-#download-response {
-	padding-top: 20px;
 }
 
 hr {

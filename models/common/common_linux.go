@@ -108,8 +108,10 @@ func (c *Common) API(templates *template.Template, w http.ResponseWriter, r *htt
 	switch strings.TrimPrefix(path, "/") {
 	case "", "index.html":
 		RenderTemplate(templates, w, "index.tmpl", c)
-	case "deploy-dialog":
-		RenderTemplate(templates, w, "deploy.tmpl", c)
+	case "download":
+		RenderTemplate(templates, w, "download.tmpl", c)
+	case "info":
+		RenderTemplate(templates, w, "info.tmpl", c)
 	case "deploy":
 		c.deploy(templates, w, r)
 	case "code":

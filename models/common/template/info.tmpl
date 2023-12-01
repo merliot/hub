@@ -7,8 +7,6 @@
 		<link rel="stylesheet" type="text/css" href="css/common.css">
 		<link rel="stylesheet" type="text/css" href="css/{{.Model}}.css">
 
-{{template "index-head.tmpl" .}}
-
 	</head>
 
 	<body class="divFlexCol">
@@ -18,21 +16,31 @@
 				<img id="device-icon" src="images/icon.png"></img>
 				<span id="title">{{.Name}}</span>
 			</div>
-			<div class="divFlexRow">
-				<span id="status"></span>
-			</div>
-			<div class="divFlexRow">
-				<a href="download"><img class="icon" src="images/download-icon.png"></a>
-				<a href="info"><img class="icon" src="images/info-icon.png"></a>
-			</div>
 		</div>
 
-{{template "index-body.tmpl" .}}
+		<div class="panel divFlexCol">
+			<div class="back divFlexRow">
+				<a href="javascript:window.history.back()">
+					<img class="icon" src="images/back-icon.png">
+				</a>
+				<span>Info</span>
+			</div>
 
-		<script type="module">
-			import { run } from "./js/{{.Model}}.js"
-			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")
-		</script>
-
+			<table id="info">
+				<tr>
+					<th>ID</th>
+					<td>{{.Id}}</td>
+				</tr>
+				<tr>
+					<th>Model</th>
+					<td>{{.Model}}</td>
+				</tr>
+				<tr>
+					<th>Name</th>
+					<td>{{.Name}}</td>
+				</tr>
+			</table>
+		</div>
 	</body>
 </html>
+
