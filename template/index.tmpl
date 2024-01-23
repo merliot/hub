@@ -1,0 +1,36 @@
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>{{.Name}}</title>
+
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+		<link rel="stylesheet" type="text/css" href="css/{{.Model}}.css">
+
+	</head>
+
+	<body>
+		<header>
+			<div class="btnsRow">
+				<button id="create" disabled>Create</button>
+				<button id="delete" disabled>Delete</button>
+				<button id="save" disabled>Save</button>
+			</div>
+		</header>
+
+		<section>
+			<div id="explorer"></div>
+			<object id="view"></object>
+		</section>
+
+		<footer>
+			&copy; 2024 Merliot.io. All rights reserved.
+		</footer>
+
+		<script type="module">
+			import { run } from "./js/{{.Model}}.js"
+			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")
+		</script>
+
+	</body>
+</html>
