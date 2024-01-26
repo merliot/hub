@@ -1,0 +1,25 @@
+body {
+	background-color: lightgrey;
+}
+
+section {
+	background-color: white;
+	border-radius: 15px 15px 0 0;
+	height: calc(100vh - 70px);
+	width: 100%;
+}
+
+#path {
+	margin: 20px;
+}
+
+#view {
+/*	height: 100%;*/
+/*	width: 100%;*/
+}
+
+.tile {
+	width: 100px;
+	height: 100px;
+	border-radius: 10px;
+}

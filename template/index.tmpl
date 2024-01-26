@@ -1,0 +1,50 @@
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>{{.Name}}</title>
+
+		<link rel="stylesheet" type="text/css" href="css/common.css">
+		<link rel="stylesheet" type="text/css" href="css/{{.Model}}.css">
+
+	</head>
+
+	<body>
+		<header>
+			<div>
+				<img class="device-icon" src="images/icon.png"></img>
+				<span class="device-title">{{.Name}}</span>
+			</div>
+			<div>
+				<span class="device-status"></span>
+			</div>
+			<div>
+				<button id="create" disabled>Create</button>
+				<button id="delete" disabled>Delete</button>
+				<button id="save" disabled>Save</button>
+			</div>
+		</header>
+
+		<section>
+			<div class="divFlexCol">
+				<span id="path">Devices</span>
+				<object id="view">
+					<div class="divFlexWrap">
+						<img class="tile" src="images/icon.png"></img>
+						<img class="tile" src="images/icon.png"></img>
+						<img class="tile" src="images/icon.png"></img>
+						<img class="tile" src="images/icon.png"></img>
+						<img class="tile" src="images/icon.png"></img>
+						<img class="tile" src="images/icon.png"></img>
+					</div>
+				</object>
+			</div>
+		</section>
+
+		<script type="module">
+			import { run } from "./js/{{.Model}}.js"
+			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")
+		</script>
+
+	</body>
+</html>

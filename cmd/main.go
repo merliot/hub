@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/merliot/dean"
-	"github.com/merliot/device/hub"
+	"github.com/merliot/hub"
 )
 
 var (
