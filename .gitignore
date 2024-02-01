@@ -20,6 +20,6 @@
 # Go workspace file
 go.work
 
-cmd/relays/relays
-cmd/gps/gps
-cmd/sense/sense
+*.uf2
+children.json
+children/*

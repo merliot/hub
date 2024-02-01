@@ -9,41 +9,46 @@
 
 	</head>
 
-	<body>
+	<body class="online">
+
 		<header>
 			<div>
 				<img class="device-icon" src="images/icon.png"></img>
 				<span class="device-title">{{.Name}}</span>
 			</div>
+			<span class="device-offline">Offline</span>
 			<div>
-				<span class="device-status"></span>
-			</div>
-			<div>
-				<button id="create" disabled>Create</button>
-				<button id="delete" disabled>Delete</button>
-				<button id="save" disabled>Save</button>
+				<div class="divFlexRow" id="new">
+					<img class="icon" src="images/new-icon.png">
+					<span id="new-label">New</span>
+				</div>
 			</div>
 		</header>
 
 		<section>
 			<div class="divFlexCol">
-				<span id="path">Devices</span>
-				<object id="view">
-					<div class="divFlexWrap">
-						<img class="tile" src="images/icon.png"></img>
-						<img class="tile" src="images/icon.png"></img>
-						<img class="tile" src="images/icon.png"></img>
-						<img class="tile" src="images/icon.png"></img>
-						<img class="tile" src="images/icon.png"></img>
-						<img class="tile" src="images/icon.png"></img>
-					</div>
-				</object>
+				<div class="divFlexRow" id="devices">
+					<img class="icon hidden" src="images/back-icon.png" id="back">
+					<span id="path">Devices</span>
+				</div>
+				<div class="divFlexWrap" id="view">
+				</div>
 			</div>
 		</section>
 
+		<dialog id="new-dialog">
+			<div class="divFlexCol">
+			</div>
+			<hr>
+			<div class="btnsRow">
+				<button id="new-close">Close</button>
+				<button id="new-create">Create</button>
+			</div>
+		</dialog>
+
 		<script type="module">
 			import { run } from "./js/{{.Model}}.js"
-			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}")
+			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}", "{{.ViewMode}}")
 		</script>
 
 	</body>

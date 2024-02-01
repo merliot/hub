@@ -14,6 +14,11 @@ import (
 //go:embed css images js template
 var fs embed.FS
 
+const (
+	dirChildren  = "children/"
+	fileChildren = "children.json"
+)
+
 type Models []string
 
 type Child struct {
@@ -95,7 +100,7 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 	child.Path = "deleted/device"
 	msg.Marshal(&child).Broadcast()
 	h.storeChildren()
-	delChild(child.Id)
+	os.Remove(filePath(child.Id))
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -108,9 +113,6 @@ func (h *Hub) Subscribers() dean.Subscribers {
 	}
 }
 
-const dirChildren = "children/"
-const fileChildren = "children.json"
-
 func (h *Hub) restoreChildren() {
 	var children Children
 	bytes, _ := os.ReadFile(fileChildren)
@@ -121,9 +123,9 @@ func (h *Hub) restoreChildren() {
 			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
-		child := thinger.(*device.Device)
-		child.CopyWifiAuth(h.WifiAuth)
-		child.Load()
+		device := thinger.(device.Devicer)
+		device.CopyWifiAuth(h.WifiAuth)
+		device.Load(filePath(id))
 	}
 }
 
@@ -132,12 +134,12 @@ func (h *Hub) storeChildren() {
 	os.WriteFile(fileChildren, bytes, 0600)
 }
 
-func delChild(id string) {
-	os.Remove(dirChildren + id + ".json")
-}
-
 func (h *Hub) Run(i *dean.Injector) {
 	h.Models = h.server.GetModels()
 	h.restoreChildren()
 	select {}
+}
+
+func filePath(id string) string {
+	return dirChildren + id + ".json"
 }

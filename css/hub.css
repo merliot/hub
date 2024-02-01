@@ -1,5 +1,6 @@
 body {
 	background-color: lightgrey;
+	max-width: 1000px;
 }
 
 section {
@@ -9,17 +10,54 @@ section {
 	width: 100%;
 }
 
-#path {
-	margin: 20px;
-}
-
-#view {
-/*	height: 100%;*/
-/*	width: 100%;*/
-}
-
-.tile {
-	width: 100px;
-	height: 100px;
+#new {
+	background: #f4f4f4;
+	height: 40px;
 	border-radius: 10px;
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+}
+
+#new:hover {
+	background-color: white;
+}
+
+#new-label {
+	padding-right: 10px;
+	font-size: small;
+}
+
+#devices {
+	align-items: center;
+	cursor: pointer;
+	margin: 15px;
+}
+
+#devices a {
+	text-decoration: none;
+}
+
+#path {
+	font-weight: bold;
+	padding: 0 10px;
+}
+
+.device-full {
+	margin: 20px;
+	border-radius: 15px;
+	width: 100%;
+}
+
+.device-tile-div {
+	width: 162px;
+	height: 162px;
+	margin: 20px;
+	cursor: pointer;
+}
+
+.device-tile {
+	pointer-events: none;
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
 }
