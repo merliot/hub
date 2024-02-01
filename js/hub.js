@@ -30,6 +30,19 @@ class Hub extends WebSocketController {
 		this.loadView()
 	}
 
+	handle(msg) {
+		switch(msg.Path) {
+		case "created/device":
+			this.state.Devices[msg.Id] = {Model: msg.Model, Name: msg.Name, Online: false}
+			this.activeId = msg.Id
+			this.loadView()
+			break
+		case "deleted/device":
+			//this.removeDevice(msg.Id)
+			break
+		}
+	}
+
 	loadView() {
 		this.view.textContent = ''
 		if (this.activeId === '') {
@@ -54,8 +67,19 @@ class Hub extends WebSocketController {
 	}
 
 	loadViewTiled() {
-		for (let id in this.state.Children) {
-			this.loadViewTile(id)
+		const sortedIds = Object.keys(this.state.Children).sort((a, b) => {
+			const nameA = this.state.Children[a].Name.toUpperCase();
+			const nameB = this.state.Children[b].Name.toUpperCase();
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+			return 0;
+		});
+		for (let i in sortedIds) {
+			this.loadViewTile(sortedIds[i])
 		}
 		this.back.classList.replace("visible", "hidden")
 	}
@@ -78,8 +102,17 @@ class Hub extends WebSocketController {
 		this.view.appendChild(div)
 	}
 
+	generateRandomId() {
+		// Generate 4 bytes of random data for ID; return as hex-encoded string
+		return 'xxxxxxxx'.replace(/[x]/g, function(c) {
+			const r = Math.floor(Math.random() * 16);
+			return r.toString(16);
+		});
+	}
+
 	create() {
-		alert("create")
+		let myuuid = this.generateRandomId()
+		console.log('Your UUID is: ' + myuuid);
 	}
 
 	showNewDialog() {
