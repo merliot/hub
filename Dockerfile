@@ -2,6 +2,10 @@
 
 FROM ghcr.io/merliot/device/device-base:latest
 
+WORKDIR /app
+RUN git clone https://github.com/merliot/device.git
+RUN go work use device
+
 WORKDIR /app/hub
 
 COPY go.mod go.sum ./
