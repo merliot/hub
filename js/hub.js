@@ -115,6 +115,17 @@ class Hub extends WebSocketController {
 		console.log('Your UUID is: ' + myuuid);
 	}
 
+	loadModels() {
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				document.getElementById("new-dialog-models").innerHTML = xhr.responseText;
+			}
+		};
+		xhr.open("GET", "/models", true);
+		xhr.send();
+	}
+
 	showNewDialog() {
 		var dialog = document.getElementById("new-dialog")
 		var close = document.getElementById("new-close")
@@ -123,6 +134,7 @@ class Hub extends WebSocketController {
 		close.onclick = () => dialog.close()
 		create.onclick = () => this.create()
 
+		this.loadModels()
 		dialog.showModal()
 	}
 }

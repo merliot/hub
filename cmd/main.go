@@ -26,6 +26,6 @@ func main() {
 	hub.SetGit(gitRemote, gitKey, gitAuthor)
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
-	registerModels(server)
+	registerModels(hub)
 	server.Run()
 }

@@ -2,6 +2,7 @@ package hub
 
 import (
 	"embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -19,7 +20,12 @@ const (
 	fileChildren = "children.json"
 )
 
-type Models []string
+type Model struct {
+	Icon     string
+	DescHtml string
+}
+
+type Models map[string]Model // keyed by model
 
 type Child struct {
 	Model  string
@@ -31,7 +37,7 @@ type Children map[string]*Child // keyed by id
 
 type Hub struct {
 	*device.Device
-	Models
+	Models `json:"-"`
 	Children
 	server    *dean.Server
 	gitKey    string
@@ -46,6 +52,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	h := &Hub{}
 	h.Device = device.New(id, model, name, targets).(*device.Device)
+	h.Models = make(Models)
 	h.Children = make(Children)
 	h.CompositeFs.AddFS(fs)
 	h.templates = h.CompositeFs.ParseFS("template/*")
@@ -54,6 +61,18 @@ func New(id, model, name string) dean.Thinger {
 
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
+}
+
+func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
+	if h.server == nil {
+		return
+	}
+	h.server.RegisterModel(model, maker)
+	modeler := maker("proto", model, "proto").(device.Modeler)
+	h.Models[model] = Model{
+		Icon:     base64.StdEncoding.EncodeToString(modeler.Icon()),
+		DescHtml: string(modeler.DescHtml()),
+	}
 }
 
 func (h *Hub) SetGit(remote, key, author string) {
@@ -91,6 +110,10 @@ func (h *Hub) createdThing(msg *dean.Msg) {
 	child.Path = "created/device"
 	msg.Marshal(&child).Broadcast()
 	h.storeChildren()
+}
+
+func filePath(id string) string {
+	return dirChildren + id + ".json"
 }
 
 func (h *Hub) deletedThing(msg *dean.Msg) {
@@ -135,11 +158,6 @@ func (h *Hub) storeChildren() {
 }
 
 func (h *Hub) Run(i *dean.Injector) {
-	h.Models = h.server.GetModels()
 	h.restoreChildren()
 	select {}
-}
-
-func filePath(id string) string {
-	return dirChildren + id + ".json"
 }

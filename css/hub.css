@@ -10,6 +10,10 @@ section {
 	width: 100%;
 }
 
+#view {
+	padding: 0 15px;
+}
+
 #new {
 	background: #f4f4f4;
 	height: 40px;
@@ -51,7 +55,7 @@ section {
 .device-tile-div {
 	width: 162px;
 	height: 162px;
-	margin: 20px;
+	margin: 10px;
 	cursor: pointer;
 }
 

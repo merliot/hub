@@ -54,6 +54,8 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.apiDelete(w, r)
 	case "save":
 		h.apiSave(w, r)
+	case "models":
+		device.RenderTemplate(h.templates, w, "models.tmpl", h)
 	default:
 		h.API(h.templates, w, r)
 	}
