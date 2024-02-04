@@ -14,10 +14,16 @@ class Hub extends WebSocketController {
 		this.devices = document.getElementById("devices")
 		this.new = document.getElementById("new")
 		this.backIcon = document.getElementById("back-icon")
+		this.trashIcon = document.getElementById("trash-icon")
+		this.newDialog = document.getElementById("new-dialog")
 
 		this.devices.onclick = () => {
 			this.activeId = ""
 			this.loadView()
+		}
+
+		this.trashIcon.onclick = () => {
+			this.delete()
 		}
 
 		this.new.onclick = () => {
@@ -35,12 +41,14 @@ class Hub extends WebSocketController {
 	handle(msg) {
 		switch(msg.Path) {
 		case "created/device":
-			this.state.Devices[msg.Id] = {Model: msg.Model, Name: msg.Name, Online: false}
+			this.state.Children[msg.Id] = {Model: msg.Model, Name: msg.Name, Online: false}
 			this.activeId = msg.Id
 			this.loadView()
 			break
 		case "deleted/device":
-			//this.removeDevice(msg.Id)
+			delete this.state.Children[msg.Id]
+			this.activeId = ""
+			this.loadView()
 			break
 		}
 	}
@@ -66,6 +74,7 @@ class Hub extends WebSocketController {
 
 		this.view.appendChild(device)
 		this.backIcon.classList.replace("hidden", "visible")
+		this.trashIcon.classList.replace("hidden", "visible")
 	}
 
 	loadViewTiled() {
@@ -84,6 +93,7 @@ class Hub extends WebSocketController {
 			this.loadViewTile(sortedIds[i])
 		}
 		this.backIcon.classList.replace("visible", "hidden")
+		this.trashIcon.classList.replace("visible", "hidden")
 	}
 
 	loadViewTile(id) {
@@ -104,39 +114,93 @@ class Hub extends WebSocketController {
 		this.view.appendChild(div)
 	}
 
-	generateRandomId() {
-		// Generate 4 bytes of random data for ID; return as hex-encoded string
-		return 'xxxxxxxx'.replace(/[x]/g, function(c) {
-			const r = Math.floor(Math.random() * 16);
-			return r.toString(16);
+	closeDialog(event) {
+		event.preventDefault()
+		this.newDialog.close()
+	}
+
+	async create(event) {
+		event.preventDefault()
+
+		var createErr = document.getElementById("create-err")
+		var form = document.getElementById("new-dialog-form")
+		var formData = new FormData(form)
+		var query = new URLSearchParams(formData).toString()
+
+		let response = await fetch("/create?" + query)
+
+		if (response.status == 201) {
+			this.newDialog.close()
+		} else {
+			let data = await response.text()
+			createErr.innerText = data
+		}
+	}
+
+	async delete() {
+		let response = await fetch("/delete?id=" + this.activeId)
+
+		if (response.status != 200) {
+			let data = await response.text()
+			alert(data)
+		}
+	}
+
+	setupModelClick() {
+		var models = document.querySelectorAll('.model');
+		models.forEach(function(model) {
+			model.onclick = () => {
+				// Reset all models to their default style
+				var models = document.querySelectorAll('.model');
+				models.forEach(function(div) {
+					div.classList.remove('selected');
+				});
+				// Mark the selected model
+				model.classList.add('selected');
+				// Set the selected model's html id in the hidden input
+				document.getElementById('new-model').value = model.id;
+			}
 		});
 	}
 
-	create() {
-		let myuuid = this.generateRandomId()
-		console.log('Your UUID is: ' + myuuid);
-	}
-
 	loadModels() {
-		var dialog = document.getElementById("new-dialog")
+		var setupModelClick = this.setupModelClick
+		var newDialog = this.newDialog
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				document.getElementById("new-dialog-models").innerHTML = xhr.responseText;
-				dialog.showModal()
+				setupModelClick()
+				newDialog.showModal()
 			}
 		};
 		xhr.open("GET", "/models", true);
 		xhr.send();
 	}
 
+	generateRandomId() {
+		// Generate 8 bytes of random data for ID; return as hex-encoded string
+		return 'xxxxxxxx-xxxxxxxx'.replace(/[x]/g, function(c) {
+			const r = Math.floor(Math.random() * 16);
+			return r.toString(16);
+		});
+	}
+
 	showNewDialog() {
-		var dialog = document.getElementById("new-dialog")
 		var close = document.getElementById("new-close")
 		var create = document.getElementById("new-create")
+		var id = document.getElementById("new-id")
+		var model = document.getElementById("new-model")
+		var name = document.getElementById("new-name")
+		var err = document.getElementById("create-err")
 
-		close.onclick = () => dialog.close()
-		create.onclick = () => this.create()
+		close.onclick = (event) => this.closeDialog(event)
+		create.onclick = (event) => this.create(event)
+
+		id.value = this.generateRandomId()
+		model.value = ""
+		name.value = ""
+		err.innerText = ""
 
 		this.loadModels()
 	}

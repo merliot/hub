@@ -1,5 +1,5 @@
 {{range $key, $value := .Models}}
-	<div class="divFlexRow model">
+	<div class="divFlexRow model" id={{$key}}>
 		<div class="divFlexCol model-label">
 			<div class="model-name">{{$key}}</div>
 			<img class="device-icon" src="data:image/png;base64,{{.Icon}}">

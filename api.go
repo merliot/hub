@@ -19,7 +19,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	child := thinger.(*device.Device)
+	child := thinger.(device.Devicer)
 	child.CopyWifiAuth(h.WifiAuth)
 
 	w.WriteHeader(http.StatusCreated)

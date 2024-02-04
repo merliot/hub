@@ -27,9 +27,12 @@
 
 		<section>
 			<div class="divFlexCol">
-				<div class="divFlexRow" id="devices">
-					<img class="icon hidden" src="images/back-icon.png" id="back-icon">
-					<span id="path">Devices</span>
+				<div class="divFlexRow" id="devices-row">
+					<div class="divFlexRow" id="devices">
+						<img class="icon hidden" src="images/back-icon.png" id="back-icon">
+						<span id="path">Devices</span>
+					</div>
+					<img class="icon hidden" src="images/trash-icon.png" id="trash-icon">
 				</div>
 				<div class="divFlexWrap" id="view">
 				</div>
@@ -37,19 +40,22 @@
 		</section>
 
 		<dialog id="new-dialog">
-			<div class="divFlexCol">
-				<label for="new-id">ID:</label>
-				<input type="text" placeholder="Device ID" id="new-id">
-				<label for="new-name">Name:</label>
-				<input type="text" placeholder="Device Name" id="new-name">
-				<span>Model:</span>
+			<form class="divFlexCol" id="new-dialog-form">
+				<input type="hidden" name="id" id="new-id">
+				<input type="hidden" name="model" id="new-model">
+				<div class="divFlexRow" id="name-div">
+					<label for="new-name">Name:</label>
+					<input type="text" name="name" placeholder="Device Name" id="new-name">
+				</div>
+				<span>Model (select one):</span>
 				<div class="models" id="new-dialog-models"></div>
 				<hr>
+				<em id="create-err"></em>
 				<div class="divFlexRow btns">
 					<button class="btn" id="new-close">Close</button>
 					<button class="btn" id="new-create">Create</button>
 				</div>
-			</div>
+			</form>
 		</dialog>
 
 		<script type="module">

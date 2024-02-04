@@ -36,16 +36,17 @@ section {
 	max-width: 600px;
 }
 
-.models {
-	margin: 20px 0;
-}
-
 .model {
 	margin: 5px 0;
 	border-radius: 12px;
 	border: 1px solid darkgrey;
 	overflow: hidden;
 	cursor: pointer;
+}
+
+.selected {
+	border-width: thick;
+	border-color: cornflowerblue;
 }
 
 .model-name {
@@ -77,10 +78,28 @@ section {
 	padding: 3px;
 }
 
+#create-err {
+	color: red;
+	margin: 0 0 15px 0;
+}
+
+#new-name {
+	margin: 0 0 0 10px;
+}
+
+#name-div {
+	margin: 0 0 20px 0;
+}
+
+#devices-row {
+	justify-content: space-between;
+	align-items: center;
+	margin: 15px 20px;
+}
+
 #devices {
 	align-items: center;
 	cursor: pointer;
-	margin: 15px;
 }
 
 #path {
