@@ -21,8 +21,9 @@ const (
 )
 
 type Model struct {
-	Icon     string
-	DescHtml string
+	Icon             string
+	DescHtml         template.HTML
+	SupportedTargets string
 }
 
 type Models map[string]Model // keyed by model
@@ -70,8 +71,9 @@ func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
 	h.server.RegisterModel(model, maker)
 	modeler := maker("proto", model, "proto").(device.Modeler)
 	h.Models[model] = Model{
-		Icon:     base64.StdEncoding.EncodeToString(modeler.Icon()),
-		DescHtml: string(modeler.DescHtml()),
+		Icon:             base64.StdEncoding.EncodeToString(modeler.Icon()),
+		DescHtml:         template.HTML(modeler.DescHtml()),
+		SupportedTargets: modeler.SupportedTargets(),
 	}
 }
 

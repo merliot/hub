@@ -7,11 +7,13 @@ export function run(prefix, url, viewMode) {
 class Hub extends WebSocketController {
 
 	constructor(prefix, url, viewMode) {
+
 		super(prefix, url, viewMode)
+
 		this.view = document.getElementById("view")
 		this.devices = document.getElementById("devices")
 		this.new = document.getElementById("new")
-		this.back = document.getElementById("back")
+		this.backIcon = document.getElementById("back-icon")
 
 		this.devices.onclick = () => {
 			this.activeId = ""
@@ -63,7 +65,7 @@ class Hub extends WebSocketController {
 		}
 
 		this.view.appendChild(device)
-		this.back.classList.replace("hidden", "visible")
+		this.backIcon.classList.replace("hidden", "visible")
 	}
 
 	loadViewTiled() {
@@ -81,7 +83,7 @@ class Hub extends WebSocketController {
 		for (let i in sortedIds) {
 			this.loadViewTile(sortedIds[i])
 		}
-		this.back.classList.replace("visible", "hidden")
+		this.backIcon.classList.replace("visible", "hidden")
 	}
 
 	loadViewTile(id) {
@@ -116,10 +118,12 @@ class Hub extends WebSocketController {
 	}
 
 	loadModels() {
+		var dialog = document.getElementById("new-dialog")
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				document.getElementById("new-dialog-models").innerHTML = xhr.responseText;
+				dialog.showModal()
 			}
 		};
 		xhr.open("GET", "/models", true);
@@ -135,6 +139,5 @@ class Hub extends WebSocketController {
 		create.onclick = () => this.create()
 
 		this.loadModels()
-		dialog.showModal()
 	}
 }

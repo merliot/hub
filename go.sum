@@ -46,6 +46,8 @@ github.com/merliot/device v0.0.0-20240201033916-6605a4c91299 h1:qkO1E/EtlY3jdHu3
 github.com/merliot/device v0.0.0-20240201033916-6605a4c91299/go.mod h1:vPrEcw70HyTYj3yM5uzl4ZNDVoPpyIRdl6xM9kpChn0=
 github.com/merliot/device v0.0.0-20240203034054-db0557b9d932 h1:9gLoRvR4u3M3BltydtTKGjkcG//6ejE1YeDllINp658=
 github.com/merliot/device v0.0.0-20240203034054-db0557b9d932/go.mod h1:vPrEcw70HyTYj3yM5uzl4ZNDVoPpyIRdl6xM9kpChn0=
+github.com/merliot/device v0.0.0-20240204050201-7a8f7f189dbc h1:3a/HNBViunZhvWZ2cjswPH22XnH2egyPtzkIkN0iLZc=
+github.com/merliot/device v0.0.0-20240204050201-7a8f7f189dbc/go.mod h1:vPrEcw70HyTYj3yM5uzl4ZNDVoPpyIRdl6xM9kpChn0=
 github.com/merliot/garage v0.0.0-20240122081033-1f87724af574 h1:nfuEJMdnrBID+Fieb7a7ZRmDfGX5KoIAjiTrgNbyi7k=
 github.com/merliot/garage v0.0.0-20240122081033-1f87724af574/go.mod h1:fY4i99UN3SUPo2P8DA+tYIr1VD0VQRnRx3IMujeaNQQ=
 github.com/merliot/garage v0.0.0-20240130065411-9994fa6fa0a1 h1:53phOHZan8Uy6915jd9GtxsICjDIc0s9AM7vDuGzR48=
@@ -56,6 +58,8 @@ github.com/merliot/garage v0.0.0-20240201034031-da635c09220e h1:FEjRl7u24u7iVsSf
 github.com/merliot/garage v0.0.0-20240201034031-da635c09220e/go.mod h1:b6kp1p4I68+LCXUcu8yassOIrM2nZ3BPQldK2KTAIog=
 github.com/merliot/garage v0.0.0-20240203034842-0b65e154cd42 h1:GBNqCGuzMrgc3iAqt47kfIRwFbj58OH8NcVzQ9VF0qY=
 github.com/merliot/garage v0.0.0-20240203034842-0b65e154cd42/go.mod h1:7r5MFlW5NrYHs0tAXPpl0Ilu+i9/Zssq/qCmVNUjENA=
+github.com/merliot/garage v0.0.0-20240204050745-3584c586bf48 h1:bXVsyofTyGAj+GGooH5gE2obrEwAZlWNzdCeK5+kEOM=
+github.com/merliot/garage v0.0.0-20240204050745-3584c586bf48/go.mod h1:BV3H8sGtjMxDskB61pAYjG4RdkI2RUGyRu1D2wgkkcs=
 github.com/merliot/relays v0.0.0-20240122080606-703fbb8bf485 h1:pfL2ttuG/txzVI2cYgyjcXpupeFuCKSgNfvtCWvCvVQ=
 github.com/merliot/relays v0.0.0-20240122080606-703fbb8bf485/go.mod h1:bShDQWTKIMmr9g2Pk9DoU6eQ6QWZ484L3XVeuG40HF0=
 github.com/merliot/relays v0.0.0-20240130071553-a16dee15f3a9 h1:otPPySUF7ua2ahgJS7/f5MDj5To6/Y01cLpdDYjmEGI=
@@ -66,6 +70,8 @@ github.com/merliot/relays v0.0.0-20240201094402-1bd234f8a5f0 h1:pkgCKwYdcxKlRha6
 github.com/merliot/relays v0.0.0-20240201094402-1bd234f8a5f0/go.mod h1:9+q9STCAgjG7bJCZ2mw97M9LzgLT5NQRuRVVRhpqgu0=
 github.com/merliot/relays v0.0.0-20240203034831-57e75e962973 h1:oKI3GSfrzgS6olAPaF0hxcr1quwWbp97S+J5zE9Ks5g=
 github.com/merliot/relays v0.0.0-20240203034831-57e75e962973/go.mod h1:Jr+R/L7IDtNMkdGNvXuWYR4P8d7gwFW4BnnEW8Sq730=
+github.com/merliot/relays v0.0.0-20240204050716-7c32fb50fcee h1:bqBcDUjt8IZqEcSadsVtDbPvudnH+gpSiXyWSw1SUu4=
+github.com/merliot/relays v0.0.0-20240204050716-7c32fb50fcee/go.mod h1:OpYvkHmvf4vOoguTNAsoIE29GjEauQ15OS2euiulFik=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
 github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab/go.mod h1:y1pL58r5z2VvAjeG1VLGc8zOQgSOzbKN7kMHPvFXJ+8=
 github.com/muka/go-bluetooth v0.0.0-20200926181701-4ca7d8dd0ff5/go.mod h1:dMCjicU6vRBk34dqOmIZm0aod6gUwZXOXzBROqGous0=

@@ -1,4 +1,16 @@
 {{range $key, $value := .Models}}
-	<img src="data:image/png;base64,{{.Icon}}">
-	<div>{{$key}}</div>
+	<div class="divFlexRow model">
+		<div class="divFlexCol model-label">
+			<div class="model-name">{{$key}}</div>
+			<img class="device-icon" src="data:image/png;base64,{{.Icon}}">
+		</div>
+		<div class="divFlexCol model-desc">
+			<div class="model-desc-html">
+				{{.DescHtml}}
+			</div>
+			<div class="model-supported-targets">
+				Targets: {{.SupportedTargets}}
+			</div>
+		</div>
+	</div>
 {{end}}

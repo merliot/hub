@@ -28,7 +28,7 @@
 		<section>
 			<div class="divFlexCol">
 				<div class="divFlexRow" id="devices">
-					<img class="icon hidden" src="images/back-icon.png" id="back">
+					<img class="icon hidden" src="images/back-icon.png" id="back-icon">
 					<span id="path">Devices</span>
 				</div>
 				<div class="divFlexWrap" id="view">
@@ -37,11 +37,18 @@
 		</section>
 
 		<dialog id="new-dialog">
-			<div id="new-dialog-models"></div>
-			<hr>
-			<div class="btnsRow">
-				<button id="new-close">Close</button>
-				<button id="new-create">Create</button>
+			<div class="divFlexCol">
+				<label for="new-id">ID:</label>
+				<input type="text" placeholder="Device ID" id="new-id">
+				<label for="new-name">Name:</label>
+				<input type="text" placeholder="Device Name" id="new-name">
+				<span>Model:</span>
+				<div class="models" id="new-dialog-models"></div>
+				<hr>
+				<div class="divFlexRow btns">
+					<button class="btn" id="new-close">Close</button>
+					<button class="btn" id="new-create">Create</button>
+				</div>
 			</div>
 		</dialog>
 

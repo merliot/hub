@@ -48,6 +48,8 @@ func (h *Hub) apiSave(w http.ResponseWriter, r *http.Request) {
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
+	case "state":
+		device.ShowState(h.templates, w, h)
 	case "create":
 		h.apiCreate(w, r)
 	case "delete":
