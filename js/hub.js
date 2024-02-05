@@ -219,7 +219,9 @@ class Hub extends WebSocketController {
 		err.innerText = ""
 
 		var delprompt = document.getElementById("delete-prompt")
-		delprompt.innerText = "Delete device ID " + this.activeId + "?"
+		var id = this.activeId
+		var child = this.state.Children[id]
+		delprompt.innerHTML = "Delete device?<br><br>ID: " + id + "<br>Model: " + child.Model + "<br>Name: " + child.Name
 
 		this.deleteDialog.showModal()
 	}
