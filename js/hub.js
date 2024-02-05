@@ -16,6 +16,7 @@ class Hub extends WebSocketController {
 		this.backIcon = document.getElementById("back-icon")
 		this.trashIcon = document.getElementById("trash-icon")
 		this.newDialog = document.getElementById("new-dialog")
+		this.deleteDialog = document.getElementById("delete-dialog")
 
 		this.devices.onclick = () => {
 			this.activeId = ""
@@ -23,7 +24,7 @@ class Hub extends WebSocketController {
 		}
 
 		this.trashIcon.onclick = () => {
-			this.delete()
+			this.showDeleteDialog()
 		}
 
 		this.new.onclick = () => {
@@ -114,7 +115,7 @@ class Hub extends WebSocketController {
 		this.view.appendChild(div)
 	}
 
-	closeDialog(event) {
+	closeNewDialog(event) {
 		event.preventDefault()
 		this.newDialog.close()
 	}
@@ -137,12 +138,15 @@ class Hub extends WebSocketController {
 		}
 	}
 
-	async delete() {
+	async deletef() {
 		let response = await fetch("/delete?id=" + this.activeId)
+		var deleteErr = document.getElementById("delete-err")
 
-		if (response.status != 200) {
+		if (response.status == 200) {
+			this.deleteDialog.close()
+		} else {
 			let data = await response.text()
-			alert(data)
+			deleteErr.innerText = data
 		}
 	}
 
@@ -194,7 +198,7 @@ class Hub extends WebSocketController {
 		var name = document.getElementById("new-name")
 		var err = document.getElementById("create-err")
 
-		close.onclick = (event) => this.closeDialog(event)
+		close.onclick = (event) => this.closeNewDialog(event)
 		create.onclick = (event) => this.create(event)
 
 		id.value = this.generateRandomId()
@@ -203,5 +207,20 @@ class Hub extends WebSocketController {
 		err.innerText = ""
 
 		this.loadModels()
+	}
+
+	showDeleteDialog() {
+		var close = document.getElementById("delete-close")
+		var deleteBtn = document.getElementById("delete-delete")
+		close.onclick = (event) => this.deleteDialog.close()
+		deleteBtn.onclick = (event) => this.deletef()
+
+		var err = document.getElementById("delete-err")
+		err.innerText = ""
+
+		var delprompt = document.getElementById("delete-prompt")
+		delprompt.innerText = "Delete device ID " + this.activeId + "?"
+
+		this.deleteDialog.showModal()
 	}
 }

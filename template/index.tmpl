@@ -58,9 +58,21 @@
 			</form>
 		</dialog>
 
+		<dialog id="delete-dialog">
+			<div class="divFlexCol">
+				<span id="delete-prompt"></span>
+				<em id="delete-err"></em>
+			</div>
+			<hr>
+			<div class="divFlexRow btns">
+				<button class="btn" id="delete-close">Close</button>
+				<button class="btn" id="delete-delete">Delete</button>
+			</div>
+		</dialog>
+
 		<script type="module">
 			import { run } from "./js/{{.Model}}.js"
-			run("[{{.Model}} {{.Id}}]", "{{.WebSocket}}", "{{.ViewMode}}")
+			run("[{{.Model}} {{.Name}}]", "{{.WebSocket}}", "{{.ViewMode}}")
 		</script>
 
 	</body>
