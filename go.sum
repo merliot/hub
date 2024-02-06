@@ -50,6 +50,8 @@ github.com/merliot/hp2430n v0.0.0-20240206064708-7129dee19e28 h1:ktCSET4Sboq03Xc
 github.com/merliot/hp2430n v0.0.0-20240206064708-7129dee19e28/go.mod h1:ZRdsG4v0WUHVk0xax3MPcfzrYAvg4zAfGHgMYkclvVo=
 github.com/merliot/hp2430n v0.0.0-20240206193739-936b3be18bd1 h1:MqBN9f4z2B/LG9mrAcb3PjGVtBKdL9PlaC1aEi0dD3c=
 github.com/merliot/hp2430n v0.0.0-20240206193739-936b3be18bd1/go.mod h1:dvod/DfgUGdKsQ5WXl5n3vISm0jLy+dkoAO8XbN4Y7s=
+github.com/merliot/ps30m v0.0.0-20240206221929-7e7a842ef2e0 h1:aHb+3m0GLKK+la0VbPWNCQNWMQg6pYzSX0mHZWgOZCE=
+github.com/merliot/ps30m v0.0.0-20240206221929-7e7a842ef2e0/go.mod h1:+bjqRuF/j4SDY6CmENPHC3GOI+HzqZ6sezAe0fJY0rU=
 github.com/merliot/relays v0.0.0-20240206061655-5d501960c387 h1:vFyxMOuv87GgOeXkv8yTeBt6F1wGAIXORdcYcpbgYl0=
 github.com/merliot/relays v0.0.0-20240206061655-5d501960c387/go.mod h1:XOMUpBeIi0PXAy1eI3sI+AxP0kVllEVfGJf/UcFkrdc=
 github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
@@ -88,6 +90,8 @@ github.com/suapapa/go_eddystone v1.3.1/go.mod h1:bXC11TfJOS+3g3q/Uzd7FKd5g62STQE
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/valyala/fastjson v1.6.3/go.mod h1:CLCAqky6SMuOcxStkYQvblddUtoRxhYMGLrsQns1aXY=
 github.com/veandco/go-sdl2 v0.3.3/go.mod h1:FB+kTpX9YTE+urhYiClnRzpOXbiWgaU3+5F2AB78DPg=
+github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
+github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.bug.st/serial v1.1.1/go.mod h1:VmYBeyJWp5BnJ0tw2NUJHZdJTGl2ecBGABHlzRK1knY=
 gobot.io/x/gobot v1.16.0 h1:MQN0c5iPYBkChpPPY/zM6Au0rihJZ4QmK98kn1DKBKQ=
