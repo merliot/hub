@@ -4,9 +4,9 @@ go 1.21.5
 
 require (
 	github.com/merliot/dean v0.0.0-20240117194605-79a37431f285
-	github.com/merliot/device v0.0.0-20240206060217-03df0ed5e2a2
+	github.com/merliot/device v0.0.0-20240206192909-bd95e0e1c2e3
 	github.com/merliot/garage v0.0.0-20240206061709-093f928667c8
-	github.com/merliot/hp2430n v0.0.0-20240206064708-7129dee19e28
+	github.com/merliot/hp2430n v0.0.0-20240206193739-936b3be18bd1
 	github.com/merliot/relays v0.0.0-20240206061655-5d501960c387
 )
 
