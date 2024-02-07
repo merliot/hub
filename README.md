@@ -7,6 +7,10 @@
 
 Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
+One-click deploy a Merliot Hub on the cloud with Koyeb (account required):
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
+
 ## Docker
 
 Deploy Merliot Hub using [docker](https://www.docker.com/):
@@ -20,12 +24,6 @@ docker run -p 80:8000 hub
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
 
-## Cloud
-
-One-click deploy a Merliot Hub on one of these cloud providers:
-
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
-
 ## Run from Source
 
 **Prerequisite**: Go version 1.20 or higher
@@ -33,13 +31,10 @@ One-click deploy a Merliot Hub on one of these cloud providers:
 ```
 git clone https://github.com/merliot/hub.git
 cd hub
-go run cmd/hub/main.go
+go run ./cmd
 ```
 
 Browse to [http://127.0.0.1:8000](http://127.0.0.1:8000) to view hub and deploy devices.
-
-> [!NOTE]
-> For this quick start mode, deploying to TinyGo devices will not work, currently.  A future TinyGo release will address this.
 
 ## Device
 
