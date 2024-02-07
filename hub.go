@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"time"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
@@ -124,8 +125,8 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 	delete(h.Children, child.Id)
 	child.Path = "deleted/device"
 	msg.Marshal(&child).Broadcast()
-	h.storeChildren()
 	os.Remove(filePath(child.Id))
+	h.storeChildren()
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -161,5 +162,8 @@ func (h *Hub) storeChildren() {
 
 func (h *Hub) Run(i *dean.Injector) {
 	h.restoreChildren()
-	select {}
+	for {
+		h.saveChildren()
+		time.Sleep(time.Second)
+	}
 }

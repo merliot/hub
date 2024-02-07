@@ -128,7 +128,7 @@ func (h *Hub) saveChildren() error {
 	if !changes {
 		return errors.New("No changes to save")
 	}
-	if err := commitChanges("update devices", h.gitAuthor); err != nil {
+	if err := commitChanges("updated devices", h.gitAuthor); err != nil {
 		return err
 	}
 	return pushCommit(h.gitRemote, h.gitKey)
