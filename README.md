@@ -87,7 +87,10 @@ Port for golang pprof.  Setting PPROF_PORT=6060 will map /pprof/ to the runtime 
 
 **GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
 
-Required if saving device changes.
+Required if saving device changes.  E.g.:
+- GIT_AUTHOR="Joe Dirt <<joe@gmail.com>>"
+- GIT_REMOTE="https://github.com/merliot/hub"
+- GIT_KEY=$(</path/to/key)
 
 **BACKUP_HUB** (hub)
 
