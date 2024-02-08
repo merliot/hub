@@ -165,7 +165,7 @@ func (h *Hub) Run(i *dean.Injector) {
 	for {
 		err := h.saveChildren()
 		if err != nil {
-			fmt.Println("saving children error:", err.Error)
+			fmt.Println("saving children error:", err.Error())
 		}
 		time.Sleep(5 * time.Second)
 	}
