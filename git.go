@@ -149,7 +149,7 @@ func commitChanges(commitMessage, author string) error {
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %s, %w", out, err)
 	}
-	fmt.Println("Changes committed successfully!")
+	fmt.Println("\nChanges committed successfully!")
 	return nil
 }
 
@@ -201,7 +201,7 @@ func pushCommit(remote, key string) error {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
 	}
 
-	fmt.Println("Pushed commit successfully!")
+	fmt.Println("\nPushed commit successfully!")
 	return nil
 }
 
@@ -226,7 +226,7 @@ func (h *Hub) saveChildren() error {
 	if err != nil {
 		return err
 	}
-	println(commitMsg)
+	fmt.Println('\n', commitMsg)
 	if err := commitChanges(commitMsg, h.gitAuthor); err != nil {
 		return err
 	}
