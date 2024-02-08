@@ -32,7 +32,7 @@ type Models map[string]Model // keyed by model
 type Child struct {
 	Model  string
 	Name   string
-	Online bool
+	Online bool `json:"-"`
 }
 
 type Children map[string]*Child // keyed by id
