@@ -165,12 +165,7 @@ func pushCommit(remote, key string) error {
 	}
 	defer os.Remove(tempFile.Name())
 
-	// (key got messed up being stuffed into env var, so un-mess it)
-	keyBytes := []byte(key)
-	replaceSpaceWithLF(keyBytes[35 : len(keyBytes)-33])
-	keyBytes = append(keyBytes, '\n')
-
-	_, err = tempFile.Write(keyBytes)
+	_, err = tempFile.Write([]byte(key))
 	if err != nil {
 		return fmt.Errorf("failed to write to temp file: %w", err)
 	}
