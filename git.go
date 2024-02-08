@@ -40,7 +40,7 @@ func commitMsg() (string, error) {
 
 func execCmd(command string, args ...string) ([]byte, error) {
 	cmd := exec.Command(command, args...)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -74,6 +74,8 @@ func generateCommitMessage(added, removed map[string]Child) string {
 	var na = len(added)
 	var nr = len(removed)
 
+	// TODO handle updates in dirChildren/*
+
 	format := func(id string, child Child) string {
 		return "[" + id + ", " + child.Model + ", " + child.Name + "]"
 	}
@@ -90,8 +92,8 @@ func generateCommitMessage(added, removed map[string]Child) string {
 	case (na == 1 && nr == 0) || (na == 0 && nr == 1):
 		return msgs[0]
 	default:
-		return fmt.Sprintf("save: devices added %d deleted %d update %d\n\n%s",
-			na, nr, 0, strings.Join(msgs, "\n"))
+		return fmt.Sprintf("save: devices added %d deleted %d\n\n%s",
+			na, nr, strings.Join(msgs, "\n"))
 	}
 
 	return "something is wrong"
@@ -102,7 +104,7 @@ func addChanges() error {
 
 	// Stage new and modified files
 	cmd := exec.Command("git", "add", fileChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add %s: %w", fileChildren, err)
@@ -110,7 +112,7 @@ func addChanges() error {
 
 	// Stage new and modified files
 	cmd = exec.Command("git", "add", dirChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add devs/: %w", err)
@@ -118,7 +120,7 @@ func addChanges() error {
 
 	// Stage deletions
 	cmd = exec.Command("git", "add", "-u", dirChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add -u %s: %w", dirChildren, err)
@@ -163,7 +165,7 @@ func replaceSpaceWithLF(data []byte) {
 func pushCommit(remote, key string) error {
 	// 1. Change git remote from HTTPS to SSH
 	cmd := exec.Command("git", "remote", "set-url", "origin", remote)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
@@ -193,7 +195,7 @@ func pushCommit(remote, key string) error {
 
 	// 5. Execute git push command
 	cmd = exec.Command("git", "push")
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
