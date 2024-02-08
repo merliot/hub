@@ -226,7 +226,7 @@ func (h *Hub) saveChildren() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println('\n', commitMsg)
+	fmt.Printf("\n%s\n", commitMsg)
 	if err := commitChanges(commitMsg, h.gitAuthor); err != nil {
 		return err
 	}
