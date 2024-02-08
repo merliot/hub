@@ -6,16 +6,13 @@ WORKDIR /app
 RUN git clone https://github.com/merliot/device.git
 RUN go work use device
 
+RUN git clone https://github.com/merliot/hub.git
+RUN go work use hub
+
 WORKDIR /app/hub
-
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY . ./
 
 ARG SCHEME=wss
 
-RUN go work use .
 RUN go build -tags $SCHEME -o /hub ./cmd/
 
 RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model garage
