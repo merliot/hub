@@ -2,16 +2,21 @@
 	"38e72342-332e9e59": {
 		"Model": "garage",
 		"Name": "g1",
-		"Online": false
+		"Online": true
 	},
 	"5db85624-9d63c16d": {
 		"Model": "ps30m",
 		"Name": "asdf",
+		"Online": true
+	},
+	"8a038c2f-2afd9e87": {
+		"Model": "relays",
+		"Name": "r1",
 		"Online": false
 	},
 	"a1079163-2b589e15": {
 		"Model": "hp2430n",
 		"Name": "h1",
-		"Online": false
+		"Online": true
 	}
 }
