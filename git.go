@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 )
 
@@ -71,19 +70,31 @@ func diffEntries(before, after map[string]Child) (added, removed map[string]Chil
 }
 
 func generateCommitMessage(added, removed map[string]Child) string {
-	var msg string
+	var msgs []string
+	var na = len(added)
+	var nr = len(removed)
 
-	msg += "devices added " + strconv.Itoa(len(added)) + " deleted " + strconv.Itoa(len(removed)) + "\n\n"
+	format := func(id string, child Child) string {
+		return "[" + id + ", " + child.Model + ", " + child.Name + "]"
+	}
 
 	for id, child := range added {
-		msg += "added: [" + id + ", " + child.Model + ", " + child.Name + "]\n"
+		msgs = append(msgs, "save: device added: "+format(id, child))
 	}
 
 	for id, child := range removed {
-		msg += "removed: [" + id + ", " + child.Model + ", " + child.Name + "]\n"
+		msgs = append(msgs, "save: device deleted: "+format(id, child))
 	}
 
-	return msg
+	switch {
+	case (na == 1 && nr == 0) || (na == 0 && nr == 1):
+		return msgs[0]
+	default:
+		return fmt.Sprintf("save: devices added %d deleted %d update %d\n\n%s",
+			na, nr, 0, strings.Join(msgs, "\n"))
+	}
+
+	return "something is wrong"
 }
 
 // addChanges git adds new/deleted files
