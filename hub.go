@@ -164,6 +164,6 @@ func (h *Hub) Run(i *dean.Injector) {
 	h.restoreChildren()
 	for {
 		h.saveChildren()
-		time.Sleep(time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }

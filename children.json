@@ -4,6 +4,11 @@
 		"Name": "g1",
 		"Online": false
 	},
+	"394555b8-ba007102": {
+		"Model": "relays",
+		"Name": "r1",
+		"Online": false
+	},
 	"5db85624-9d63c16d": {
 		"Model": "ps30m",
 		"Name": "asdf",

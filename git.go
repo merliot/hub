@@ -1,39 +1,126 @@
 package hub
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
+func commitMsg() (string, error) {
+	// Get the current version
+	afterJSON, err := execCmd("cat", fileChildren)
+	if err != nil {
+		return "", err
+	}
+
+	// Get the last version
+	beforeJSON, err := execCmd("git", "show", "HEAD:"+fileChildren)
+	if err != nil {
+		return "", err
+	}
+
+	var beforeData, afterData map[string]Child
+	if err := json.Unmarshal(beforeJSON, &beforeData); err != nil {
+		return "", err
+	}
+	if err := json.Unmarshal(afterJSON, &afterData); err != nil {
+		return "", err
+	}
+
+	// Compare before and after
+	added, removed := diffEntries(beforeData, afterData)
+
+	// Generate commit message
+	return generateCommitMessage(added, removed), nil
+}
+
+func execCmd(command string, args ...string) ([]byte, error) {
+	cmd := exec.Command(command, args...)
+	fmt.Println(cmd.String())
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	return output, nil
+}
+
+func diffEntries(before, after map[string]Child) (added, removed map[string]Child) {
+	added = make(map[string]Child)
+	removed = make(map[string]Child)
+
+	// Find added entries
+	for id := range after {
+		if _, exists := before[id]; !exists {
+			added[id] = after[id]
+		}
+	}
+
+	// Find removed entries
+	for id := range before {
+		if _, exists := after[id]; !exists {
+			removed[id] = before[id]
+		}
+	}
+
+	return added, removed
+}
+
+func generateCommitMessage(added, removed map[string]Child) string {
+	var msg string
+
+	msg += "devices added " + strconv.Itoa(len(added)) + " deleted " + strconv.Itoa(len(removed)) + "\n\n"
+
+	for id, child := range added {
+		msg += "added: [" + id + ", " + child.Model + ", " + child.Name + "]\n"
+	}
+
+	for id, child := range removed {
+		msg += "removed: [" + id + ", " + child.Model + ", " + child.Name + "]\n"
+	}
+
+	return msg
+}
+
 // addChanges git adds new/deleted files
 func addChanges() error {
+
 	// Stage new and modified files
-	cmd := exec.Command("git", "add", dirChildren)
+	cmd := exec.Command("git", "add", fileChildren)
+	fmt.Println(cmd.String())
 	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to git add %s: %w", fileChildren, err)
+	}
+
+	// Stage new and modified files
+	cmd = exec.Command("git", "add", dirChildren)
+	fmt.Println(cmd.String())
+	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add devs/: %w", err)
 	}
+
 	// Stage deletions
 	cmd = exec.Command("git", "add", "-u", dirChildren)
+	fmt.Println(cmd.String())
 	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add -u %s: %w", dirChildren, err)
 	}
+
 	return nil
 }
 
 // hasPendingChanges checks if there are any uncommitted changes in the local repo.
-func hasPendingChanges() (bool, error) {
-	cmd := exec.Command("git", "status", "--porcelain")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return false, fmt.Errorf("failed to check git status: %w", err)
-	}
-	return strings.TrimSpace(string(out)) != "", nil
+func hasPendingChanges() bool {
+	diffCmd := exec.Command("git", "diff", "--cached", "--exit-code")
+	_, err := diffCmd.CombinedOutput()
+	return err != nil
 }
 
 // commitChanges commits any pending changes in the local repo.
@@ -65,6 +152,7 @@ func replaceSpaceWithLF(data []byte) {
 func pushCommit(remote, key string) error {
 	// 1. Change git remote from HTTPS to SSH
 	cmd := exec.Command("git", "remote", "set-url", "origin", remote)
+	fmt.Println(cmd.String())
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
@@ -99,6 +187,7 @@ func pushCommit(remote, key string) error {
 
 	// 5. Execute git push command
 	cmd = exec.Command("git", "push")
+	fmt.Println(cmd.String())
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
@@ -121,13 +210,16 @@ func (h *Hub) saveChildren() error {
 	if err := addChanges(); err != nil {
 		return err
 	}
-	changes, err := hasPendingChanges()
-	if err != nil {
-		return err
-	}
+	changes := hasPendingChanges()
 	if !changes {
 		return errors.New("No changes to save")
 	}
+	msg, err := commitMsg()
+	if err != nil {
+		return err
+	}
+	println(msg)
+	return nil
 	if err := commitChanges("updated devices", h.gitAuthor); err != nil {
 		return err
 	}
