@@ -81,7 +81,7 @@ func generateCommitMessage(added, removed map[string]Child) string {
 	}
 
 	for id, child := range added {
-		msgs = append(msgs, "save: device added: "+format(id, child))
+		msgs = append(msgs, "save: device added:   "+format(id, child))
 	}
 
 	for id, child := range removed {
@@ -92,7 +92,7 @@ func generateCommitMessage(added, removed map[string]Child) string {
 	case (na == 1 && nr == 0) || (na == 0 && nr == 1):
 		return msgs[0]
 	default:
-		return fmt.Sprintf("save: devices added %d deleted %d\n\n%s",
+		return fmt.Sprintf("save: multiple devices added %d deleted %d\n\n%s",
 			na, nr, strings.Join(msgs, "\n"))
 	}
 
@@ -144,7 +144,7 @@ func commitChanges(commitMessage, author string) error {
 	os.Setenv("GIT_COMMITTER_NAME", strings.Split(author, " <")[0])
 	os.Setenv("GIT_COMMITTER_EMAIL", strings.Trim(strings.Split(author, "<")[1], "> "))
 
-	commitCmd := exec.Command("git", "commit", "-am", commitMessage)
+	commitCmd := exec.Command("git", "commit", "-m", commitMessage)
 	out, err := commitCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %s, %w", out, err)
