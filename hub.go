@@ -163,7 +163,10 @@ func (h *Hub) storeChildren() {
 func (h *Hub) Run(i *dean.Injector) {
 	h.restoreChildren()
 	for {
-		h.saveChildren()
+		err := h.saveChildren()
+		if err != nil {
+			fmt.Println("saving children error:", err.Error)
+		}
 		time.Sleep(5 * time.Second)
 	}
 }
