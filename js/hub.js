@@ -32,6 +32,7 @@ class Hub extends WebSocketController {
 		}
 
 		this.activeId = ''
+		this.localEvent = false
 	}
 
 	open() {
@@ -43,13 +44,23 @@ class Hub extends WebSocketController {
 		switch(msg.Path) {
 		case "created/device":
 			this.state.Children[msg.Id] = {Model: msg.Model, Name: msg.Name, Online: false}
-			this.activeId = msg.Id
-			this.loadView()
+			if (this.localEvent) {
+				this.activeId = msg.Id
+				this.localEvent = false
+				this.loadView()
+			} else if (this.activeId === "") {
+				this.loadView()
+			}
 			break
 		case "deleted/device":
 			delete this.state.Children[msg.Id]
-			this.activeId = ""
-			this.loadView()
+			if (this.localEvent) {
+				this.activeId = ""
+				this.localEvent = false
+				this.loadView()
+			} else if (this.activeId === "") {
+				this.loadView()
+			}
 			break
 		}
 	}
@@ -128,6 +139,7 @@ class Hub extends WebSocketController {
 		var formData = new FormData(form)
 		var query = new URLSearchParams(formData).toString()
 
+		this.localEvent = true
 		let response = await fetch("/create?" + query)
 
 		if (response.status == 201) {
@@ -139,6 +151,8 @@ class Hub extends WebSocketController {
 	}
 
 	async deletef() {
+		this.localEvent = true
+
 		let response = await fetch("/delete?id=" + this.activeId)
 		var deleteErr = document.getElementById("delete-err")
 
@@ -218,10 +232,12 @@ class Hub extends WebSocketController {
 		var err = document.getElementById("delete-err")
 		err.innerText = ""
 
-		var delprompt = document.getElementById("delete-prompt")
 		var id = this.activeId
 		var child = this.state.Children[id]
-		delprompt.innerHTML = "Delete device?<br><br>ID: " + id + "<br>Model: " + child.Model + "<br>Name: " + child.Name
+
+		var delprompt = document.getElementById("delete-prompt")
+		delprompt.innerHTML = "Delete device?<br><br>ID: " + id + "<br>Model: " +
+			child.Model + "<br>Name: " + child.Name
 
 		this.deleteDialog.showModal()
 	}
