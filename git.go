@@ -200,12 +200,20 @@ func pushCommit(remote, key string) error {
 	sshCmd := fmt.Sprintf("ssh -i %s -o StrictHostKeyChecking=no", tempFile.Name())
 	os.Setenv("GIT_SSH_COMMAND", sshCmd)
 
+	// 5. Set rebase policy to merge
+	cmd = exec.Command("git", "config", "pull.rebase", "false")
+	//fmt.Println(cmd.String())
+	out, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to set rebase policy: %s, %w", out, err)
+	}
+
 	// 5. Pull before pushing
 	cmd = exec.Command("git", "pull")
 	//fmt.Println(cmd.String())
 	out, err = cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to push commit: %s, %w", out, err)
+		return fmt.Errorf("failed to pull commit: %s, %w", out, err)
 	}
 
 	// 6. Execute git push command
