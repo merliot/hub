@@ -10,5 +10,9 @@
 	"c2e1b660-2b04d0b0": {
 		"Model": "garage",
 		"Name": "sd"
+	},
+	"fa9f90b5-d1fe7b20": {
+		"Model": "hp2430n",
+		"Name": "23434"
 	}
 }
