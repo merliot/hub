@@ -68,17 +68,9 @@ The hub need some git credentials to save changes back to the repo.  Pass the GI
 
 These variables configure the hub and devices:
 
-**SCHEME** (hub)
-
-Scheme used for hub, either 'http' or 'https'.  Default is 'http'.
-
 **PORT** (hub)
 
 Port the hub listens on, default is 8000.
-
-**PPROF_PORT (hub)
-
-Port for golang pprof.  Setting PPROF_PORT=6060 will map /pprof/ to the runtime profiling data for the hub.  Browse to <hub address>/pprof/debug/pprof/.
 
 **GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
 
@@ -95,13 +87,18 @@ Run as a backup hub.  A backup hub cannot make changes or deploy devices, but do
 
 Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.
 
-**WIFI_SSID, WIFI_PASSPHRASE** (device)
+**WIFI_SSIDS, WIFI_PASSPHRASES** (device)
 
-Set Wifi SSID and passphrase for Wifi-enabled devices built with TinyGo.  If mulitple SSID/passphrases are needed, use env vars WIFI_SSID_x and WIFI_SSID_PASSPHRASE_x, where x is 0-9.
+Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  These are matched comma-delimited lists.  For each SSID, there should be a matching passphrase.  For example:
+
+- WIFI_SSIDS="test,backup"
+- PASSPHRASES="testtest,ihavenoplan"
+
+So testtest goes with SSID test, and ihavenoplan goes with SSID backup.
 
 ## Hub Memory Requirements
 
-Outside of deploying devices, the hub consumes little memory (or CPU) and can run on Linux machines with a minimum of 256M and 2G disk space.  Of course, a resource-hungry device may want more, but most are effectively idle.  To deploy devices, the hub needs more memory.  To deploy to targets built with Go, the minimum is 512M.  To deploy to targets build with TinyGo, the minimum is 2G RAM.
+The hub consumes little memory (or CPU) and can run on a Linux machine with a minimum of 256M and 2G disk space.
 
 ## Building New Devices
 
