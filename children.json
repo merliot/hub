@@ -1,8 +1,4 @@
 {
-	"5905a35c-3cc18732": {
-		"Model": "garage",
-		"Name": "sdf"
-	},
 	"5db85624-9d63c16d": {
 		"Model": "ps30m",
 		"Name": "asdf"
@@ -10,9 +6,5 @@
 	"a1079163-2b589e15": {
 		"Model": "hp2430n",
 		"Name": "h1"
-	},
-	"a2891242-f7f55d94": {
-		"Model": "hp2430n",
-		"Name": "ds"
 	}
 }
