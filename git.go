@@ -81,18 +81,18 @@ func generateCommitMessage(added, removed map[string]Child) string {
 	}
 
 	for id, child := range added {
-		msgs = append(msgs, "save: device added:   "+format(id, child))
+		msgs = append(msgs, "SAVED: device added:   "+format(id, child))
 	}
 
 	for id, child := range removed {
-		msgs = append(msgs, "save: device deleted: "+format(id, child))
+		msgs = append(msgs, "SAVED: device deleted: "+format(id, child))
 	}
 
 	switch {
 	case (na == 1 && nr == 0) || (na == 0 && nr == 1):
 		return msgs[0]
 	default:
-		return fmt.Sprintf("save: multiple devices added %d deleted %d\n\n%s",
+		return fmt.Sprintf("SAVED: multiple devices added %d deleted %d\n\n%s",
 			na, nr, strings.Join(msgs, "\n"))
 	}
 
@@ -104,7 +104,7 @@ func addChanges() error {
 
 	// Stage new and modified files
 	cmd := exec.Command("git", "add", fileChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add %s: %w", fileChildren, err)
@@ -112,7 +112,7 @@ func addChanges() error {
 
 	// Stage new and modified files
 	cmd = exec.Command("git", "add", dirChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add devs/: %w", err)
@@ -120,7 +120,7 @@ func addChanges() error {
 
 	// Stage deletions
 	cmd = exec.Command("git", "add", "-u", dirChildren)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to git add -u %s: %w", dirChildren, err)
@@ -132,7 +132,7 @@ func addChanges() error {
 // hasPendingChanges checks if there are any uncommitted changes in the local repo.
 func hasPendingChanges() bool {
 	diffCmd := exec.Command("git", "diff", "--cached", "--exit-code")
-	fmt.Println(diffCmd.String())
+	//fmt.Println(diffCmd.String())
 	_, err := diffCmd.CombinedOutput()
 	return err != nil
 }
@@ -146,7 +146,7 @@ func commitChanges(commitMessage, author string) error {
 	os.Setenv("GIT_COMMITTER_EMAIL", strings.Trim(strings.Split(author, "<")[1], "> "))
 
 	commitCmd := exec.Command("git", "commit", "-m", commitMessage)
-	fmt.Println(commitCmd.String())
+	//fmt.Println(commitCmd.String())
 	out, err := commitCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to commit changes: %s, %w", out, err)
@@ -167,7 +167,7 @@ func replaceSpaceWithLF(data []byte) {
 func pushCommit(remote, key string) error {
 	// 1. Change git remote from HTTPS to SSH
 	cmd := exec.Command("git", "remote", "set-url", "origin", remote)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
@@ -178,8 +178,7 @@ func pushCommit(remote, key string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	println(tempFile.Name())
-	//defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile.Name())
 
 	// (key got messed up being stuffed into env var, so un-mess it)
 	keyBytes := []byte(key)
@@ -203,7 +202,7 @@ func pushCommit(remote, key string) error {
 
 	// 5. Execute git push command
 	cmd = exec.Command("git", "push")
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push commit: %s, %w", out, err)
