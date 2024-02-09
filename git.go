@@ -40,7 +40,7 @@ func commitMsg() (string, error) {
 
 func execCmd(command string, args ...string) ([]byte, error) {
 	cmd := exec.Command(command, args...)
-	fmt.Println(cmd.String())
+	//fmt.Println(cmd.String())
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
