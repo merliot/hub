@@ -235,7 +235,8 @@ func (h *Hub) saveChildren() error {
 	}
 	changes := hasPendingChanges()
 	if !changes {
-		return errors.New("No changes to save")
+		// No changes to save, we're done
+		return nil
 	}
 	commitMsg, err := commitMsg()
 	if err != nil {
