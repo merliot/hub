@@ -53,7 +53,7 @@ var targets = []string{"x86-64", "rpi"}
 func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	h := &Hub{}
-	h.Device = device.New(id, model, name, targets).(*device.Device)
+	h.Device = device.New(id, model, name, fs, targets).(*device.Device)
 	h.Models = make(Models)
 	h.Children = make(Children)
 	h.CompositeFs.AddFS(fs)

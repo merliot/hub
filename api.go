@@ -49,8 +49,6 @@ func (h *Hub) apiSave(w http.ResponseWriter, r *http.Request) {
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
-	case "state":
-		device.ShowState(h.templates, w, h)
 	case "create":
 		h.apiCreate(w, r)
 	case "delete":
@@ -58,8 +56,8 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "save":
 		h.apiSave(w, r)
 	case "models":
-		device.RenderTemplate(h.templates, w, "models.tmpl", h)
+		h.RenderTemplate(w, "models.tmpl", h)
 	default:
-		h.API(h.templates, w, r)
+		h.API(w, r, h)
 	}
 }
