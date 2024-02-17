@@ -1,14 +1,10 @@
 {
-	"43448672-c8644166": {
-		"Model": "relays",
-		"Name": "r1"
+	"5c2587d2-a38ea3bf": {
+		"Model": "garage",
+		"Name": "g1"
 	},
 	"5db85624-9d63c16d": {
 		"Model": "ps30m",
 		"Name": "asdf"
-	},
-	"988a35fa-470f42ba": {
-		"Model": "garage",
-		"Name": "g1"
 	}
 }
