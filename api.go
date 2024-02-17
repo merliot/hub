@@ -21,6 +21,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 
 	child := thinger.(device.Devicer)
 	child.CopyWifiAuth(h.WifiAuth)
+	child.SetWsScheme(h.WsScheme)
 	child.Load(filePath(id))
 
 	w.WriteHeader(http.StatusCreated)

@@ -151,6 +151,7 @@ func (h *Hub) restoreChildren() {
 		}
 		device := thinger.(device.Devicer)
 		device.CopyWifiAuth(h.WifiAuth)
+		device.SetWsScheme(h.WsScheme)
 		device.Load(filePath(id))
 	}
 }

@@ -2,16 +2,19 @@ module github.com/merliot/hub
 
 go 1.21.5
 
+replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3fabdc5c9680
+
 require (
 	github.com/merliot/dean v0.0.0-20240214060428-ac508327f99c
-	github.com/merliot/device v0.0.0-20240217061102-d4e7310ef808
-	github.com/merliot/garage v0.0.0-20240217063433-21f0f1b6963a
-	github.com/merliot/ps30m v0.0.0-20240217064259-e53a010a20f6
-	github.com/merliot/relays v0.0.0-20240217061704-b0a9e94d8dbe
+	github.com/merliot/device v0.0.0-20240217072848-cbd16becd406
+	github.com/merliot/garage v0.0.0-20240217075124-d99ca5b3eb5a
+	github.com/merliot/ps30m v0.0.0-20240217075133-4228d36bbe59
+	github.com/merliot/relays v0.0.0-20240217075112-42fc1a1c49a7
 )
 
 require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
