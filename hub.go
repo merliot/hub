@@ -161,8 +161,11 @@ func (h *Hub) storeChildren() {
 	os.WriteFile(fileChildren, bytes, 0600)
 }
 
-func (h *Hub) Run(i *dean.Injector) {
+func (h *Hub) Setup() {
 	h.restoreChildren()
+}
+
+func (h *Hub) Run(i *dean.Injector) {
 	for {
 		err := h.saveChildren()
 		if err != nil {
