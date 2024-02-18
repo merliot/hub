@@ -19,6 +19,8 @@ github.com/merliot/garage v0.0.0-20240217075124-d99ca5b3eb5a h1:PNZ723ut7qXzAvPa
 github.com/merliot/garage v0.0.0-20240217075124-d99ca5b3eb5a/go.mod h1:Toeoanw9ix24HfxR1GtinSpV5Pynw6riw42TpRERCqM=
 github.com/merliot/garage v0.0.0-20240217095508-98dfa1f3e479 h1:vY8elFEgupp5qUykB3OgNFKaUzOtY5acHqSFih+Jnm4=
 github.com/merliot/garage v0.0.0-20240217095508-98dfa1f3e479/go.mod h1:XqOx/y7l4ltxEWpluli7N9LlFOX7gB66dMuTrdmSsaE=
+github.com/merliot/garage v0.0.0-20240218021641-5465f6a0f80c h1:+IFpDtytaNasSvPuY+3QKl/JOWEFNhz7OfU7BSkGntw=
+github.com/merliot/garage v0.0.0-20240218021641-5465f6a0f80c/go.mod h1:XqOx/y7l4ltxEWpluli7N9LlFOX7gB66dMuTrdmSsaE=
 github.com/merliot/ps30m v0.0.0-20240217075133-4228d36bbe59 h1:JyKw4zz6HnQC4l3yCpopwvrI4zD3a7Z6yQ481bMLFt8=
 github.com/merliot/ps30m v0.0.0-20240217075133-4228d36bbe59/go.mod h1:R57YpK4HJOgKKFUp/jC7F11PKjEJ9rWthKzTrJeCAuQ=
 github.com/merliot/ps30m v0.0.0-20240217095517-420aec5bffef h1:rc8O+QUwBgX8oB8IbnLZTKA4zqpdqoaOUcwZgGD73nc=
