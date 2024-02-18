@@ -162,7 +162,7 @@ func (h *Hub) storeChildren() {
 }
 
 func (h *Hub) Setup() {
-	g.Device.Setup()
+	h.Device.Setup()
 	h.restoreChildren()
 }
 
