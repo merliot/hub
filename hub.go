@@ -13,7 +13,7 @@ import (
 	"github.com/merliot/device"
 )
 
-//go:embed css images js template
+//go:embed css go.mod images js template
 var fs embed.FS
 
 const (

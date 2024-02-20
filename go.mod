@@ -6,10 +6,10 @@ replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3f
 
 require (
 	github.com/merliot/dean v0.0.0-20240214060428-ac508327f99c
-	github.com/merliot/device v0.0.0-20240217093648-caea2285dbcf
-	github.com/merliot/garage v0.0.0-20240218052607-0de98dacaed8
-	github.com/merliot/ps30m v0.0.0-20240217095517-420aec5bffef
-	github.com/merliot/relays v0.0.0-20240217095459-7f2494acf3f7
+	github.com/merliot/device v0.0.0-20240220045947-f8b5492715ce
+	github.com/merliot/garage v0.0.0-20240220052124-0dd0fc82e229
+	github.com/merliot/ps30m v0.0.0-20240220052140-0e161dda19b7
+	github.com/merliot/relays v0.0.0-20240218203031-1b35d1972c28
 )
 
 require (
@@ -17,6 +17,7 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/merliot/skeleton v0.0.0-20240220052211-ed706a86b218 // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
 	github.com/warthog618/gpiod v0.8.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
@@ -27,5 +28,5 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect
-	tinygo.org/x/drivers v0.24.0 // indirect
+	tinygo.org/x/drivers v0.26.0 // indirect
 )
