@@ -7,6 +7,10 @@
 		"Model": "ps30m",
 		"Name": "asdf"
 	},
+	"66057c82-47837b74": {
+		"Model": "skeleton",
+		"Name": "demo"
+	},
 	"73113d02-ca201e71": {
 		"Model": "relays",
 		"Name": "r1"
