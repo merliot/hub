@@ -12,7 +12,7 @@ RUN go work use hub
 WORKDIR /app/hub
 
 RUN go build -o /hub ./cmd/
-
+ 
 RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model garage
 RUN go run ../device/cmd/uf2-builder -target wioterminal -model garage
 RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model relays
