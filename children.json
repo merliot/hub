@@ -1,18 +1,14 @@
 {
-	"5c2587d2-a38ea3bf": {
-		"Model": "garage",
-		"Name": "g1"
-	},
-	"5db85624-9d63c16d": {
-		"Model": "ps30m",
-		"Name": "asdf"
-	},
-	"73113d02-ca201e71": {
+	"b1b7f02e-1d455f37": {
 		"Model": "relays",
 		"Name": "r1"
 	},
-	"fe5003f9-cdd25d0f": {
-		"Model": "skeleton",
-		"Name": "sk1"
+	"b3bd4515-0c1c6f6a": {
+		"Model": "garage",
+		"Name": "g1"
+	},
+	"dac7b8c2-393c7438": {
+		"Model": "relays",
+		"Name": "r2"
 	}
 }
