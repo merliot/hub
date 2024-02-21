@@ -11,6 +11,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/merliot/dean v0.0.0-20240214060428-ac508327f99c h1:uM6MvqpiYzpy9HNWwPqYa9siDdoZpR3Y8PpnkBqOsJk=
 github.com/merliot/dean v0.0.0-20240214060428-ac508327f99c/go.mod h1:uoIGfhAx8rt/TB3mDZcZWvO/+ajvNitFYYHSHBqqBrE=
+github.com/merliot/dean v0.0.0-20240221075053-323818dff3cb h1:xiFcwZuajWBwn/Rrft2oAIAqBy4mwq8j1LEEZq5dRzc=
+github.com/merliot/dean v0.0.0-20240221075053-323818dff3cb/go.mod h1:uoIGfhAx8rt/TB3mDZcZWvO/+ajvNitFYYHSHBqqBrE=
 github.com/merliot/device v0.0.0-20240217072848-cbd16becd406 h1:90AvEp2CORFQ6ARmSWPOZ0OzxjtA40fVFiJpQgJinoU=
 github.com/merliot/device v0.0.0-20240217072848-cbd16becd406/go.mod h1:boa/XRJWq7lR3iGbuDpms3q2ym0Yc6cmIU5D3tT4eok=
 github.com/merliot/device v0.0.0-20240217093648-caea2285dbcf h1:UqYA31728K36vTDOny5pxkOgtjkfZq1dMH5nWXPfsfQ=
@@ -19,6 +21,8 @@ github.com/merliot/device v0.0.0-20240220045947-f8b5492715ce h1:cGlWCfIYqXA3zw+o
 github.com/merliot/device v0.0.0-20240220045947-f8b5492715ce/go.mod h1:boa/XRJWq7lR3iGbuDpms3q2ym0Yc6cmIU5D3tT4eok=
 github.com/merliot/device v0.0.0-20240221055352-97856a14dcfa h1:PR/qTFWKCpfVgt7RQXMkQ8ooTxIzkONPkZl4dJ89lyw=
 github.com/merliot/device v0.0.0-20240221055352-97856a14dcfa/go.mod h1:boa/XRJWq7lR3iGbuDpms3q2ym0Yc6cmIU5D3tT4eok=
+github.com/merliot/device v0.0.0-20240221090220-66c454337fb7 h1:Hkx8xXzyYeKhZfj3NNWTja8URRkXsUr47adAbuVQBvI=
+github.com/merliot/device v0.0.0-20240221090220-66c454337fb7/go.mod h1:/4v1Mng9JZwy6qi89XHGmcsHeqgsKALbLzgVV80TxQU=
 github.com/merliot/garage v0.0.0-20240217075124-d99ca5b3eb5a h1:PNZ723ut7qXzAvPaFYtx328GsxdaVpxTmiWduv0ZXd8=
 github.com/merliot/garage v0.0.0-20240217075124-d99ca5b3eb5a/go.mod h1:Toeoanw9ix24HfxR1GtinSpV5Pynw6riw42TpRERCqM=
 github.com/merliot/garage v0.0.0-20240217095508-98dfa1f3e479 h1:vY8elFEgupp5qUykB3OgNFKaUzOtY5acHqSFih+Jnm4=
@@ -33,6 +37,8 @@ github.com/merliot/garage v0.0.0-20240220052124-0dd0fc82e229 h1:iAiAvQ7e1ct/bJNY
 github.com/merliot/garage v0.0.0-20240220052124-0dd0fc82e229/go.mod h1:zxsyXbZ/MCilzBYBf8Dt/vASsBRPMPUs4S1ZmceXOcc=
 github.com/merliot/garage v0.0.0-20240221061750-4a520e3e7203 h1:mmhlakomw83/VB01VDnvhxnrpD67Am/OLf7sgMgU9a8=
 github.com/merliot/garage v0.0.0-20240221061750-4a520e3e7203/go.mod h1:emdv33IMRxfHGrfbwtzTsSB2MNtqHQbAXNtmr2WTsfs=
+github.com/merliot/garage v0.0.0-20240221090751-cc504933040d h1:Fim5CBuFSUDaHEU+mSAOaXOEthH4ClpEDuwbGsLGdcA=
+github.com/merliot/garage v0.0.0-20240221090751-cc504933040d/go.mod h1:bNXB8mLoPC6Hgk7zP8Fkq8OY0Sx7bihqnGlXaV0vuls=
 github.com/merliot/ps30m v0.0.0-20240217075133-4228d36bbe59 h1:JyKw4zz6HnQC4l3yCpopwvrI4zD3a7Z6yQ481bMLFt8=
 github.com/merliot/ps30m v0.0.0-20240217075133-4228d36bbe59/go.mod h1:R57YpK4HJOgKKFUp/jC7F11PKjEJ9rWthKzTrJeCAuQ=
 github.com/merliot/ps30m v0.0.0-20240217095517-420aec5bffef h1:rc8O+QUwBgX8oB8IbnLZTKA4zqpdqoaOUcwZgGD73nc=
@@ -41,6 +47,8 @@ github.com/merliot/ps30m v0.0.0-20240220052140-0e161dda19b7 h1:HquYUOyGC0SzhZMBP
 github.com/merliot/ps30m v0.0.0-20240220052140-0e161dda19b7/go.mod h1:AcWV6B24hJhYrvlKBTAQCzX7xdRLnSS2gmPJvrpXo4M=
 github.com/merliot/ps30m v0.0.0-20240221061828-1d813d04c64b h1:wDa2KI2RmRlssapfzOb+8y9sFekk8uQdmFuu9pj/TOU=
 github.com/merliot/ps30m v0.0.0-20240221061828-1d813d04c64b/go.mod h1:/HaUs++RoxqBFfk3Is5Me6oaVG/DJvE26dbfQCxLIeQ=
+github.com/merliot/ps30m v0.0.0-20240221090759-60df00e7bfde h1:k8pkp0g2gkmCMgtuFakWgHsoTUCKTqxyJwqB7grsN/g=
+github.com/merliot/ps30m v0.0.0-20240221090759-60df00e7bfde/go.mod h1:To3J2BMX/vVfaBeIdCb2ZH+5qMAdRfcQSGa4G7Uz62U=
 github.com/merliot/relays v0.0.0-20240217075112-42fc1a1c49a7 h1:jl1zPThXoQ9COFeVd9LzltQ0T0DuEhLR+QwzFIz8XK4=
 github.com/merliot/relays v0.0.0-20240217075112-42fc1a1c49a7/go.mod h1:pDZsYp8khGA7yvzaXD/0iH4hdvl7Hmo/yBljud3XqG0=
 github.com/merliot/relays v0.0.0-20240217095459-7f2494acf3f7 h1:UqGTzq4EcbGP5pai12p+n3foDEnQze7d7C4NaDUA7/k=
@@ -51,12 +59,16 @@ github.com/merliot/relays v0.0.0-20240220200258-fe5278bbf6fe h1:Lwoa06kjcO1uXHWR
 github.com/merliot/relays v0.0.0-20240220200258-fe5278bbf6fe/go.mod h1:na6E0bDzufeiXo+xfCbYqZeUm61SVfMNorMIxelprKo=
 github.com/merliot/relays v0.0.0-20240221061727-3ba2f6de81f3 h1:xdbS3E4zwtIw9ZVk+rdfTFDlfUTFSKxPoe/QELerF1c=
 github.com/merliot/relays v0.0.0-20240221061727-3ba2f6de81f3/go.mod h1:i7RiaBCM14ud4l69Qww9PrPyTlSvKNq5HcEGO13NTf0=
+github.com/merliot/relays v0.0.0-20240221090743-a5e7e76322a7 h1:1ySmPekqCVnbqckbWCzTkc7V9zNrahQ7c5RRcNNo8dw=
+github.com/merliot/relays v0.0.0-20240221090743-a5e7e76322a7/go.mod h1:oter3n+YDoTMVRC6lzEaFXNDz+XTdynnF1p2oq+Dloo=
 github.com/merliot/skeleton v0.0.0-20240220052211-ed706a86b218 h1:2xEpAuT1QFot7nTu8nQOnbxFeelPibi3EJUsDojc9vM=
 github.com/merliot/skeleton v0.0.0-20240220052211-ed706a86b218/go.mod h1:J+u8o+wZGsQz2QbN52KkTgO7tQV9qx0avvVSEtb3eDQ=
 github.com/merliot/skeleton v0.0.0-20240221061916-f39b046a60bf h1:sC0IlXyN2TklG9fDlDdyQnJrAmNkJ2guIyCXLJZck64=
 github.com/merliot/skeleton v0.0.0-20240221061916-f39b046a60bf/go.mod h1:DnvsNlvls6/6IV7ONm3jGv4cFWHzwz1pMijMaNZ9E7c=
 github.com/merliot/skeleton v0.0.0-20240221062504-3d524f7b06ad h1:gxUI+iFB03wCf/mKdzm8oRZCsUB60uU4oTXXLckzqTw=
 github.com/merliot/skeleton v0.0.0-20240221062504-3d524f7b06ad/go.mod h1:DnvsNlvls6/6IV7ONm3jGv4cFWHzwz1pMijMaNZ9E7c=
+github.com/merliot/skeleton v0.0.0-20240221090816-3bb18ae9bb04 h1:4ueZrTjZPiKKnu9/lq4q0C/gRNco5y8NwrGjutr5Lno=
+github.com/merliot/skeleton v0.0.0-20240221090816-3bb18ae9bb04/go.mod h1:U5L0DoXtEAhgyTRT6SGUWxtbIkT0/q+qgC5p41W5q9w=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
