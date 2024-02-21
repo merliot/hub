@@ -6,10 +6,10 @@ replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3f
 
 require (
 	github.com/merliot/dean v0.0.0-20240214060428-ac508327f99c
-	github.com/merliot/device v0.0.0-20240220045947-f8b5492715ce
-	github.com/merliot/garage v0.0.0-20240220052124-0dd0fc82e229
-	github.com/merliot/ps30m v0.0.0-20240220052140-0e161dda19b7
-	github.com/merliot/relays v0.0.0-20240218203031-1b35d1972c28
+	github.com/merliot/device v0.0.0-20240221055352-97856a14dcfa
+	github.com/merliot/garage v0.0.0-20240221061750-4a520e3e7203
+	github.com/merliot/ps30m v0.0.0-20240221061828-1d813d04c64b
+	github.com/merliot/relays v0.0.0-20240221061727-3ba2f6de81f3
 )
 
 require (
@@ -17,7 +17,7 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/merliot/skeleton v0.0.0-20240220052211-ed706a86b218 // indirect
+	github.com/merliot/skeleton v0.0.0-20240221062504-3d524f7b06ad // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
 	github.com/warthog618/gpiod v0.8.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
