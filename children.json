@@ -14,9 +14,5 @@
 	"b3bd4515-0c1c6f6a": {
 		"Model": "garage",
 		"Name": "g1"
-	},
-	"dac7b8c2-393c7438": {
-		"Model": "relays",
-		"Name": "r2"
 	}
 }
