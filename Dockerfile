@@ -18,6 +18,8 @@ RUN go run ../device/cmd/uf2-builder -target wioterminal -model garage
 RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model relays
 RUN go run ../device/cmd/uf2-builder -target wioterminal -model relays
 RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model ps30m
+RUN go run ../device/cmd/uf2-builder -target nano-rp2040 -model skeleton
+RUN go run ../device/cmd/uf2-builder -target wiotermainl -model skeleton
 
 EXPOSE 8000
 
