@@ -19,10 +19,8 @@ github.com/merliot/ps30m v0.0.0-20240223043659-1433270c7b5f h1:9LVa4xBHMfDQL9D7b
 github.com/merliot/ps30m v0.0.0-20240223043659-1433270c7b5f/go.mod h1:Df+73Lfxd4/+rjU6jgsD0/Cr2OdFVXH99WTmRV8laT0=
 github.com/merliot/relays v0.0.0-20240223043644-4ba8ce24555d h1:sjAHjHVohfpGIu4cJoa2YE+DqXM9dPHYf3jEJ5LfmPY=
 github.com/merliot/relays v0.0.0-20240223043644-4ba8ce24555d/go.mod h1:b3i+YfhZf+k6fHzLM1kfduuYPS8JR6QrMotLVRwZsXo=
-github.com/merliot/skeleton v0.0.0-20240223043713-4a1d77d56450 h1:wBGRiOzjv9XujcjuqX2Z3J66MQn40BEwivQHc5wvbm8=
-github.com/merliot/skeleton v0.0.0-20240223043713-4a1d77d56450/go.mod h1:G8s2lDEYFSLTkio2xV3WNmzIoWVoJ17QTQSBEpnrnwQ=
-github.com/merliot/skeleton v0.0.0-20240223054202-69b4815c39c6 h1:PnkPQMGo09ce23O4arv2eX+nf/1vpo5IQErVDwg13hw=
-github.com/merliot/skeleton v0.0.0-20240223054202-69b4815c39c6/go.mod h1:G8s2lDEYFSLTkio2xV3WNmzIoWVoJ17QTQSBEpnrnwQ=
+github.com/merliot/skeleton v0.0.0-20240223071256-3c0090670584 h1:47eo1GLzK1sfa/H35piEkl5vYrnEPETXn/J4O2+Bu68=
+github.com/merliot/skeleton v0.0.0-20240223071256-3c0090670584/go.mod h1:G8s2lDEYFSLTkio2xV3WNmzIoWVoJ17QTQSBEpnrnwQ=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

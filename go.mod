@@ -10,7 +10,7 @@ require (
 	github.com/merliot/garage v0.0.0-20240223043651-bb259d1bf37c
 	github.com/merliot/ps30m v0.0.0-20240223043659-1433270c7b5f
 	github.com/merliot/relays v0.0.0-20240223043644-4ba8ce24555d
-	github.com/merliot/skeleton v0.0.0-20240223054202-69b4815c39c6
+	github.com/merliot/skeleton v0.0.0-20240223071256-3c0090670584
 )
 
 require (
