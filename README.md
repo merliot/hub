@@ -2,6 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
+[![Docker image](https://github.com/merliot/hub/actions/workflows/docker-build.yml/badge.svg)](https://github.com/merliot/hub/actions/workflows/docker-build.yml)
 
 [![Watch the video](images/gopher-cloud.png)](https://youtu.be/oHmQlU-gCKA)
 
