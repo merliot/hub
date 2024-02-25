@@ -2,5 +2,9 @@
 	"420ff52e-dc92370b": {
 		"Model": "skeleton",
 		"Name": "sk2"
+	},
+	"8b7c1d00-0277b7a4": {
+		"Model": "relays",
+		"Name": "r1"
 	}
 }
