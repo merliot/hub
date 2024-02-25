@@ -7,7 +7,7 @@ replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3f
 require (
 	github.com/merliot/dean v0.0.0-20240221094503-e7aca4f3224e
 	github.com/merliot/device v0.0.0-20240224062630-cce60348f145
-	github.com/merliot/garage v0.0.0-20240224062948-7eb544cd63fe
+	github.com/merliot/garage v0.0.0-20240225011523-1b5e90f5de3f
 	github.com/merliot/ps30m v0.0.0-20240224062933-6d52004a01ff
 	github.com/merliot/relays v0.0.0-20240224062902-9de5519157e4
 	github.com/merliot/skeleton v0.0.0-20240224062925-f8c3797bf7e6
