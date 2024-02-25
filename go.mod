@@ -5,12 +5,12 @@ go 1.21.5
 replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3fabdc5c9680
 
 require (
-	github.com/merliot/dean v0.0.0-20240221094503-e7aca4f3224e
-	github.com/merliot/device v0.0.0-20240224062630-cce60348f145
-	github.com/merliot/garage v0.0.0-20240225011523-1b5e90f5de3f
-	github.com/merliot/ps30m v0.0.0-20240224062933-6d52004a01ff
-	github.com/merliot/relays v0.0.0-20240224062902-9de5519157e4
-	github.com/merliot/skeleton v0.0.0-20240224062925-f8c3797bf7e6
+	github.com/merliot/dean v0.0.0-20240225064838-caf67c255817
+	github.com/merliot/device v0.0.0-20240225064936-2ef4253f0fc5
+	github.com/merliot/garage v0.0.0-20240225065123-9c30be29c290
+	github.com/merliot/ps30m v0.0.0-20240225065135-de2932e4fd32
+	github.com/merliot/relays v0.0.0-20240225065113-4d7fa19c774c
+	github.com/merliot/skeleton v0.0.0-20240225065154-0e6d08c71e85
 )
 
 require (
@@ -18,6 +18,8 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/petermattis/goid v0.0.0-20231207134359-e60b3f734c67 // indirect
+	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
 	github.com/warthog618/gpiod v0.8.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
