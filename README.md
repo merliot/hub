@@ -4,8 +4,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
 [![Docker image](https://github.com/merliot/hub/actions/workflows/docker-build.yml/badge.svg)](https://github.com/merliot/hub/actions/workflows/docker-build.yml)
 
-[![Watch the video](images/gopher-cloud.png)](https://youtu.be/oHmQlU-gCKA)
-
 Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
 One-click deploy a Merliot Hub on the cloud with Koyeb (account required):
