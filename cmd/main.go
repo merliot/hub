@@ -1,6 +1,9 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+
 	"github.com/merliot/dean"
 	"github.com/merliot/hub"
 )
@@ -21,6 +24,9 @@ var (
 )
 
 func main() {
+	uf2 := flag.Bool("uf2", false, "Generate uf2 files")
+	flag.Parse()
+
 	hub := hub.New(id, "hub", name).(*hub.Hub)
 	hub.SetDeployParams(deployParams)
 	hub.SetWifiAuth(ssids, passphrases)
@@ -29,5 +35,13 @@ func main() {
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
 	registerModels(hub)
+
+	if *uf2 {
+		if err := hub.GenerateUf2s(); err != nil {
+			fmt.Println(err.Error())
+		}
+		return
+	}
+
 	server.Run()
 }

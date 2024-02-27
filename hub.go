@@ -22,6 +22,7 @@ const (
 )
 
 type Model struct {
+	modeler          device.Modeler
 	Icon             string
 	DescHtml         template.HTML
 	SupportedTargets string
@@ -72,10 +73,20 @@ func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
 	h.server.RegisterModel(model, maker)
 	modeler := maker("proto", model, "proto").(device.Modeler)
 	h.Models[model] = Model{
+		modeler:          modeler,
 		Icon:             base64.StdEncoding.EncodeToString(modeler.Icon()),
 		DescHtml:         template.HTML(modeler.DescHtml()),
 		SupportedTargets: modeler.SupportedTargets(),
 	}
+}
+
+func (h *Hub) GenerateUf2s() error {
+	for _, model := range h.Models {
+		if err := model.modeler.GenerateUf2s(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (h *Hub) SetGit(remote, key, author string) {
