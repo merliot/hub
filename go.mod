@@ -2,8 +2,6 @@ module github.com/merliot/hub
 
 go 1.21.5
 
-replace tinygo.org/x/drivers => tinygo.org/x/drivers v0.26.1-0.20231206190939-3fabdc5c9680
-
 require (
 	github.com/merliot/dean v0.0.0-20240227194445-fa196d6f3cbe
 	github.com/merliot/device v0.0.0-20240228201937-6cb5a3b01834
