@@ -67,10 +67,9 @@ func (h *Hub) SetServer(server *dean.Server) {
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
-	if h.server == nil {
-		return
+	if h.server != nil {
+		h.server.RegisterModel(model, maker)
 	}
-	h.server.RegisterModel(model, maker)
 	modeler := maker("proto", model, "proto").(device.Modeler)
 	h.Models[model] = Model{
 		modeler:          modeler,

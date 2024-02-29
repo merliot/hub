@@ -28,6 +28,6 @@ func main() {
 	hub.SetWsScheme(wsScheme)
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
-	registerModels(hub)
+	hub.RegisterModels()
 	server.Run()
 }
