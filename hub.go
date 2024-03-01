@@ -79,9 +79,9 @@ func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
 	}
 }
 
-func (h *Hub) GenerateUf2s() error {
+func (h *Hub) GenerateUf2s(dir string) error {
 	for _, model := range h.Models {
-		if err := model.modeler.GenerateUf2s(); err != nil {
+		if err := model.modeler.GenerateUf2s(dir); err != nil {
 			return err
 		}
 	}
