@@ -25,7 +25,7 @@ Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
 
 ## Run from Source
 
-**Prerequisite**: Go version 1.20 or higher
+**Prerequisite**: Go version 1.20 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
