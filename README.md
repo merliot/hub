@@ -17,7 +17,7 @@ Deploy Merliot Hub using [docker](https://www.docker.com/):
 ```
 git clone https://github.com/merliot/hub.git
 cd hub
-docker build -t hub --build-arg SCHEME=ws .
+docker build -t hub .
 docker run -p 80:8000 hub
 ```
 
