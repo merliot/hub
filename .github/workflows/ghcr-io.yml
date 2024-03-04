@@ -9,12 +9,12 @@ on:
       - 'children/*'
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:
+#  workflow_dispatch:
 
 jobs:
   push_to_ghcr_io:
     name: Push Docker image to ghcr.io
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_run' }}
+#    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_run' }}
     runs-on: ubuntu-latest
     permissions:
       packages: write
