@@ -4,11 +4,11 @@ go 1.21.5
 
 require (
 	github.com/merliot/dean v0.0.0-20240301075820-e91242dd8159
-	github.com/merliot/device v0.0.0-20240301192922-5138cb010488
-	github.com/merliot/garage v0.0.0-20240301192053-8909d8afc9fd
-	github.com/merliot/ps30m v0.0.0-20240301192136-dbffaadbbaca
-	github.com/merliot/relays v0.0.0-20240301192033-ecd8ea7da616
-	github.com/merliot/skeleton v0.0.0-20240301192215-6ad307f1dd32
+	github.com/merliot/device v0.0.0-20240304053308-34e87e9e7c1a
+	github.com/merliot/garage v0.0.0-20240304153316-db581771d9f4
+	github.com/merliot/ps30m v0.0.0-20240304153328-e8bc6bcea62d
+	github.com/merliot/relays v0.0.0-20240304153257-237500d9d17c
+	github.com/merliot/skeleton v0.0.0-20240304153347-27fe3d4bd9b9
 )
 
 require (
@@ -23,9 +23,9 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	gobot.io/x/gobot/v2 v2.3.0 // indirect
 	golang.org/x/crypto v0.20.0 // indirect
-	golang.org/x/mod v0.15.0 // indirect
+	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect
