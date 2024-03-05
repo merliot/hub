@@ -11,8 +11,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/merliot/dean v0.0.0-20240301075820-e91242dd8159 h1:X5BqvfUC0TIlavaaycp4ms8azKae1xA89tzWoaG4FrQ=
 github.com/merliot/dean v0.0.0-20240301075820-e91242dd8159/go.mod h1:YfI3sQq6W43w1sXOfSOLCGEYV9YwJ/hqkKd7MP+kOGo=
-github.com/merliot/device v0.0.0-20240304053308-34e87e9e7c1a h1:j3Fg7/ki/Sy3vtqIrHMKaBLok4LpjhBn7atEUmNLlno=
-github.com/merliot/device v0.0.0-20240304053308-34e87e9e7c1a/go.mod h1:HUjKfNLGIZdwOeQpCJmofJjtKEvOjktjgIRTUwQ9Jnc=
+github.com/merliot/device v0.0.0-20240305055932-edea20ae95b1 h1:H9nqsOTzTcyDOVj+Nj+2rtgsrbBag4P+YxPjVH5SDsQ=
+github.com/merliot/device v0.0.0-20240305055932-edea20ae95b1/go.mod h1:HUjKfNLGIZdwOeQpCJmofJjtKEvOjktjgIRTUwQ9Jnc=
 github.com/merliot/garage v0.0.0-20240305042445-f8e8b2720259 h1:P+07elJ5xd2yxtjiyyBPj3Loftvq5uQaS+uFWViEvYA=
 github.com/merliot/garage v0.0.0-20240305042445-f8e8b2720259/go.mod h1:COoSxQkZJtq4uPGS7yx6wIaihZninmIN/k7qHKWvQag=
 github.com/merliot/ps30m v0.0.0-20240305042534-6757adae93f9 h1:FBbD7R+7OVaVPCuAQT4Ypg+yenLLaMNQeCFXQy8fDqs=
