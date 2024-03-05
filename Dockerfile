@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/merliot/device:main
+FROM merliot/device:main
 
 WORKDIR /app
 COPY . .
