@@ -20,10 +20,9 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	child := thinger.(device.Devicer)
-	child.CopyWifiAuth(h.WifiAuth)
-	child.SetWsScheme(h.WsScheme)
-	child.SetDialURLs(h.DialURLs)
+	h.Children[id] = &Child{
+		Devicer: thinger.(device.Devicer),
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Child id '%s' created", id)
@@ -40,6 +39,16 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Child id '%s' deleted", id)
 }
 
+func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
+	devices := make(Children)
+	for id, child := range h.Children {
+		child.DeployParams = child.Devicer.GetDeployParams()
+		devices[id] = child
+	}
+	data, _ := json.MarshalIndent(devices, "", "\t")
+	h.RenderTemplate(w, "devices.tmpl", string(data))
+}
+
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "create":
@@ -47,8 +56,7 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "delete":
 		h.apiDelete(w, r)
 	case "devices":
-		data, _ := json.MarshalIndent(h.Children, "", "\t")
-		h.RenderTemplate(w, "devices.tmpl", string(data))
+		h.apiDevices(w, r)
 	case "models":
 		h.RenderTemplate(w, "models.tmpl", h)
 	default:
