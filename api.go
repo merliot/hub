@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/merliot/device"
 )
 
 func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
@@ -20,9 +18,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.Children[id] = &Child{
-		Devicer: thinger.(device.Devicer),
-	}
+	h.loadDevice(thinger, id, "")
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Child id '%s' created", id)

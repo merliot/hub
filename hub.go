@@ -104,9 +104,7 @@ func (h *Hub) connect(online bool) func(*dean.Msg) {
 func (h *Hub) createdThing(msg *dean.Msg) {
 	var child dean.ThingMsgCreated
 	msg.Unmarshal(&child)
-
 	h.Children[child.Id] = &Child{Model: child.Model, Name: child.Name}
-
 	child.Path = "created/device"
 	msg.Marshal(&child).Broadcast()
 }
@@ -129,6 +127,17 @@ func (h *Hub) Subscribers() dean.Subscribers {
 	}
 }
 
+func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
+	device := thinger.(device.Devicer)
+
+	device.SetDeployParams(deployParams)
+	device.CopyWifiAuth(h.WifiAuth)
+	device.SetWsScheme(h.WsScheme)
+	device.SetDialURLs(h.DialURLs)
+
+	h.Children[id].Devicer = device
+}
+
 func (h *Hub) LoadDevices(devices string) {
 	var children Children
 	json.Unmarshal([]byte(devices), &children)
@@ -138,11 +147,6 @@ func (h *Hub) LoadDevices(devices string) {
 			fmt.Printf("Skipping: error creating device Id '%s': %s\n", id, err)
 			continue
 		}
-		kid := h.Children[id]
-		kid.Devicer = thinger.(device.Devicer)
-		kid.Devicer.SetDeployParams(child.DeployParams)
-		kid.Devicer.CopyWifiAuth(h.WifiAuth)
-		kid.Devicer.SetWsScheme(h.WsScheme)
-		kid.Devicer.SetDialURLs(h.DialURLs)
+		h.loadDevice(thinger, id, child.DeployParams)
 	}
 }
