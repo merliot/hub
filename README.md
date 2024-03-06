@@ -2,7 +2,6 @@
 
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
-[![Publish Docker image to ghcr.io](https://github.com/merliot/hub/actions/workflows/ghcr-io.yml/badge.svg?branch=main)](https://github.com/merliot/hub/actions/workflows/ghcr-io.yml)
 
 Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 

@@ -18,12 +18,12 @@ on:
       - 'children/*'
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:
+#  workflow_dispatch:
 
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
-    if: ${{ github.event_name == 'push' || github.event_name == 'fork' }}
+#    if: ${{ github.event_name == 'push' || github.event_name == 'fork' }}
     runs-on: ubuntu-latest
     permissions:
       packages: write
