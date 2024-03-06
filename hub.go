@@ -26,8 +26,8 @@ type Models map[string]Model // keyed by model
 type Child struct {
 	Model          string
 	Name           string
-	DeployParams   string
-	Online         bool `json:"-"`
+	DeployParams   string `json:"DeployParams,omitempty"`
+	Online         bool   `json:"-"`
 	device.Devicer `json:"-"`
 }
 
