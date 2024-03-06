@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -39,23 +40,15 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Child id '%s' deleted", id)
 }
 
-func (h *Hub) apiSave(w http.ResponseWriter, r *http.Request) {
-	if err := h.saveChildren(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Children saved")
-}
-
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "create":
 		h.apiCreate(w, r)
 	case "delete":
 		h.apiDelete(w, r)
-	case "save":
-		h.apiSave(w, r)
+	case "devices":
+		data, _ := json.MarshalIndent(h.Children, "", "\t")
+		h.RenderTemplate(w, "devices.tmpl", string(data))
 	case "models":
 		h.RenderTemplate(w, "models.tmpl", h)
 	default:
