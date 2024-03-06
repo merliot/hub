@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"os"
-	"time"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
@@ -15,11 +13,6 @@ import (
 
 //go:embed css go.mod images js template
 var fs embed.FS
-
-const (
-	dirChildren  = "children/"
-	fileChildren = "children.json"
-)
 
 type Model struct {
 	modeler          device.Modeler
@@ -31,9 +24,10 @@ type Model struct {
 type Models map[string]Model // keyed by model
 
 type Child struct {
-	Model  string
-	Name   string
-	Online bool `json:"-"`
+	Model        string
+	Name         string
+	DeployParams string
+	Online       bool `json:"-"`
 }
 
 type Children map[string]*Child // keyed by id
@@ -43,9 +37,6 @@ type Hub struct {
 	Models `json:"-"`
 	Children
 	server    *dean.Server
-	gitKey    string
-	gitRemote string
-	gitAuthor string
 	templates *template.Template
 }
 
@@ -88,12 +79,6 @@ func (h *Hub) GenerateUf2s(dir string) error {
 	return nil
 }
 
-func (h *Hub) SetGit(remote, key, author string) {
-	h.gitRemote = remote
-	h.gitKey = key
-	h.gitAuthor = author
-}
-
 func (h *Hub) getState(msg *dean.Msg) {
 	h.Path = "state"
 	msg.Marshal(h).Reply()
@@ -105,9 +90,8 @@ func (h *Hub) online(msg *dean.Msg, online bool) {
 
 	if child, ok := h.Children[thing.Id]; ok {
 		child.Online = online
+		msg.Broadcast()
 	}
-
-	msg.Broadcast()
 }
 
 func (h *Hub) connect(online bool) func(*dean.Msg) {
@@ -122,11 +106,6 @@ func (h *Hub) createdThing(msg *dean.Msg) {
 	h.Children[child.Id] = &Child{Model: child.Model, Name: child.Name}
 	child.Path = "created/device"
 	msg.Marshal(&child).Broadcast()
-	h.storeChildren()
-}
-
-func filePath(id string) string {
-	return dirChildren + id + ".json"
 }
 
 func (h *Hub) deletedThing(msg *dean.Msg) {
@@ -135,8 +114,6 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 	delete(h.Children, child.Id)
 	child.Path = "deleted/device"
 	msg.Marshal(&child).Broadcast()
-	os.Remove(filePath(child.Id))
-	h.storeChildren()
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -149,10 +126,9 @@ func (h *Hub) Subscribers() dean.Subscribers {
 	}
 }
 
-func (h *Hub) restoreChildren() {
+func (h *Hub) LoadDevices(devices string) {
 	var children Children
-	bytes, _ := os.ReadFile(fileChildren)
-	json.Unmarshal(bytes, &children)
+	json.Unmarshal([]byte(devices), &children)
 	for id, child := range children {
 		thinger, err := h.server.CreateThing(id, child.Model, child.Name)
 		if err != nil {
@@ -162,26 +138,7 @@ func (h *Hub) restoreChildren() {
 		device := thinger.(device.Devicer)
 		device.CopyWifiAuth(h.WifiAuth)
 		device.SetWsScheme(h.WsScheme)
-		device.Load(filePath(id))
-	}
-}
-
-func (h *Hub) storeChildren() {
-	bytes, _ := json.MarshalIndent(h.Children, "", "\t")
-	os.WriteFile(fileChildren, bytes, 0600)
-}
-
-func (h *Hub) Setup() {
-	h.Device.Setup()
-	h.restoreChildren()
-}
-
-func (h *Hub) Run(i *dean.Injector) {
-	for {
-		err := h.saveChildren()
-		if err != nil {
-			fmt.Println("saving children error:", err.Error())
-		}
-		time.Sleep(5 * time.Second)
+		device.SetDialURLs(h.DialURLs)
+		device.SetDeployParams(child.DeployParams)
 	}
 }

@@ -23,7 +23,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	child := thinger.(device.Devicer)
 	child.CopyWifiAuth(h.WifiAuth)
 	child.SetWsScheme(h.WsScheme)
-	child.Load(filePath(id))
+	child.SetDialURLs(h.DialURLs)
 
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Child id '%s' created", id)
