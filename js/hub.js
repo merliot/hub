@@ -13,6 +13,9 @@ class Hub extends WebSocketController {
 		this.view = document.getElementById("view")
 		this.devices = document.getElementById("devices")
 		this.new = document.getElementById("new")
+		this.menuIcon = document.getElementById("menu-icon")
+		this.menu = document.getElementById("menu");
+		this.menuItems = document.querySelectorAll(".menu-item");
 		this.backIcon = document.getElementById("back-icon")
 		this.trashIcon = document.getElementById("trash-icon")
 		this.newDialog = document.getElementById("new-dialog")
@@ -30,6 +33,16 @@ class Hub extends WebSocketController {
 		this.new.onclick = () => {
 			this.showNewDialog()
 		}
+
+		this.menuIcon.onclick = () => {
+			this.toggleMenu()
+		}
+
+		this.menuItems.forEach(item => {
+			item.addEventListener("click", () => {
+				this.menuItemClick(item);
+			});
+		});
 
 		this.activeId = ''
 		this.localEvent = false
@@ -240,5 +253,28 @@ class Hub extends WebSocketController {
 			child.Model + "<br>Name: " + child.Name
 
 		this.deleteDialog.showModal()
+	}
+
+	showAboutDialog() {
+		var aboutDialog = document.getElementById("about-dialog")
+		var close = document.getElementById("about-close")
+		close.onclick = (event) => aboutDialog.close()
+		aboutDialog.showModal()
+	}
+
+	toggleMenu() {
+		menu.style.display = (menu.style.display === "block") ? "none" : "block";
+	}
+
+	menuItemClick(item) {
+		menu.style.display = "none"
+		switch (item.textContent) {
+		case "Download":
+			console.log("Download")
+			break;
+		case "About":
+			this.showAboutDialog()
+			break;
+		}
 	}
 }
