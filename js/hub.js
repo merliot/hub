@@ -260,23 +260,8 @@ class Hub extends WebSocketController {
 		a.href = '/devices';
 		a.download = 'devices.json';
 		document.body.appendChild(a);
-
 		a.click();
 		document.body.removeChild(a);
-
-		document.getElementById('download-dialog').close();
-	}
-
-	showDownloadDialog() {
-		var downloadDialog = document.getElementById("download-dialog")
-		var devices = document.getElementById("download-devices")
-		var downloadBtn = document.getElementById("download-download")
-		var closeBtn = document.getElementById("download-close")
-		downloadBtn.onclick = (event) => this.download()
-		closeBtn.onclick = (event) => downloadDialog.close()
-		downloadDialog.showModal()
-		// if this is set before showModal, it doesn't refresh...why?
-		devices.data = "/devices"
 	}
 
 	showAboutDialog() {
@@ -294,7 +279,7 @@ class Hub extends WebSocketController {
 		menu.style.display = "none"
 		switch (item.textContent) {
 		case "Download":
-			this.showDownloadDialog()
+			this.download()
 			break;
 		case "About":
 			this.showAboutDialog()

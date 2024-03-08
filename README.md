@@ -60,8 +60,6 @@ Merliot Hub supports devices created on these platforms:
 
 Merliot Hub saves device changes back to the hub repo.  Device changes happen when you create, delete, or deploy a device.  You must [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo to save your changes.  Follow the Quick Start guides, but use your own fork when git cloning.
 
-The hub need some git credentials to save changes back to the repo.  Pass the GIT_xxx environment vars (see below) to your hub instance.  If using a cloud provider, pass the GIT_xxx environment vars using the provider's secrets to store the GIT_xxx values.
-
 ## Environment Variables
 
 These variables configure the hub and devices:
@@ -69,13 +67,6 @@ These variables configure the hub and devices:
 **PORT** (hub)
 
 Port the hub listens on, default is 8000.
-
-**GIT_AUTHOR, GIT_REMOTE, GIT_KEY** (hub)
-
-Required if saving device changes.  E.g.:
-- GIT_AUTHOR="Joe Dirt <<joe@gmail.com>>"
-- GIT_REMOTE="https://github.com/merliot/hub"
-- GIT_KEY=$(</path/to/key)
 
 **BACKUP_HUB** (hub)
 
