@@ -42,7 +42,8 @@ func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
 		devices[id] = child
 	}
 	data, _ := json.MarshalIndent(devices, "", "\t")
-	h.RenderTemplate(w, "devices.tmpl", string(data))
+	//h.RenderTemplate(w, "devices.tmpl", string(data))
+	w.Write(data)
 }
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {

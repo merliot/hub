@@ -20,5 +20,6 @@
 # Go workspace file
 go.work
 
+version.go
 *.uf2
 goget

@@ -35,7 +35,8 @@ type Children map[string]*Child // keyed by id
 
 type Hub struct {
 	*device.Device
-	Models `json:"-"`
+	Version string
+	Models  `json:"-"`
 	Children
 	server    *dean.Server
 	templates *template.Template
@@ -47,6 +48,7 @@ func New(id, model, name string) dean.Thinger {
 	println("NEW HUB")
 	h := &Hub{}
 	h.Device = device.New(id, model, name, fs, targets).(*device.Device)
+	h.Version = version
 	h.Models = make(Models)
 	h.Children = make(Children)
 	h.CompositeFs.AddFS(fs)
