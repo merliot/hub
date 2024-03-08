@@ -5,6 +5,7 @@ FROM ghcr.io/merliot/device:main
 WORKDIR /app
 COPY . .
 
+RUN go generate ./cmd/gen-ver/
 RUN go build -o /hub ./cmd
 RUN go generate ./cmd/gen-uf2/
  
