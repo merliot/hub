@@ -5,6 +5,12 @@
 
 Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
+Securely access your devices from anywhere on the Internet.  No app required.
+
+## Install
+
+Install Merliot Hub on your computer, on the cloud, or both, using our Docker image.  (If you don't have Docker, you can install the hub from source).
+
 * [Run on Docker](#run-on-docker)
 
 ## Run on Docker
