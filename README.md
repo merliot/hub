@@ -7,6 +7,8 @@ Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev
 
 Securely access your devices from anywhere on the Internet.  No app required.
 
+With Merliot Hub, you own your hub.  You own your devices.  And most importantly, you own your data.  There is no third-party between your hub and your devices, you data is private.
+
 ## Install
 
 Install Merliot Hub on your computer, on the cloud, or both, using our Docker image.  (If you don't have Docker, you can install the hub from source).
