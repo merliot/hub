@@ -33,15 +33,17 @@ Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your
 
 ### Install on Cloud
 
-You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), amoung others.
+You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.
 
 ```
 docker pull merliot/hub
 ```
 
-All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.  Click the button to install Merliot Hub on Koyeb.
+All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[SCHEME]=https)
+
+Click the button to install Merliot Hub on Koyeb, for Free!  
 
 ```
 git clone https://github.com/merliot/hub.git
