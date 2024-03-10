@@ -7,24 +7,32 @@ Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev
 
 Securely access your devices from anywhere on the Internet.  No app required.
 
-With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices, you data is private.
+With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices; your data is private.
+
+Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
+
+* [Install](#install)
+  * [Install on Computer](#install-on-computer)
+  * [Install on Cloud](#install-on-cloud)
+  * [Install from Source](#install-from-source)
 
 ## Install
 
-Install Merliot Hub on your computer, on the cloud, or both, using our Docker image.  (If you don't have Docker, you can install the hub from source).
+Install Merliot Hub on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from source).
 
-* [Run on Docker](#run-on-docker)
-
-## Run on Docker
-
-Run Merliot Hub using [docker](https://www.docker.com/):
-
+### Install on Computer
+  
 ```
 docker pull merliot/hub
-docker run -p 8000:8000 merliot/hub
+docker run -p 80:8000 merliot/hub
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
+Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
+
+### Install on Cloud
+
+Run Merliot Hub using :
+
 
 
 ```
