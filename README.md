@@ -3,15 +3,19 @@
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
 
-Merliot Hub is a device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
+Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-One-click deploy a Merliot Hub on the cloud with Koyeb (account required):
+## Run on Docker
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
+Run Merliot Hub using [docker](https://www.docker.com/):
 
-## Docker
+```
+docker pull merliot/hub
+docker run -p 8000:8000 merliot/hub
+```
 
-Deploy Merliot Hub using [docker](https://www.docker.com/):
+Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
+
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -21,6 +25,10 @@ docker run -p 80:8000 hub
 ```
 
 Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
+
+One-click deploy a Merliot Hub on the cloud with Koyeb (account required):
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
 ## Run from Source
 
