@@ -22,7 +22,7 @@ Install Merliot Hub on your computer, on the cloud, or both, using our Docker im
 
 ### Install on Computer
 
-Prerequisite: Installed Docker environment.
+**Prerequisite**: Installed [Docker](https://docs.docker.com/get-docker/) environment.
   
 ```
 docker pull merliot/hub
@@ -33,7 +33,7 @@ Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your
 
 ### Install on Cloud
 
-You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.
+You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.  The docker image path is:
 
 ```
 docker pull merliot/hub
@@ -43,24 +43,21 @@ All cloud providers require an account, there's no getting around that.  Some ha
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
 
-Click the button to install Merliot Hub on Koyeb, for Free!  
+Click the button to install Merliot Hub on Koyeb, for Free!
+
+### Install from Source
+
+**Prerequisite**: [Go](https://go.dev/doc/install) version 1.22 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
 cd hub
-docker build -t hub .
-docker run -p 80:8000 hub
+go run ./cmd
 ```
 
-Browse to [http://127.0.0.1](http://127.0.0.1) to view hub and deploy devices.
-
-One-click deploy a Merliot Hub on the cloud with Koyeb (account required):
-
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
+Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
 
 ## Run from Source
-
-**Prerequisite**: Go version 1.20 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -93,8 +90,6 @@ Merliot Hub supports devices created on these platforms:
 - [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
 ## Saving Changes
-
-Merliot Hub saves device changes back to the hub repo.  Device changes happen when you create, delete, or deploy a device.  You must [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo to save your changes.  Follow the Quick Start guides, but use your own fork when git cloning.
 
 ## Environment Variables
 
