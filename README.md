@@ -18,9 +18,11 @@ Merliot Hub is non-centralized, meaning your hub is independent of your neighbor
 
 ## Install
 
-Install Merliot Hub on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from source).
+Install Merliot Hub on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from [source](#install-from-source)).
 
 ### Install on Computer
+
+Prerequisite: Installed Docker environment.
   
 ```
 docker pull merliot/hub
@@ -31,9 +33,15 @@ Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your
 
 ### Install on Cloud
 
-Run Merliot Hub using :
+You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), amoung others.
 
+```
+docker pull merliot/hub
+```
 
+All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.  Click the button to install Merliot Hub on Koyeb.
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/merliot/hub&branch=main&name=hub&builder=dockerfile&env[SCHEME]=https)
 
 ```
 git clone https://github.com/merliot/hub.git
