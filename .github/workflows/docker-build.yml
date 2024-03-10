@@ -53,7 +53,7 @@ jobs:
           tags: |
             type=sha,format=long
             type=raw,value=latest
-            type=semver
+            type=semver,pattern={{raw}}
           labels: |
             org.opencontainers.image.title=Merliot Hub
             org.opencontainers.image.description=Merliot Hub is a private, non-centralized IoT device hub, written in Go and TinyGo
