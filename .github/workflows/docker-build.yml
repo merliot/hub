@@ -51,7 +51,7 @@ jobs:
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
             type=raw,value=latest
             type=semver,pattern={{raw}}
           labels: |
