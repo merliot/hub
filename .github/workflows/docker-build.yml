@@ -13,6 +13,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - 'main'
@@ -55,9 +57,6 @@ jobs:
           labels: |
             org.opencontainers.image.title=Merliot Hub
             org.opencontainers.image.description=Merliot Hub is a private, non-centralized IoT device hub, written in Go and TinyGo
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5
