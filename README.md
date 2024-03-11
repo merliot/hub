@@ -3,7 +3,9 @@
 
 ## About
 
-Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).  Merliot Hub is 100% Open Source software.
+Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
+
+![](docs/images/phone.png)
 
 Securely access your devices from anywhere on the Internet.  No app required.
 
