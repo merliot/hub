@@ -41,6 +41,14 @@ You can install Merliot Hub on the Internet using a cloud providers such as [Koy
 docker pull merliot/hub
 ```
 
+#### Environment Variables
+
+:white_check_mark: $PORT=8000.  The hub listens on port :8000.
+
+:white_check_mark: $WS_SCHEME=wss://.  This uses the secure websocket scheme to connect to the hub.
+
+#### Install on Koyeb for Free
+
 All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
@@ -59,7 +67,7 @@ go run ./cmd
 
 Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
 
-## Run from Source
+### Run from Source
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -81,7 +89,7 @@ The device dials into the hub so you can monitor and control the device from the
 
 The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
 
-## Device Platforms
+### Device Platforms
 
 Merliot Hub supports devices created on these platforms:
 
@@ -91,7 +99,7 @@ Merliot Hub supports devices created on these platforms:
 - [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
 - [Adafruit PyPortal](https://www.adafruit.com/product/4116)
 
-## Saving Changes
+### Making a New Device
 
 ## Environment Variables
 
@@ -100,10 +108,6 @@ These variables configure the hub and devices:
 **PORT** (hub)
 
 Port the hub listens on, default is 8000.
-
-**BACKUP_HUB** (hub)
-
-Run as a backup hub.  A backup hub cannot make changes or deploy devices, but does provide an alternate address for viewing the hub devices.
 
 **USER, PASSWD** (hub + device)
 
@@ -120,8 +124,4 @@ So testtest goes with SSID test, and ihavenoplan goes with SSID backup.
 
 ## Hub Memory Requirements
 
-The hub consumes little memory (or CPU) and can run on a Linux machine with a minimum of 256M and 2G disk space.
-
-## Building New Devices
-
-New devices can be built from scratch or by extending existing devices.  See models/skeleton for bare-bones template for starting a new device.
+The hub consumes little memory (or CPU) and can run on a Linux machine (or virtual machine) with a minimum of 256M and 2G disk space.
