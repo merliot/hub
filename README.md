@@ -5,9 +5,9 @@
 
 Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-![](docs/images/phone.png)
+Securely access your devices from anywhere on the Internet.  No app required!
 
-Securely access your devices from anywhere on the Internet.  No app required.
+![](docs/images/phone.png)
 
 With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices; your data is private.
 
