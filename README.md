@@ -31,7 +31,7 @@ Install Merliot Hub locally on your computer, on the cloud, or both, using our D
 
 ### Install Locally
 
-You can install Merliot Hub on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
+You can install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
 
 ![](docs/images/local-install.png)
 
