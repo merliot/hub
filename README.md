@@ -5,7 +5,7 @@
 
 Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
-Securely access your devices from anywhere on the Internet.  No app required!
+Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
 
 ![](docs/images/phone.png)
 
@@ -19,6 +19,7 @@ Merliot Hub is non-centralized, meaning your hub is independent of your neighbor
   * [Install Locally and on Cloud](#install-locally-and-on-cloud)
   * [Install from Source](#install-from-source)
 * [Devices](#devices)
+  * [Saving Devices](#saving-devices)
   * [Supported Targets](#supported-targets)
   * [Example Devices](#example-devices)
   * [Making a New Device](#making-a-new-device)
@@ -57,11 +58,19 @@ docker pull merliot/hub
 
 #### Install on Koyeb for Free
 
-All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.
+Click the button to install Merliot Hub on Koyeb, for Free!  A Koyeb account is required.
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
 
-Click the button to install Merliot Hub on Koyeb, for Free!
+All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free virtual machine with more than enough resources to run a hub.
+
+Review the settings for the virtual machine (VM) and click Apply.  It takes a few minutes for the VM to start.  Your new hub will have an Internet URL in the format:
+
+https://hub-ACCOUNT.koyeb.app/
+
+Where ACCOUNT is your Koyeb account name.
+
+If you own a domain name, you can map it to the hub URL.
 
 ### Install Locally and on Cloud
 
@@ -88,6 +97,8 @@ A device comprises a platform, some I/O, and the software (firmware) that runs o
 The device dials into the hub so you can monitor and control the device from the hub.  Multiple devices, of different types, can dial into the hub.
 
 The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
+
+### Saving Devices
 
 ### Supported Targets
 
