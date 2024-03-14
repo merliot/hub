@@ -14,15 +14,21 @@ With Merliot Hub, you own the hub.  You own the devices.  And most importantly, 
 Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
 
 * [Install](#install)
-  * [Install on Computer](#install-on-computer)
+  * [Install Locally](#install-locally)
   * [Install on Cloud](#install-on-cloud)
+  * [Install Locally and on Cloud](#install-locally-and-on-cloud)
   * [Install from Source](#install-from-source)
+* [Devices](#devices)
+  * [Supported Targets](#supported-targets)
+  * [Example Devices](#example-devices)
+  * [Making a New Device](#making-a-new-device)
+* [Environment Variables](#environment-variables)
 
 ## Install
 
-Install Merliot Hub on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from [source](#install-from-source)).
+Install Merliot Hub locally on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from [source](#install-from-source)).
 
-### Install on Computer
+### Install Locally
 
 **Prerequisite**: Installed [Docker](https://docs.docker.com/get-docker/) environment.
   
@@ -47,6 +53,8 @@ docker pull merliot/hub
 
 :white_check_mark: $WS_SCHEME=wss://.  This uses the secure websocket scheme to connect to the hub.
 
+(See additional [environment variables](#environment-variables)).
+
 #### Install on Koyeb for Free
 
 All cloud providers require an account, there's no getting around that.  Some have free-tiers or introductory credits to get started.  [Koyeb](https://www.koyeb.com) offers a free container with more than enough resources to run a hub.
@@ -54,6 +62,8 @@ All cloud providers require an account, there's no getting around that.  Some ha
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
 
 Click the button to install Merliot Hub on Koyeb, for Free!
+
+### Install Locally and on Cloud
 
 ### Install from Source
 
@@ -67,17 +77,7 @@ go run ./cmd
 
 Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
 
-### Run from Source
-
-```
-git clone https://github.com/merliot/hub.git
-cd hub
-go run ./cmd
-```
-
-Browse to [http://127.0.0.1:8000](http://127.0.0.1:8000) to view hub and deploy devices.
-
-## Device
+## Devices
 
 A device is a gadget you build.  The picture-equation for a device is:
 
@@ -89,15 +89,22 @@ The device dials into the hub so you can monitor and control the device from the
 
 The device is also a local web server, so you can browse directly to the device's address, skipping the hub.
 
-### Device Platforms
+### Supported Targets
 
 Merliot Hub supports devices created on these platforms:
 
-- [Raspberry Pi 3/4](https://www.raspberrypi.com/)
-- [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) (Coming soon!)
+- [Raspberry Pi 3/4/5/Zero W/Zero 2 W](https://www.raspberrypi.com/)
 - [Arduino Nano Connect rp2040](https://docs.arduino.cc/hardware/nano-rp2040-connect)
 - [Seeed Wio Terminal](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
 - [Adafruit PyPortal](https://www.adafruit.com/product/4116)
+
+### Example Devices
+
+- [Skeleton Device](https://github.com/merliot/skeleton) (template for new devices)
+- [Device Hub](https://github.com/merliot/hub) (a hub is a device also)
+- [Relay Controller](https://github.com/merliot/relays)
+- [Garage Door Opener](https://github.com/merliot/garage)
+- [MorningStar Solar Charge Controller](https://github.com/merliot/ps30m) (Modbus)
 
 ### Making a New Device
 
