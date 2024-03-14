@@ -31,6 +31,8 @@ Install Merliot Hub locally on your computer, on the cloud, or both, using our D
 
 ### Install Locally
 
+![](docs/images/local-install.png)
+
 **Prerequisite**: Installed [Docker](https://docs.docker.com/get-docker/) environment.
   
 ```
