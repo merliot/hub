@@ -155,3 +155,16 @@ section {
 .device-icon {
 	padding: 10px 0 5 0;
 }
+
+#about-desc {
+	max-width: 280px;
+}
+
+#about-title {
+	margin: 60px 0 20px 0;
+	font-size: xx-large;
+}
+
+#about-details {
+	align-items: center;
+}
