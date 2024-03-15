@@ -60,11 +60,11 @@ docker run -e USER="xxx" -e PASSWD="yyy" -p 8000:8000 merliot/hub
 
 You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.  The docker image path is:
 
-![](docs/images/cloud-install.png)
-
 ```
 docker pull merliot/hub
 ```
+
+![](docs/images/cloud-install.png)
 
 #### Environment Variables
 
