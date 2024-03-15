@@ -145,26 +145,66 @@ Merliot Hub supports devices created on these platforms:
 
 These variables configure the hub and devices:
 
-**DEVICES** (hub)
+**DEVICES**
 
-Hub devices.  This is a JSON-formatted list of devices.
+Hub devices.  This is a JSON-formatted list of devices.  The format is:
 
-**PORT** (hub)
+```
+{
+	"<id>": {
+		"Model": "<model>",
+		"Name": "<name>",
+		"DeployParams": "<deploy params>"
+	},
+}
+```
 
-Port the hub listens on, default is 8000.
+Example with two devices:
 
-**USER, PASSWD** (hub + device)
+```
+{
+	"6bb645c9-db12e9c9": {
+		"Model": "skeleton",
+		"Name": "example",
+		"DeployParams": "target=demo\u0026gpio-default=on"
+	},
+	"6bccaffd-6d8fab72": {
+		"Model": "garage",
+		"Name": "garage",
+		"DeployParams": "target=demo\u0026door=garage+door\u0026relay=DEMO0"
+	},
+}
+```
 
-Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.
+**PORT**
 
-**WIFI_SSIDS, WIFI_PASSPHRASES** (device)
+Port the hub listens on, default is `PORT=8000`.
+
+**WS_SCHEME**
+
+Websocket scheme to use for dialing back into the hub.  Default is `WS_SCHEME=ws://`.  If the hub is running under https://, then set `WS_SCHEME=wss://`.
+
+**USER, PASSWD**
+
+Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.  For example:
+
+- `USER=foo`
+- `PASSWD=bar`
+
+**WIFI_SSIDS, WIFI_PASSPHRASES**
 
 Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  These are matched comma-delimited lists.  For each SSID, there should be a matching passphrase.  For example:
 
-- WIFI_SSIDS="test,backup"
-- PASSPHRASES="testtest,backdown"
+- `WIFI_SSIDS="test,backup"`
+- `PASSPHRASES="testtest,backdown"`
 
 So testtest goes with SSID test, and backdown goes with SSID backup.
+
+**DIAL_URLS**
+
+By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
+
+For example, a primary hub is at local address http://192.168.1.10.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address https://hub.merliot.net.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.  `DIAL_URLS` can take a comma-separated list of URLs.
 
 ## Hub Memory Requirements
 
