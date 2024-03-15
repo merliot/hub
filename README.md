@@ -176,13 +176,17 @@ Example with two devices:
 }
 ```
 
+**DIAL_URLS**
+
+By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
+
+For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address `https://hub.merliot.net`.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.
+
+`DIAL_URLS` can take a comma-separated list of URLs, if you want to go crazy with hubs.
+
 **PORT**
 
 Port the hub listens on, default is `PORT=8000`.
-
-**WS_SCHEME**
-
-Websocket scheme to use for dialing back into the hub.  Default is `WS_SCHEME=ws://`.  If the hub is running under https://, then set `WS_SCHEME=wss://`.
 
 **USER, PASSWD**
 
@@ -200,12 +204,10 @@ Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  
 
 So testtest goes with SSID test, and backdown goes with SSID backup.
 
-**DIAL_URLS**
+**WS_SCHEME**
 
-By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
+Websocket scheme to use for dialing back into the hub.  Default is `WS_SCHEME=ws://`.  If the hub is running under `https://`, then set `WS_SCHEME=wss://`.
 
-For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address `https://hub.merliot.net`.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.  `DIAL_URLS` can take a comma-separated list of URLs.
-
-## Hub Memory Requirements
+## Hub Memory and CPU Requirements
 
 The hub consumes little memory (or CPU) and can run on a Linux machine (or virtual machine) with a minimum of 256M and 2G disk space.
