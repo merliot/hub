@@ -96,9 +96,9 @@ If you own a domain name, you can map it to the hub URL.
 
 ### Install from Source
 
-**Prerequisite**: [Go](https://go.dev/doc/install) version 1.22 or higher.
-
-**Prerequisite**: [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
+**Prerequisites**:
+* [Go](https://go.dev/doc/install) version 1.22 or higher
+* [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
@@ -145,6 +145,10 @@ Merliot Hub supports devices created on these platforms:
 
 These variables configure the hub and devices:
 
+**DEVICES** (hub)
+
+Hub devices.  This is a JSON-formatted list of devices.
+
 **PORT** (hub)
 
 Port the hub listens on, default is 8000.
@@ -158,9 +162,9 @@ Set user and password for HTTP Basic Authentication on the hub.  The user will b
 Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  These are matched comma-delimited lists.  For each SSID, there should be a matching passphrase.  For example:
 
 - WIFI_SSIDS="test,backup"
-- PASSPHRASES="testtest,ihavenoplan"
+- PASSPHRASES="testtest,backdown"
 
-So testtest goes with SSID test, and ihavenoplan goes with SSID backup.
+So testtest goes with SSID test, and backdown goes with SSID backup.
 
 ## Hub Memory Requirements
 
