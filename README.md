@@ -44,7 +44,7 @@ docker run -p 8000:8000 merliot/hub
 
 Browse to http://\<host\>:8000 to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
 
-You can pass in [envrironment variables](#environment-variables).  For example, to set the Wifi SSID/Passphrase to be programmed into the devices:
+You can pass in [environment variables](#environment-variables).  For example, to set the Wifi SSID/Passphrase to be programmed into the devices:
 
 ```
 docker run -e WIFI_SSIDS="My SSID" -e WIFI_PASSPHRASES="mypassphrase" -p 8000:8000 merliot/hub
