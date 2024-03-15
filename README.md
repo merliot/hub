@@ -31,7 +31,7 @@ Install Merliot Hub locally on your computer, on the cloud, or both, using our D
 
 ### Install Locally
 
-You can install Merliot Hub on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
+You can install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
 
 ![](docs/images/local-install.png)
 
@@ -44,7 +44,7 @@ docker run -p 8000:8000 merliot/hub
 
 Browse to http://\<host\>:8000 to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
 
-You can pass in [envrironment variables](#environment-variables).  For example, to set the Wifi SSID/Passphrase to be programmed into the devices:
+You can pass in [environment variables](#environment-variables).  For example, to set the Wifi SSID/Passphrase to be programmed into the devices:
 
 ```
 docker run -e WIFI_SSIDS="My SSID" -e WIFI_PASSPHRASES="mypassphrase" -p 8000:8000 merliot/hub
