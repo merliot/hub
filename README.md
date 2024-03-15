@@ -98,6 +98,8 @@ If you own a domain name, you can map it to the hub URL.
 
 **Prerequisite**: [Go](https://go.dev/doc/install) version 1.22 or higher.
 
+**Prerequisite**: [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
+
 ```
 git clone https://github.com/merliot/hub.git
 cd hub
