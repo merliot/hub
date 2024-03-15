@@ -3,7 +3,7 @@
 
 ## About
 
-Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
+[Merliot](https://github.com/merliot) Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
 Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
 
@@ -14,9 +14,9 @@ With Merliot Hub, you own the hub.  You own the devices.  And most importantly, 
 Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
 
 * [Install](#install)
-  * [Install Locally](#install-locally)
-  * [Install on Cloud](#install-on-cloud)
-  * [Install Locally and on Cloud](#install-locally-and-on-cloud)
+  * [Local Install](#local-install)
+  * [Cloud Install](#cloud-install)
+  * [Local *and* Cloud Install](#local-and-cloud-install)
   * [Install from Source](#install-from-source)
 * [Devices](#devices)
   * [Saving Devices](#saving-devices)
@@ -29,13 +29,14 @@ Merliot Hub is non-centralized, meaning your hub is independent of your neighbor
 
 Install Merliot Hub locally on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from [source](#install-from-source)).
 
-### Install Locally
+### Local Install
 
-You can install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
+Install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
 
 ![](docs/images/local-install.png)
 
-**Prerequisite**: Installed [Docker](https://docs.docker.com/get-docker/) environment.
+> [!NOTE]
+> Prerequisite: Installed [Docker](https://docs.docker.com/get-docker/) environment.
   
 ```
 docker pull merliot/hub
@@ -56,7 +57,7 @@ Or to protect your hub with a user/password:
 docker run -e USER="xxx" -e PASSWD="yyy" -p 8000:8000 merliot/hub
 ```
 
-### Install on Cloud
+### Cloud Install
 
 You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.  The docker image path is:
 
@@ -68,9 +69,9 @@ docker pull merliot/hub
 
 #### Environment Variables
 
-:white_check_mark: $PORT=8000.  The hub listens on port :8000.
+`PORT=8000`.  The hub listens on port :8000.
 
-:white_check_mark: $WS_SCHEME=wss://.  This uses the secure websocket scheme to connect to the hub.
+`WS_SCHEME=wss://`.  This uses the secure websocket scheme to connect to the hub.
 
 (See additional [environment variables](#environment-variables)).
 
@@ -88,15 +89,20 @@ https://hub-ACCOUNT.koyeb.app/
 
 Where ACCOUNT is your Koyeb account name.
 
-If you own a domain name, you can map it to the hub URL.
+> [!TIP]
+> If you own a domain name, you can map it to the hub URL.
 
-### Install Locally and on Cloud
+### Local *and* Cloud Install
+
+Install Merliot Hub on a local computer *and* on the cloud, and the devices will dial into both.
+
+On one hub, call it primary, set `DIAL_URLS` environment to the URL of a secondary hub.  Do the oposite, setting `DIAL_URLS` on secondary to point to primary's URL.  This way, regardless of which hub a device is created on, the device will dial into both hubs.
 
 ![](docs/images/local-and-cloud-install.png)
 
 ### Install from Source
 
-**Prerequisites**:
+Prerequisites:
 * [Go](https://go.dev/doc/install) version 1.22 or higher
 * [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
@@ -107,6 +113,12 @@ go run ./cmd
 ```
 
 Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
+
+You can pass in [environment variables](#environment-variables).  For example, to set the user/passwd:
+
+```
+USER=foo PASSWD=bar go run ./cmd`
+```
 
 ## Devices
 
