@@ -64,6 +64,8 @@ You can install Merliot Hub on the Internet using a cloud providers such as [Koy
 docker pull merliot/hub
 ```
 
+![](docs/images/cloud-install.png)
+
 #### Environment Variables
 
 :white_check_mark: $PORT=8000.  The hub listens on port :8000.
@@ -90,9 +92,13 @@ If you own a domain name, you can map it to the hub URL.
 
 ### Install Locally and on Cloud
 
+![](docs/images/local-and-cloud-install.png)
+
 ### Install from Source
 
 **Prerequisite**: [Go](https://go.dev/doc/install) version 1.22 or higher.
+
+**Prerequisite**: [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
