@@ -102,9 +102,10 @@ On one hub, call it primary, set `DIAL_URLS` environment to the URL of a seconda
 
 ### Install from Source
 
-Prerequisites:
-* [Go](https://go.dev/doc/install) version 1.22 or higher
-* [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
+> [!NOTE]
+> Prerequisites:
+> * [Go](https://go.dev/doc/install) version 1.22 or higher
+> * [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
 ```
 git clone https://github.com/merliot/hub.git
