@@ -204,7 +204,7 @@ So testtest goes with SSID test, and backdown goes with SSID backup.
 
 By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
 
-For example, a primary hub is at local address http://192.168.1.10.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address https://hub.merliot.net.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.  `DIAL_URLS` can take a comma-separated list of URLs.
+For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address `https://hub.merliot.net`.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.  `DIAL_URLS` can take a comma-separated list of URLs.
 
 ## Hub Memory Requirements
 
