@@ -3,7 +3,7 @@
 
 ## About
 
-Merliot Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
+[Merliot](https://github.com/merliot) Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
 Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
 
@@ -14,9 +14,9 @@ With Merliot Hub, you own the hub.  You own the devices.  And most importantly, 
 Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
 
 * [Install](#install)
-  * [Install Locally](#install-locally)
-  * [Install on Cloud](#install-on-cloud)
-  * [Install Locally and on Cloud](#install-locally-and-on-cloud)
+  * [Local Install](#local-install)
+  * [Cloud Install](#cloud-install)
+  * [Local *and* Cloud Install](#local-and-cloud-install)
   * [Install from Source](#install-from-source)
 * [Devices](#devices)
   * [Saving Devices](#saving-devices)
@@ -29,13 +29,14 @@ Merliot Hub is non-centralized, meaning your hub is independent of your neighbor
 
 Install Merliot Hub locally on your computer, on the cloud, or both, using our Docker image, without having to install all the dependencies.  (If you don't have [Docker](https://www.docker.com/), you can install the hub from [source](#install-from-source)).
 
-### Install Locally
+### Local Install
 
-You can install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
+Install Merliot Hub on a computer on your local network.  The devices will dial into the hub on your local network.  You access the hub at it's local IP address.
 
 ![](docs/images/local-install.png)
 
-**Prerequisite**: Installed [Docker](https://docs.docker.com/get-docker/) environment.
+> [!NOTE]
+> Prerequisite: Installed [Docker](https://docs.docker.com/get-docker/) environment.
   
 ```
 docker pull merliot/hub
@@ -56,7 +57,7 @@ Or to protect your hub with a user/password:
 docker run -e USER="xxx" -e PASSWD="yyy" -p 8000:8000 merliot/hub
 ```
 
-### Install on Cloud
+### Cloud Install
 
 You can install Merliot Hub on the Internet using a cloud providers such as [Koyeb](https://www.koyeb.com), [Digital Ocean](https://www.digitalocean.com/), and [GCP](https://cloud.google.com) (Google Cloud Platform), to name a few.  The docker image path is:
 
@@ -68,9 +69,9 @@ docker pull merliot/hub
 
 #### Environment Variables
 
-:white_check_mark: $PORT=8000.  The hub listens on port :8000.
+`PORT=8000`.  The hub listens on port :8000.
 
-:white_check_mark: $WS_SCHEME=wss://.  This uses the secure websocket scheme to connect to the hub.
+`WS_SCHEME=wss://`.  This uses the secure websocket scheme to connect to the hub.
 
 (See additional [environment variables](#environment-variables)).
 
@@ -88,15 +89,25 @@ https://hub-ACCOUNT.koyeb.app/
 
 Where ACCOUNT is your Koyeb account name.
 
-If you own a domain name, you can map it to the hub URL.
+> [!TIP]
+> If you own a domain name, you can map it to the hub URL.
 
-### Install Locally and on Cloud
+### Local *and* Cloud Install
+
+Install Merliot Hub on a local computer *and* on the cloud, and the devices will dial into both.
+
+On one hub, call it primary, set `DIAL_URLS` environment to the URL of a secondary hub.  Do the oposite, setting `DIAL_URLS` on secondary to point to primary's URL.  This way, regardless of which hub a device is created on, the device will dial into both hubs.
+
+![](docs/images/local-and-cloud-install.png)
 
 ![](docs/images/local-and-cloud-install.png)
 
 ### Install from Source
 
-**Prerequisite**: [Go](https://go.dev/doc/install) version 1.22 or higher.
+> [!NOTE]
+> Prerequisites:
+> * [Go](https://go.dev/doc/install) version 1.22 or higher
+> * [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
 **Prerequisite**: [TinyGo](https://tinygo.org/getting-started/install/) version 0.31.1 or higher.
 
@@ -107,6 +118,12 @@ go run ./cmd
 ```
 
 Browse to http://\<host\> to view hub and deploy devices, where \<host\> is your IP address or hostname of your computer.
+
+You can pass in [environment variables](#environment-variables).  For example, to set the user/passwd:
+
+```
+USER=foo PASSWD=bar go run ./cmd`
+```
 
 ## Devices
 
@@ -145,23 +162,69 @@ Merliot Hub supports devices created on these platforms:
 
 These variables configure the hub and devices:
 
-**PORT** (hub)
+**DEVICES**
 
-Port the hub listens on, default is 8000.
+Hub devices.  This is a JSON-formatted list of devices.  The format is:
 
-**USER, PASSWD** (hub + device)
+```
+{
+	"<id>": {
+		"Model": "<model>",
+		"Name": "<name>",
+		"DeployParams": "<deploy params>"
+	},
+}
+```
 
-Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.
+Example with two devices:
 
-**WIFI_SSIDS, WIFI_PASSPHRASES** (device)
+```
+{
+	"6bb645c9-db12e9c9": {
+		"Model": "skeleton",
+		"Name": "example",
+		"DeployParams": "target=demo\u0026gpio-default=on"
+	},
+	"6bccaffd-6d8fab72": {
+		"Model": "garage",
+		"Name": "garage",
+		"DeployParams": "target=demo\u0026door=garage+door\u0026relay=DEMO0"
+	},
+}
+```
+
+**DIAL_URLS**
+
+By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
+
+For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address `https://hub.merliot.net`.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.
+
+`DIAL_URLS` can take a comma-separated list of URLs, if you want to go crazy with hubs.
+
+**PORT**
+
+Port the hub listens on, default is `PORT=8000`.
+
+**USER, PASSWD**
+
+Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.  For example:
+
+- `USER=foo`
+- `PASSWD=bar`
+
+**WIFI_SSIDS, WIFI_PASSPHRASES**
 
 Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  These are matched comma-delimited lists.  For each SSID, there should be a matching passphrase.  For example:
 
-- WIFI_SSIDS="test,backup"
-- PASSPHRASES="testtest,ihavenoplan"
+- `WIFI_SSIDS="test,backup"`
+- `PASSPHRASES="testtest,backdown"`
 
-So testtest goes with SSID test, and ihavenoplan goes with SSID backup.
+So testtest goes with SSID test, and backdown goes with SSID backup.
 
-## Hub Memory Requirements
+**WS_SCHEME**
+
+Websocket scheme to use for dialing back into the hub.  Default is `WS_SCHEME=ws://`.  If the hub is running under `https://`, then set `WS_SCHEME=wss://`.
+
+## Hub Memory and CPU Requirements
 
 The hub consumes little memory (or CPU) and can run on a Linux machine (or virtual machine) with a minimum of 256M and 2G disk space.
