@@ -29,7 +29,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-        fetch-tags: true
+        with:
+          fetch-tags: true
 
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request'
