@@ -17,11 +17,11 @@ func main() {
 	// Get the latest Git version tag
 	tag := ""
 	tagCmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
-	tagOutput, err := tagCmd.Output()
+	stdoutStderr, err := tagCmd.CombinedOutput()
 	if err == nil {
-		tag = strings.TrimSpace(string(tagOutput))
+		tag = strings.TrimSpace(string(stdoutStderr))
 	} else {
-		fmt.Println("Error:", err.Error())
+		fmt.Println("Error:", err.Error(), string(stdoutStderr))
 	}
 
 	// Get the latest Git SHA
