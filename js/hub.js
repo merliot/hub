@@ -269,6 +269,7 @@ class Hub extends WebSocketController {
 		var close = document.getElementById("about-close")
 		close.onclick = (event) => aboutDialog.close()
 		aboutDialog.showModal()
+		close.focus()
 	}
 
 	toggleMenu() {
