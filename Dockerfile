@@ -4,7 +4,6 @@ FROM ghcr.io/merliot/device
 
 WORKDIR /app
 COPY . .
-COPY .git .git
 
 RUN go generate ./cmd/gen-ver/
 RUN go build -o /hub ./cmd

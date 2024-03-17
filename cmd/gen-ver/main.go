@@ -20,13 +20,15 @@ func main() {
 	tagOutput, err := tagCmd.Output()
 	if err == nil {
 		tag = strings.TrimSpace(string(tagOutput))
+	} else {
+		fmt.Println("Error:", err.Error())
 	}
 
 	// Get the latest Git SHA
 	cmd := exec.Command("git", "rev-parse", "HEAD")
 	output, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err.Error())
 		os.Exit(1)
 	}
 
