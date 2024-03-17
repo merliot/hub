@@ -53,5 +53,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Latest commit SHA written to version.go")
+	fmt.Println(version, "written to version.go")
 }
