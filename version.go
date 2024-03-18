@@ -1,3 +1,3 @@
 package hub
 
-var version = "30f2b18"
+var version = "v0.0.1-35a3cef"
