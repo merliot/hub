@@ -1,12 +1,22 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/merliot-hub-dark.png">
-    <img src="docs/images/merliot-hub-light.png" width="50%">
+    <img src="docs/images/merliot-hub-light.png" width="70%">
   </picture>
 </div>
 
+<br><br>
+
+<div align="center">
+
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
+[![License](https://img.shields.io/github/license/merliot/hub)](#license)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
+![GitHub Release](https://img.shields.io/github/v/release/merliot/hub)
+[![Issues](https://img.shields.io/github/issues/merliot/hub)](https://github.com/merliot/hub/issues)
+
+</div>
+
 
 ## About
 
