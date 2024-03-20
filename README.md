@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/merliot/hub/raw/main/docs/images/merliot-hub.light.png">
-    <img src="https://github.com/merliot/hub/raw/main/docs/images/merliot-hub-dark.png" width="40%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/merliot-hub-dark.png">
+    <img src="docs/images/merliot-hub-light.png" width="50%">
   </picture>
 </div>
 
