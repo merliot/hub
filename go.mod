@@ -4,15 +4,16 @@ go 1.22.0
 
 require (
 	github.com/merliot/dean v0.0.0-20240319184459-ba1ddb67bf5e
-	github.com/merliot/device v0.0.0-20240320061953-7980abc4a697
-	github.com/merliot/garage v0.0.0-20240319185222-15470f5112ca
-	github.com/merliot/ps30m v0.0.1
-	github.com/merliot/relays v0.0.1
-	github.com/merliot/skeleton v0.0.1
+	github.com/merliot/device v0.0.0-20240321011137-c22ff9b34776
+	github.com/merliot/garage v0.0.2-0.20240321011439-5046bc718b45
+	github.com/merliot/ps30m v0.0.2-0.20240321011445-0795fda53791
+	github.com/merliot/relays v0.0.2-0.20240321011436-f42f0db339bb
+	github.com/merliot/skeleton v0.0.2-0.20240321011449-4ac067f79be9
 )
 
 require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
