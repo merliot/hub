@@ -92,7 +92,11 @@ class Hub extends WebSocketController {
 		device.classList.add("device-full")
 		device.type = "text/html"
 		device.data = "/" + this.activeId + "/"
-		device.style.height = '10000px';
+
+		device.onload = () => {
+			device.style.height = device.contentDocument.documentElement.scrollHeight + 'px';
+		}
+
 		this.view.appendChild(device)
 		this.backIcon.classList.replace("hidden", "visible")
 		this.trashIcon.classList.replace("hidden", "visible")
