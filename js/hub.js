@@ -78,8 +78,13 @@ class Hub extends WebSocketController {
 		}
 	}
 
-	loadView() {
+	clearView() {
 		this.view.textContent = ''
+		this.view.innerHTML = ''
+	}
+
+	loadView() {
+		this.clearView()
 		if (this.activeId === '') {
 			this.loadViewTiled()
 		} else {
