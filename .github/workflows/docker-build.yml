@@ -18,6 +18,9 @@ on:
   pull_request:
     branches:
       - 'main'
+  workflow_dispatch:
+    branches:
+      - 'dev'
 
 jobs:
   push_to_registries:
