@@ -13,8 +13,12 @@ github.com/merliot/dean v0.0.0-20240324082120-fab0f3abaa21 h1:Vgxmiwbp7L8kkseZlW
 github.com/merliot/dean v0.0.0-20240324082120-fab0f3abaa21/go.mod h1:IV6M2XyDXo8F4JPPzOoETvADzo1YHTJOE2t/LDk2iog=
 github.com/merliot/device v0.0.0-20240324082427-744a142bac99 h1:ljrcmi6z44w57R3q17KtaDbJpDCxID8AhmK6KRsHbs8=
 github.com/merliot/device v0.0.0-20240324082427-744a142bac99/go.mod h1:p27hX5iHFiU3wG05tvHbrWJ5fvZB9ZhMkkbIFheBsvU=
+github.com/merliot/device v0.0.0-20240325074723-0edd7cdd3b82 h1:fxKf+J42EKXDD0czvwVd2bmztuZ4/BTdw46PTmDDHkI=
+github.com/merliot/device v0.0.0-20240325074723-0edd7cdd3b82/go.mod h1:p27hX5iHFiU3wG05tvHbrWJ5fvZB9ZhMkkbIFheBsvU=
 github.com/merliot/garage v0.0.2-0.20240325040245-7993562dc2e1 h1:JtlUcC7YDlIcOwsZyKurgpxZY6ybNurgf+3Q87QgM/o=
 github.com/merliot/garage v0.0.2-0.20240325040245-7993562dc2e1/go.mod h1:s8QmawW5MjSm7SRjILzv4xHuXbJ0oaTroIU3sl20w6s=
+github.com/merliot/garage v0.0.2-0.20240325074906-c9a641893b3d h1:M+XjsQOFa1sXynPpRzno/T+eY3XJxsQy4M18AL9ZOHA=
+github.com/merliot/garage v0.0.2-0.20240325074906-c9a641893b3d/go.mod h1:c0uFqOY4yBIIfwJIV8eCEabwviNr54yAps0CwbodMNY=
 github.com/merliot/ps30m v0.0.2-0.20240325041541-36c9ba2cfe0b h1:MDH5a6Igy4m8ukiDBHNNAMebDFNt7pHlEFmFunBzUsE=
 github.com/merliot/ps30m v0.0.2-0.20240325041541-36c9ba2cfe0b/go.mod h1:Y8L2iaLZ31dtNEx3acFA+niDMLhhM2ol3XoiN74kQ+s=
 github.com/merliot/relays v0.0.2-0.20240325042139-e80bf72c1acd h1:cnIhxsQOi4Gx5L7nMfgBpC5jRmztvay1Y4ecCTbwpQg=
