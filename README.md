@@ -191,7 +191,7 @@ Merliot Hub supports devices created on these platforms:
 
 These variables configure the hub and devices:
 
-**DEVICES**
+#### DEVICES
 
 Hub devices.  This is a JSON-formatted list of devices.  The format is:
 
@@ -222,7 +222,7 @@ Example with two devices:
 }
 ```
 
-**DIAL_URLS**
+#### DIAL_URLS
 
 By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
 
@@ -230,18 +230,18 @@ For example, a primary hub is at local address `http://192.168.1.10`.  Any devic
 
 `DIAL_URLS` can take a comma-separated list of URLs, if you want to go crazy with hubs.
 
-**PORT**
+#### PORT
 
 Port the hub listens on, default is `PORT=8000`.
 
-**USER, PASSWD**
+#### USER, PASSWD
 
 Set user and password for HTTP Basic Authentication on the hub.  The user will be prompted for user/password when browsing to the hub.  These values (if set) are automatically passed down to the device when deployed, and the device connects to the hub using these creditials.  For example:
 
 - `USER=foo`
 - `PASSWD=bar`
 
-**WIFI_SSIDS, WIFI_PASSPHRASES**
+#### WIFI_SSIDS, WIFI_PASSPHRASES
 
 Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  These are matched comma-delimited lists.  For each SSID, there should be a matching passphrase.  For example:
 
@@ -250,7 +250,7 @@ Set Wifi SSID(s) and passphrase(s) for Wifi-enabled devices built with TinyGo.  
 
 So testtest goes with SSID test, and backdown goes with SSID backup.
 
-**WS_SCHEME**
+#### WS_SCHEME
 
 Websocket scheme to use for dialing back into the hub.  Default is `WS_SCHEME=ws://`.  If the hub is running under `https://`, then set `WS_SCHEME=wss://`.
 
