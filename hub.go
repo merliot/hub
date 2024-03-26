@@ -122,7 +122,7 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 
 func (h *Hub) restart(msg *dean.Msg) {
 	fmt.Println("RESTART")
-	os.Exit(1)
+	os.Exit(0)
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
