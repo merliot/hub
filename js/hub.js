@@ -289,7 +289,7 @@ class Hub extends WebSocketController {
 			break;
 		case "Restart Hub":
 			var result = confirm("Are you sure?");
-			if (results) {
+			if (result) {
 				this.webSocket.send(JSON.stringify({Path: "restart"}));
 			}
 			break;
