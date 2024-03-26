@@ -288,7 +288,10 @@ class Hub extends WebSocketController {
 			this.download()
 			break;
 		case "Restart Hub":
-			this.webSocket.send(JSON.stringify({Path: "restart"}));
+			var result = confirm("Are you sure?");
+			if (results) {
+				this.webSocket.send(JSON.stringify({Path: "restart"}));
+			}
 			break;
 		case "About":
 			this.showAboutDialog()
