@@ -284,8 +284,11 @@ class Hub extends WebSocketController {
 	menuItemClick(item) {
 		menu.style.display = "none"
 		switch (item.textContent) {
-		case "Download":
+		case "Download Devices":
 			this.download()
+			break;
+		case "Restart Hub":
+			this.webSocket.send(JSON.stringify({Path: "restart"}));
 			break;
 		case "About":
 			this.showAboutDialog()

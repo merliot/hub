@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"os"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
@@ -119,6 +120,11 @@ func (h *Hub) deletedThing(msg *dean.Msg) {
 	msg.Marshal(&child).Broadcast()
 }
 
+func (h *Hub) restart(msg *dean.Msg) {
+	fmt.Println("RESTART")
+	os.Exit(1)
+}
+
 func (h *Hub) Subscribers() dean.Subscribers {
 	return dean.Subscribers{
 		"get/state":     h.getState,
@@ -126,6 +132,7 @@ func (h *Hub) Subscribers() dean.Subscribers {
 		"disconnected":  h.connect(false),
 		"created/thing": h.createdThing,
 		"deleted/thing": h.deletedThing,
+		"restart":       h.restart,
 	}
 }
 
