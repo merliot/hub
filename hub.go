@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"os"
 
 	"github.com/merliot/dean"
@@ -149,7 +150,20 @@ func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
 
 func (h *Hub) LoadDevices(devices string) {
 	var children Children
-	json.Unmarshal([]byte(devices), &children)
+
+	// If devices is empty, try loading from devices.json file
+	if devices == "" {
+		data, err := ioutil.ReadFile("devices.json")
+		if err == nil {
+			devices = string(data)
+		}
+	}
+
+	err := json.Unmarshal([]byte(devices), &children)
+	if err != nil {
+		fmt.Printf("Error parsing devices: %s\n", err)
+		return
+	}
 	for id, child := range children {
 		thinger, err := h.server.CreateThing(id, child.Model, child.Name)
 		if err != nil {
