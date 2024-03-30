@@ -20,6 +20,8 @@
 # Go workspace file
 go.work
 
+devices.json
 version.go
 *.uf2
+.env
 goget

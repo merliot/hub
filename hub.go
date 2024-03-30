@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/ioutil"
+	"net/url"
 	"os"
 
 	"github.com/merliot/dean"
@@ -59,6 +61,20 @@ func New(id, model, name string) dean.Thinger {
 
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
+}
+
+func (h *Hub) SetBackup(backup string) {
+	u, err := url.Parse(backup)
+	if err != nil {
+		fmt.Println(backup, "is not a valid URL:", err)
+		return
+	}
+	ws := "ws://"
+	if u.Scheme == "https" {
+		ws = "wss://"
+	}
+	dialURL := ws + u.Host + "/ws/?ping-period=4"
+	h.SetDialURLs(dialURL)
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
@@ -149,7 +165,20 @@ func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
 
 func (h *Hub) LoadDevices(devices string) {
 	var children Children
-	json.Unmarshal([]byte(devices), &children)
+
+	// If devices is empty, try loading from devices.json file
+	if devices == "" {
+		data, err := ioutil.ReadFile("devices.json")
+		if err == nil {
+			devices = string(data)
+		}
+	}
+
+	err := json.Unmarshal([]byte(devices), &children)
+	if err != nil {
+		fmt.Printf("Error parsing devices: %s\n", err)
+		return
+	}
 	for id, child := range children {
 		thinger, err := h.server.CreateThing(id, child.Model, child.Name)
 		if err != nil {
