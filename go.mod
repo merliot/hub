@@ -3,9 +3,9 @@ module github.com/merliot/hub
 go 1.22.0
 
 require (
-	github.com/merliot/dean v0.0.0-20240327040632-9394ea7f9dd9
-	github.com/merliot/device v0.0.0-20240327073837-e3c40846e131
-	github.com/merliot/garage v0.0.2-0.20240327164950-e5ca11768e7b
+	github.com/merliot/dean v0.0.0-20240329060554-08ba82e9a659
+	github.com/merliot/device v0.0.0-20240329165820-c9a6b7079a74
+	github.com/merliot/garage v0.0.2-0.20240330035158-0de06a7b2ba0
 	github.com/merliot/ps30m v0.0.2-0.20240327164957-f7d6aa106037
 	github.com/merliot/relays v0.0.2-0.20240327164946-8307ca930a4e
 	github.com/merliot/skeleton v0.0.2-0.20240327165000-d4c5f97f4975

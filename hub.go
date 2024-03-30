@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"net/url"
 	"os"
 
 	"github.com/merliot/dean"
@@ -60,6 +61,20 @@ func New(id, model, name string) dean.Thinger {
 
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
+}
+
+func (h *Hub) SetBackup(backup string) {
+	u, err := url.Parse(backup)
+	if err != nil {
+		fmt.Println(backup, "is not a valid URL:", err)
+		return
+	}
+	ws := "ws://"
+	if u.Scheme == "https" {
+		ws = "wss://"
+	}
+	dialURL := ws + u.Host + "/ws/?ping-period=4"
+	h.SetDialURLs(dialURL)
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {

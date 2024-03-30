@@ -14,7 +14,7 @@ var (
 	passwd      = dean.GetEnv("PASSWD", "")
 	ssids       = dean.GetEnv("WIFI_SSIDS", "")
 	passphrases = dean.GetEnv("WIFI_PASSPHRASES", "")
-	dialURLs    = dean.GetEnv("DIAL_URLS", "")
+	backup      = dean.GetEnv("BACKUP", "")
 	devices     = dean.GetEnv("DEVICES", "")
 )
 
@@ -22,7 +22,7 @@ func main() {
 	hub := hub.New(id, "hub", name).(*hub.Hub)
 	hub.SetWifiAuth(ssids, passphrases)
 	hub.SetWsScheme(wsScheme)
-	hub.SetDialURLs(dialURLs)
+	hub.SetBackup(backup)
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
 	hub.RegisterModels()
