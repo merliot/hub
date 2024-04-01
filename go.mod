@@ -3,12 +3,12 @@ module github.com/merliot/hub
 go 1.22.0
 
 require (
-	github.com/merliot/dean v0.0.0-20240330145910-bdc95c8513db
-	github.com/merliot/device v0.0.0-20240330150300-77adcf1517f0
-	github.com/merliot/garage v0.0.2-0.20240330150329-6e19dab8ab02
-	github.com/merliot/ps30m v0.0.2-0.20240330150335-118b8dc5e555
-	github.com/merliot/relays v0.0.2-0.20240330150326-d4ffd969af9c
-	github.com/merliot/skeleton v0.0.2-0.20240330150338-223b2db420fc
+	github.com/merliot/dean v0.0.0-20240401030714-e9ee5c956a08
+	github.com/merliot/device v0.0.0-20240401031018-b78726a6609e
+	github.com/merliot/garage v0.0.2-0.20240401031302-dedd995b7bba
+	github.com/merliot/ps30m v0.0.2-0.20240401031309-c5811bb78803
+	github.com/merliot/relays v0.0.2-0.20240401031259-024d4226fe8d
+	github.com/merliot/skeleton v0.0.2-0.20240401031312-b0a58bb5c938
 )
 
 require (
