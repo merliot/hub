@@ -12,7 +12,6 @@
 [![Go Reference](https://pkg.go.dev/badge/pkg.dev.go/github.com/merliot/hub.svg)](https://pkg.go.dev/github.com/merliot/hub)
 [![License](https://img.shields.io/github/license/merliot/hub)](#license)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
-![GitHub Release](https://img.shields.io/github/v/release/merliot/hub)
 [![Issues](https://img.shields.io/github/issues/merliot/hub)](https://github.com/merliot/hub/issues)
 
 </div>
@@ -191,6 +190,12 @@ Merliot Hub supports devices created on these platforms:
 
 These variables configure the hub and devices:
 
+#### BACKUP
+
+By default, the each device will dial into the hub that created the device.  To also dial into a backup hub, set BACKUP to the backup hub's address.  
+
+For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A backup hub is at cloud address `https://hub.merliot.net`.  Set `BACKUP=https://hub.merliot.net` on the primary hub.  Now the devices created on the primary hub will dial into both hubs.  You can set `BACKUP=http://192.168.1.10` on the backup hub, so regardless of which hub creates the device, the device will dial into both hubs.
+
 #### DEVICES
 
 Hub devices.  This is a JSON-formatted list of devices.  The format is:
@@ -221,14 +226,6 @@ Example with two devices:
 	},
 }
 ```
-
-#### DIAL_URLS
-
-By default, the each device will dial into the hub that created the device.  To additionally dial into another hub, set `DIAL_URLS` to the other hub address.  
-
-For example, a primary hub is at local address `http://192.168.1.10`.  Any device created on the primary hub will dial into the primary hub's address.  A secondary hub is at cloud address `https://hub.merliot.net`.  Set `DIAL_URLS=https://hub.merliot.net` on the primary hub.  Now the devices will dial into both hubs.
-
-`DIAL_URLS` can take a comma-separated list of URLs, if you want to go crazy with hubs.
 
 #### PORT
 
