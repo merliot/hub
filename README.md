@@ -33,13 +33,22 @@ Securely access your devices from anywhere on the Internet · No app required
     <a href="https://twitter.com/merliotio">Twitter</a>
 </p>
 
-## About
+<div align="center"><img src="docs/images/phone.png"></div>
+
+## Features
+
+- foo
+- bar
+
+## Quick Start
+
+Blah
+
+## Why Merliot Hub?
 
 [Merliot](https://github.com/merliot) Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
 
 Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
-
-![](docs/images/phone.png)
 
 With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices; your data is private.
 
