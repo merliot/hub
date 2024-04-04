@@ -37,22 +37,15 @@ Securely access your devices from anywhere on the Internet · No app required
 
 ## Features
 
-- foo
-- bar
+- **Privacy first:** no user data collected or stored; no cookies; no tracking; no ads
+- **Non-centralized:** your hub is independent from your neighbor's; there is no central control over any hub
+- **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
+- **No app to install:** runs as a single page web application; all you need is a browser
+- **100% Open Source**
 
 ## Quick Start
 
 Blah
-
-## Why Merliot Hub?
-
-[Merliot](https://github.com/merliot) Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
-
-Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
-
-With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices; your data is private.
-
-Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
 
 * [Install](#install)
   * [Local Install](#local-install)
