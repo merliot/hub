@@ -64,6 +64,9 @@ func (h *Hub) SetServer(server *dean.Server) {
 }
 
 func (h *Hub) SetBackup(backup string) {
+	if backup == "" {
+		return
+	}
 	u, err := url.Parse(backup)
 	if err != nil {
 		fmt.Println(backup, "is not a valid URL:", err)
