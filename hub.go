@@ -48,7 +48,7 @@ type Hub struct {
 var targets = []string{"x86-64", "rpi"}
 
 func New(id, model, name string) dean.Thinger {
-	println("NEW HUB")
+	fmt.Println("NEW HUB")
 	h := &Hub{}
 	h.Device = device.New(id, model, name, fs, targets).(*device.Device)
 	h.Version = version
@@ -172,9 +172,10 @@ func (h *Hub) LoadDevices(devices string) {
 	// If devices is empty, try loading from devices.json file
 	if devices == "" {
 		data, err := ioutil.ReadFile("devices.json")
-		if err == nil {
-			devices = string(data)
+		if err != nil {
+			return
 		}
+		devices = string(data)
 	}
 
 	err := json.Unmarshal([]byte(devices), &children)

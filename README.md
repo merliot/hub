@@ -37,22 +37,34 @@ Securely access your devices from anywhere on the Internet · No app required
 
 ## Features
 
-- foo
-- bar
+- **Privacy first:** no user data collected or stored; no cookies; no tracking; no ads
+- **Non-centralized:** your hub is independent from your neighbor's; there is no central control over any hub
+- **Secure:** TLS-secure communication from device and hub, and from hub to browser
+- **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
+- **No app to install:** runs as a responsive, single page web application; all you need is a browser
+- **Containerized:** runs in a docker container; no dependencies to install
+- **Small footprint:** minimum hardware specification is 1cpu, 256MB of RAM and 10GB of disk space.
+- **100% Open Source**: written in [Go](https://go.dev) and [TinyGo](https://tinygo.org) (and some html/css/javascript for the UI)
 
 ## Quick Start
 
-Blah
+### Free on Koyeb
 
-## Why Merliot Hub?
+Click the button to install Merliot Hub on the Koyeb cloud (a Koyeb account is required).
 
-[Merliot](https://github.com/merliot) Hub is a private, non-centralized IoT device hub, written in [Go](go.dev) and [TinyGo](tinygo.org).
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
 
-Securely access your devices from anywhere on the Internet.  Try it for [Free](#install-on-koyeb-for-free).  No app required.
+Review the settings and click Apply.  It takes a few minutes for the hub to start.  Browse to `https://APP.koyeb.app/` to view hub and deploy devices.
 
-With Merliot Hub, you own the hub.  You own the devices.  And most importantly, you own the data.  There is no third-party between your hub and your devices; your data is private.
+### Docker
 
-Merliot Hub is non-centralized, meaning your hub is independent of your neighbor's hub, and there is no central control over any hub.
+```
+docker pull merliot/hub
+docker run -p 80:8000 merliot/hub
+```
+
+Browse to `http://<host>` to view hub and deploy devices, where `<host>` is your IP address or hostname of your computer.
+
 
 * [Install](#install)
   * [Local Install](#local-install)
