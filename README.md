@@ -43,7 +43,7 @@ Securely access your devices from anywhere on the Internet · No app required
 - **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
 - **No app to install:** runs as a responsive, single page web application; all you need is a browser
 - **Containerized:** runs in a docker container; no dependencies to install
-- **Small footprint:** runs on the smallest, cheapest VM: 1CPU + 256MB memory + 10G disk
+- **Small footprint:** minimum hardware specification is 1cpu, 256MB of RAM and 10GB of disk space.
 - **100% Open Source**: written in [Go](https://go.dev) and [TinyGo](https://tinygo.org) (and some html/css/javascript for the UI)
 
 ## Quick Start
@@ -54,7 +54,7 @@ Click the button to install Merliot Hub on the Koyeb cloud (a Koyeb account is r
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://)
 
-Review the settings and click Apply.  It takes a few minutes for the hub to start.  Browse to `https://hub-ACCOUNT.koyeb.app/` to view hub and deploy devices
+Review the settings and click Apply.  It takes a few minutes for the hub to start.  Browse to `https://APP.koyeb.app/` to view hub and deploy devices.
 
 ### Docker
 
