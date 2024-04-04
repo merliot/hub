@@ -169,9 +169,10 @@ func (h *Hub) LoadDevices(devices string) {
 	// If devices is empty, try loading from devices.json file
 	if devices == "" {
 		data, err := ioutil.ReadFile("devices.json")
-		if err == nil {
-			devices = string(data)
+		if err != nil {
+			return
 		}
+		devices = string(data)
 	}
 
 	err := json.Unmarshal([]byte(devices), &children)
