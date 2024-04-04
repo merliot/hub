@@ -41,7 +41,7 @@ Securely access your devices from anywhere on the Internet · No app required
 - **Non-centralized:** your hub is independent from your neighbor's; there is no central control over any hub
 - **Secure:** TLS-secure communication between device and hub, and from hub to browser
 - **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
-- **No app to install:** runs as a single page web application; all you need is a browser
+- **No app to install:** runs as a responsive, single page web application; all you need is a browser
 - **Containerized:** runs in a docker container; no dependencies to install
 - **100% Open Source**: written in [Go](https://go.dev) and [TinyGo](https://tinygo.org) (and some html/css/javascript for the UI)
 
