@@ -16,7 +16,7 @@
 
 </div>
 
-<h1 align="center">Your Private, Non-Centralized IoT Device Hub</h1>
+<h1 align="center">Your Private, Decentralized IoT Device Hub</h1>
 <div align="center">
 Securely access your devices from anywhere on the Internet · No app required
 </div>
@@ -38,7 +38,7 @@ Securely access your devices from anywhere on the Internet · No app required
 ## Features
 
 - **Privacy first:** no user data collected or stored; no cookies; no tracking; no ads
-- **Non-centralized:** your hub is independent from your neighbor's; there is no central control over any hub
+- **Decentralized:** your hub is independent from your neighbor's; there is no central control over any hub
 - **Secure:** TLS-secure communication from device and hub, and from hub to browser
 - **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
 - **No app to install:** runs as a responsive, single page web application; all you need is a browser
