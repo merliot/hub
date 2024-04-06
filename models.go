@@ -5,6 +5,7 @@ import (
 	"github.com/merliot/ps30m"
 	"github.com/merliot/relays"
 	"github.com/merliot/skeleton"
+	"github.com/merliot/temp"
 )
 
 func (h *Hub) RegisterModels() {
@@ -12,4 +13,5 @@ func (h *Hub) RegisterModels() {
 	h.RegisterModel("ps30m", ps30m.New)
 	h.RegisterModel("relays", relays.New)
 	h.RegisterModel("skeleton", skeleton.New)
+	h.RegisterModel("temp", temp.New)
 }
