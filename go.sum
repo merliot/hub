@@ -23,6 +23,8 @@ github.com/merliot/skeleton v0.0.2-0.20240406040612-059d0f64f099 h1:sA/0xn0s4pbY
 github.com/merliot/skeleton v0.0.2-0.20240406040612-059d0f64f099/go.mod h1:Mk0obnkmXQhP7RP8UAJhyUKderK1exojg63Oe/PX0xc=
 github.com/merliot/temp v0.0.0-20240406040522-248c4395a919 h1:ETFj2+UEpDgImVlljpZyTlzrsfN6Y7eaMNhDNyOBGNw=
 github.com/merliot/temp v0.0.0-20240406040522-248c4395a919/go.mod h1:3jVQf2L61ufj27m9q1PfM87/hSTS50uucBFTsi1wC5g=
+github.com/merliot/temp v0.0.0-20240406044823-810071ad795e h1:mkyqe+lM6nFDp0ojMw/9aXpH7LXxHe/2jKuYbSx2RiI=
+github.com/merliot/temp v0.0.0-20240406044823-810071ad795e/go.mod h1:3jVQf2L61ufj27m9q1PfM87/hSTS50uucBFTsi1wC5g=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

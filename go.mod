@@ -9,7 +9,7 @@ require (
 	github.com/merliot/ps30m v0.0.2-0.20240406040518-fc27d50839e6
 	github.com/merliot/relays v0.0.2-0.20240406040509-50d1d26d8e0a
 	github.com/merliot/skeleton v0.0.2-0.20240406040612-059d0f64f099
-	github.com/merliot/temp v0.0.0-20240406040522-248c4395a919
+	github.com/merliot/temp v0.0.0-20240406044823-810071ad795e
 )
 
 require (
