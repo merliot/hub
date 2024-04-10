@@ -17,6 +17,9 @@
 				<span class="device-title">{{.Name}}</span>
 			</div>
 			<span class="device-offline">Offline</span>
+{{if .Demo}}
+			<span class="demo-mode">Demo Mode</span>
+{{end}}
 			<div>
 {{if .Locked}}
 				<img class="icon" src="images/locked-icon.png">

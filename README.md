@@ -223,6 +223,10 @@ For example, a primary hub is at local address `http://192.168.1.10`.  Any devic
 > [!IMPORTANT]
 > The backup hub must have the same [USER/PASSWD](#user-passwd) and [WIFI](#wifi_ssids-wifi_passphrases) settings as the primary hub.
 
+#### `DEMO`
+
+Run hub in demo mode, default is `false`.  Implies `LOCKED`, if set `true`.
+
 #### `DEVICES`
 
 Hub devices.  This is a JSON-formatted list of devices.  The format is:
@@ -253,6 +257,10 @@ Example with two devices:
 	},
 }
 ```
+
+#### `LOCKED`
+
+Lock the hub making it read-only, default is `false`.
 
 #### `PORT`
 

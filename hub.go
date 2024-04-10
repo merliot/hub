@@ -82,6 +82,7 @@ func (h *Hub) SetBackup(backup string) {
 }
 
 func (h *Hub) SetDemo(demo bool) {
+	h.Locked = (demo == true)
 	h.Demo = demo
 }
 
@@ -172,6 +173,7 @@ func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
 	device.CopyWifiAuth(h.WifiAuth)
 	device.SetWsScheme(h.WsScheme)
 	device.SetDialURLs(h.DialURLs)
+	device.SetLocked(h.Locked)
 
 	h.Children[id].Devicer = device
 }
