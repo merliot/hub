@@ -8,6 +8,11 @@ import (
 )
 
 func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
+	if h.Locked {
+		http.Error(w, "Refusing to create device, hub is locked", http.StatusLocked)
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	model := r.URL.Query().Get("model")
 	name := r.URL.Query().Get("name")
@@ -25,6 +30,10 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
+	if h.Locked {
+		http.Error(w, "Refusing to delete device, hub is locked", http.StatusLocked)
+		return
+	}
 	id := r.URL.Query().Get("id")
 	err := h.server.DeleteThing(id)
 	if err != nil {

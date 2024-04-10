@@ -39,6 +39,7 @@ type Children map[string]*Child // keyed by id
 type Hub struct {
 	*device.Device
 	Version string
+	Locked  bool
 	Models  `json:"-"`
 	Children
 	server    *dean.Server
@@ -78,6 +79,10 @@ func (h *Hub) SetBackup(backup string) {
 	}
 	dialURL := ws + u.Host + "/ws/?ping-period=4"
 	h.SetDialURLs(dialURL)
+}
+
+func (h *Hub) SetLocked(locked bool) {
+	h.Locked = locked
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {

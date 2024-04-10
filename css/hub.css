@@ -103,7 +103,7 @@ section {
 	padding: 3px;
 }
 
-#create-err {
+.err-msg {
 	color: red;
 	margin: 0 0 15px 0;
 }

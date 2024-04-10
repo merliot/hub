@@ -18,6 +18,9 @@
 			</div>
 			<span class="device-offline">Offline</span>
 			<div>
+{{if .Locked}}
+				<img class="icon" src="images/locked-icon.png">
+{{end}}
 				<div class="divFlexRow" id="new">
 					<img class="icon" src="images/new-icon.png">
 					<span id="new-label">New</span>
@@ -59,7 +62,7 @@
 				<span>Model (select one):</span>
 				<div class="models" id="new-dialog-models"></div>
 				<hr>
-				<em id="create-err"></em>
+				<em class="err-msg" id="create-err"></em>
 				<div class="divFlexRow btns">
 					<button class="btn" id="new-close">Close</button>
 					<button class="btn" id="new-create">Create</button>
@@ -70,9 +73,9 @@
 		<dialog id="delete-dialog">
 			<div class="divFlexCol">
 				<span id="delete-prompt"></span>
-				<em id="delete-err"></em>
 			</div>
 			<hr>
+			<em class="err-msg" id="delete-err"></em>
 			<div class="divFlexRow btns">
 				<button class="btn" id="delete-close">Close</button>
 				<button class="btn" id="delete-delete">Delete</button>
