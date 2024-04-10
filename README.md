@@ -43,7 +43,7 @@ Securely access your devices from anywhere on the Internet · No app required
 - **Device targets:** target popular SBCs and microcontrollers such as Raspberry Pi and Arduino
 - **No app to install:** runs as a responsive, single page web application; all you need is a browser
 - **Containerized:** runs in a docker container; no dependencies to install
-- **Small footprint:** minimum hardware specification is 1cpu, 256MB of RAM and 10GB of disk space.
+- **Small footprint:** minimum hardware specification is 0.1 vCPU, 256MB of RAM and 10GB of disk space.
 - **100% Open Source**: written in [Go](https://go.dev) and [TinyGo](https://tinygo.org) (and some html/css/javascript for the UI)
 
 ## Quick Start
