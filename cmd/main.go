@@ -16,7 +16,7 @@ var (
 	passphrases = dean.GetEnv("WIFI_PASSPHRASES", "")
 	backup      = dean.GetEnv("BACKUP", "")
 	devices     = dean.GetEnv("DEVICES", "")
-	locked      = dean.GetEnv("LOCKED", "")
+	demo        = dean.GetEnv("DEMO", "")
 )
 
 func main() {
@@ -24,7 +24,8 @@ func main() {
 	hub.SetWifiAuth(ssids, passphrases)
 	hub.SetWsScheme(wsScheme)
 	hub.SetBackup(backup)
-	hub.SetLocked(locked == "true")
+	hub.SetLocked(demo == "true")
+	hub.SetDemo(demo == "true")
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
 	hub.RegisterModels()
