@@ -39,6 +39,7 @@ type Children map[string]*Child // keyed by id
 type Hub struct {
 	*device.Device
 	Version string
+	Demo    bool `json:"-"`
 	Models  `json:"-"`
 	Children
 	server    *dean.Server
@@ -78,6 +79,11 @@ func (h *Hub) SetBackup(backup string) {
 	}
 	dialURL := ws + u.Host + "/ws/?ping-period=4"
 	h.SetDialURLs(dialURL)
+}
+
+func (h *Hub) SetDemo(demo bool) {
+	h.Locked = (demo == true)
+	h.Demo = demo
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
@@ -156,6 +162,11 @@ func (h *Hub) Subscribers() dean.Subscribers {
 }
 
 func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
+	if h.Demo {
+		thinger.SetFlag(dean.ThingFlagMetal)
+		thinger.SetOnline(true)
+	}
+
 	device := thinger.(device.Devicer)
 
 	device.SetDeployParams(deployParams)

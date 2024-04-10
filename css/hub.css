@@ -32,6 +32,7 @@ section {
 
 #new-dialog {
 	width: 70%;
+	height: 80%;
 	max-width: 600px;
 }
 
@@ -106,6 +107,13 @@ section {
 .err-msg {
 	color: red;
 	margin: 0 0 15px 0;
+}
+
+.demo-mode {
+	border-radius: 15px;
+	border: 3px solid green;
+	color: green;
+	padding: 5px 10px;
 }
 
 #new-name {

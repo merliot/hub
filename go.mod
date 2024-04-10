@@ -6,7 +6,7 @@ require (
 	github.com/merliot/dean v0.0.0-20240404185305-c534a00030bd
 	github.com/merliot/device v0.0.0-20240410052418-802d6afbc821
 	github.com/merliot/garage v0.0.2-0.20240410052510-f10d2e88aa4d
-	github.com/merliot/ps30m v0.0.2-0.20240410052516-3e3aa8a5f0b6
+	github.com/merliot/ps30m v0.0.2-0.20240410064502-f34a895a2f6a
 	github.com/merliot/relays v0.0.2-0.20240410052506-1b7cc310ff98
 	github.com/merliot/skeleton v0.0.2-0.20240410052520-eb992a51665d
 	github.com/merliot/temp v0.0.0-20240410052523-389ea63e9adc

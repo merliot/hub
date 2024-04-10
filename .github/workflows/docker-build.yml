@@ -17,10 +17,10 @@ on:
       - 'v*'
   pull_request:
     branches:
-      - 'main'
+      - main
   workflow_dispatch:
     branches:
-      - 'dev'
+      - dev
 
 jobs:
   push_to_registries:
