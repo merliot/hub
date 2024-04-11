@@ -20,6 +20,7 @@ class Hub extends WebSocketController {
 		this.trashIcon = document.getElementById("trash-icon")
 		this.newDialog = document.getElementById("new-dialog")
 		this.deleteDialog = document.getElementById("delete-dialog")
+		this.demoWelcome = document.getElementById("demo-welcome")
 
 		this.devices.onclick = () => {
 			this.activeId = ""
@@ -105,6 +106,9 @@ class Hub extends WebSocketController {
 		this.view.appendChild(device)
 		this.backIcon.classList.replace("hidden", "visible")
 		this.trashIcon.classList.replace("hidden", "visible")
+		if (this.state.Demo) {
+			this.demoWelcome.classList.replace("visible", "hidden")
+		}
 	}
 
 	loadViewTiled() {
@@ -119,11 +123,16 @@ class Hub extends WebSocketController {
 			}
 			return 0;
 		});
+
 		for (let i in sortedIds) {
 			this.loadViewTile(sortedIds[i])
 		}
+
 		this.backIcon.classList.replace("visible", "hidden")
 		this.trashIcon.classList.replace("visible", "hidden")
+		if (this.state.Demo) {
+			this.demoWelcome.classList.replace("hidden", "visible")
+		}
 	}
 
 	loadViewTile(id) {

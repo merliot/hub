@@ -39,7 +39,7 @@ type Children map[string]*Child // keyed by id
 type Hub struct {
 	*device.Device
 	Version string
-	Demo    bool `json:"-"`
+	Demo    bool
 	Models  `json:"-"`
 	Children
 	server    *dean.Server

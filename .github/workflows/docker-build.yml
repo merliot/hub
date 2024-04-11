@@ -59,7 +59,7 @@ jobs:
             ghcr.io/${{ github.repository }}
           labels: |
             org.opencontainers.image.title=Merliot Hub
-            org.opencontainers.image.description=Merliot Hub is a private, non-centralized IoT device hub, written in Go and TinyGo
+            org.opencontainers.image.description=Merliot Hub is a private, decentralized IoT device hub, written in Go and TinyGo
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5

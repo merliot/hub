@@ -116,6 +116,23 @@ section {
 	padding: 5px 10px;
 }
 
+#demo-welcome {
+	border: 3px dashed green;
+	margin: 30px;
+	padding: 10px;
+	border-radius: 15px;
+}
+
+#demo-title {
+	font-size: large;
+	align-items: center;
+	justify-content: center;
+}
+
+#demo-thing {
+	width: 75px;
+}
+
 #new-name {
 	margin: 0 0 0 10px;
 }

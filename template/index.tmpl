@@ -22,7 +22,7 @@
 {{end}}
 			<div>
 {{if .Locked}}
-				<img class="icon" src="images/locked-icon.png">
+				<img class="icon nono" src="images/locked-icon.png">
 {{end}}
 				<div class="divFlexRow" id="new">
 					<img class="icon" src="images/new-icon.png">
@@ -49,8 +49,18 @@
 					</div>
 					<img class="icon hidden" src="images/trash-icon.png" id="trash-icon">
 				</div>
-				<div class="divFlexWrap" id="view">
+				<div class="divFlexWrap" id="view"></div>
+{{if .Demo}}
+				<div class="divFlexCol hidden" id="demo-welcome">
+					<div class="divFlexRow" id="demo-title">
+						<img id="demo-thing" src="images/thing.png"></img>
+						<span>Welcome to the Merliot Hub demo!</span>
+					</div>
+					<p>The demo devices are simulating real hardware.</p>
+					<p>Run you real devices on your own hub</p>
 				</div>
+{{end}}
+
 			</div>
 		</section>
 
