@@ -162,11 +162,6 @@ func (h *Hub) Subscribers() dean.Subscribers {
 }
 
 func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
-	if h.Demo {
-		thinger.SetFlag(dean.ThingFlagMetal)
-		thinger.SetOnline(true)
-	}
-
 	device := thinger.(device.Devicer)
 
 	device.SetDeployParams(deployParams)
@@ -176,6 +171,14 @@ func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
 	device.SetLocked(h.Locked)
 
 	h.Children[id].Devicer = device
+
+	if h.Demo {
+		thinger.Setup()
+		thinger.SetFlag(dean.ThingFlagMetal)
+		thinger.SetOnline(true)
+		injector := h.server.NewInjector(id)
+		go thinger.Run(injector)
+	}
 }
 
 func (h *Hub) LoadDevices(devices string) {
