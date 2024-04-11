@@ -117,6 +117,7 @@ section {
 }
 
 #demo-welcome {
+	background: cornsilk;
 	border: 3px dashed green;
 	margin: 30px;
 	padding: 10px;
@@ -131,6 +132,15 @@ section {
 
 #demo-thing {
 	width: 75px;
+}
+
+#demo-run {
+	font-weight: bold;
+}
+
+#demo-haunted {
+	font-size: small;
+	padding: 20px;
 }
 
 #new-name {
