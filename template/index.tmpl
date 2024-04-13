@@ -55,14 +55,20 @@
 				<div class="divFlexCol hidden" id="demo-welcome">
 					<div class="divFlexRow" id="demo-title">
 						<img id="demo-thing" src="images/thing.png"></img>
-						<span class="bold">Welcome to the Merliot Hub Demo!</span>
+						<h2>Welcome to the Merliot Hub Demo!</h2>
 					</div>
-					<p>Poke around, you can't hurt anything.  The demo devices are simulating real hardware devices.  The device data is made up and clicking on the device controls does nothing.</p>
+					<p>Poke around, you can't hurt anything.  The demo devices are simulating real hardware devices.  The device data is made up and the device controls do nothing.</p>
 					<p>Find the <span class="icon nopointer">&#x1F4E5;</span> icon to see how to setup and download a device.</p>
-					<p class="bold">Want Real Devices?</p>
-					<p>Install your own hub and deploy real devices.  See the <a target="_blank" href="https://{{.Module.Path}}">Merliot Hub Install Guide</a> for install options.</p>
+					<h3>Install Your Own Private Hub</h3>
+					<p>Install your hub for <a target="_blank" href="https://app.koyeb.com/auth/signup">FREE</a> on Koyeb using their One-Click install button:</p>
+					<center>
+						<a target="_blank" href="https://app.koyeb.com/deploy?type=docker&image=merliot/hub&name=hub&env[WS_SCHEME]=wss://">
+							<img src="https://www.koyeb.com/static/images/deploy/button.svg">
+						</a>
+					</center>
+					<p>Or, see the <a target="_blank" href="https://{{.Module.Path}}">Merliot Hub Install Guide</a> for other install options, including Docker, TailScale or directly from from source code.</p>
 					<p class="bold">Want to Create a New Device?</p>
-					<p>Devices are written in <a target="_blank" href="https://go.dev">Go</a> and <a target="_blank" href="https://tinygo.org">TinyGo</a> and HTML/CSS/Javascript.  Each device has <code>Setup() and Run()</code> functions, similar to Arduino IDE's <code>setup() and loop()</code> functions.  See the <a target="_blank" href="">New Device Guide</a> for more information.</p>
+					<p>Devices are written in <a target="_blank" href="https://go.dev">Go</a> and <a target="_blank" href="https://tinygo.org">TinyGo</a> and HTML/CSS/Javascript.  Each device has Go <code>Setup() and Run()</code> functions, similar to Arduino IDE's <code>setup() and loop()</code> functions.  See the <a target="_blank" href="">New Device Guide</a> for more information.</p>
 				</div>
 {{end}}
 

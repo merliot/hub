@@ -116,10 +116,10 @@ section {
 }
 
 #demo-welcome {
-	background: cornsilk;
-	border: 3px dashed green;
+	background-image: linear-gradient(to right, #50ca90, #83f8c0);
+	border: 4px dashed green;
 	margin: 30px;
-	padding: 10px;
+	padding: 20px;
 	border-radius: 15px;
 }
 
@@ -130,7 +130,7 @@ section {
 }
 
 #demo-thing {
-	width: 75px;
+	width: 120px;
 }
 
 #new-name {
