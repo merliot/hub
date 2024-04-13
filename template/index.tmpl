@@ -22,14 +22,14 @@
 {{end}}
 			<div>
 {{if .Locked}}
-				<img class="icon nono" src="images/locked-icon.png">
+				<span class="icon nono">&#x1F512;</span>
 {{end}}
 				<div class="divFlexRow" id="new">
-					<img class="icon" src="images/new-icon.png">
+					<span class="icon">&plus;</span>
 					<span id="new-label">New</span>
 				</div>
 				<div id="menu-div">
-					<img class="icon" id="menu-icon" src="images/menu-icon.png"></img>
+					<span class="icon" id="menu-icon">&vellip;</span>
 					<div class="menu" id="menu">
 						<div class="menu-item">Download Devices</div>
 						<!-- div class="menu-item">Restart Hub</div-->
@@ -44,23 +44,25 @@
 			<div class="divFlexCol">
 				<div class="divFlexRow" id="devices-row">
 					<div class="divFlexRow" id="devices">
-						<img class="icon hidden" src="images/back-icon.png" id="back-icon">
+						<span class="icon hidden" id="back-icon">&#x1F868;</span>
 						<span id="path">Devices</span>
 					</div>
-					<img class="icon hidden" src="images/trash-icon.png" id="trash-icon">
+					<span class="icon hidden" id="trash-icon">&#x1F5D1;</span>
+					<!--img class="icon hidden" src="images/trash-icon.png" id="trash-icon"-->
 				</div>
 				<div class="divFlexWrap" id="view"></div>
 {{if .Demo}}
 				<div class="divFlexCol hidden" id="demo-welcome">
 					<div class="divFlexRow" id="demo-title">
 						<img id="demo-thing" src="images/thing.png"></img>
-						<span>Welcome to the Merliot Hub demo!</span>
+						<span class="bold">Welcome to the Merliot Hub Demo!</span>
 					</div>
 					<p>Poke around, you can't hurt anything.  The demo devices are simulating real hardware devices.  The device data is made up and clicking on the device controls does nothing.</p>
-					<p>Find the <img class="icon nopointer" src="images/download-icon.png"> icon to see how to setup a device.</p>
-					<p id="demo-run">Want Real Devices?</p>
-					<p>Install your own hub and deploy real devices.  See <a target="_blank" href="https://{{.Module.Path}}">Merliot Hub</a> Github project for install options.</p>
-					<p id="demo-haunted"> Are the devices haunted?  No, someone else might be poking around at the same time.  Try it yourself by opening another window to the demo hub, click the relays device, and toggle the relays.</i></p>
+					<p>Find the <span class="icon nopointer">&#x1F4E5;</span> icon to see how to setup and download a device.</p>
+					<p class="bold">Want Real Devices?</p>
+					<p>Install your own hub and deploy real devices.  See the <a target="_blank" href="https://{{.Module.Path}}">Merliot Hub Install Guide</a> for install options.</p>
+					<p class="bold">Want to Create a New Device?</p>
+					<p>Devices are written in <a target="_blank" href="https://go.dev">Go</a> and <a target="_blank" href="https://tinygo.org">TinyGo</a> and HTML/CSS/Javascript.  Each device has <code>Setup() and Run()</code> functions, similar to Arduino IDE's <code>setup() and loop()</code> functions.  See the <a target="_blank" href="">New Device Guide</a> for more information.</p>
 				</div>
 {{end}}
 

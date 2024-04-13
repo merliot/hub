@@ -41,7 +41,7 @@ section {
 }
 
 #menu-icon {
-	padding: 0 0 0 20px;
+	padding: 0 4px 0 16px;
 }
 
 .menu {
@@ -132,15 +132,6 @@ section {
 
 #demo-thing {
 	width: 75px;
-}
-
-#demo-run {
-	font-weight: bold;
-}
-
-#demo-haunted {
-	font-size: small;
-	padding: 20px;
 }
 
 #new-name {
