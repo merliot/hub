@@ -4,8 +4,7 @@ body {
 
 section {
 	background-color: white;
-	border-radius: 15px 15px 0 0;
-	height: calc(100vh - 70px);
+	border-radius: 15px;
 	width: 100%;
 }
 
