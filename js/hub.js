@@ -13,6 +13,7 @@ class Hub extends WebSocketController {
 		this.view = document.getElementById("view")
 		this.devices = document.getElementById("devices")
 		this.new = document.getElementById("new")
+		this.nodef = document.getElementById("nodef")
 		this.menuIcon = document.getElementById("menu-icon")
 		this.menu = document.getElementById("menu");
 		this.menuItems = document.querySelectorAll(".menu-item");
@@ -106,6 +107,7 @@ class Hub extends WebSocketController {
 		this.view.appendChild(device)
 		this.backIcon.classList.replace("hidden", "visible")
 		this.trashIcon.classList.replace("hidden", "visible")
+		this.nodef.classList.replace("visibleFlex", "hidden")
 		if (this.state.Demo) {
 			this.demoWelcome.classList.replace("visible", "hidden")
 		}
@@ -126,6 +128,12 @@ class Hub extends WebSocketController {
 
 		for (let i in sortedIds) {
 			this.loadViewTile(sortedIds[i])
+		}
+
+		if (sortedIds.length === 0) {
+			this.nodef.classList.replace("hidden", "visibleFlex")
+		} else {
+			this.nodef.classList.replace("visibleFlex", "hidden")
 		}
 
 		this.backIcon.classList.replace("visible", "hidden")

@@ -6,17 +6,33 @@ section {
 	background-color: white;
 	border-radius: 15px;
 	width: 100%;
+	min-height: 250px;
 }
 
 #view {
 	padding: 0 15px;
 }
 
-#new {
+#nodef {
+	height: 160px;
+	justify-content: center;
+	align-items: center;
+	color: darkgray;
+}
+
+#nodef-new {
+	margin: 0 15px;
+}
+
+.new {
 	background: #f4f4f4;
 	height: 40px;
 	border-radius: 10px;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+	align-items: center;
+}
+
+#new {
 	cursor: pointer;
 }
 
@@ -24,7 +40,7 @@ section {
 	background-color: white;
 }
 
-#new-label {
+.new-label {
 	padding-right: 10px;
 	font-size: small;
 }

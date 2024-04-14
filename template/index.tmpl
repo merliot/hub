@@ -24,9 +24,9 @@
 {{if .Locked}}
 				<span class="icon nono">&#x1F512;</span>
 {{end}}
-				<div class="divFlexRow" id="new">
+				<div class="divFlexRow new" id="new">
 					<span class="icon">&plus;</span>
-					<span id="new-label">New</span>
+					<span class="new-label">New</span>
 				</div>
 				<div id="menu-div">
 					<span class="icon" id="menu-icon">&vellip;</span>
@@ -48,9 +48,16 @@
 						<span id="path">Devices</span>
 					</div>
 					<span class="icon hidden" id="trash-icon">&#x1F5D1;</span>
-					<!--img class="icon hidden" src="images/trash-icon.png" id="trash-icon"-->
 				</div>
 				<div class="divFlexWrap" id="view"></div>
+				<div class="divFlexRow hidden" id="nodef">
+					<span>Click</span>
+					<div class="divFlexRow new" id="nodef-new">
+						<span class="icon nopointer">&plus;</span>
+						<span class="new-label">New</span>
+					</div>
+					<span>to create a device</span>
+				</div>
 {{if .Demo}}
 				<div class="divFlexCol hidden" id="demo-welcome">
 					<div class="divFlexRow" id="demo-title">
