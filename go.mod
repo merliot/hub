@@ -4,12 +4,12 @@ go 1.22.0
 
 require (
 	github.com/merliot/dean v0.0.0-20240412222937-26290ebe17d0
-	github.com/merliot/device v0.0.0-20240415045158-627434c4580b
-	github.com/merliot/garage v0.0.2-0.20240415045232-99415c9ebd13
-	github.com/merliot/ps30m v0.0.2-0.20240415045240-d501c491221e
-	github.com/merliot/relays v0.0.2-0.20240415045322-385b1920a28a
-	github.com/merliot/skeleton v0.0.2-0.20240415045245-bccdcf68dc67
-	github.com/merliot/temp v0.0.0-20240415045249-c1f01a0f0ad9
+	github.com/merliot/device v0.0.0-20240416060947-a65099986c70
+	github.com/merliot/garage v0.0.2-0.20240416061115-3361b06babbf
+	github.com/merliot/ps30m v0.0.2-0.20240416061121-ab8fd1c3556f
+	github.com/merliot/relays v0.0.2-0.20240416061111-e0d90b66c3df
+	github.com/merliot/skeleton v0.0.2-0.20240416061125-1f224ff0b9ff
+	github.com/merliot/temp v0.0.0-20240416061128-f091a0d6edec
 )
 
 require (
