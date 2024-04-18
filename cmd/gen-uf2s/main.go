@@ -9,6 +9,7 @@ import (
 
 //go:generate go run ../gen-models -input ../../models.json -output ./models.go
 //go:generate gofmt -w ./models.go
+
 //go:generate go run ./
 
 func main() {
