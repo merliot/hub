@@ -25,3 +25,5 @@ version.go
 *.uf2
 .env
 goget
+./cmd/models.go
+./cmd/gen-uf2s/models.go

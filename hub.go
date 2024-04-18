@@ -2,29 +2,19 @@ package hub
 
 import (
 	"embed"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/url"
 	"os"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
+	"github.com/merliot/device/models"
 )
 
 //go:embed css go.mod images js template
 var fs embed.FS
-
-type Model struct {
-	modeler          device.Modeler
-	Icon             string
-	DescHtml         template.HTML
-	SupportedTargets string
-}
-
-type Models map[string]Model // keyed by model
 
 type Child struct {
 	Model          string
@@ -38,9 +28,9 @@ type Children map[string]*Child // keyed by id
 
 type Hub struct {
 	*device.Device
-	Version string
-	Demo    bool
-	Models  `json:"-"`
+	Version       string
+	Demo          bool
+	models.Models `json:"-"`
 	Children
 	server    *dean.Server
 	templates *template.Template
@@ -53,7 +43,7 @@ func New(id, model, name string) dean.Thinger {
 	h := &Hub{}
 	h.Device = device.New(id, model, name, fs, targets).(*device.Device)
 	h.Version = version
-	h.Models = make(Models)
+	h.Models = make(models.Models)
 	h.Children = make(Children)
 	h.CompositeFs.AddFS(fs)
 	h.templates = h.CompositeFs.ParseFS("template/*")
@@ -90,18 +80,12 @@ func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
 	if h.server != nil {
 		h.server.RegisterModel(model, maker)
 	}
-	modeler := maker("proto", model, "proto").(device.Modeler)
-	h.Models[model] = Model{
-		modeler:          modeler,
-		Icon:             base64.StdEncoding.EncodeToString(modeler.Icon()),
-		DescHtml:         template.HTML(modeler.DescHtml()),
-		SupportedTargets: modeler.SupportedTargets(),
-	}
+	h.Models[model] = models.New(model, maker)
 }
 
 func (h *Hub) GenerateUf2s(dir string) error {
 	for _, model := range h.Models {
-		if err := model.modeler.GenerateUf2s(dir); err != nil {
+		if err := model.Modeler.GenerateUf2s(dir); err != nil {
 			return err
 		}
 	}
@@ -186,7 +170,7 @@ func (h *Hub) LoadDevices(devices string) {
 
 	// If devices is empty, try loading from devices.json file
 	if devices == "" {
-		data, err := ioutil.ReadFile("devices.json")
+		data, err := os.ReadFile("devices.json")
 		if err != nil {
 			return
 		}

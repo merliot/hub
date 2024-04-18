@@ -1,0 +1,22 @@
+{
+	"garage": {
+		"Module": "github.com/merliot/garage",
+		"Maker": "garage.New"
+	},
+	"ps30m": {
+		"Module": "github.com/merliot/ps30m",
+		"Maker": "ps30m.New"
+	},
+	"relays": {
+		"Module": "github.com/merliot/relays",
+		"Maker": "relays.New"
+	},
+	"skeleton": {
+		"Module": "github.com/merliot/skeleton",
+		"Maker": "skeleton.New"
+	},
+	"temp": {
+		"Module": "github.com/merliot/temp",
+		"Maker": "temp.New"
+	}
+}

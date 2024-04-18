@@ -2,13 +2,11 @@ package main
 
 import (
 	"github.com/merliot/dean"
-	"github.com/merliot/garage"
 	"github.com/merliot/hub"
-	"github.com/merliot/ps30m"
-	"github.com/merliot/relays"
-	"github.com/merliot/skeleton"
-	"github.com/merliot/temp"
 )
+
+//go:generate go run ./gen-models -input ../models.json -output ./models.go
+//go:generate gofmt -w ./models.go
 
 var (
 	id          = dean.GetEnv("ID", "hub01")
@@ -37,11 +35,9 @@ func main() {
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
 
-	hub.RegisterModel("garage", garage.New)
-	hub.RegisterModel("ps30m", ps30m.New)
-	hub.RegisterModel("relays", relays.New)
-	hub.RegisterModel("skeleton", skeleton.New)
-	hub.RegisterModel("temp", temp.New)
+	for model, maker := range models {
+		hub.RegisterModel(model, maker)
+	}
 
 	hub.LoadDevices(devices)
 
