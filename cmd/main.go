@@ -2,7 +2,12 @@ package main
 
 import (
 	"github.com/merliot/dean"
+	"github.com/merliot/garage"
 	"github.com/merliot/hub"
+	"github.com/merliot/ps30m"
+	"github.com/merliot/relays"
+	"github.com/merliot/skeleton"
+	"github.com/merliot/temp"
 )
 
 var (
@@ -22,14 +27,23 @@ var (
 
 func main() {
 	hub := hub.New(id, "hub", name).(*hub.Hub)
+
 	hub.SetWifiAuth(ssids, passphrases)
 	hub.SetWsScheme(wsScheme)
 	hub.SetBackup(backup)
 	hub.SetLocked(locked == "true")
 	hub.SetDemo(demo == "true")
+
 	server := dean.NewServer(hub, user, passwd, port)
 	hub.SetServer(server)
-	hub.RegisterModels()
+
+	hub.RegisterModel("garage", garage.New)
+	hub.RegisterModel("ps30m", ps30m.New)
+	hub.RegisterModel("relays", relays.New)
+	hub.RegisterModel("skeleton", skeleton.New)
+	hub.RegisterModel("temp", temp.New)
+
 	hub.LoadDevices(devices)
+
 	server.Run()
 }
