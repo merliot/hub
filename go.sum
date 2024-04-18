@@ -15,8 +15,8 @@ github.com/merliot/device v0.0.0-20240418090035-71c458f330f8 h1:taSLgIEUr/sOeNux
 github.com/merliot/device v0.0.0-20240418090035-71c458f330f8/go.mod h1:K+jLQUFMjXrnUdsxaQNDZ6MY2GD9ues9zK2Ure38R5I=
 github.com/merliot/garage v0.0.2-0.20240418090109-4ca0c1838fda h1:FitU28SeXX9XVgXmGyUkQvbsg5r+5+hY63N/ae/tXLM=
 github.com/merliot/garage v0.0.2-0.20240418090109-4ca0c1838fda/go.mod h1:fk8DzO2i034433yKjZridRsfA/vTfaejecS1nPdgYTE=
-github.com/merliot/ps30m v0.0.2-0.20240418090116-e0794a2e2528 h1:DP4J+vjhHZSISk+YRDaQa+RZLax9auBvkag4fmwls5I=
-github.com/merliot/ps30m v0.0.2-0.20240418090116-e0794a2e2528/go.mod h1:xs7WUHgUy7GYZWbzgrybrgjhRHkEsOSBO8DTSFvlqkI=
+github.com/merliot/ps30m v0.0.2-0.20240418170219-36a6c70fa9c8 h1:f4LdmNaJ7mke2XnYWYD3ED/u9UQKZ5meQJjFYtbSXLA=
+github.com/merliot/ps30m v0.0.2-0.20240418170219-36a6c70fa9c8/go.mod h1:xs7WUHgUy7GYZWbzgrybrgjhRHkEsOSBO8DTSFvlqkI=
 github.com/merliot/relays v0.0.2-0.20240418090106-f0a1195307ae h1:pV+45laWAh468NaiY+DLhrJ+mLvQs7H1xfZQXQ5Imq0=
 github.com/merliot/relays v0.0.2-0.20240418090106-f0a1195307ae/go.mod h1:Y6PfahnM3DFBWmXXb/QJ6DX8DZnVzetVrCuvDRB/w/0=
 github.com/merliot/skeleton v0.0.2-0.20240418090119-55b4f4618871 h1:YSV+MQqBAapYgGW6Hp8mup9fpGFI4QoRgnqe8Zd/eug=
