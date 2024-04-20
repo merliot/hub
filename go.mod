@@ -6,7 +6,7 @@ require (
 	github.com/merliot/dean v0.0.0-20240412222937-26290ebe17d0
 	github.com/merliot/device v0.0.0-20240420060616-672919487e6c
 	github.com/merliot/garage v0.0.2-0.20240420060653-e627fab28328
-	github.com/merliot/locker v0.0.0-20240419220217-bb159ee77f19
+	github.com/merliot/locker v0.0.0-20240420231825-1abce2dc3299
 	github.com/merliot/ps30m v0.0.2-0.20240420061015-1e3ecf0c0368
 	github.com/merliot/relays v0.0.2-0.20240420060650-06b5ceb794e6
 	github.com/merliot/skeleton v0.0.2-0.20240420060708-d3bc53b88804
@@ -26,7 +26,7 @@ require (
 	gobot.io/x/gobot/v2 v2.3.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
