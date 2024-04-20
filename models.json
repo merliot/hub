@@ -18,5 +18,9 @@
 	"temp": {
 		"Module": "github.com/merliot/temp",
 		"Maker": "temp.New"
+	},
+	"locker": {
+		"Module": "github.com/merliot/locker",
+		"Maker": "locker.New"
 	}
 }

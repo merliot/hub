@@ -4,15 +4,17 @@ go 1.22.0
 
 require (
 	github.com/merliot/dean v0.0.0-20240412222937-26290ebe17d0
-	github.com/merliot/device v0.0.0-20240418180148-b1f3107c8d2d
-	github.com/merliot/garage v0.0.2-0.20240418180219-8bdc43fc9774
-	github.com/merliot/ps30m v0.0.2-0.20240418180226-a488fad46c0e
-	github.com/merliot/relays v0.0.2-0.20240418180216-d5630b163ce8
-	github.com/merliot/skeleton v0.0.2-0.20240418180229-6d264438003f
-	github.com/merliot/temp v0.0.0-20240418180232-0c0a86839083
+	github.com/merliot/device v0.0.0-20240420060616-672919487e6c
+	github.com/merliot/garage v0.0.2-0.20240420060653-e627fab28328
+	github.com/merliot/locker v0.0.0-20240419220217-bb159ee77f19
+	github.com/merliot/ps30m v0.0.2-0.20240420061015-1e3ecf0c0368
+	github.com/merliot/relays v0.0.2-0.20240420060650-06b5ceb794e6
+	github.com/merliot/skeleton v0.0.2-0.20240420060708-d3bc53b88804
+	github.com/merliot/temp v0.0.0-20240420060711-e2927850815b
 )
 
 require (
+	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -24,7 +26,7 @@ require (
 	gobot.io/x/gobot/v2 v2.3.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
