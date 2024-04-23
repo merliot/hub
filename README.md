@@ -203,7 +203,7 @@ Merliot Hub supports devices created on these platforms:
 - [Device Hub](https://github.com/merliot/hub) (a hub is a device also)
 - [Relay Controller](https://github.com/merliot/relays)
 - [Garage Door Opener](https://github.com/merliot/garage)
-- [MorningStar Solar Charge Controller](https://github.com/merliot/ps30m) (Modbus)
+- [MorningStar ProStar Solar Charge Controller](https://github.com/merliot/prostar) (Modbus)
 
 ### Making a New Device
 
