@@ -4,23 +4,23 @@ go 1.22.0
 
 require (
 	github.com/merliot/dean v0.0.0-20240412222937-26290ebe17d0
-	github.com/merliot/device v0.0.0-20240420060616-672919487e6c
+	github.com/merliot/device v0.0.0-20240422233825-3b147dbf3058
 	github.com/merliot/garage v0.0.2-0.20240420060653-e627fab28328
 	github.com/merliot/locker v0.0.0-20240420231825-1abce2dc3299
-	github.com/merliot/ps30m v0.0.2-0.20240420061015-1e3ecf0c0368
-	github.com/merliot/relays v0.0.2-0.20240420060650-06b5ceb794e6
+	github.com/merliot/prostar v0.0.2-0.20240423015756-8aecabb75a1c
+	github.com/merliot/relays v0.0.2-0.20240421032440-4e3cd9b7a758
 	github.com/merliot/skeleton v0.0.2-0.20240420060708-d3bc53b88804
 	github.com/merliot/temp v0.0.0-20240420060711-e2927850815b
 )
 
 require (
-	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
 	github.com/warthog618/gpiod v0.8.3 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	gobot.io/x/gobot/v2 v2.3.0 // indirect

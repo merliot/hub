@@ -3,9 +3,9 @@
 		"Module": "github.com/merliot/garage",
 		"Maker": "garage.New"
 	},
-	"ps30m": {
-		"Module": "github.com/merliot/ps30m",
-		"Maker": "ps30m.New"
+	"prostar": {
+		"Module": "github.com/merliot/prostar",
+		"Maker": "prostar.New"
 	},
 	"relays": {
 		"Module": "github.com/merliot/relays",
