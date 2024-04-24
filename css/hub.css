@@ -14,7 +14,7 @@ section {
 }
 
 #nodef {
-	height: 160px;
+	height: 150px;
 	justify-content: center;
 	align-items: center;
 	color: darkgray;
@@ -179,8 +179,8 @@ section {
 }
 
 .device-tile-div {
-	width: 162px;
-	height: 162px;
+	width: 152px;
+	height: 152px;
 	margin: 10px;
 	cursor: pointer;
 }
