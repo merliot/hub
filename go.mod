@@ -7,8 +7,8 @@ require (
 	github.com/merliot/device v0.0.0-20240426103156-020d5579ace9
 	github.com/merliot/garage v0.0.2-0.20240426103233-61871dcc33c3
 	github.com/merliot/locker v0.0.0-20240420231825-1abce2dc3299
-	github.com/merliot/prostar v0.0.2-0.20240426103238-1c3d7439b564
-	github.com/merliot/relays v0.0.2-0.20240426103230-79770fbf57e4
+	github.com/merliot/prostar v0.0.2-0.20240426182037-012be3e18b96
+	github.com/merliot/relays v0.0.2-0.20240426181500-f39d3755b072
 	github.com/merliot/skeleton v0.0.2-0.20240426103241-5f30a4a3b52b
 	github.com/merliot/temp v0.0.0-20240426103245-95a9c5033dd3
 )
