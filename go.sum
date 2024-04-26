@@ -17,8 +17,8 @@ github.com/merliot/garage v0.0.2-0.20240426011943-d04031f8e59f h1:LwbqNkwSRcKDUl
 github.com/merliot/garage v0.0.2-0.20240426011943-d04031f8e59f/go.mod h1:FQswXl9v7BOjSSGT6EaNGmlt89qawtkNaz0S/ZYvfQo=
 github.com/merliot/locker v0.0.0-20240420231825-1abce2dc3299 h1:z5fckeu1v3/NUqjCOV5ftIyTjzVQzuTLn80nLX6Gbf4=
 github.com/merliot/locker v0.0.0-20240420231825-1abce2dc3299/go.mod h1:n4NKRhQgOt3IwN3oZlX++muM+luHp49lQyasO96pG3k=
-github.com/merliot/prostar v0.0.2-0.20240426011949-2d0389fc21cb h1:dkpmm8nYRfr+y7za6FDi9LwznvpAw1XnHrE6ewwQmmw=
-github.com/merliot/prostar v0.0.2-0.20240426011949-2d0389fc21cb/go.mod h1:zUt4aiElqeQDlf6O4wunJ0w3RjWospRVjrviVwzeyvw=
+github.com/merliot/prostar v0.0.2-0.20240426033754-f8b287a3913d h1:w9kU6qRtrQkYCGdhMc/d/emyKcubbOrysrlY1als4aU=
+github.com/merliot/prostar v0.0.2-0.20240426033754-f8b287a3913d/go.mod h1:zUt4aiElqeQDlf6O4wunJ0w3RjWospRVjrviVwzeyvw=
 github.com/merliot/relays v0.0.2-0.20240426011940-db6be2154aea h1:mjIevRfupMUCc8qDRS7tK3qEac1tmpfu0CrdctWk49I=
 github.com/merliot/relays v0.0.2-0.20240426011940-db6be2154aea/go.mod h1:gVgIlhSQNl/KoD8bSVqnMVBMrEGIOqySLERBpijTAO4=
 github.com/merliot/skeleton v0.0.2-0.20240426011952-c57750189f04 h1:mLTKMqU31yiAXM3MPfFtiNt5H6y764OLGj5aRIKDoTU=
