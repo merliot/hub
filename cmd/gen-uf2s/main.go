@@ -19,7 +19,7 @@ func main() {
 		hub.RegisterModel(model, maker)
 	}
 
-	if err := hub.GenerateUf2s("../.."); err != nil {
+	if err := hub.GenerateUf2s("../../uf2s/"); err != nil {
 		log.Println("Error generating UF2s:", err)
 		os.Exit(1)
 	}
