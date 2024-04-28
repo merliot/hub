@@ -51,6 +51,10 @@ section {
 	max-width: 600px;
 }
 
+#new-dialog-form {
+	height: 95%;
+}
+
 #menu-div {
 	position: relative;
 }
@@ -75,6 +79,10 @@ section {
 .menu-item {
 	padding: 5px 0;
 	cursor: pointer;
+}
+
+.models {
+	overflow-y: auto;
 }
 
 .model {
