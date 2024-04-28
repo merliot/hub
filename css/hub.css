@@ -94,6 +94,7 @@ section {
 }
 
 .selected {
+	background: aliceblue;
 	border-width: thick;
 	border-color: cornflowerblue;
 }
