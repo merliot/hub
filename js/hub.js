@@ -163,6 +163,7 @@ class Hub extends WebSocketController {
 
 	closeNewDialog(event) {
 		event.preventDefault()
+		window.onkeydown = null
 		this.newDialog.close()
 	}
 
@@ -173,12 +174,24 @@ class Hub extends WebSocketController {
 		var form = document.getElementById("new-dialog-form")
 		var formData = new FormData(form)
 		var query = new URLSearchParams(formData).toString()
+		var name = formData.get("name")
+		var model = formData.get("model")
+
+		if (name === "") {
+			createErr.innerText = "Give the new device a name"
+			return
+		}
+
+		if (model === "") {
+			createErr.innerText = "Select a model for the new device"
+			return
+		}
 
 		this.localEvent = true
 		let response = await fetch("/create?" + query)
 
 		if (response.status == 201) {
-			this.newDialog.close()
+			this.closeNewDialog(event)
 		} else {
 			let data = await response.text()
 			createErr.innerText = data
@@ -249,6 +262,17 @@ class Hub extends WebSocketController {
 
 		close.onclick = (event) => this.closeNewDialog(event)
 		create.onclick = (event) => this.create(event)
+
+		window.onkeydown = (event) => {
+			switch (event.key) {
+			case "Enter":
+				this.create(event);
+				break;
+			case "Escape":
+				this.closeNewDialog(event);
+				break;
+			}
+		}
 
 		id.value = this.generateRandomId()
 		model.value = ""
