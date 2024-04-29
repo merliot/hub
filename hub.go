@@ -4,7 +4,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/url"
 	"os"
 
@@ -32,8 +31,7 @@ type Hub struct {
 	Demo          bool
 	models.Models `json:"-"`
 	Children
-	server    *dean.Server
-	templates *template.Template
+	server *dean.Server
 }
 
 var targets = []string{"x86-64", "rpi"}
@@ -45,8 +43,6 @@ func New(id, model, name string) dean.Thinger {
 	h.Version = version
 	h.Models = make(models.Models)
 	h.Children = make(Children)
-	h.CompositeFs.AddFS(fs)
-	h.templates = h.CompositeFs.ParseFS("template/*")
 	return h
 }
 
