@@ -1,3 +1,7 @@
+// Merliot Hub
+//
+// go run ./cmd
+
 package main
 
 import (
