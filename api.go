@@ -26,7 +26,7 @@ func (h *Hub) apiCreate(w http.ResponseWriter, r *http.Request) {
 	h.loadDevice(thinger, id, "")
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Child id '%s' created", id)
+	fmt.Fprintf(w, "Child id '%s' created\n", id)
 }
 
 func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +41,7 @@ func (h *Hub) apiDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Child id '%s' deleted", id)
+	fmt.Fprintf(w, "Child id '%s' deleted\n", id)
 }
 
 func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,6 @@ func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
 		devices[id] = child
 	}
 	data, _ := json.MarshalIndent(devices, "", "\t")
-	//h.RenderTemplate(w, "devices.tmpl", string(data))
 	w.Write(data)
 }
 
