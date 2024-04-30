@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -46,8 +47,13 @@ func New(id, model, name string) dean.Thinger {
 	return h
 }
 
+func (h *Hub) v2(w http.ResponseWriter, r *http.Request) {
+	h.RenderTemplate(w, "hub-tile-view.tmpl", h)
+}
+
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
+	h.server.HandleFunc("/v2/{$}", h.v2)
 }
 
 func (h *Hub) SetBackup(backup string) {
@@ -73,10 +79,13 @@ func (h *Hub) SetDemo(demo bool) {
 }
 
 func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
+	proto := models.New(model, maker)
+	h.Models[model] = proto
 	if h.server != nil {
 		h.server.RegisterModel(model, maker)
+		h.server.Handle("/v2/model/"+model+"/",
+			http.StripPrefix("/v2/model/"+model+"/", proto.ServeHTTP))
 	}
-	h.Models[model] = models.New(model, maker)
 }
 
 func (h *Hub) GenerateUf2s(dir string) error {

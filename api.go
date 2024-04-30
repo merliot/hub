@@ -3,6 +3,7 @@ package hub
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strings"
 )
@@ -55,6 +56,7 @@ func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	println("**********", r.URL.Path)
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "create":
 		h.apiCreate(w, r)
@@ -67,4 +69,17 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		h.API(w, r, h)
 	}
+}
+
+func (h *Hub) LinkModelStyles() template.HTML {
+	var html string
+	models := make(map[string]bool)
+	for _, child := range h.Children {
+		models[child.Model] = true
+	}
+	for model := range models {
+		html += fmt.Sprintf("<link rel='stylesheet' type='text/css' href='/v2/model/%s/css/%s.css'>",
+			model, model)
+	}
+	return template.HTML(html)
 }
