@@ -96,44 +96,44 @@ func (h *Hub) GenerateUf2s(dir string) error {
 	return nil
 }
 
-func (h *Hub) getState(msg *dean.Msg) {
+func (h *Hub) getState(pkt *dean.Packet) {
 	h.Path = "state"
-	msg.Marshal(h).Reply()
+	pkt.Marshal(h).Reply()
 }
 
-func (h *Hub) online(msg *dean.Msg, online bool) {
+func (h *Hub) online(pkt *dean.Packet, online bool) {
 	var thing dean.ThingMsgConnect
-	msg.Unmarshal(&thing)
+	pkt.Unmarshal(&thing)
 
 	if child, ok := h.Children[thing.Id]; ok {
 		child.Online = online
-		msg.Broadcast()
+		pkt.Broadcast()
 	}
 }
 
-func (h *Hub) connect(online bool) func(*dean.Msg) {
-	return func(msg *dean.Msg) {
-		h.online(msg, online)
+func (h *Hub) connect(online bool) func(*dean.Packet) {
+	return func(pkt *dean.Packet) {
+		h.online(pkt, online)
 	}
 }
 
-func (h *Hub) createdThing(msg *dean.Msg) {
+func (h *Hub) createdThing(pkt *dean.Packet) {
 	var child dean.ThingMsgCreated
-	msg.Unmarshal(&child)
+	pkt.Unmarshal(&child)
 	h.Children[child.Id] = &Child{Id: child.Id, Model: child.Model, Name: child.Name}
 	child.Path = "created/device"
-	msg.Marshal(&child).Broadcast()
+	pkt.Marshal(&child).Broadcast()
 }
 
-func (h *Hub) deletedThing(msg *dean.Msg) {
+func (h *Hub) deletedThing(pkt *dean.Packet) {
 	var child dean.ThingMsgDeleted
-	msg.Unmarshal(&child)
+	pkt.Unmarshal(&child)
 	delete(h.Children, child.Id)
 	child.Path = "deleted/device"
-	msg.Marshal(&child).Broadcast()
+	pkt.Marshal(&child).Broadcast()
 }
 
-func (h *Hub) restart(msg *dean.Msg) {
+func (h *Hub) restart(pkt *dean.Packet) {
 	fmt.Println("RESTART")
 	os.Exit(0)
 }
