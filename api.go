@@ -3,8 +3,8 @@ package hub
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -56,7 +56,6 @@ func (h *Hub) apiDevices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	println("**********", r.URL.Path)
 	switch strings.TrimPrefix(r.URL.Path, "/") {
 	case "create":
 		h.apiCreate(w, r)
@@ -71,15 +70,21 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Hub) LinkModelStyles() template.HTML {
-	var html string
+func (h *Hub) ModelsInUse() map[string]bool {
 	models := make(map[string]bool)
 	for _, child := range h.Children {
 		models[child.Model] = true
 	}
-	for model := range models {
-		html += fmt.Sprintf("<link rel='stylesheet' type='text/css' href='/v2/model/%s/css/%s.css'>",
-			model, model)
+	return models
+}
+
+func (h *Hub) ChildrenSorted() []string {
+	keys := make([]string, 0, len(h.Children))
+	for key := range h.Children {
+		keys = append(keys, key)
 	}
-	return template.HTML(html)
+	sort.Slice(keys, func(i, j int) bool {
+		return h.Children[keys[i]].Name < h.Children[keys[j]].Name
+	})
+	return keys
 }

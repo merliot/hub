@@ -4,9 +4,10 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"html/template"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
@@ -17,11 +18,16 @@ import (
 var fs embed.FS
 
 type Child struct {
+	Id             string
 	Model          string
 	Name           string
 	DeployParams   string `json:"DeployParams,omitempty"`
 	Online         bool   `json:"-"`
 	device.Devicer `json:"-"`
+}
+
+func (c *Child) ModelTitle() template.JS {
+	return template.JS(strings.Title(c.Model))
 }
 
 type Children map[string]*Child // keyed by id
@@ -47,13 +53,8 @@ func New(id, model, name string) dean.Thinger {
 	return h
 }
 
-func (h *Hub) v2(w http.ResponseWriter, r *http.Request) {
-	h.RenderTemplate(w, "hub-tile-view.tmpl", h)
-}
-
 func (h *Hub) SetServer(server *dean.Server) {
 	h.server = server
-	h.server.HandleFunc("/v2/{$}", h.v2)
 }
 
 func (h *Hub) SetBackup(backup string) {
@@ -83,8 +84,6 @@ func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
 	h.Models[model] = proto
 	if h.server != nil {
 		h.server.RegisterModel(model, maker)
-		h.server.Handle("/v2/model/"+model+"/",
-			http.StripPrefix("/v2/model/"+model+"/", proto.ServeHTTP))
 	}
 }
 
@@ -121,7 +120,7 @@ func (h *Hub) connect(online bool) func(*dean.Msg) {
 func (h *Hub) createdThing(msg *dean.Msg) {
 	var child dean.ThingMsgCreated
 	msg.Unmarshal(&child)
-	h.Children[child.Id] = &Child{Model: child.Model, Name: child.Name}
+	h.Children[child.Id] = &Child{Id: child.Id, Model: child.Model, Name: child.Name}
 	child.Path = "created/device"
 	msg.Marshal(&child).Broadcast()
 }

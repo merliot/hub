@@ -98,7 +98,7 @@ class Hub extends WebSocketController {
 		var device = document.createElement("object")
 		device.classList.add("device-full")
 		device.type = "text/html"
-		device.data = "/" + this.activeId + "/"
+		device.data = "/device/" + this.activeId + "/"
 
 		device.onload = () => {
 			device.style.height = device.contentDocument.documentElement.scrollHeight + 'px';
@@ -150,7 +150,7 @@ class Hub extends WebSocketController {
 		var device = document.createElement("object")
 		device.classList.add("device-tile")
 		device.type = "text/html"
-		device.data = "/" + id + "/tile"
+		device.data = "/device/" + id + "/tile"
 
 		div.onclick = () => {
 			this.activeId = id;
