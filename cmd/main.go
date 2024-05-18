@@ -9,9 +9,6 @@ import (
 	"github.com/merliot/hub"
 )
 
-//go:generate go run ./gen-models -input ../models.json -output ./models.go
-//go:generate gofmt -w ./models.go
-
 var (
 	id          = dean.GetEnv("ID", "hub01")
 	name        = dean.GetEnv("NAME", "Hub")
@@ -28,7 +25,7 @@ var (
 )
 
 func main() {
-	hub := hub.New(id, "hub", name).(*hub.Hub)
+	hub := hub.NewHub(id, "hub", name, user, passwd, port, devices).(*hub.Hub)
 
 	hub.SetWifiAuth(ssids, passphrases)
 	hub.SetWsScheme(wsScheme)
@@ -36,14 +33,5 @@ func main() {
 	hub.SetLocked(locked == "true")
 	hub.SetDemo(demo == "true")
 
-	server := dean.NewServer(hub, user, passwd, port)
-	hub.SetServer(server)
-
-	for model, maker := range models {
-		hub.RegisterModel(model, maker)
-	}
-
-	hub.LoadDevices(devices)
-
-	server.Run()
+	hub.Serve()
 }

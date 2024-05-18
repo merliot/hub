@@ -11,7 +11,6 @@ import (
 
 	"github.com/merliot/dean"
 	"github.com/merliot/device"
-	"github.com/merliot/device/models"
 )
 
 //go:embed css go.mod images js template
@@ -34,27 +33,35 @@ type Children map[string]*Child // keyed by id
 
 type Hub struct {
 	*device.Device
-	Version       string
-	Demo          bool
-	models.Models `json:"-"`
+	server  *dean.Server
+	Version string
+	Demo    bool
 	Children
-	server *dean.Server
 }
 
 var targets = []string{"x86-64", "rpi"}
 
 func New(id, model, name string) dean.Thinger {
 	fmt.Println("NEW HUB\r")
-	h := &Hub{}
-	h.Device = device.New(id, model, name, fs, targets).(*device.Device)
-	h.Version = version
-	h.Models = make(models.Models)
-	h.Children = make(Children)
-	return h
+	return &Hub{
+		Device:   device.New(id, model, name, fs, targets).(*device.Device),
+		Version:  version,
+		Children: make(Children),
+	}
 }
 
-func (h *Hub) SetServer(server *dean.Server) {
-	h.server = server
+func NewHub(id, model, name, user, passwd, port, devices string) dean.Thinger {
+	hub := New(id, model, name).(*Hub)
+	hub.server = dean.NewServer(hub, user, passwd, port)
+	for model, maker := range models {
+		hub.server.RegisterModel(model, maker)
+	}
+	hub.loadDevices(devices)
+	return hub
+}
+
+func (h *Hub) Serve() {
+	h.server.Run()
 }
 
 func (h *Hub) SetBackup(backup string) {
@@ -79,25 +86,19 @@ func (h *Hub) SetDemo(demo bool) {
 	h.Demo = demo
 }
 
-func (h *Hub) RegisterModel(model string, maker dean.ThingMaker) {
-	proto := models.New(model, maker)
-	h.Models[model] = proto
-	if h.server != nil {
-		h.server.RegisterModel(model, maker)
-	}
-}
-
 func (h *Hub) GenerateUf2s(dir string) error {
-	for _, model := range h.Models {
-		if err := model.Modeler.GenerateUf2s(dir); err != nil {
-			return err
+	for _, model := range h.server.Models() {
+		if modeler, ok := model.(device.Modeler); ok {
+			if err := modeler.GenerateUf2s(dir); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 func (h *Hub) getState(pkt *dean.Packet) {
-	h.Path = "state"
+	pkt.Path = "state"
 	pkt.Marshal(h).Reply()
 }
 
@@ -121,21 +122,14 @@ func (h *Hub) createdThing(pkt *dean.Packet) {
 	var child dean.ThingMsgCreated
 	pkt.Unmarshal(&child)
 	h.Children[child.Id] = &Child{Id: child.Id, Model: child.Model, Name: child.Name}
-	child.Path = "created/device"
-	pkt.Marshal(&child).Broadcast()
+	pkt.SetPath("created/device").Broadcast()
 }
 
 func (h *Hub) deletedThing(pkt *dean.Packet) {
 	var child dean.ThingMsgDeleted
 	pkt.Unmarshal(&child)
 	delete(h.Children, child.Id)
-	child.Path = "deleted/device"
-	pkt.Marshal(&child).Broadcast()
-}
-
-func (h *Hub) restart(pkt *dean.Packet) {
-	fmt.Println("RESTART")
-	os.Exit(0)
+	pkt.SetPath("deleted/device").Broadcast()
 }
 
 func (h *Hub) Subscribers() dean.Subscribers {
@@ -145,7 +139,6 @@ func (h *Hub) Subscribers() dean.Subscribers {
 		"disconnected":  h.connect(false),
 		"created/thing": h.createdThing,
 		"deleted/thing": h.deletedThing,
-		"restart":       h.restart,
 	}
 }
 
@@ -169,7 +162,7 @@ func (h *Hub) loadDevice(thinger dean.Thinger, id, deployParams string) {
 	}
 }
 
-func (h *Hub) LoadDevices(devices string) {
+func (h *Hub) loadDevices(devices string) {
 	var children Children
 
 	// If devices is empty, try loading from devices.json file
@@ -186,6 +179,7 @@ func (h *Hub) LoadDevices(devices string) {
 		fmt.Printf("Error parsing devices: %s\n", err)
 		return
 	}
+
 	for id, child := range children {
 		thinger, err := h.server.CreateThing(id, child.Model, child.Name)
 		if err != nil {

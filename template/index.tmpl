@@ -2,7 +2,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>{{.Name}}</title>
-		<link rel="stylesheet" type="text/css" href="css/common.css">
+		<link rel="stylesheet" type="text/css" href="css/device.css">
 		<link rel="stylesheet" type="text/css" href="css/hub.css">
 {{- range $model, $ignore := .ModelsInUse }}
 		<link rel="stylesheet" type="text/css" href="model/{{$model}}/css/{{$model}}.css">
@@ -11,7 +11,7 @@
 	<body class="online">
 
 {{template "hub-header.tmpl" .}}
-{{template "hub-body.tmpl" .}}
+{{template "index-body.tmpl" .}}
 {{template "hub-dialogs.tmpl" .}}
 
 		<script src="js/device.js"></script>
@@ -21,12 +21,14 @@
 {{- end }}
 
 		<script>
-			let div, device
+			const tileView = 1
+			let div, device, assets
 			let trunk = new Trunk({{ .WebSocket }})
 			trunk.registerDevice("", new DeviceHub(document.body))
 {{- range $id, $child := .Children }}
 			div = document.getElementById("device-{{$id}}")
-			device = new Device{{.ModelTitle}}(div)
+			assets = "model/{{.Model}}/"
+			device = new Device{{.ModelTitle}}(div, tileView, assets)
 			trunk.registerDevice("{{$id}}", device)
 {{- end }}
 		</script>

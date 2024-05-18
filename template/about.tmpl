@@ -1,0 +1,57 @@
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>About</title>
+		<link rel="stylesheet" type="text/css" href="css/device.css">
+	</head>
+	<body>
+
+		<style>
+			body {
+				background-color: white;
+			}
+			#about-desc {
+				max-width: 280px;
+			}
+
+			#about-title {
+				margin: 60px 0 20px 0;
+				font-size: xx-large;
+			}
+
+			#about-details {
+				align-items: center;
+			}
+		</style>
+
+		<div class="divFlexCol">
+			<div class="divFlexRow">
+				<img src="images/thing.png"></img>
+				<div class="divFlexCol" id="about-desc">
+					<span id="about-title">Merliot Hub</span>
+					<span>Your private, decentralized IoT device hub, written in Go and TinyGo</span>
+				</div>
+			</div>
+			<div class="divFlexCol" id="about-details">
+				<a target="_blank" href="https://www.merliot.io">merliot.io</a>
+				<p></p>
+				<div>
+					<a target="_blank" href="https://join.slack.com/t/merliotcommunity/shared_invite/zt-2f5f2t02q-jEmblYUmsQOxczvf6oJl8A">Join Our Slack</a>
+					·
+					<a target="_blank" href="https://twitter.com/merliotio">Twitter</a>
+				</div>
+				<div>
+					<a target="_blank" href="https://github.com/merliot/hub/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%F0%9F%90%9B+Bug+Report%3A+">Report Bug</a>
+					·
+					<a target="_blank" href="https://github.com/merliot/hub/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=%F0%9F%9A%80+Feature%3A+">Request Feature</a>
+				</div>
+				<p></p>
+				<span>Source code: <a target="_blank" href="https://{{ .Module.Path }}">{{ .Module.Path }}</a></span>
+				<span>Build Version: {{ .Version }}</span>
+				<p>
+					<span class="copyright">&copy Copyright 2024 Merliot</span>
+				</p>
+			</div>
+		</div>
+	</body>
+</html>
