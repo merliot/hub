@@ -1,0 +1,76 @@
+<h2>TEMPLATE FUNCTIONS</h2>
+
+<p>Each device model includes a set of built-in template helper functions, making it
+easier to include device state in template output.  For example, use functions
+<code>target</code> and <code>state</code> to return a custom html snippet:</p>
+
+<pre class="code-snippet">
+&lt;div&gt;
+	{{ if eq <span class="text-gold">target</span> "rpi" }}
+		&lt;span&gt;Raspberry Pi {{<span class="text-gold">state</span>.Foo}}&lt;/span&gt;
+	{{ else }}
+		&lt;span&gt;Not Raspberry Pi {{<span class="text-gold">state</span>.Bar}}&lt;/span&gt;
+	{{ end }}
+&lt;/div&gt;
+</pre>
+
+<style>
+	.template-grid {
+	  display: grid;
+	  grid-template-columns: auto auto;
+	  padding: 10px;
+	  column-gap: 20px;
+	}
+
+	.grid-header {
+	  font-weight: bold;
+	  padding: 5px;
+	  text-align: left;
+	  border-bottom: 1px solid;
+	}
+
+	.grid-item {
+	  padding-left: 5px;
+	}
+</style>
+
+<div class="template-grid min-w-lg">
+	<div class="grid-header">Function</div>
+	<div class="grid-header">Description</div>
+
+	<div class="grid-item">id() string</div>
+	<div class="grid-item">Returns device ID</div>
+
+	<div class="grid-item">model() string</div>
+	<div class="grid-item">Returns device model name</div>
+
+	<div class="grid-item">name() string</div>
+	<div class="grid-item">Return device name</div>
+
+	<div class="grid-item">uniq(s string) string</div>
+	<div class="grid-item">Returns unique id := model() + id() + s</div>
+
+	<div class="grid-item">deployParams() template.HTML</div>
+	<div class="grid-item">Returns device deploy params escaped as template.HTML</div>
+
+	<div class="grid-item">state() any</div>
+	<div class="grid-item">Returns device state (see hub.Config.State).
+		Only exported fields in the device state type are visible.  For
+		example, {{state.Foo}} is available, but {{state.foo}}
+		isn't.</div>
+
+	<div class="grid-item">title(s string) string</div>
+	<div class="grid-item">Returns string.Title(s)</div>
+
+	<div class="grid-item">add(a, b int) int</div>
+	<div class="grid-item">Returns a + b</div>
+
+	<div class="grid-item">mult(a, b int) int</div>
+	<div class="grid-item">Returns a * b</div>
+
+	<div class="grid-item">joinStrings(parts ...string) string</div>
+	<div class="grid-item">Returns strings.Join(parts, "")</div>
+
+	<div class="grid-item">target() string</div>
+	<div class="grid-item">Returns device target<div>
+</div>
