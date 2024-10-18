@@ -1,0 +1,9 @@
+<div class="hidden" id="{{uniq `location`}}">
+	<script>
+		var div = document.getElementById("{{uniq `map`}}");
+		if (div.sharedData && div.sharedData.map) {
+			div.sharedData.map.flyTo({center: [{{state.Long}}, {{state.Lat}}]});
+			div.sharedData.marker.setLngLat([{{state.Long}}, {{state.Lat}}]);
+		}
+	</script>
+</div>

@@ -1,0 +1,37 @@
+<h2>TEMPLATE MAP</h2>
+
+<p>This is mostly here for my sanity.  The template nesting gets pretty deep.</p>
+
+<p>The templates in <span class="text-red-500 font-mono text-lg">red</span> are required (mostly) for each device model.</p>
+
+<h3>DEVICE HOME</h3>
+
+<pre class="text-sm">
+device.tmpl
+	device-header.tmpl
+	device-home.tmpl
+		session.tmpl
+			session-header.tmpl
+			session-view.tmpl
+				renderView (detail, overview, ...)
+					device-detail.tmpl
+						<span class="text-red-500">body-detail.tmpl</span>
+					device-overview.tmpl
+						<span class="text-red-500">body-overview.tmpl</span>
+					device-info.tmpl
+						device-info-body.tmpl
+							<span class="text-red-500">info.tmpl (optional)</span>
+					device-settings.tmpl
+						device-download-body.tmpl
+							device-download-target.tmpl
+								<span class="text-red-500">download.tmpl (optional)</span>
+							instructions-expanded.tmpl
+								instructions-{target}.tmpl
+									<span class="text-red-500">instructions-{target}-parts.tmpl</span>	
+									<span class="text-red-500">instructions-{target}-step1.tmpl</span>
+					device-state.tmpl
+						device-state-body.tmpl
+							device-state-state.tmpl
+			session-footer.tmpl
+	device-footer.tmpl
+</pre>

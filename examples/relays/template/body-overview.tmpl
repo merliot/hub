@@ -1,0 +1,20 @@
+<div class="flex flex-row items-center justify-evenly" id="{{uniq `relays`}}">
+
+{{- $added := false }}
+{{- range $relay := state.Relays }}
+	{{- if and (ne $relay.Gpio "") (ne $relay.Name "") }}
+		{{- $added = true }}
+
+	<div class="flex flex-col items-center mx-1">
+		<span class="text-sm">{{$relay.Name}}</span>
+		<img class="h-6" src="/model/{{model}}/images/relay-{{$relay.State}}.png">
+	</div>
+
+	{{- end }}
+{{- end }}
+
+{{- if not $added }}
+	{{ template "undefined-overview.tmpl" . }}
+{{- end }}
+
+</div>

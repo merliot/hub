@@ -1,0 +1,25 @@
+<div class="model-{{model}} {{classOffline}}" id="{{uniq `device`}}"
+	hx-target="this"
+	hx-swap="outerHTML">
+
+	<div class="flex flex-row ml-{{mult .level 10}}">
+
+		<div class="panel flex flex-col m-1 p-2 min-w-80
+			{{bgColor}} {{textColor}} {{borderColor}}
+			border-solid border-2 rounded-3xl">
+
+			<div class="flex flex-row items-center justify-between"
+				hx-get="/device/{{id}}/show-view?view=detail">
+				<span class="text-lg font-bold ml-2.5 w-full cursor-pointer">
+					{{name}}
+				</span>
+				<img class="icon" src="/model/{{model}}/images/return.svg"></img>
+			</div>
+
+			<div class="m-2.5 max-w-lg">
+{{ template "device-download-body.tmpl" .}}
+			</div>
+		</div>
+	</div>
+{{ renderChildren .sessionId (add .level 1) }}
+</div>

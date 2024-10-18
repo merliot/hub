@@ -1,0 +1,22 @@
+{
+	"hub": {
+		"Package": "github.com/merliot/hub/hubdevice",
+		"Source": "https://github.com/merliot/hub/tree/main/hubdevice",
+		"Maker": "hubdevice.NewModel"
+	},
+	"gadget": {
+		"Package": "github.com/merliot/hub/examples/gadget",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/gadget",
+		"Maker": "gadget.NewModel"
+	},
+	"relays": {
+		"Package": "github.com/merliot/hub/examples/relays",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/relays",
+		"Maker": "relays.NewModel"
+	},
+	"gps": {
+		"Package": "github.com/merliot/hub/examples/gps",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/gps",
+		"Maker": "gps.NewModel"
+	}
+}

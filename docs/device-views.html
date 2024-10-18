@@ -1,0 +1,143 @@
+<h2>DEVICE VIEWS</h2>
+
+<p>Go html/templates and htmx are used to render the device views.  A device
+model has a /template directory, with a template file for each view.  See the
+<a href="/doc/template-map">Template Map</a> for how these templates are
+nested.</p>
+
+<style>
+	.template-grid {
+	  display: grid;
+	  grid-template-columns: 1fr 2fr;
+	  padding: 10px;
+	}
+
+	.grid-header {
+	  font-weight: bold;
+	  padding: 5px;
+	  text-align: left;
+	  border-bottom: 1px solid;
+	}
+
+	.grid-item {
+	  padding-left: 5px;
+	}
+</style>
+
+<div class="template-grid">
+	<div class="grid-header">View</div>
+	<div class="grid-header">Template</div>
+
+	<div class="grid-item">Overview</div>
+	<div class="grid-item">body-overview.tmpl</div>
+
+	<div class="grid-item">Detail</div>
+	<div class="grid-item">body-detail.tmpl</div>
+
+	<div class="grid-item">Settings</div>
+	<div class="grid-item">download.tmpl (optional)</div>
+
+	<div class="grid-item">Info</div>
+	<div class="grid-item">info.tmpl (optional)</div>
+</div>
+
+<h3>VIEW: OVERVIEW</h3>
+
+<p>The overview view is a compact, read-only view of the device.  Clicking on
+the overview will switch the view to the detail view.</p>
+
+<p>Overview view uses template/body-overview.tmpl.</p>
+
+<img src="/docs/images/overview.png">
+
+<h3>VIEW: DETAIL</h3>
+
+<p>The detail view show the expanded view of the device.  Unlike the overview
+view, the detail view is read/write and the user can interact with the device.
+Clicking on the header will toggle back to the overview view.</p>
+
+<p>Detail view uses template/body-detail.tmpl.</p>
+
+<img src="/docs/images/detail.png">
+
+<h3>VIEW: SETTINGS</h3>
+
+<p>The settings view uses template/download.tmpl.  It is optional.  If
+included, it can be used to customize the device settings before download.  On
+Download button click, the form elements values are passed as http request
+parameters to the /download API.</p>
+
+<p>Form imputs should be validated when the download button is clicked, and
+again when the device loads on the server.</p>
+
+<img src="/docs/images/settings.png">
+
+<pre class="code-snippet">
+&lt;div&gt;
+	&lt;div&gt;
+		&lt;label&gt;
+			Full Bottle Count:
+			&lt;input type=&quot;text&quot;
+				name=&quot;Bottles&quot;
+				value=&quot;{{state.Bottles}}&quot;&gt;
+		&lt;/label&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+
+<h3>VIEW: INFO</h3>
+
+<img src="/docs/images/info.png">
+
+<h3>UNIQUE ID</h3>
+
+<p>If the view renders state-full elements, the template's outer &lt;div&gt;
+needs to have a unique id.  The id is used by htmx to find and replace the
+&lt;div&gt; when the view is updated (device state changed).  The id is unique
+for each instance of a device model, and across different device models.  Use
+the <a href="/doc/template-funcs"><code>uniq</code></a> helper function to automatically
+generate a unique id for the view:</p> 
+
+<pre class="code-snippet">
+&lt;div <span class="text-gold">id="{{uniq `bottles`}}"</span>&gt;
+	...
+&lt;/div&gt;
+</pre>
+
+<p>For example, if device ID is "foo" and device Model is "bar", the id is
+rendered as:</p>
+
+<pre class="code-snippet">
+&lt;div <span class="text-gold">id="bar-foo-bottles"</span>&gt;
+	...
+&lt;/div&gt;
+</pre>
+
+<h3>STATE</h3>
+
+<p>Consider the Gadget device's state type:</p>
+
+<pre class="code-snippet">
+type Gadget struct {
+	Bottles int
+	Restock int
+}
+</pre>
+
+<p>Use the <a href="/doc/template-funcs"><code>state</code></a> helper function to embed
+device state.  In the gadget template, access the gadget bottle count using
+<code class="text-gold">{{state.Bottles}}</code>:</p>
+
+<pre class="code-snippet">
+&lt;div <span class="text-gold">id="{{uniq `bottles`}}"</span>&gt;
+	&lt;span&gt;<span class="text-gold">{{state.Bottles}} Bottles</span>&lt;/span&gt;
+&lt;/div&gt;
+</pre>
+
+<p>Which renders as:</p>
+
+<pre class="code-snippet">
+&lt;div id="gadget-id-bottles"&gt;
+	&lt;span&gt;99 Bottles&lt;/span&gt;
+&lt;/div&gt;
+</pre>

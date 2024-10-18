@@ -1,0 +1,58 @@
+<div class="modal">
+
+	<style>
+		.radio-content {
+		  border: 2px solid transparent;
+		}
+
+		.radio-container input[type="radio"] {
+		  position: absolute;
+		  opacity: 0;
+		  pointer-events: none;
+		}
+
+		/* Highlight the container when the radio button is selected */
+		input[type="radio"]:checked + .radio-content {
+		  border: 2px solid #007BFF;
+		}
+	</style>
+
+	<div class="modal-content">
+		<h3>Create a New Device</h3>
+		<form hx-get="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
+			<div class="flex flex-col mb-5">
+				<label class="font-bold mb-2">Name the Device</label>
+				<input type="text" name="Name" placeholder="Name">
+			</div>
+			<div class="flex flex-col mb-5">
+				<label class="font-bold mb-2">Device ID</label>
+				<div class="flex flex-row">
+					<input disabled type="text" name="Id" placeholder="ID" value="{{.newid}}">
+					<input type="hidden" name="Id" value="{{.newid}}">
+					<span class="icon">&#x1F512;</span>
+				</div>
+			</div>
+			<div class="flex flex-col mb-5">
+				<span class="font-bold mb-2">Select a Model</span>
+				<div class="flex flex-col overflow-y-auto">
+{{- range $model, $ignore := .models }}
+					<label class="flex flex-row cursor-pointer radio-container">
+						<input type="radio" name="Model" value="{{$model}}">
+						<div class="flex flex-row w-full items-center rounded radio-content">
+							<img class="w-10 h-10 m-1" src="/model/{{$model}}/images/icon.png">
+							<span class="px-1 w-1/5">{{$model}}</span>
+						</div>
+					</label>
+{{- end }}
+				</div>
+			</div>
+			<div class="flex flex-row justify-between items-center">
+				<span class=text-red-500 id="error"></span>
+				<div class="flex flex-row justify-end">
+					<button class="btn" hx-put="/keep-alive" hx-target=".modal" hx-swap="delete">Close</button>
+					<button class="btn" type="submit">Create</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

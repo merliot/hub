@@ -1,0 +1,23 @@
+<div class="flex flex-col items-center justify-center" id="{{uniq `relays`}}">
+
+{{- $added := false }}
+{{- range $i, $relay := state.Relays }}
+	{{- if and (ne $relay.Gpio "") (ne $relay.Name "") }}
+		{{- $added = true }}
+
+	<div class="flex flex-row items-center"
+	     hx-post="/device/{{id}}/click?Relay={{$i}}"
+	     hx-swap="none">
+		<span class="w-16 text-right mx-6">{{$relay.Name}}</span>
+		<img class="h-10" src="/model/{{model}}/images/relay-{{$relay.State}}.png">
+		<span class="mx-6 px-2.5 text-sm bg-amber-500 text-white rounded">{{$relay.Gpio}}</span>
+	</div>
+
+	{{- end }}
+{{- end }}
+
+{{- if not $added }}
+	{{ template "undefined-detail.tmpl" . }}
+{{- end }}
+
+</div>

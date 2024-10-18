@@ -1,0 +1,52 @@
+<style>
+	a, h3 {
+		color: #ffaa00;
+	}
+</style>
+
+<div class="flex flex-row mx-4 my-8 max-w-lg"
+	hx-boost="true">
+	<div class="flex flex-col items-end text-sm">
+{{ range $i, $page := .pages }}
+	{{ if eq $page.Name "" }}
+		<div class="panel flex flex-row mt-8 w-36 h-10 text">
+			<span class="font-bold">{{$page.Label}}</span>
+		</div>
+	{{ else if eq $page.Name $.page }}
+		<div class="panel flex flex-row items-end justify-end w-36 h-10 bg-gold text-black
+			border-solid border-2 rounded-2xl">
+			<span class="mr-2.5 font-bold">{{$page.Label}}</span>
+		</div>
+	{{ else }}
+		<a class="no-underline" href="/doc/{{$page.Name}}">
+			<div class="panel flex flex-row items-end justify-end w-32 h-6 bg-text text-black
+				border-solid border-2 rounded-xl">
+				<span class="mr-2.5">{{$page.Label}}</span>
+			</div>
+		</a>
+	{{ end }}
+{{ end }}
+{{ range $name, $model := .models }}
+	{{ if eq $name $.model }}
+		<div class="panel flex flex-row items-end justify-end w-36 h-10 bg-gold text-black
+			border-solid border-2 rounded-2xl">
+			<span class="mr-2.5 font-bold">{{$name}}</span>
+		</div>
+	{{ else }}
+		<a class="no-underline" href="/doc/model/{{$name}}">
+			<div class="panel flex flex-row items-end justify-end w-32 h-6 bg-text text-black
+				border-solid border-2 rounded-xl">
+				<span class="mr-2.5">{{$name}}</span>
+			</div>
+		</a>
+	{{ end }}
+{{ end }}
+	</div>
+	<div class="ml-10">
+		<div hx-get="{{.hxget}}"
+			hx-trigger="load"
+			hx-swap="outerHTML"
+			hx-target="this">
+		</div>
+	</div>
+</div>

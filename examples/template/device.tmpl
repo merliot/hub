@@ -1,0 +1,20 @@
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="icon" type="/image/png" sizes="32x32" href="/images/favicon-32x32.png">
+		<link rel="icon" type="/image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+		<title>{{model}} - {{name}}</title>
+
+		<link rel="stylesheet" type="text/css" href="/css/device.css.gz">
+		<script src="/js/htmx.min.js.gz"></script>
+	</head >
+
+	<body class="bg-black text">
+{{ template "device-header.tmpl" . }}
+{{ $tmpl := joinStrings "device-" .section ".tmpl" }}
+{{ renderTemplate $tmpl . }}
+{{ template "device-footer.tmpl" . }}
+	</body>
+</html>

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 RUN go generate ./...
-RUN go build -o /hub ./cmd
+RUN go build -o /hub ./cmd/hub
  
 EXPOSE 8000
 
