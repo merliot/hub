@@ -1,0 +1,37 @@
+{{- if not .linuxTarget }}
+				<div class="flex flex-row mb-5">
+					<label>
+						Wifi SSID:
+						<select name="ssid">
+	{{- range $i, $ssid := ssids }}
+		{{- if eq $ssid ssid }}
+							<option value="{{$ssid}}" selected>{{$ssid}}</option>
+		{{- else }}
+							<option value="{{$ssid}}">{{$ssid}}</option>
+		{{- end }}
+	{{- end }}
+						</select>
+					</label>
+				</div>
+	{{- if isMissingWifi  }}
+				 <div class="flex flex-row mb-5">
+					<span class="mx-5 my-0">&#9888;</span>
+					<a class="text-red-500" href="/docs/env-vars#WIFI_SSIDS">Missing Wifi Settings</a>
+				</div>
+	{{- end }}
+{{- end }}
+
+{{- if .linuxTarget }}
+				<div class="flex flex-col">
+{{- if not wantsHttpPort }}
+					<span class="text-gray-700">(optional)</span>
+{{- end }}
+					<div class="flex flex-row mb-5">
+						<label>
+							Run Local Web Server on Port:
+							<input class="w-16" type="text" name="port" value="{{port}}">
+						</label>
+					</div>
+				</div>
+{{- end }}
+{{- template "download.tmpl" .}}

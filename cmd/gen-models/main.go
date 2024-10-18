@@ -1,55 +1,84 @@
+//go:generate go run ./
+
 package main
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
-	"html/template"
-	"log"
+	"io/ioutil"
 	"os"
-
-	"github.com/merliot/device/models"
+	"strings"
+	"text/template"
 )
 
-var tmpl = template.Must(template.New("").Parse(`package main
+type model struct {
+	Package string
+	Source  string
+	Maker   string
+}
+
+type models map[string]model
+
+const modelsTemplate = `// This file auto-generated from ./cmd/gen-models using models.json as input
+
+package models
 
 import (
-	"github.com/merliot/dean"
-{{- range $key, $value := . }}
-	"{{ $value.Module }}"
+	"github.com/merliot/hub"
+{{- range . }}
+	"{{ .Package }}"
 {{- end }}
 )
 
-var models = map[string]dean.ThingMaker{
+var AllModels = hub.ModelMap{
 {{- range $key, $value := . }}
-	"{{ $key }}": {{ $value.Maker }},
+	"{{$key}}": {{title $key}},
 {{- end }}
 }
-`))
+
+{{- range $key, $value := . }}
+var {{title $key}} = hub.Model{
+	Package: "{{$value.Package}}",
+	Source: "{{$value.Source}}",
+	Maker: {{$value.Maker}},
+}
+
+{{- end }}
+`
 
 func main() {
 
-	inputFile := flag.String("input", "", "path to input models.json file")
-	outputFile := flag.String("output", "", "path to output models.go file")
-	flag.Parse()
+	var models models
 
-	if *inputFile == "" {
-		fmt.Println("Please provide an input file using the -input flag.")
-		return
-	}
-
-	models, err := models.Load(*inputFile)
+	data, err := ioutil.ReadFile("../../models.json")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
+	}
+	err = json.Unmarshal(data, &models)
+	if err != nil {
+		panic(err)
 	}
 
-	file, err := os.Create(*outputFile)
+	outFile, err := os.Create("../../models/models.go")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	defer file.Close()
+	defer outFile.Close()
 
-	err = tmpl.Execute(file, models)
+	// Use template to write the models.go file
+	tmpl, err := template.New("models").Funcs(template.FuncMap{
+		"title": func(s string) string {
+			return strings.Title(s)
+		},
+	}).Parse(modelsTemplate)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+
+	// Execute the template with the models data
+	if err := tmpl.Execute(outFile, models); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Created Models from models.json")
 }

@@ -1,0 +1,14 @@
+<div hx-target="this"
+	hx-swap="outerHTML">
+{{ template "device-status-tabs.tmpl" . }}
+	<div class="bg-gray text-black m-1 p-4 rounded-3xl max-w-lg">
+		<h3>Models</h3>
+		{{ range $name, $model := .models }}
+			<h4>{{$name}}</h4>
+			<ul>
+				<li>Package: {{$model.Package}}</li>
+				<li>Source: {{$model.Source}}</li>
+			</ul>
+		{{ end }}
+	</div>
+</div>

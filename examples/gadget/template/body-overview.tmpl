@@ -1,0 +1,7 @@
+<div class="flex flex-row items-center justify-evenly" id="{{uniq `bottles`}}">
+	<span class="text-3xl mr-2.5">{{state.Bottles}}</span>
+	<span>Bottles</span>
+{{- if le state.Restock 60 }}
+	<span class="text-sm mx-4">[Restocking in {{state.Restock}}s]</span>
+{{- end }}
+</div>

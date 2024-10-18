@@ -1,26 +1,22 @@
 {
-	"garage": {
-		"Module": "github.com/merliot/garage",
-		"Maker": "garage.New"
+	"hub": {
+		"Package": "github.com/merliot/hub/hubdevice",
+		"Source": "https://github.com/merliot/hub/tree/main/hubdevice",
+		"Maker": "hubdevice.NewModel"
 	},
-	"prostar": {
-		"Module": "github.com/merliot/prostar",
-		"Maker": "prostar.New"
+	"gadget": {
+		"Package": "github.com/merliot/hub/examples/gadget",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/gadget",
+		"Maker": "gadget.NewModel"
 	},
 	"relays": {
-		"Module": "github.com/merliot/relays",
-		"Maker": "relays.New"
+		"Package": "github.com/merliot/hub/examples/relays",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/relays",
+		"Maker": "relays.NewModel"
 	},
-	"skeleton": {
-		"Module": "github.com/merliot/skeleton",
-		"Maker": "skeleton.New"
-	},
-	"temp": {
-		"Module": "github.com/merliot/temp",
-		"Maker": "temp.New"
-	},
-	"locker": {
-		"Module": "github.com/merliot/locker",
-		"Maker": "locker.New"
+	"gps": {
+		"Package": "github.com/merliot/hub/examples/gps",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/gps",
+		"Maker": "gps.NewModel"
 	}
 }

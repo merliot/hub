@@ -1,0 +1,29 @@
+<div class="flex flex-row mx-4 my-8 max-w-lg"
+	hx-boost="true">
+	<div class="flex flex-col items-end text-sm">
+{{ range $i, $blog := .blogs }}
+	{{ if eq $blog.Dir $.blog }}
+		<div class="panel flex flex-col items-end justify-end w-36 h-14 bg-gold text-black
+			border-solid border-2 rounded-2xl">
+			<span class="mr-2.5">{{$blog.Date}}</span>
+			<span class="mr-2.5 font-bold">{{$blog.Title}}</span>
+		</div>
+	{{ else }}
+		<a class="no-underline" href="/blog/{{$blog.Dir}}">
+			<div class="panel flex flex-col items-end justify-end w-28 h-6 bg-text text-black
+				border-solid border-2 rounded-xl">
+				<span class="mr-2.5 font-bold">{{$blog.Title}}</span>
+			</div>
+		</a>
+	{{ end }}
+{{ end }}
+	</div>
+	<div class="ml-10">
+		<div hx-get="/blog/{{.blog}}/blog.html"
+			hx-trigger="load"
+			hx-swap="outerHTML"
+			hx-target="this">
+		</div>
+	</div>
+</div>
+

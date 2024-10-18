@@ -1,0 +1,15 @@
+<div class="flex flex-col" id="{{uniq `bottles`}}">
+	<div class="flex flex-row w-full items-center justify-evenly">
+		<span class="text-6xl mx-4">{{state.Bottles}}</span>
+		<div class="flex flex-col items-center">
+			<span>Bottles of Beer on the Wall</span>
+{{- if le state.Restock 60 }}
+			<span class="text-sm">[Restocking in {{state.Restock}}s]</span>
+{{- end }}
+		</div>
+	</div>
+	<div class="flex flex-row justify-end">
+		<button hx-post="/device/{{id}}/takeone"
+			hx-swap="none">Take One</button>
+	</div>
+</div>
