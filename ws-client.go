@@ -32,10 +32,7 @@ func newConfig(url *url.URL, user, passwd string) (*websocket.Config, error) {
 	return config, nil
 }
 
-func wsDial(url *url.URL) {
-	var user = Getenv("USER", "")
-	var passwd = Getenv("PASSWD", "")
-
+func wsDial(url *url.URL, user, passwd string) {
 	cfg, err := newConfig(url, user, passwd)
 	if err != nil {
 		fmt.Println("Error configuring websocket:", err)

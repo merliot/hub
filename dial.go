@@ -6,9 +6,7 @@ import (
 	"strings"
 )
 
-func dialParents() {
-	var urls = Getenv("DIAL_URLS", "")
-
+func dialParents(urls string, user, passwd string) {
 	for _, u := range strings.Split(urls, ",") {
 		if u == "" {
 			continue
@@ -20,7 +18,7 @@ func dialParents() {
 		}
 		switch url.Scheme {
 		case "ws", "wss":
-			go wsDial(url)
+			go wsDial(url, user, passwd)
 		default:
 			fmt.Println("Scheme must be ws or wss:", u)
 		}

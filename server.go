@@ -28,7 +28,6 @@ var root *device
 // PASSWD
 func Run() {
 
-	var port = Getenv("PORT", "8000")
 	var err error
 
 	runningSite = (Getenv("SITE", "") == "true")
@@ -62,9 +61,13 @@ func Run() {
 	routesBuild(root)
 
 	// Dial parents
-	dialParents()
+	var urls = Getenv("DIAL_URLS", "")
+	var user = Getenv("USER", "")
+	var passwd = Getenv("PASSWD", "")
+	dialParents(urls, user, passwd)
 
 	// If no port was given, don't run as a web server
+	var port = Getenv("PORT", "8000")
 	if port == "" {
 		root.run()
 		log.Println("Device", root.Name, "done, bye")

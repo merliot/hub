@@ -59,6 +59,7 @@ func (d *device) build(maker Maker) error {
 	}
 
 	// Special handlers
+	d.Handlers["/state"] = &Handler[any]{d.state}
 	d.Handlers["/reboot"] = &Handler[NoMsg]{d.reboot}
 
 	// Bracket poll period: [1..forever) seconds
@@ -75,6 +76,10 @@ func (d *device) build(maker Maker) error {
 	}
 
 	return d.buildOS()
+}
+
+func (d *device) state(pkt *Packet) {
+	pkt.Unmarshal(d.State).RouteUp()
 }
 
 func (d *device) _formConfig(rawQuery string) (changed bool, err error) {

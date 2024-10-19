@@ -34,7 +34,6 @@ func (r *Relays) GetConfig() hub.Config {
 
 func (r *Relays) GetHandlers() hub.Handlers {
 	return hub.Handlers{
-		"/state":   &hub.Handler[Relays]{r.state},
 		"/click":   &hub.Handler[MsgClick]{r.click},
 		"/clicked": &hub.Handler[MsgClicked]{r.clicked},
 	}
@@ -51,10 +50,6 @@ func (r *Relays) Setup() error {
 }
 
 func (r *Relays) Poll(pkt *hub.Packet) {
-}
-
-func (r *Relays) state(pkt *hub.Packet) {
-	pkt.Unmarshal(r).RouteUp()
 }
 
 func (r *Relays) click(pkt *hub.Packet) {
@@ -74,5 +69,5 @@ func (r *Relays) clicked(pkt *hub.Packet) {
 	pkt.RouteUp()
 }
 
-func (r *Relays) DemoSetup() error            { return r.Setup() }
+func (r *Relays) DemoSetup() error         { return r.Setup() }
 func (r *Relays) DemoPoll(pkt *hub.Packet) { r.Poll(pkt) }

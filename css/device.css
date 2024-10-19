@@ -1122,8 +1122,9 @@ button {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   height: 2.5rem;
-  margin: 10px;
+  margin: 10px 5px;
   cursor: pointer;
+  font-weight: 700;
 }
 
 /***** ONLINE/OFFLINE ****/

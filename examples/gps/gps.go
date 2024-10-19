@@ -37,7 +37,6 @@ func (g *Gps) GetConfig() hub.Config {
 
 func (g *Gps) GetHandlers() hub.Handlers {
 	return hub.Handlers{
-		"/state":  &hub.Handler[Gps]{g.state},
 		"/update": &hub.Handler[updateMsg]{g.update},
 	}
 }
@@ -50,10 +49,6 @@ func (g *Gps) Poll(pkt *hub.Packet) {
 		g.Lat, g.Long = lat, long
 		pkt.SetPath("/update").Marshal(&up).RouteUp()
 	}
-}
-
-func (g *Gps) state(pkt *hub.Packet) {
-	pkt.Unmarshal(g).RouteUp()
 }
 
 func (g *Gps) update(pkt *hub.Packet) {

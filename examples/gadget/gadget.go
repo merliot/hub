@@ -34,7 +34,6 @@ func (g *Gadget) GetConfig() hub.Config {
 
 func (g *Gadget) GetHandlers() hub.Handlers {
 	return hub.Handlers{
-		"/state":   &hub.Handler[Gadget]{g.state},
 		"/takeone": &hub.Handler[hub.NoMsg]{g.takeone},
 		"/update":  &hub.Handler[Gadget]{g.state},
 	}
@@ -58,10 +57,6 @@ func (g *Gadget) Poll(pkt *hub.Packet) {
 		}
 		pkt.SetPath("/update").Marshal(g).RouteUp()
 	}
-}
-
-func (g *Gadget) state(pkt *hub.Packet) {
-	pkt.Unmarshal(g).RouteUp()
 }
 
 func (g *Gadget) takeone(pkt *hub.Packet) {
