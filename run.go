@@ -5,6 +5,7 @@ package hub
 import "time"
 
 func (d *device) runDemo() {
+	d.stopChan = make(chan struct{})
 
 	// Poll right away and then on ticker
 	d.Lock()

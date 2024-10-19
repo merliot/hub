@@ -23,7 +23,9 @@ func (h *Handler[T]) gen() any {
 
 // cb handles the packet
 func (h *Handler[T]) cb(pkt *Packet) {
-	h.Callback(pkt)
+	if h.Callback != nil {
+		h.Callback(pkt)
+	}
 }
 
 // Handlers is a map of Handlers, keyed by path.

@@ -6,13 +6,6 @@
 		"Children": null,
 		"DeployParams": "target=x86-64\u0026port="
 	},
-	"gadget2": {
-		"Id": "gadget2",
-		"Model": "gadget",
-		"Name": "Gadget",
-		"Children": null,
-		"DeployParams": "target=x86-64\u0026port="
-	},
 	"gps1": {
 		"Id": "gps1",
 		"Model": "gps",
@@ -45,7 +38,6 @@
 		"Model": "hub",
 		"Name": "SubHub",
 		"Children": [
-			"gadget2"
 		],
 		"DeployParams": "target=rpi\u0026port="
 	},

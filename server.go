@@ -45,7 +45,7 @@ func Run() {
 		return
 	}
 
-	devicesMake()
+	devicesBuild()
 
 	root, err = devicesFindRoot()
 	if err != nil {

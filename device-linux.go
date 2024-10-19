@@ -9,8 +9,10 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"slices"
 	"sync"
+	"time"
 )
 
 //go:embed blog css docs images js template
@@ -53,7 +55,7 @@ func (d *device) buildOS() error {
 	return nil
 }
 
-func devicesMake() {
+func devicesBuild() {
 	for id, device := range devices {
 		if id != device.Id {
 			fmt.Println("Id", id, "mismatch, skipping device Id", device.Id)
@@ -353,4 +355,31 @@ func devicesSendState(l linker) {
 		l.Send(pkt)
 	}
 	devicesMu.RUnlock()
+}
+
+func (d *device) demoReboot(pkt *Packet) {
+	// Simulate a reboot
+	close(d.stopChan)
+
+	// go offline for 3 seconds
+	d.Unset(flagOnline)
+	pkt.SetPath("/state").Marshal(d.State).RouteUp()
+	time.Sleep(3 * time.Second)
+
+	model, _ := Models[d.Model]
+	d.build(model.Maker)
+
+	d.setup()
+
+	go d.runDemo()
+
+	pkt.SetPath("/state").Marshal(d.State).RouteUp()
+}
+
+func (d *device) reboot(pkt *Packet) {
+	if d.IsSet(flagDemo) {
+		d.demoReboot(pkt)
+	} else {
+		os.Exit(0)
+	}
 }

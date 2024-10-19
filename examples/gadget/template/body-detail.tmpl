@@ -9,6 +9,8 @@
 		</div>
 	</div>
 	<div class="flex flex-row justify-end">
+		<button hx-post="/device/{{id}}/reboot"
+			hx-swap="none">Reboot</button>
 		<button hx-post="/device/{{id}}/takeone"
 			hx-swap="none">Take One</button>
 	</div>

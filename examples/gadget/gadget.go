@@ -2,6 +2,7 @@ package gadget
 
 import (
 	"embed"
+	"fmt"
 	"time"
 
 	"github.com/merliot/hub"
@@ -11,8 +12,9 @@ import (
 var fs embed.FS
 
 type Gadget struct {
-	Bottles int
-	Restock int
+	Bottles   int // Bottles on the wall
+	Restock   int // Restock countdown timer
+	fullCount int // Full bottle count
 }
 
 func NewModel() hub.Devicer {
@@ -38,12 +40,18 @@ func (g *Gadget) GetHandlers() hub.Handlers {
 	}
 }
 
-func (g *Gadget) Setup() error { return nil }
+func (g *Gadget) Setup() error {
+	if g.Bottles < 1 {
+		return fmt.Errorf("Gadget Bottles < 1")
+	}
+	g.fullCount = g.Bottles
+	return nil
+}
 
 func (g *Gadget) Poll(pkt *hub.Packet) {
-	if g.Bottles < 99 {
+	if g.Bottles < g.fullCount {
 		if g.Restock == 1 {
-			g.Bottles = 99
+			g.Bottles = g.fullCount
 			g.Restock = 70
 		} else {
 			g.Restock--
@@ -63,5 +71,5 @@ func (g *Gadget) takeone(pkt *hub.Packet) {
 	}
 }
 
-func (g *Gadget) DemoSetup() error            { return g.Setup() }
+func (g *Gadget) DemoSetup() error         { return g.Setup() }
 func (g *Gadget) DemoPoll(pkt *hub.Packet) { g.Poll(pkt) }

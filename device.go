@@ -58,6 +58,9 @@ func (d *device) build(maker Maker) error {
 		d.Set(flagDemo | flagOnline | flagMetal)
 	}
 
+	// Special handlers
+	d.Handlers["/reboot"] = &Handler[NoMsg]{d.reboot}
+
 	// Bracket poll period: [1..forever) seconds
 	if d.PollPeriod == 0 {
 		d.PollPeriod = time.Duration(math.MaxInt64)
@@ -66,17 +69,15 @@ func (d *device) build(maker Maker) error {
 	}
 
 	// Configure the device using DeployParams
-	_, err := d.formConfig(string(d.DeployParams))
+	_, err := d._formConfig(string(d.DeployParams))
 	if err != nil {
 		fmt.Println("Error configuring device using DeployParams:", err, d)
 	}
 
-	d.stopChan = make(chan struct{})
-
 	return d.buildOS()
 }
 
-func (d *device) formConfig(rawQuery string) (changed bool, err error) {
+func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 
 	// rawQuery is the proposed new DeployParams
 	proposedParams, err := url.QueryUnescape(rawQuery)
@@ -87,9 +88,6 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 	if err != nil {
 		return false, err
 	}
-
-	d.Lock()
-	defer d.Unlock()
 
 	//	fmt.Println("Proposed DeployParams:", proposedParams)
 
@@ -106,4 +104,10 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 	// Save changes.  Store DeployParams unescaped.
 	d.DeployParams = template.HTML(proposedParams)
 	return true, nil
+}
+
+func (d *device) formConfig(rawQuery string) (changed bool, err error) {
+	d.Lock()
+	defer d.Unlock()
+	return d._formConfig(rawQuery)
 }

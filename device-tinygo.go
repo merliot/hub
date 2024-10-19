@@ -23,3 +23,6 @@ func devicesSendState(l linker) {
 func deviceRouteDown(id string, pkt *Packet) {
 	root.handle(pkt)
 }
+
+func (d *device) reboot(pkt *Packet) {
+}
