@@ -35,7 +35,7 @@ func (g *Gadget) GetConfig() hub.Config {
 func (g *Gadget) GetHandlers() hub.Handlers {
 	return hub.Handlers{
 		"/takeone": &hub.Handler[hub.NoMsg]{g.takeone},
-		"/update":  &hub.Handler[Gadget]{g.state},
+		"/update":  &hub.Handler[Gadget]{g.update},
 	}
 }
 
@@ -64,6 +64,10 @@ func (g *Gadget) takeone(pkt *hub.Packet) {
 		g.Bottles--
 		pkt.SetPath("/update").Marshal(g).RouteUp()
 	}
+}
+
+func (g *Gadget) update(pkt *hub.Packet) {
+	pkt.Unmarshal(g).RouteUp()
 }
 
 func (g *Gadget) DemoSetup() error         { return g.Setup() }
