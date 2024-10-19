@@ -19,11 +19,7 @@
 
 # Go workspace file
 go.work
-
-devices.json
-version.go
-*.uf2
-.env
-goget
-cmd/models.go
-cmd/gen-uf2s/models.go
+go.work.sum
+devices.json*
+uf2s/*.uf2
+cmd/gen-uf2s/*/
