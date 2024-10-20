@@ -65,27 +65,44 @@ Clicking on the header will toggle back to the overview view.</p>
 <p>The settings view uses template/download.tmpl.  It is optional.  If
 included, it can be used to customize the device settings before download.  On
 Download button click, the form elements values are passed as http request
-parameters to the /download API.</p>
+parameters to the /download-image API.</p>
 
-<p>Form imputs should be validated when the download button is clicked, and
-again when the device loads on the server.</p>
+<p>Form inputs should be validated when the download button is clicked, and
+again on the server.  See
+<a href="https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation">Client-side form validation</a>.</p>
+
+<p>Consider the Gadget settings:</p>
 
 <img src="/docs/images/settings.png">
+
+<p>It has a single custom field "Full Bottle Count".  HTML 5 form validation
+will check that the value is between 1 and 99.  The download.tmpl file is:</p>
 
 <pre class="code-snippet">
 &lt;div&gt;
 	&lt;div&gt;
 		&lt;label&gt;
 			Full Bottle Count:
-			&lt;input type=&quot;text&quot;
+			&lt;input type=&quot;number&quot;
 				name=&quot;Bottles&quot;
-				value=&quot;{{state.Bottles}}&quot;&gt;
+				value=&quot;{{state.Bottles}}&quot;
+				min=&quot;1&quot;
+				max=&quot;99&quot;
+				required&gt;
 		&lt;/label&gt;
 	&lt;/div&gt;
 &lt;/div&gt;
 </pre>
 
+<p>This will add &amp;Bottles=xx request parameter to /download-image API, e.g.:</p>
+
+<pre class="code-snippet">
+/download-image?target=x86-64&amp;port=&amp;Bottles=99
+</pre>
+
 <h3>VIEW: INFO</h3>
+
+<p>The info view show device info.  A template/info.tmpl file (optional) adds extra info.</p>
 
 <img src="/docs/images/info.png">
 
