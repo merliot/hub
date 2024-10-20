@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -84,11 +85,23 @@ func (d *device) genFile(template string, name string, data any) error {
 	return d.renderTmpl(file, template, data)
 }
 
+func isLocalhost(referer string) bool {
+	url, _ := url.Parse(referer)
+	hostname := url.Hostname()
+	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+}
+
 func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir string,
 	envs []string, target string) error {
 
-	var url = r.Header["Referer"][0]
-	var dialurls = strings.Replace(url, "http", "ws", 1) + "ws"
+	var referer = r.Referer()
+	if isLocalhost(referer) {
+		return fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
+			"using the hostname or IP address of the host; something that " +
+			"is addressable on the network so the device can dial into the hub.")
+	}
+
+	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 	var service = d.Model + "-" + d.Id
 
 	// Generate runner.go from device-runner-linux.tmpl
@@ -165,8 +178,14 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 
 func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
 
-	var url = r.Header["Referer"][0]
-	var dialurls = strings.Replace(url, "http", "ws", 1) + "ws"
+	var referer = r.Referer()
+	if isLocalhost(referer) {
+		return fmt.Errorf("Cannot use localhost for hub.  Use the hub " +
+			"hostname or IP address; something that is addressable so the " +
+			"device can dial into the hub.")
+	}
+
+	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 	var ssid = r.URL.Query().Get("ssid")
 	var wifiAuths = wifiAuths()
 	var passphrase = wifiAuths[ssid]
@@ -248,10 +267,36 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func (d *device) downloadMsgClear(sessionId string) {
+	var buf bytes.Buffer
+	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
+		fmt.Println("\nError rendering template:", err, "\n")
+		return
+	}
+	sessionSend(sessionId, string(buf.Bytes()))
+}
+
+func (d *device) downloadMsgError(sessionId string, downloadErr error) {
+	var buf bytes.Buffer
+	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
+		"err": "Download error: " + downloadErr.Error(),
+	}); err != nil {
+		fmt.Println("\nError rendering template:", err, "\n")
+		return
+	}
+	sessionSend(sessionId, string(buf.Bytes()))
+}
+
 func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
+	var sessionId = r.PathValue("sessionId")
+
+	d.downloadMsgClear(sessionId)
+
 	if d.IsSet(flagLocked) {
-		http.Error(w, "Refusing to download, device is locked", http.StatusLocked)
+		err := fmt.Errorf("Refusing to download, device is locked")
+		d.downloadMsgError(sessionId, err)
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
@@ -262,14 +307,16 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		d.downloadMsgError(sessionId, err)
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
 	// Built it!
 
 	if err := d.buildImage(w, r); err != nil {
-		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		d.downloadMsgError(sessionId, err)
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 

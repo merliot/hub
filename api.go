@@ -51,6 +51,7 @@ func (d *device) api() {
 
 	d.HandleFunc("GET /download-target", d.showDownloadTarget)
 	d.HandleFunc("GET /download-image", d.downloadImage)
+	d.HandleFunc("GET /download-image/{sessionId}", d.downloadImage)
 
 	d.HandleFunc("GET /instructions", d.showInstructions)
 	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
@@ -525,17 +526,5 @@ func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-func templateShow(w http.ResponseWriter, temp string, data any) {
-	tmpl, err := template.New("main").Parse(temp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

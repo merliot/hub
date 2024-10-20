@@ -4,7 +4,7 @@
 		<h3>Settings</h3>
 	</div>
 
-	<form action="/device/{{id}}/download-image" method="GET">
+	<form action="/device/{{id}}/download-image/{{.sessionId}}" method="GET">
 		<div class="flex flex-col">
 			<div class="flex flex-row mb-5">
 				<label>
@@ -44,6 +44,7 @@
 				<div class="flex flex-row justify-end">
 					<button type="submit">Download</button>
 				</div>
+{{ template "device-download-msg-empty.tmpl" . }}
 			</div>
 
 		</div>

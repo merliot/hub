@@ -7,7 +7,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
@@ -182,10 +181,16 @@ func sessionRoute(sessionId string, pkt *Packet) {
 	}
 }
 
-func sessionsShow(w http.ResponseWriter, r *http.Request) {
+func sessionSend(sessionId, htmlSnippet string) {
+
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
-	templateShow(w, sessionsTemplate, sessions)
+
+	if s, ok := sessions[sessionId]; ok {
+		if s.conn != nil {
+			websocket.Message.Send(s.conn, htmlSnippet)
+		}
+	}
 }
 
 func gcSessions() {

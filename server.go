@@ -94,9 +94,6 @@ func Run() {
 	// Install /wsx websocket listener (wsx is for htmx ws)
 	http.HandleFunc("/wsx", basicAuthHandlerFunc(wsxHandle))
 
-	// Install /server/* patterns for debug info
-	http.HandleFunc("/server/sessions", basicAuthHandlerFunc(sessionsShow))
-
 	addr := ":" + port
 	server := &http.Server{Addr: addr}
 
