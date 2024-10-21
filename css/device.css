@@ -725,6 +725,10 @@ textarea {
   margin-right: 2rem;
 }
 
+.mr-10 {
+  margin-right: 2.5rem;
+}
+
 .text-center {
   text-align: center;
 }
@@ -1192,4 +1196,8 @@ button {
   color: #33cc99;
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+a, h3 {
+  color: #ffaa00;
 }

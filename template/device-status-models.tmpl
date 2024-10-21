@@ -1,14 +1,17 @@
-<div hx-target="this"
+<div class="flex flex-row mx-4 my-8"
+	hx-target="this"
 	hx-swap="outerHTML">
 {{ template "device-status-tabs.tmpl" . }}
-	<div class="bg-gray text-black m-1 p-4 rounded-3xl max-w-lg">
-		<h3>Models</h3>
-		{{ range $name, $model := .models }}
-			<h4>{{$name}}</h4>
-			<ul>
-				<li>Package: {{$model.Package}}</li>
-				<li>Source: {{$model.Source}}</li>
-			</ul>
-		{{ end }}
+	<div class="flex flex-col">
+		<h2>MODELS</h2>
+		<div class="bg-gray text-black m-1 p-4 rounded-3xl min-w-lg">
+			{{ range $name, $model := .models }}
+				<h4>{{$name}}</h4>
+				<ul>
+					<li>Package: {{$model.Package}}</li>
+					<li>Source: {{$model.Source}}</li>
+				</ul>
+			{{ end }}
+		</div>
 	</div>
 </div>
