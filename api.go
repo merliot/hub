@@ -185,7 +185,7 @@ func (d *device) _render(w io.Writer, sessionId, path, view string, level int) e
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	fmt.Println("_render", d.Id, sessionId, path, level, template)
+	//fmt.Println("_render", d.Id, sessionId, path, level, template)
 
 	if err := d._renderSession(w, template, sessionId, level); err != nil {
 		return err
@@ -209,7 +209,7 @@ func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		return err
 	}
 
-	fmt.Println("_renderPkt", d.Id, view, level, pkt)
+	//fmt.Println("_renderPkt", d.Id, view, level, pkt)
 	return d._render(w, sessionId, pkt.Path, view, level)
 }
 
@@ -307,7 +307,7 @@ func (d *device) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
 	page := r.PathValue("page")
 	template := "device-status-" + page + ".tmpl"
 	if err := d.renderTmpl(w, template, map[string]any{
-		"sessions": sessions,
+		"sessions": sessionsStatus(),
 		"devices":  devices,
 	}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -321,7 +321,7 @@ func (d *device) showStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	d.showSection(w, r, "device.tmpl", "status", "sessions", statusPages, map[string]any{
-		"sessions": sessions,
+		"sessions": sessionsStatus(),
 		"devices":  devices,
 	})
 }
@@ -342,8 +342,6 @@ func (d *device) showModelDocs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {
-	println("show", r.Host, r.URL.String())
-
 	view := r.URL.Query().Get("view")
 
 	sessionId := r.Header.Get("session-id")

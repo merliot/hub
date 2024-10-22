@@ -44,7 +44,7 @@ func wsxServe(ws *websocket.Conn) {
 	for {
 		var message string
 		if err := websocket.Message.Receive(ws, &message); err != nil {
-			fmt.Println("Can't receive:", err)
+			//fmt.Println("Can't receive:", err)
 			break
 		}
 		fmt.Println("Received message from client:", message)
