@@ -17,6 +17,8 @@ var docPages = []page{
 	page{"new-model", "NEW MODEL"},
 	page{"services", "SERVICES"},
 	page{"api", "API"},
+	page{"device-ui", "DEVICE TO UI"},
+	page{"ui-device", "UI TO DEVICE"},
 	page{"device-views", "DEVICE VIEWS"},
 	page{"template-funcs", "TEMPLATE FUNCS"},
 	page{"template-map", "TEMPLATE MAP"},

@@ -1,0 +1,63 @@
+<h2>UI TO DEVICE</h2>
+
+<h3>STEP 1: Issue Request from UI</h3>
+
+<p>Create an HTML element to issue an hx-post request.  The hx-post URL encodes
+the request path and parameters.  The path is the action.  The hx-post request
+URL format is:</p>
+
+<pre class="code-snippet">
+hx-post="/device/{{id}}/[path]?[params]"
+</pre>
+
+<p>In this example, a button will send the http POST request to the device
+identified by {{id}} the path /click with the parameters Relay=2.  This tells
+the device to "click" relay #2 when the user clicks the button.  (The
+hx-swap="none" is used to throw away any http response).</p>
+
+<pre class="code-snippet">
+&lt;button hx-post="/device/{{id}}/click?Relay=2"
+        hx-swap="none"&gt;
+        Click Me!
+&lt;/button&gt;
+</pre>
+
+<h3>STEP 2: Handle Request in Device</h3>
+
+<p>The device registers a handler for the request path using the GetHandlers()
+interface.  The handler specifies a callback function and a type.  The callback
+function is called on receipt of an hx-post request matching /path.  Continuing
+the example, /click will be handled by the r.click() callback function.</p>
+
+<pre class="code-snippet">
+func (r *Relays) GetHandlers() hub.Handlers {
+	return hub.Handlers{
+		"/click":   &amp;hub.Handler[MsgClick]{r.click},
+		// ...
+	}
+}
+</pre>
+
+<p>The handler is typed.  In the example, the handler type for /click is
+MsgClick.  MsgClick is a message structure which will recieve the [params] from
+the hx-post request.  The type members are Go exported (first letter capital)
+and match the [params] names exactly.</p>
+
+<pre class="code-snippet">
+type MsgClick struct {
+	Relay int
+}
+</pre>
+
+<p>The handler callback receives a packet containing the JSON-encoded typed
+message.  Call pkt.Unmarshal() to get the message from the packet.  In our
+example, the /click?Relay=2 request is received in the callback with
+click.Relay=2.</p>
+
+<pre class="code-snippet">
+func (r *Relays) click(pkt *hub.Packet) {
+	var click MsgClick
+	pkt.Unmarshal(&amp;click)
+	// ... click.Relay == 2
+}
+</pre>
