@@ -2,7 +2,10 @@
 
 package hub
 
-import "net/http"
+import (
+	"net/http"
+	"path"
+)
 
 type siteTab struct {
 	Name string
@@ -12,7 +15,7 @@ type siteTab struct {
 type siteTabs []siteTab
 
 var (
-	tabHome    = siteTab{"HOME", "/home"}
+	tabHome    = siteTab{"HOME", "/"}
 	tabDemo    = siteTab{"DEMO", "/demo"}
 	tabStatus  = siteTab{"STATUS", "/status"}
 	tabDocs    = siteTab{"DOCS", "/doc"}
@@ -26,12 +29,9 @@ var (
 )
 
 func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"section": "home",
-		"tabs":    tabsHome,
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "site.tmpl", "home", "", nil, map[string]any{
+		"tabs": tabsHome,
+	})
 }
 
 func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
@@ -40,69 +40,46 @@ func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 		d.noSessions(w, r)
 		return
 	}
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"sessionId": sessionId,
-		"section":   "demo",
+	d.showSection(w, r, "site.tmpl", "demo", "", nil, map[string]any{
 		"tabs":      tabsDemo,
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+		"sessionId": sessionId,
+	})
 }
 
 func (d *device) showSiteStatus(w http.ResponseWriter, r *http.Request) {
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"section": "status",
-		"tabs":    tabsStatus,
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	refresh := path.Base(r.URL.Path)
+	if refresh == "refresh" {
+		d.showStatusRefresh(w, r)
+		return
 	}
+	d.showSection(w, r, "site.tmpl", "status", "sessions", statusPages, map[string]any{
+		"tabs":     tabsStatus,
+		"sessions": sessions,
+		"devices":  devices,
+	})
 }
 
 func (d *device) showSiteDocs(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
-	if page == "" {
-		page = "quick-start"
-	}
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"section": "docs",
-		"tabs":    tabsDocs,
-		"pages":   docPages,
-		"page":    page,
-		"models":  Models,
-		"model":   "",
-		"hxget":   "/docs/" + page + ".html",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "site.tmpl", "docs", "quick-start", docPages, map[string]any{
+		"tabs":   tabsDocs,
+		"models": Models,
+		"model":  "",
+	})
 }
 
 func (d *device) showSiteModelDocs(w http.ResponseWriter, r *http.Request) {
 	model := r.PathValue("model")
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"section": "docs",
-		"tabs":    tabsDocs,
-		"pages":   docPages,
-		"page":    "",
-		"models":  Models,
-		"model":   model,
-		"hxget":   "/model/" + model + "/docs/doc.html",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "site.tmpl", "docs", "", docPages, map[string]any{
+		"tabs":   tabsDocs,
+		"models": Models,
+		"model":  model,
+	})
 }
 
 func (d *device) showSiteBlog(w http.ResponseWriter, r *http.Request) {
 	blogs := d.blogs()
-	blog := r.PathValue("blog")
-	if blog == "" {
-		blog = blogs[0].Dir
-	}
-	if err := d.renderTmpl(w, "site.tmpl", map[string]any{
-		"section": "blog",
-		"tabs":    tabsBlog,
-		"blogs":   blogs,
-		"blog":    blog,
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "site.tmpl", "blog", blogs[0].Dir, nil, map[string]any{
+		"tabs":  tabsBlog,
+		"blogs": blogs,
+	})
 }

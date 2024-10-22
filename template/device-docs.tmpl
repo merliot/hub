@@ -1,3 +1,9 @@
+<style>
+	h3 {
+	  color: #ffaa00;
+	}
+</style>
+
 <div class="flex flex-row mx-4 my-8"
 	hx-boost="true">
 	<div class="flex flex-col mr-10 items-end text-sm">
@@ -37,7 +43,11 @@
 {{ end }}
 	</div>
 	<div class="max-w-lg">
-		<div hx-get="{{.hxget}}"
+{{ if eq .model "" }}
+		<div hx-get="/docs/{{.page}}.html"
+{{ else }}
+		<div hx-get="/model/{{.model}}/docs/doc.html"
+{{ end }}
 			hx-trigger="load"
 			hx-swap="outerHTML"
 			hx-target="this">

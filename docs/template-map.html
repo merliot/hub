@@ -4,34 +4,121 @@
 
 <p>The templates in <span class="text-red-500 font-mono text-lg">red</span> are required (mostly) for each device model.</p>
 
-<h3>DEVICE HOME</h3>
+<h3>SESSION</h3>
 
 <pre class="text-sm">
-device.tmpl
-	device-header.tmpl
-	device-home.tmpl
-		session.tmpl
-			session-header.tmpl
-			session-view.tmpl
-				renderView (detail, overview, ...)
-					device-detail.tmpl
-						<span class="text-red-500">body-detail.tmpl</span>
-					device-overview.tmpl
-						<span class="text-red-500">body-overview.tmpl</span>
-					device-info.tmpl
-						device-info-body.tmpl
-							<span class="text-red-500">info.tmpl (optional)</span>
-					device-settings.tmpl
-						device-download-body.tmpl
-							device-download-target.tmpl
-								<span class="text-red-500">download.tmpl (optional)</span>
-							instructions-expanded.tmpl
-								instructions-{target}.tmpl
-									<span class="text-red-500">instructions-{target}-parts.tmpl</span>	
-									<span class="text-red-500">instructions-{target}-step1.tmpl</span>
-					device-state.tmpl
-						device-state-body.tmpl
-							device-state-state.tmpl
-			session-footer.tmpl
-	device-footer.tmpl
+session.tmpl
+	session-header.tmpl
+	session-view.tmpl
+		renderView device-xxx.tmpl (xxx = detail, overview, ...)
+			device-detail.tmpl
+				<span class="text-red-500">body-detail.tmpl</span>
+			device-overview.tmpl
+				<span class="text-red-500">body-overview.tmpl</span>
+			device-info.tmpl
+				device-info-body.tmpl
+					<span class="text-red-500">info.tmpl (optional)</span>
+			device-settings.tmpl
+				device-download-body.tmpl
+					device-download-target.tmpl
+						<span class="text-red-500">download.tmpl (optional)</span>
+					instructions-expanded.tmpl
+						instructions-{target}.tmpl
+							<span class="text-red-500">instructions-{target}-parts.tmpl</span>	
+							<span class="text-red-500">instructions-{target}-step1.tmpl</span>
+			device-state.tmpl
+				device-state-body.tmpl
+					device-state-state.tmpl
+	session-footer.tmpl
+</pre>
+
+<h3>DEVICE</h3>
+
+<h4>/, /home</h4>
+
+<pre class="text-sm">
+	device.tmpl
+		device-header.tmpl
+		device-home.tmpl
+			session.tmpl (see above)
+		device-footer.tmpl
+</pre>
+
+<h4>/status</h4>
+
+<pre class="text-sm">
+	device.tmpl
+		device-header.tmpl
+			device-status.tmpl   /show-status-tab?tab=xxx (xxx = sessions, models, ...)
+				device-status-sessions.tmpl
+				device-status-models.tmpl
+				device-status-devices.tmpl
+		device-footer.tmpl
+</pre>
+
+<h4>/doc</h4>
+
+<pre class="text-sm">
+	device.tmpl
+		device-header.tmpl
+		device-docs.tmpl
+			/doc/{page} or /doc/model/{model}
+		device-footer.tmpl
+</pre>
+
+<h3>SITE</h3>
+
+<pre class="cmd-line">SITE=true</pre>
+
+<h4>/, /home</h4>
+
+<pre class="text-sm">
+	site.tmpl
+		site-header.tmpl
+		site-home.tmpl
+		site-footer.tmpl
+</pre>
+
+<h4>/demo</h4>
+
+<pre class="text-sm">
+	site.tmpl
+		site-header.tmpl
+		site-demo.tmpl
+			session.tmpl
+		site-footer.tmpl
+</pre>
+
+<h4>/status</h4>
+
+<pre class="text-sm">
+	site.tmpl
+		site-header.tmpl
+		site-status.tmpl
+			device-status.tmpl   /show-status-tab?tab=xxx (xxx = sessions, models, ...)
+				device-status-sessions.tmpl
+				device-status-models.tmpl
+				device-status-devices.tmpl
+		site-footer.tmpl
+</pre>
+
+<h4>/doc</h4>
+
+<pre class="text-sm">
+	site.tmpl
+		site-header.tmpl
+		site-docs.tmpl
+			device-docs.tmpl
+				/doc/{page} or /doc/model/{model}
+		site-footer.tmpl
+</pre>
+
+<h4>/blog</h4>
+
+<pre class="text-sm">
+	site.tmpl
+		site-header.tmpl
+		site-blog.tmpl
+			/blog/{blog}/blog.html
+		site-footer.tmpl
 </pre>

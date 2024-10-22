@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"net/http"
 	"net/url"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -22,15 +23,19 @@ func (d *device) api() {
 		d.HandleFunc("GET /home", d.showSiteHome)
 		d.HandleFunc("GET /demo", d.showSiteDemo)
 		d.HandleFunc("GET /status", d.showSiteStatus)
+		d.HandleFunc("GET /status/{page}", d.showSiteStatus)
+		d.HandleFunc("GET /status/{page}/refresh", d.showSiteStatus)
 		d.HandleFunc("GET /doc", d.showSiteDocs)
 		d.HandleFunc("GET /doc/{page}", d.showSiteDocs)
 		d.HandleFunc("GET /doc/model/{model}", d.showSiteModelDocs)
 		d.HandleFunc("GET /blog", d.showSiteBlog)
-		d.HandleFunc("GET /blog/{blog}", d.showSiteBlog)
+		d.HandleFunc("GET /blog/{page}", d.showSiteBlog)
 	} else {
 		d.HandleFunc("GET /{$}", d.showHome)
 		d.HandleFunc("GET /home", d.showHome)
 		d.HandleFunc("GET /status", d.showStatus)
+		d.HandleFunc("GET /status/{page}", d.showStatus)
+		d.HandleFunc("GET /status/{page}/refresh", d.showStatus)
 		d.HandleFunc("GET /doc", d.showDocs)
 		d.HandleFunc("GET /doc/{page}", d.showDocs)
 		d.HandleFunc("GET /doc/model/{model}", d.showModelDocs)
@@ -42,8 +47,6 @@ func (d *device) api() {
 
 	d.HandleFunc("GET /state", d.showState)
 	d.HandleFunc("GET /code", d.showCode)
-
-	d.HandleFunc("GET /show-status-tab", d.showStatusTab)
 
 	d.HandleFunc("GET /save", d.saveDevices)
 	//d.HandleFunc("GET /devices", d.showDevices)
@@ -269,59 +272,73 @@ func (d *device) noSessions(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "no more sessions", http.StatusTooManyRequests)
 }
 
-func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
-	println("showHome", r.Host, r.URL.String())
+func (d *device) showPage(w http.ResponseWriter, r *http.Request,
+	template, defaultPage string, pages []page, data map[string]any) {
 
+	data["pages"] = pages
+	data["page"] = r.PathValue("page")
+	if data["page"] == "" {
+		data["page"] = defaultPage
+	}
+
+	if err := d.renderTmpl(w, template, data); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (d *device) showSection(w http.ResponseWriter, r *http.Request,
+	template, section, defaultPage string, pages []page, data map[string]any) {
+	data["section"] = section
+	d.showPage(w, r, template, defaultPage, pages, data)
+}
+
+func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 	sessionId, ok := newSession()
 	if !ok {
 		d.noSessions(w, r)
 		return
 	}
-	if err := d.renderTmpl(w, "device.tmpl", map[string]any{
-		"section":   "home",
+	d.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
 		"sessionId": sessionId,
+	})
+}
+
+func (d *device) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
+	page := r.PathValue("page")
+	template := "device-status-" + page + ".tmpl"
+	if err := d.renderTmpl(w, template, map[string]any{
+		"sessions": sessions,
+		"devices":  devices,
 	}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
 func (d *device) showStatus(w http.ResponseWriter, r *http.Request) {
-	if err := d.renderTmpl(w, "device.tmpl", map[string]any{
-		"section": "status",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	refresh := path.Base(r.URL.Path)
+	if refresh == "refresh" {
+		d.showStatusRefresh(w, r)
+		return
 	}
+	d.showSection(w, r, "device.tmpl", "status", "sessions", statusPages, map[string]any{
+		"sessions": sessions,
+		"devices":  devices,
+	})
 }
 
 func (d *device) showDocs(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
-	if page == "" {
-		page = "quick-start"
-	}
-	if err := d.renderTmpl(w, "device.tmpl", map[string]any{
-		"section": "docs",
-		"pages":   docPages,
-		"page":    page,
-		"models":  Models,
-		"model":   "",
-		"hxget":   "/docs/" + page + ".html",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "device.tmpl", "docs", "quick-start", docPages, map[string]any{
+		"models": Models,
+		"model":  "",
+	})
 }
 
 func (d *device) showModelDocs(w http.ResponseWriter, r *http.Request) {
 	model := r.PathValue("model")
-	if err := d.renderTmpl(w, "device.tmpl", map[string]any{
-		"section": "docs",
-		"pages":   docPages,
-		"page":    "",
-		"models":  Models,
-		"model":   model,
-		"hxget":   "/model/" + model + "/docs/doc.html",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	d.showSection(w, r, "device.tmpl", "docs", "", docPages, map[string]any{
+		"models": Models,
+		"model":  model,
+	})
 }
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {
@@ -349,34 +366,6 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {
 	if err := d.renderTmpl(w, "device-state-state.tmpl", nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-var (
-	statusTabs      = []string{"sessions", "models", "devices"}
-	statusTabLabels = []string{"ACTIVE SESSIONS", "MODELS", "DEVICES"}
-)
-
-func (d *device) showStatusTab(w http.ResponseWriter, r *http.Request) {
-	tab := r.URL.Query().Get("tab")
-
-	var data = map[string]any{
-		"activeTab": tab,
-		"tabs":      statusTabs,
-		"tabLabels": statusTabLabels,
-	}
-
-	switch tab {
-	case "sessions":
-		data["sessions"] = sessions
-	case "models":
-		data["models"] = Models
-	case "devices":
-		data["devices"] = devices
-	}
-
-	if err := d.renderTmpl(w, "device-status-"+tab+".tmpl", data); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

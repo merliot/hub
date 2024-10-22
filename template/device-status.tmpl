@@ -1,5 +1,27 @@
-<div class="flex flex-row mx-4 my-8"
-	hx-get="/device/{{id}}/show-status-tab?tab=sessions"
-	hx-trigger="load"
-	hx-swap="outerHTML">
+<div class="flex flex-row mx-4 my-8">
+	<div class="flex flex-col mr-10 items-end text-sm">
+{{ range $i, $page := .pages }}
+	{{ if eq $page.Name "" }}
+		<div class="panel flex flex-row mt-8 w-36 h-10 text">
+			<span class="font-bold">{{$page.Label}}</span>
+		</div>
+	{{ else if eq $page.Name $.page }}
+		<div class="panel flex flex-row items-end justify-end w-36 h-10 bg-gold text-black
+			border-solid border-2 rounded-2xl">
+			<span class="mr-2.5 font-bold">{{$page.Label}}</span>
+		</div>
+	{{ else }}
+		<a class="no-underline" href="/status/{{$page.Name}}">
+			<div class="panel flex flex-row items-end justify-end w-32 h-6 bg-text text-black
+				border-solid border-2 rounded-xl">
+				<span class="mr-2.5">{{$page.Label}}</span>
+			</div>
+		</a>
+	{{ end }}
+{{ end }}
+	</div>
+	<div class="max-w-lg">
+{{ $tmpl := joinStrings "device-status-" .page ".tmpl" }}
+{{ renderTemplate $tmpl . }}
+	</div>
 </div>

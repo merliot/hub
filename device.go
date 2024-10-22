@@ -54,6 +54,10 @@ func (d *device) build(maker Maker) error {
 	d.Handlers = d.GetHandlers()
 	d.flags = d.Config.Flags
 
+	if runningSite {
+		d.Set(flagLocked)
+	}
+
 	if runningDemo {
 		d.Set(flagDemo | flagOnline | flagMetal)
 	}

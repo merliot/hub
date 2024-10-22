@@ -1,5 +1,8 @@
 /*
  Shamelessly borrowed from tailwindcss, under MIT license.
+ * 
+ * TODO: clean this up...work backwards and figure out which classes are
+ * actually used and remove the rest.
  */
 
 /*
@@ -474,7 +477,7 @@ textarea {
 }
 
 .border-gold {
-  border-color: #ffaa00
+  border-color: #ffaa00;
 }
 
 .border-mars {
@@ -1198,6 +1201,6 @@ button {
   padding-bottom: 1rem;
 }
 
-a, h3 {
+a {
   color: #ffaa00;
 }

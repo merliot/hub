@@ -33,6 +33,9 @@ func (d *device) stateJSON() (string, error) {
 // IMPORTANT!
 //
 // Don't add any functions that expose sensitive data such as passwd
+//
+// TODO how to split these into ones that all can use and ones that only core
+// TODO template/ templates can use?
 func (d *device) funcs() template.FuncMap {
 	return template.FuncMap{
 		"id":             func() string { return d.Id },
