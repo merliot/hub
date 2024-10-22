@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime/debug"
 	"time"
 )
 
@@ -29,6 +30,10 @@ var root *device
 func Run() {
 
 	var err error
+
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		fmt.Printf("Build Info: \n%s\n", buildInfo)
+	}
 
 	runningSite = (Getenv("SITE", "") == "true")
 	runningDemo = (Getenv("DEMO", "") == "true") || runningSite

@@ -33,7 +33,7 @@ the example, /click will be handled by the r.click() callback function.</p>
 func (r *Relays) GetHandlers() hub.Handlers {
 	return hub.Handlers{
 		"/click":   &amp;hub.Handler[MsgClick]{r.click},
-		// ...
+		// ... other handlers
 	}
 }
 </pre>
