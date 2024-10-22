@@ -55,7 +55,7 @@ func (d *device) showSiteStatus(w http.ResponseWriter, r *http.Request) {
 	d.showSection(w, r, "site.tmpl", "status", "sessions", statusPages, map[string]any{
 		"tabs":     tabsStatus,
 		"sessions": sessionsStatus(),
-		"devices":  devices,
+		"devices":  devicesStatus(),
 	})
 }
 

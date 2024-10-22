@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"sort"
 	"sync"
 	"time"
 )
@@ -382,4 +383,35 @@ func (d *device) reboot(pkt *Packet) {
 	} else {
 		os.Exit(0)
 	}
+}
+
+func devicesSortedId() []string {
+	keys := make([]string, 0, len(devices))
+	for id := range devices {
+		keys = append(keys, id)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+type deviceStatus struct {
+	Color  string
+	Status string
+}
+
+func devicesStatus() []deviceStatus {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
+	var statuses = make([]deviceStatus, len(devices))
+	for _, id := range devicesSortedId() {
+		d := devices[id]
+		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
+			d.Id, d.Model, d.Name, len(d.Children))
+		statuses = append(statuses, deviceStatus{
+			Color:  "gold",
+			Status: status,
+		})
+	}
+	return statuses
 }

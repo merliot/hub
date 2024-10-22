@@ -186,7 +186,6 @@ func (d *device) _render(w io.Writer, sessionId, path, view string, level int) e
 	template := path + "-" + view + ".tmpl"
 
 	//fmt.Println("_render", d.Id, sessionId, path, level, template)
-
 	if err := d._renderSession(w, template, sessionId, level); err != nil {
 		return err
 	}
@@ -308,7 +307,7 @@ func (d *device) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
 	template := "device-status-" + page + ".tmpl"
 	if err := d.renderTmpl(w, template, map[string]any{
 		"sessions": sessionsStatus(),
-		"devices":  devices,
+		"devices":  devicesStatus(),
 	}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -322,7 +321,7 @@ func (d *device) showStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	d.showSection(w, r, "device.tmpl", "status", "sessions", statusPages, map[string]any{
 		"sessions": sessionsStatus(),
-		"devices":  devices,
+		"devices":  devicesStatus(),
 	})
 }
 

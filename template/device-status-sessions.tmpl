@@ -5,6 +5,6 @@
 	hx-swap="outerHTML">
 	<h2>ACTIVE SESSIONS</h2>
 {{ range $i, $status := .sessions }}
-	<span class="whitespace-pre font-mono text-xl text-{{$status.Color}}">{{$status.Status}}</span>
+	<span class="whitespace-pre font-mono text-base text-{{$status.Color}}">{{$status.Status}}</span>
 {{ end }}
 </div>

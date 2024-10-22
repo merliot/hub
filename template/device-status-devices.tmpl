@@ -1,12 +1,6 @@
 <div class="flex flex-col">
 	<h2>DEVICES</h2>
-	<div class="bg-gray text-black m-1 p-4 rounded-3xl min-w-lg">
-		{{ range $id, $device := .devices }}
-			<h4>{{$id}}</h4>
-			<ul>
-				<li>Name: {{$device.Name}}</li>
-				<li>Model: {{$device.Model}}</li>
-			</ul>
-		{{ end }}
-	</div>
+{{ range $i, $device := .devices }}
+	<span class="whitespace-pre font-mono test-base text-{{$device.Color}}">{{$device.Status}}</span>
+{{ end }}
 </div>

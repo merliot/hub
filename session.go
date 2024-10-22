@@ -227,7 +227,6 @@ func (s session) sortedViewIds() []string {
 	for id := range s.lastViews {
 		keys = append(keys, id)
 	}
-
 	sort.Strings(keys)
 	return keys
 }
