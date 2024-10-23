@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,8 +14,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/merliot/hub/uf2"
 )
 
 var (
@@ -190,44 +187,26 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 	var wifiAuths = wifiAuths()
 	var passphrase = wifiAuths[ssid]
 
-	var p = uf2Params{
-		MagicStart:   uf2Magic,
-		Ssid:         ssid,
-		Passphrase:   passphrase,
-		Id:           d.Id,
-		Model:        d.Model,
-		Name:         d.Name,
-		DeployParams: d.DeployParams,
-		User:         Getenv("USER", ""),
-		Passwd:       Getenv("PASSWD", ""),
-		DialURLs:     dialurls,
-		MagicEnd:     uf2Magic,
+	var p = uf2ParamsBlock{
+		MagicStart: uf2Magic,
+		uf2Params: uf2Params{
+			Ssid:         ssid,
+			Passphrase:   passphrase,
+			Id:           d.Id,
+			Model:        d.Model,
+			Name:         d.Name,
+			DeployParams: d.DeployParams,
+			User:         Getenv("USER", ""),
+			Passwd:       Getenv("PASSWD", ""),
+			DialURLs:     dialurls,
+		},
+		MagicEnd: uf2Magic,
 	}
 
 	base := filepath.Join("uf2s", d.Model+"-"+target+".uf2")
 	installer := filepath.Join(dir, d.Model+"-"+d.Id+"-installer.uf2")
 
-	// Re-write the base uf2 file and save as the installer uf2 file.
-	// The paramsMem area is replaced by json-encoded params.
-
-	uf2, err := uf2.Read(base)
-	if err != nil {
-		return err
-	}
-
-	oldBytes := bytes.Repeat([]byte{byte('x')}, 2048)
-	newBytes := make([]byte, 2048)
-
-	newParams, err := json.Marshal(p)
-	if err != nil {
-		return err
-	}
-	copy(newBytes, newParams)
-
-	uf2.ReplaceBytes(oldBytes, newBytes)
-
-	err = uf2.Write(installer)
-	if err != nil {
+	if err := uf2Create(base, installer, p); err != nil {
 		return err
 	}
 

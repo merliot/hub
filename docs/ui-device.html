@@ -1,5 +1,11 @@
 <h2>UI TO DEVICE</h2>
 
+<p>Sending a message from the UI to the device is a two-step process.  Step 1
+is a UI element sends an htmx hx-post request.  Step 2 is translating the
+request into a message and delivering the message to the device.</p>
+
+<img src="/docs/images/ui-device.png">
+
 <h3>STEP 1: Issue Request from UI</h3>
 
 <p>Create an HTML element to issue an hx-post request.  The hx-post URL encodes

@@ -241,11 +241,11 @@ func sessionsStatus() []sessionStatus {
 	defer sessionsMu.RUnlock()
 
 	color := func(s *session) string {
-		elasped := time.Since(s.lastUpdate)
+		elapsed := time.Since(s.lastUpdate)
 		switch {
-		case elasped < 30*time.Second:
+		case elapsed < 30*time.Second:
 			return "gold"
-		case elasped < 60*time.Second:
+		case elapsed < 60*time.Second:
 			return "orange"
 		}
 		return "red"

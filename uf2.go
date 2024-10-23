@@ -8,7 +8,6 @@ import (
 const uf2Magic = "Call the Doctor!  Miss you Dan."
 
 type uf2Params struct {
-	MagicStart   string
 	Ssid         string
 	Passphrase   string
 	Id           string
@@ -18,5 +17,10 @@ type uf2Params struct {
 	User         string
 	Passwd       string
 	DialURLs     string
-	MagicEnd     string
+}
+
+type uf2ParamsBlock struct {
+	MagicStart string
+	uf2Params
+	MagicEnd string
 }
