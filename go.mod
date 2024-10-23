@@ -10,10 +10,12 @@ require (
 	gobot.io/x/gobot/v2 v2.3.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	golang.org/x/net v0.27.0
+	tinygo.org/x/drivers v0.27.0
 )
 
 require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
