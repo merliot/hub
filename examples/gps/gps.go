@@ -31,6 +31,7 @@ func (g *Gps) GetConfig() hub.Config {
 		FS:         &fs,
 		Targets:    []string{"x86-64", "rpi", "nano-rp2040", "wioterminal"},
 		BgColor:    "green",
+		FgColor:    "black",
 		PollPeriod: time.Second * time.Duration(g.PollPeriod),
 	}
 }

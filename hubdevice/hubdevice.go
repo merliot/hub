@@ -24,6 +24,7 @@ func (h *Hub) GetConfig() hub.Config {
 		FS:      &fs,
 		Targets: []string{"x86-64", "rpi"},
 		BgColor: "sunflower",
+		FgColor: "black",
 	}
 }
 

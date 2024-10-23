@@ -516,6 +516,10 @@ textarea {
   table-layout: auto;
 }
 
+.p-1 {
+  padding: 0.25rem;
+}
+
 .p-2 {
   padding: 0.5rem;
 }
@@ -1180,7 +1184,6 @@ button {
   left:0px;
   right:0px;
   z-index:1000;
-
   /* Flexbox centers the .modal-content vertically and horizontally */
   display:flex;
   flex-direction:column;
@@ -1190,17 +1193,16 @@ button {
 .modal > .modal-content {
   /* Position visible dialog near the top of the window */
   margin-top:10vh;
-
   /* Sizing for visible dialog */
   width:80%;
   max-width:600px;
-
   /* Display properties for visible dialog*/
-  border:solid 1px #999;
-  border-radius:8px;
+  border: solid 3px;
+  border-color: #f5f6fa;
+  border-radius: 16px;
   box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
-  background-color:white;
-  padding:20px;
+  background-color: black;
+  padding: 20px;
 }
 
 .cmd-line {

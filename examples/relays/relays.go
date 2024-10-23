@@ -29,6 +29,7 @@ func (r *Relays) GetConfig() hub.Config {
 		FS:      &fs,
 		Targets: []string{"rpi", "nano-rp2040", "wioterminal"},
 		BgColor: "orange",
+		FgColor: "black",
 	}
 }
 

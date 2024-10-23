@@ -42,6 +42,8 @@ func (d *device) api() {
 	}
 
 	d.HandleFunc("GET /", d.serveStaticFile)
+
+	d.HandleFunc("PUT /nop", d.nop)
 	d.HandleFunc("PUT /keep-alive", d.keepAlive)
 	d.HandleFunc("GET /show-view", d.showView)
 
@@ -88,10 +90,13 @@ func (d *device) modelInstall() {
 }
 
 func modelsInstall() {
-	for name, model := range Models {
-		var proto = &device{Model: name}
+	for name := range Models {
+		model := Models[name]
+		proto := &device{Model: name}
 		proto.build(model.Maker)
 		proto.modelInstall()
+		model.Config = proto.GetConfig()
+		Models[name] = model
 	}
 }
 
@@ -258,6 +263,8 @@ func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 	}
 	http.FileServer(http.FS(d.layeredFS)).ServeHTTP(w, r)
 }
+
+func (d *device) nop(w http.ResponseWriter, r *http.Request) {}
 
 func (d *device) keepAlive(w http.ResponseWriter, r *http.Request) {
 	sessionId := r.Header.Get("session-id")

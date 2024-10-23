@@ -20,9 +20,9 @@
 	<div class="modal-content">
 		<h3>Create a New Device</h3>
 		<form hx-get="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
-			<div class="flex flex-col mb-5">
+			<div class="flex flex-col mb-5 w-40">
 				<label class="font-bold mb-2">Name the Device</label>
-				<input type="text" name="Name" placeholder="Name">
+				<input type="text" name="Name" placeholder="Name" required>
 			</div>
 			<div class="flex flex-col mb-5">
 				<label class="font-bold mb-2">Device ID</label>
@@ -35,12 +35,15 @@
 			<div class="flex flex-col mb-5">
 				<span class="font-bold mb-2">Select a Model</span>
 				<div class="flex flex-col overflow-y-auto">
-{{- range $model, $ignore := .models }}
+{{- range $name, $model := .models }}
 					<label class="flex flex-row cursor-pointer radio-container">
-						<input type="radio" name="Model" value="{{$model}}">
-						<div class="flex flex-row w-full items-center rounded radio-content">
-							<img class="w-10 h-10 m-1" src="/model/{{$model}}/images/icon.png">
-							<span class="px-1 w-1/5">{{$model}}</span>
+						<input type="radio" name="Model" value="{{$name}}" required>
+						<div class="radio-content p-1 border-solid border-2 rounded-full">
+							<div class="panel flex flex-row p-2 min-w-80
+								bg-{{$model.BgColor}} text-{{$model.FgColor}} border-{{$model.FgColor}}
+								justify-between border-solid border-2 rounded-3xl">
+								<span class="text-lg font-bold ml-2.5 w-24">{{$name}}</span>
+							</div>
 						</div>
 					</label>
 {{- end }}
@@ -49,7 +52,7 @@
 			<div class="flex flex-row justify-between items-center">
 				<span class=text-red-500 id="error"></span>
 				<div class="flex flex-row justify-end">
-					<button class="btn" hx-put="/keep-alive" hx-target=".modal" hx-swap="delete">Close</button>
+					<button class="btn" hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
 					<button class="btn" type="submit">Create</button>
 				</div>
 			</div>

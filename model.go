@@ -6,6 +6,7 @@ type Model struct {
 	Package string
 	Source  string
 	Maker
+	Config
 }
 
 type ModelMap map[string]Model // key: model name

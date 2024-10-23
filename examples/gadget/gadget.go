@@ -29,6 +29,7 @@ func (g *Gadget) GetConfig() hub.Config {
 		Targets:    []string{"x86-64", "nano-rp2040"},
 		PollPeriod: time.Second,
 		BgColor:    "african-violet",
+		FgColor:    "black",
 	}
 }
 
