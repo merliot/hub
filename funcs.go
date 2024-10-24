@@ -5,6 +5,7 @@ package hub
 import (
 	"encoding/json"
 	"html/template"
+	"slices"
 	"strings"
 
 	"github.com/merliot/hub/target"
@@ -49,6 +50,7 @@ func (d *device) funcs() template.FuncMap {
 		"add":            func(a, b int) int { return a + b },
 		"mult":           func(a, b int) int { return a * b },
 		"joinStrings":    func(parts ...string) string { return strings.Join(parts, "") },
+		"contains":       func(s []string, v string) bool { return slices.Contains(s, v) },
 		"targets":        func() target.Targets { return target.MakeTargets(d.Targets) },
 		"ssids":          func() []string { return maps.Keys(wifiAuths()) },
 		"target":         func() string { return d.deployValues().Get("target") },

@@ -15,6 +15,10 @@
 		input[type="radio"]:checked + .radio-content {
 		  border: 2px solid #007BFF;
 		}
+
+		.rounded-4xl {
+		  border-radius: 1.75rem;
+		}
 	</style>
 
 	<div class="modal-content">
@@ -22,7 +26,7 @@
 		<form hx-get="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
 			<div class="flex flex-col mb-5 w-40">
 				<label class="font-bold mb-2">Name the Device</label>
-				<input type="text" name="Name" placeholder="Name" required>
+				<input type="text" name="Name" placeholder="Name" maxlength="20" required>
 			</div>
 			<div class="flex flex-col mb-5">
 				<label class="font-bold mb-2">Device ID</label>
@@ -38,12 +42,8 @@
 {{- range $name, $model := .models }}
 					<label class="flex flex-row cursor-pointer radio-container">
 						<input type="radio" name="Model" value="{{$name}}" required>
-						<div class="radio-content p-1 border-solid border-2 rounded-full">
-							<div class="panel flex flex-row p-2 min-w-80
-								bg-{{$model.BgColor}} text-{{$model.FgColor}} border-{{$model.FgColor}}
-								justify-between border-solid border-2 rounded-3xl">
-								<span class="text-lg font-bold ml-2.5 w-24">{{$name}}</span>
-							</div>
+						<div class="radio-content p-0.5 border-solid border-2 rounded-4xl">
+{{ template "model-collasped.tmpl" . }}
 						</div>
 					</label>
 {{- end }}

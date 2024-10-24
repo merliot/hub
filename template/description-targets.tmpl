@@ -1,0 +1,35 @@
+<h4>Supported Targets</h4>
+
+<div class="flex flex-row">
+
+	<div class="flex flex-col">
+{{ if contains .Targets "rpi" }}
+		<img src="/images/checkbox-on.svg">
+{{ else }}
+		<img src="/images/checkbox-off.svg">
+{{ end }}
+{{ if contains .Targets "x86-64" }}
+		<img src="/images/checkbox-on.svg">
+{{ else }}
+		<img src="/images/checkbox-off.svg">
+{{ end }}
+{{ if contains .Targets "nano-rp2040" }}
+		<img src="/images/checkbox-on.svg">
+{{ else }}
+		<img src="/images/checkbox-off.svg">
+{{ end }}
+{{ if contains .Targets "wioterminal" }}
+		<img src="/images/checkbox-on.svg">
+{{ else }}
+		<img src="/images/checkbox-off.svg">
+{{ end }}
+	</div>
+
+	<div class="flex flex-col">
+		<span class="h-6">Raspberry Pi (not Pico)</span>
+		<span class="h-6">Linux x86-64</span>
+		<span class="h-6">Arduino Nano Connect rp2040</span>
+		<span class="h-6">Seeed Wio Terminal</span>
+	</div>
+
+</div>

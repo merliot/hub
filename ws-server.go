@@ -59,7 +59,7 @@ func wsServer(conn *websocket.Conn) {
 
 	// Add as active download link
 
-	fmt.Println("Adding Downlink")
+	//fmt.Println("Adding Downlink")
 	id := ann.Id
 	downlinksAdd(id, link)
 

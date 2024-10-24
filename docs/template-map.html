@@ -49,7 +49,7 @@ session.tmpl
 <pre class="text-sm">
 	device.tmpl
 		device-header.tmpl
-			device-status.tmpl   /show-status-tab?tab=xxx (xxx = sessions, models, ...)
+			device-status.tmpl   (renderTemplate device-status-xxx.tmpl)
 				device-status-sessions.tmpl
 				device-status-models.tmpl
 				device-status-devices.tmpl
@@ -62,7 +62,7 @@ session.tmpl
 	device.tmpl
 		device-header.tmpl
 		device-docs.tmpl
-			/doc/{page} or /doc/model/{model}
+			/docs/{page}.html or /model/{model}/docs/doc.html
 		device-footer.tmpl
 </pre>
 
@@ -95,7 +95,7 @@ session.tmpl
 	site.tmpl
 		site-header.tmpl
 		site-status.tmpl
-			device-status.tmpl   /show-status-tab?tab=xxx (xxx = sessions, models, ...)
+			device-status.tmpl   (renderTemplate device-status-xxx.tmpl)
 				device-status-sessions.tmpl
 				device-status-models.tmpl
 				device-status-devices.tmpl
@@ -109,7 +109,7 @@ session.tmpl
 		site-header.tmpl
 		site-docs.tmpl
 			device-docs.tmpl
-				/doc/{page} or /doc/model/{model}
+				/docs/{page}.html or /model/{model}/docs/doc.html
 		site-footer.tmpl
 </pre>
 
@@ -119,6 +119,6 @@ session.tmpl
 	site.tmpl
 		site-header.tmpl
 		site-blog.tmpl
-			/blog/{blog}/blog.html
+			/blog/{page}/blog.html
 		site-footer.tmpl
 </pre>

@@ -61,6 +61,8 @@ func (d *device) api() {
 	d.HandleFunc("GET /instructions", d.showInstructions)
 	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
 
+	d.HandleFunc("GET /model", d.showModel)
+
 	d.HandleFunc("GET /create", d.createChild)
 	d.HandleFunc("DELETE /destroy", d.destroyChild)
 	d.HandleFunc("GET /new-modal", d.showNewModal)
@@ -86,7 +88,7 @@ func (d *device) modelInstall() {
 	prefix := "/model/" + d.Model
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	fmt.Println("modelInstall", prefix)
+	fmt.Println("Model installed on", prefix)
 }
 
 func modelsInstall() {
@@ -105,7 +107,7 @@ func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	fmt.Println("deviceInstall", prefix)
+	fmt.Println("Device installed on ", prefix)
 }
 
 func devicesInstall() {
@@ -452,6 +454,14 @@ func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) 
 	target := r.URL.Query().Get("target")
 	template := "instructions-" + target + ".tmpl"
 	if err := d.renderTmpl(w, template, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
+	view := r.URL.Query().Get("view")
+	template := "model-" + view + ".tmpl"
+	if err := d.renderTmpl(w, template, d.Config); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

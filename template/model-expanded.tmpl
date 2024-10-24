@@ -1,0 +1,14 @@
+<div class="panel flex flex-col p-2
+	bg-{{.BgColor}} text-{{.FgColor}} border-{{.FgColor}}
+	border-solid border-2 rounded-3xl"
+	hx-target="this"
+	hx-swap="outerHTML">
+	<div class="flex flex-row justify-between min-w-80">
+		<span class="text-lg font-bold ml-2.5 w-24">{{.Model}}</span>
+		<img class="icon cursor-pointer" src="/images/collapse.svg"
+			hx-get="/model/{{.Model}}/model?view=collasped">
+	</div>
+	<div class="m-4">
+{{ template "description.tmpl" . }}
+	</div>
+</div>

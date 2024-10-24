@@ -1,0 +1,9 @@
+<div class="panel flex flex-row p-2 min-w-80
+	bg-{{.BgColor}} text-{{.FgColor}} border-{{.FgColor}}
+	justify-between border-solid border-2 rounded-3xl"
+	hx-target="this"
+	hx-swap="outerHTML">
+	<span class="text-lg font-bold ml-2.5 w-24">{{.Model}}</span>
+	<img class="icon cursor-pointer" src="/images/expand.svg"
+		hx-get="/model/{{.Model}}/model?view=expanded">
+</div>

@@ -287,12 +287,20 @@ textarea {
   width: 10rem;
 }
 
+.w-80 {
+  width: 20rem;
+}
+
 .w-1\/5 {
   width: 20%;
 }
 
 .w-full {
   width: 100%;
+}
+
+.w-fit {
+  width: fit-content;
 }
 
 .cursor-default {
@@ -516,6 +524,10 @@ textarea {
   table-layout: auto;
 }
 
+.p-0\.5	{
+  padding: 0.125rem;
+}
+
 .p-1 {
   padding: 0.25rem;
 }
@@ -702,6 +714,10 @@ textarea {
 
 .mb-16 {
   margin-bottom: 4rem;
+}
+
+.mb-24 {
+  margin-bottom: 6rem;
 }
 
 .mt-4 {
@@ -937,7 +953,7 @@ textarea {
 }
 
 .bg-space-white {
-  color: #f5f6fa
+  background-color: #f5f6fa;
 }
 
 .bg-violet-creme {
@@ -1108,8 +1124,24 @@ textarea {
   position: fixed;
 }
 
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
 .bottom-0 {
   bottom: 0px;
+}
+
+.top-0 {
+  top: 0px;
+}
+
+.top-36 {
+  top: 9rem;
 }
 
 .left-0	{
@@ -1188,6 +1220,9 @@ button {
   display:flex;
   flex-direction:column;
   align-items:center;
+  /* Blurred background effect */
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal > .modal-content {

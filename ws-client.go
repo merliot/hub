@@ -90,7 +90,7 @@ func wsClient(conn *websocket.Conn) {
 		return
 	}
 
-	fmt.Println("Adding Uplink")
+	//fmt.Println("Adding Uplink")
 	uplinksAdd(link)
 
 	// Send /state packets to all devices
