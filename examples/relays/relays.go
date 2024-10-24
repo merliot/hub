@@ -2,11 +2,11 @@ package relays
 
 import (
 	"github.com/merliot/hub"
-	"github.com/merliot/hub/io/relay"
+	io "github.com/merliot/hub/io/relay"
 )
 
-type Relays struct {
-	Relays [4]relay.Relay
+type relays struct {
+	Relays [4]io.Relay
 }
 
 type MsgClick struct {
@@ -19,10 +19,10 @@ type MsgClicked struct {
 }
 
 func NewModel() hub.Devicer {
-	return &Relays{}
+	return &relays{}
 }
 
-func (r *Relays) GetConfig() hub.Config {
+func (r *relays) GetConfig() hub.Config {
 	return hub.Config{
 		Model:   "relays",
 		State:   r,
@@ -33,14 +33,14 @@ func (r *Relays) GetConfig() hub.Config {
 	}
 }
 
-func (r *Relays) GetHandlers() hub.Handlers {
+func (r *relays) GetHandlers() hub.Handlers {
 	return hub.Handlers{
 		"/click":   &hub.Handler[MsgClick]{r.click},
 		"/clicked": &hub.Handler[MsgClicked]{r.clicked},
 	}
 }
 
-func (r *Relays) Setup() error {
+func (r *relays) Setup() error {
 	for i := range r.Relays {
 		relay := &r.Relays[i]
 		if err := relay.Setup(); err != nil {
@@ -50,10 +50,10 @@ func (r *Relays) Setup() error {
 	return nil
 }
 
-func (r *Relays) Poll(pkt *hub.Packet) {
+func (r *relays) Poll(pkt *hub.Packet) {
 }
 
-func (r *Relays) click(pkt *hub.Packet) {
+func (r *relays) click(pkt *hub.Packet) {
 	var click MsgClick
 	pkt.Unmarshal(&click)
 	relay := &r.Relays[click.Relay]
@@ -62,7 +62,7 @@ func (r *Relays) click(pkt *hub.Packet) {
 	pkt.SetPath("/clicked").Marshal(&clicked).RouteUp()
 }
 
-func (r *Relays) clicked(pkt *hub.Packet) {
+func (r *relays) clicked(pkt *hub.Packet) {
 	var clicked MsgClicked
 	pkt.Unmarshal(&clicked)
 	relay := &r.Relays[clicked.Relay]
@@ -70,5 +70,5 @@ func (r *Relays) clicked(pkt *hub.Packet) {
 	pkt.RouteUp()
 }
 
-func (r *Relays) DemoSetup() error         { return r.Setup() }
-func (r *Relays) DemoPoll(pkt *hub.Packet) { r.Poll(pkt) }
+func (r *relays) DemoSetup() error         { return r.Setup() }
+func (r *relays) DemoPoll(pkt *hub.Packet) { r.Poll(pkt) }

@@ -18,5 +18,10 @@
 		"Package": "github.com/merliot/hub/examples/gps",
 		"Source": "https://github.com/merliot/hub/tree/main/examples/gps",
 		"Maker": "gps.NewModel"
+	},
+	"locker": {
+		"Package": "github.com/merliot/hub/examples/locker",
+		"Source": "https://github.com/merliot/hub/tree/main/examples/locker",
+		"Maker": "locker.NewModel"
 	}
 }

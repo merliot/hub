@@ -5,17 +5,17 @@ import (
 	"time"
 
 	"github.com/merliot/hub"
-	"github.com/merliot/hub/io/gps"
+	io "github.com/merliot/hub/io/gps"
 )
 
-func (g *Gps) DemoSetup() error {
+func (g *gps) DemoSetup() error {
 	rand.Seed(time.Now().UnixNano())
 	return nil
 }
-func (g *Gps) DemoPoll(pkt *hub.Packet) {
+func (g *gps) DemoPoll(pkt *hub.Packet) {
 	x := rand.Intn(len(places))
 	lat, long := places[x].lat, places[x].long
-	dist := gps.Distance(lat, long, g.Lat, g.Long)
+	dist := io.Distance(lat, long, g.Lat, g.Long)
 	if dist >= g.Radius {
 		var up = updateMsg{lat, long}
 		g.Lat, g.Long = lat, long

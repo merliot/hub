@@ -9,14 +9,14 @@ import (
 //go:embed images *.go template
 var fs embed.FS
 
-type Hub struct {
+type hubDevice struct {
 }
 
 func NewModel() hub.Devicer {
-	return &Hub{}
+	return &hubDevice{}
 }
 
-func (h *Hub) GetConfig() hub.Config {
+func (h *hubDevice) GetConfig() hub.Config {
 	return hub.Config{
 		Model:   "hub",
 		Flags:   hub.FlagProgenitive | hub.FlagWantsHttpPort,
@@ -28,11 +28,11 @@ func (h *Hub) GetConfig() hub.Config {
 	}
 }
 
-func (h *Hub) GetHandlers() hub.Handlers {
+func (h *hubDevice) GetHandlers() hub.Handlers {
 	return hub.Handlers{}
 }
 
-func (h *Hub) Setup() error             { return nil }
-func (h *Hub) Poll(pkt *hub.Packet)     {}
-func (h *Hub) DemoSetup() error         { return nil }
-func (h *Hub) DemoPoll(pkt *hub.Packet) {}
+func (h *hubDevice) Setup() error             { return nil }
+func (h *hubDevice) Poll(pkt *hub.Packet)     {}
+func (h *hubDevice) DemoSetup() error         { return nil }
+func (h *hubDevice) DemoPoll(pkt *hub.Packet) {}

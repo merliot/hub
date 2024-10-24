@@ -88,7 +88,7 @@ func (d *device) modelInstall() {
 	prefix := "/model/" + d.Model
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	fmt.Println("Model installed on", prefix)
+	fmt.Println("Model installed on ", prefix)
 }
 
 func modelsInstall() {
@@ -107,7 +107,7 @@ func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	fmt.Println("Device installed on ", prefix)
+	fmt.Println("Device installed on", prefix)
 }
 
 func devicesInstall() {

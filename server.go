@@ -105,7 +105,7 @@ func Run() {
 
 	// Run http server in go routine to be shutdown later
 	go func() {
-		fmt.Println("ListenAndServe on", addr)
+		fmt.Println("ListenAndServe on", addr, "\n ")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP server ListenAndServe: %v", err)
 		}

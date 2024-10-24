@@ -11,17 +11,17 @@ import (
 //go:embed *.go template
 var fs embed.FS
 
-type Gadget struct {
+type gadget struct {
 	Bottles   int // Bottles on the wall
 	Restock   int // Restock countdown timer
 	fullCount int // Full bottle count
 }
 
 func NewModel() hub.Devicer {
-	return &Gadget{Bottles: 99, Restock: 70}
+	return &gadget{Bottles: 99, Restock: 70}
 }
 
-func (g *Gadget) GetConfig() hub.Config {
+func (g *gadget) GetConfig() hub.Config {
 	return hub.Config{
 		Model:      "gadget",
 		State:      g,
@@ -33,22 +33,22 @@ func (g *Gadget) GetConfig() hub.Config {
 	}
 }
 
-func (g *Gadget) GetHandlers() hub.Handlers {
+func (g *gadget) GetHandlers() hub.Handlers {
 	return hub.Handlers{
 		"/takeone": &hub.Handler[hub.NoMsg]{g.takeone},
-		"/update":  &hub.Handler[Gadget]{g.update},
+		"/update":  &hub.Handler[gadget]{g.update},
 	}
 }
 
-func (g *Gadget) Setup() error {
+func (g *gadget) Setup() error {
 	if g.Bottles < 1 {
-		return fmt.Errorf("Gadget Bottles < 1")
+		return fmt.Errorf("gadget Bottles < 1")
 	}
 	g.fullCount = g.Bottles
 	return nil
 }
 
-func (g *Gadget) Poll(pkt *hub.Packet) {
+func (g *gadget) Poll(pkt *hub.Packet) {
 	if g.Bottles < g.fullCount {
 		if g.Restock == 1 {
 			g.Bottles = g.fullCount
@@ -60,16 +60,16 @@ func (g *Gadget) Poll(pkt *hub.Packet) {
 	}
 }
 
-func (g *Gadget) takeone(pkt *hub.Packet) {
+func (g *gadget) takeone(pkt *hub.Packet) {
 	if g.Bottles > 0 {
 		g.Bottles--
 		pkt.SetPath("/update").Marshal(g).RouteUp()
 	}
 }
 
-func (g *Gadget) update(pkt *hub.Packet) {
+func (g *gadget) update(pkt *hub.Packet) {
 	pkt.Unmarshal(g).RouteUp()
 }
 
-func (g *Gadget) DemoSetup() error         { return g.Setup() }
-func (g *Gadget) DemoPoll(pkt *hub.Packet) { g.Poll(pkt) }
+func (g *gadget) DemoSetup() error         { return g.Setup() }
+func (g *gadget) DemoPoll(pkt *hub.Packet) { g.Poll(pkt) }

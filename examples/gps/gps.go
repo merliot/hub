@@ -4,15 +4,15 @@ import (
 	"time"
 
 	"github.com/merliot/hub"
-	"github.com/merliot/hub/io/gps"
+	io "github.com/merliot/hub/io/gps"
 )
 
-type Gps struct {
+type gps struct {
 	Lat        float64
 	Long       float64
 	Radius     float64 // units: meters
 	PollPeriod uint    // units: seconds
-	gps.Gps
+	io.Gps
 }
 
 type updateMsg struct {
@@ -21,10 +21,10 @@ type updateMsg struct {
 }
 
 func NewModel() hub.Devicer {
-	return &Gps{Radius: 50, PollPeriod: 30}
+	return &gps{Radius: 50, PollPeriod: 30}
 }
 
-func (g *Gps) GetConfig() hub.Config {
+func (g *gps) GetConfig() hub.Config {
 	return hub.Config{
 		Model:      "gps",
 		State:      g,
@@ -36,15 +36,15 @@ func (g *Gps) GetConfig() hub.Config {
 	}
 }
 
-func (g *Gps) GetHandlers() hub.Handlers {
+func (g *gps) GetHandlers() hub.Handlers {
 	return hub.Handlers{
 		"/update": &hub.Handler[updateMsg]{g.update},
 	}
 }
 
-func (g *Gps) Poll(pkt *hub.Packet) {
+func (g *gps) Poll(pkt *hub.Packet) {
 	lat, long, _ := g.Location()
-	dist := gps.Distance(lat, long, g.Lat, g.Long)
+	dist := io.Distance(lat, long, g.Lat, g.Long)
 	if dist >= g.Radius {
 		var up = updateMsg{lat, long}
 		g.Lat, g.Long = lat, long
@@ -52,6 +52,6 @@ func (g *Gps) Poll(pkt *hub.Packet) {
 	}
 }
 
-func (g *Gps) update(pkt *hub.Packet) {
+func (g *gps) update(pkt *hub.Packet) {
 	pkt.Unmarshal(g).RouteUp()
 }
