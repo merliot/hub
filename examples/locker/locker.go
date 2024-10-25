@@ -6,7 +6,7 @@ import (
 	"github.com/merliot/hub"
 )
 
-//go:embed *.go template
+//go:embed *.go images template
 var fs embed.FS
 
 type locker struct {

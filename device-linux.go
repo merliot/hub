@@ -326,15 +326,17 @@ func devicesLoad() error {
 }
 
 func devicesSave() error {
-	var devicesJSON = Getenv("DEVICES", "")
+	println("deviceSave")
+	//var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "devices.json")
 
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
-	if devicesJSON == "" {
-		return fileWriteJSON(devicesFile, &devices)
-	}
+	//if devicesJSON == "" {
+	println("writing file", devicesFile)
+	return fileWriteJSON(devicesFile, &devices)
+	//}
 
 	// TODO save to clipboard?
 
