@@ -12,7 +12,7 @@ var docPages = []page{
 	page{"quick-start", "QUICK START"},
 	page{"install", "INSTALL GUIDE"},
 	page{"env-vars", "ENV VARS"},
-	page{"faqs", "FAQS"},
+	page{"faq", "FAQ"},
 	page{"", "DEVELOPER"},
 	page{"new-model", "NEW MODEL"},
 	page{"services", "SERVICES"},
