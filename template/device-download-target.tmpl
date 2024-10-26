@@ -29,7 +29,11 @@
 					<div class="flex flex-row mb-5">
 						<label>
 							Run Local Web Server on Port:
+{{- if wantsHttpPort }}
+							<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}" required>
+{{ else }}
 							<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}">
+{{- end }}
 						</label>
 					</div>
 				</div>
