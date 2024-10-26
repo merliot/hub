@@ -1,0 +1,18 @@
+{{ range $name, $model := .models }}
+	{{ if eq $name $.model }}
+		<div class="flex flex-row items-end justify-end m-0.5 w-36 h-10
+			bg-gold border-gold text-black
+			border-solid border-2 rounded-2xl">
+			<span class="mr-2.5 font-bold">{{$name}}</span>
+		</div>
+	{{ else }}
+		<a class="no-underline" href="/doc/model/{{$name}}">
+			<div class="flex flex-row items-end justify-end m-0.5 w-32 h-5
+				bg-text border-text text-black
+				border-solid border-2 rounded-xl">
+				<span class="mr-2.5">{{$name}}</span>
+			</div>
+		</a>
+	{{ end }}
+{{ end }}
+

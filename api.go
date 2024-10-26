@@ -21,6 +21,7 @@ func (d *device) api() {
 	if runningSite {
 		d.HandleFunc("GET /{$}", d.showSiteHome)
 		d.HandleFunc("GET /home", d.showSiteHome)
+		d.HandleFunc("GET /home/{page}", d.showSiteHome)
 		d.HandleFunc("GET /demo", d.showSiteDemo)
 		d.HandleFunc("GET /status", d.showSiteStatus)
 		d.HandleFunc("GET /status/{page}", d.showSiteStatus)

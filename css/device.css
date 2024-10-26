@@ -339,6 +339,10 @@ textarea {
   justify-content: space-between;
 }
 
+.justify-around {
+  justify-content: space-around;
+}
+
 .justify-evenly {
   justify-content: space-evenly;
 }
@@ -450,6 +454,10 @@ textarea {
 
 .border-african-violet {
   border-color: #cc88ff
+}
+
+.border-text {
+  border-color: #cc77ff;
 }
 
 .border-red {
@@ -590,6 +598,14 @@ textarea {
 
 .m-0 {
   margin: 0px;
+}
+
+.m-px {
+  margin: 1px;
+}
+
+.m-0\.5 {
+  margin: 2px;
 }
 
 .m-1 {
@@ -1244,9 +1260,10 @@ button {
 }
 
 .code-snippet {
+  background: #33cc9910;
   color: #33cc99;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  border: 1px dotted #33cc9940;
+  padding: 1rem;
 }
 
 a {

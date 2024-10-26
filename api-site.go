@@ -20,16 +20,15 @@ var (
 	tabStatus  = siteTab{"STATUS", "/status"}
 	tabDocs    = siteTab{"DOCS", "/doc"}
 	tabBlog    = siteTab{"BLOG", "/blog"}
-	tabSource  = siteTab{"SOURCE", "https://github.com/merliot/hub"}
-	tabsHome   = siteTabs{tabHome, tabDemo, tabStatus, tabDocs, tabBlog, tabSource}
-	tabsDemo   = siteTabs{tabDemo, tabHome, tabStatus, tabDocs, tabBlog, tabSource}
-	tabsStatus = siteTabs{tabStatus, tabHome, tabDemo, tabDocs, tabBlog, tabSource}
-	tabsDocs   = siteTabs{tabDocs, tabHome, tabDemo, tabStatus, tabBlog, tabSource}
-	tabsBlog   = siteTabs{tabBlog, tabHome, tabDemo, tabStatus, tabDocs, tabSource}
+	tabsHome   = siteTabs{tabHome, tabDemo, tabStatus, tabDocs, tabBlog}
+	tabsDemo   = siteTabs{tabDemo, tabHome, tabStatus, tabDocs, tabBlog}
+	tabsStatus = siteTabs{tabStatus, tabHome, tabDemo, tabDocs, tabBlog}
+	tabsDocs   = siteTabs{tabDocs, tabHome, tabDemo, tabStatus, tabBlog}
+	tabsBlog   = siteTabs{tabBlog, tabHome, tabDemo, tabStatus, tabDocs}
 )
 
 func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
-	d.showSection(w, r, "site.tmpl", "home", "", nil, map[string]any{
+	d.showSection(w, r, "site.tmpl", "home", "intro", homePages, map[string]any{
 		"tabs": tabsHome,
 	})
 }
@@ -69,7 +68,7 @@ func (d *device) showSiteDocs(w http.ResponseWriter, r *http.Request) {
 
 func (d *device) showSiteModelDocs(w http.ResponseWriter, r *http.Request) {
 	model := r.PathValue("model")
-	d.showSection(w, r, "site.tmpl", "docs", "", docPages, map[string]any{
+	d.showSection(w, r, "site.tmpl", "docs", "none", docPages, map[string]any{
 		"tabs":   tabsDocs,
 		"models": Models,
 		"model":  model,
