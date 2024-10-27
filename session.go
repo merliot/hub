@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"sort"
 	"strconv"
 	"strings"
@@ -145,7 +146,7 @@ func sessionLastView(sessionId, deviceId string) (view string, level int, err er
 func (s session) _renderPkt(pkt *Packet) {
 	var buf bytes.Buffer
 	if err := deviceRenderPkt(&buf, s.sessionId, pkt); err != nil {
-		fmt.Println("\nError rendering pkt:", err, "\n")
+		slog.Error("Rendering pkt", "err", err)
 		return
 	}
 	websocket.Message.Send(s.conn, string(buf.Bytes()))
@@ -158,7 +159,7 @@ func sessionsRoute(pkt *Packet) {
 
 	for _, s := range sessions {
 		if s.conn != nil {
-			//fmt.Println("=== sessionsRoute", pkt)
+			//slog.Info("SessionsRoute", "pkt", pkt)
 			s._renderPkt(pkt)
 		}
 	}
@@ -171,7 +172,7 @@ func sessionRoute(sessionId string, pkt *Packet) {
 
 	if s, ok := sessions[sessionId]; ok {
 		if s.conn != nil {
-			//fmt.Println("=== sessionRoute", pkt)
+			//slog.Info("SessionRoute", "pkt", pkt)
 			s._renderPkt(pkt)
 		}
 	}

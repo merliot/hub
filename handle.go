@@ -1,8 +1,6 @@
 package hub
 
-import (
-	"fmt"
-)
+import "log/slog"
 
 type handler interface {
 	gen() any
@@ -36,7 +34,7 @@ func (d *device) handle(pkt *Packet) {
 	defer d.Unlock()
 	if d.IsSet(flagOnline) {
 		if handler, ok := d.Handlers[pkt.Path]; ok {
-			fmt.Println("Handling", pkt.String())
+			slog.Info("Handling", "pkt", pkt)
 			handler.cb(pkt)
 		}
 	}

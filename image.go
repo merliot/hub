@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -44,7 +45,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
 
 	// Calculate MD5 checksum
 	cmd := exec.Command("md5sum", fileName)
-	fmt.Println(cmd.String())
+	slog.Debug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -149,7 +150,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 	var binary = filepath.Join(dir, service)
 
 	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", binary, "-tags", tag, runnerGo)
-	fmt.Println(cmd.String())
+	slog.Debug(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -161,7 +162,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 	var installer = filepath.Join(dir, service+"-installer")
 
 	cmd = exec.Command("go", "build", "-ldflags", "-s -w", "-o", installer, installerGo)
-	fmt.Println(cmd.String())
+	slog.Debug(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err = cmd.CombinedOutput()
 	if err != nil {
@@ -170,6 +171,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 
 	// Serve installer file for download
 
+	slog.Info("Built Linux device image", "installer", installer)
 	return serveFile(w, r, installer)
 }
 
@@ -210,6 +212,7 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 		return err
 	}
 
+	slog.Info("Built Tinygo device image", "installer", installer)
 	return serveFile(w, r, installer)
 }
 
@@ -222,7 +225,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if keepBuilds != "" {
-		fmt.Println("DEBUG: Temporary build dir:", dir)
+		slog.Debug("DEBUG: Temporary build dir:", dir)
 	} else {
 		defer os.RemoveAll(dir)
 	}
@@ -249,7 +252,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 func (d *device) downloadMsgClear(sessionId string) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
-		fmt.Println("\nError rendering template:", err, "\n")
+		slog.Error("Rendering template", "err", err)
 		return
 	}
 	sessionSend(sessionId, string(buf.Bytes()))
@@ -260,7 +263,7 @@ func (d *device) downloadMsgError(sessionId string, downloadErr error) {
 	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
 		"err": "Download error: " + downloadErr.Error(),
 	}); err != nil {
-		fmt.Println("\nError rendering template:", err, "\n")
+		slog.Error("Rendering template", "err", err)
 		return
 	}
 	sessionSend(sessionId, string(buf.Bytes()))

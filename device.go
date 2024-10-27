@@ -1,8 +1,8 @@
 package hub
 
 import (
-	"fmt"
 	"html/template"
+	"log/slog"
 	"math"
 	"net/url"
 	"sync"
@@ -76,7 +76,7 @@ func (d *device) build(maker Maker) error {
 	// Configure the device using DeployParams
 	_, err := d._formConfig(string(d.DeployParams))
 	if err != nil {
-		fmt.Println("Error configuring device using DeployParams:", err, d)
+		slog.Error("Configuring device using DeployParams", "err", err, "device", d)
 	}
 
 	return d.buildOS()
@@ -98,7 +98,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//	fmt.Println("Proposed DeployParams:", proposedParams)
+	//	slog.Info("Proposed DeployParams:", proposedParams)
 
 	// Form-decode these values into the device to configure the device
 	if err := decoder.Decode(d.State, values); err != nil {

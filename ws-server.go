@@ -3,7 +3,7 @@
 package hub
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -25,31 +25,31 @@ func wsServer(conn *websocket.Conn) {
 
 	pkt, err := link.receive()
 	if err != nil {
-		fmt.Println("Error receiving first packet:", err)
+		slog.Error("Receiving first packet", "err", err)
 		return
 	}
 
 	if pkt.Path != "/announce" {
-		fmt.Println("Not Announcement, got:", pkt.Path)
+		slog.Error("Expected announcement, got", "path", pkt.Path)
 		return
 	}
-	fmt.Println("Announcement", pkt)
+	slog.Info("Announcement", "pkt", pkt)
 
 	var ann announcement
 	pkt.Unmarshal(&ann)
 
 	if ann.Id != pkt.Dst {
-		fmt.Println("Error: id mismatch", ann.Id, pkt.Dst)
+		slog.Error("Id mismatch", "announcement-id", ann.Id, "pkt-id", pkt.Dst)
 		return
 	}
 
 	if ann.Id == root.Id {
-		fmt.Println("Error: can't dial into self")
+		slog.Error("Cannot dial into root (self)", "id", ann.Id)
 		return
 	}
 
 	if err := deviceOnline(ann); err != nil {
-		fmt.Println("Device online error:", err)
+		slog.Error("Cannot switch device online", "id", ann.Id, "err", err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func wsServer(conn *websocket.Conn) {
 
 	// Add as active download link
 
-	//fmt.Println("Adding Downlink")
+	//slog.Info("Adding Downlink", "id", ann.Id)
 	id := ann.Id
 	downlinksAdd(id, link)
 
@@ -69,14 +69,14 @@ func wsServer(conn *websocket.Conn) {
 	for {
 		pkt, err := link.receivePoll()
 		if err != nil {
-			fmt.Println("Error receiving packet:", err)
+			slog.Error("Receiving packet", "err", err)
 			break
 		}
-		fmt.Println("Route packet UP:", pkt)
+		slog.Info("Route packet UP", "pkt", pkt)
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 
-	fmt.Println("Removing Downlink")
+	slog.Info("Removing Downlink")
 	downlinksRemove(id)
 
 	deviceOffline(id)

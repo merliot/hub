@@ -1,7 +1,7 @@
 package hub
 
 import (
-	"fmt"
+	"log/slog"
 	"net/url"
 	"strings"
 )
@@ -13,14 +13,14 @@ func dialParents(urls string, user, passwd string) {
 		}
 		url, err := url.Parse(u)
 		if err != nil {
-			fmt.Printf("Error parsing URL: %s\r\n", err.Error())
+			slog.Error("Parsing URL", "err", err)
 			continue
 		}
 		switch url.Scheme {
 		case "ws", "wss":
 			go wsDial(url, user, passwd)
 		default:
-			fmt.Println("Scheme must be ws or wss:", u)
+			slog.Error("Scheme must be ws or wss", "got", u)
 		}
 	}
 }

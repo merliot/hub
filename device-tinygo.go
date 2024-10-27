@@ -2,7 +2,7 @@
 
 package hub
 
-import "fmt"
+import "log/slog"
 
 type deviceOS struct{}
 
@@ -16,7 +16,7 @@ func devicesSendState(l linker) {
 	root.RLock()
 	pkt.Marshal(root.State)
 	root.RUnlock()
-	fmt.Println("Sending:", pkt)
+	slog.Info("Sending", "pkt", pkt)
 	l.Send(pkt)
 }
 

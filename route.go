@@ -3,7 +3,7 @@
 package hub
 
 import (
-	"fmt"
+	"log/slog"
 	"sync"
 )
 
@@ -39,7 +39,7 @@ func routesBuild(root *device) {
 		_routesBuild(child, child)
 	}
 
-	fmt.Printf("Routes %#v\n", routes)
+	slog.Info("Routes", "map[dst]nexthop", routes)
 }
 
 func downlinksRoute(p *Packet) {

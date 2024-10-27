@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"slices"
@@ -59,19 +60,18 @@ func (d *device) buildOS() error {
 func devicesBuild() {
 	for id, device := range devices {
 		if id != device.Id {
-			fmt.Println("Id", id, "mismatch, skipping device Id", device.Id)
+			slog.Error("Mismatching Ids, skipping device", "key-id", id, "device-id", device.Id)
 			delete(devices, id)
 			continue
 		}
 		model, ok := Models[device.Model]
 		if !ok {
-			fmt.Println("Model", device.Model,
-				"not registered, skipping device id", id)
+			slog.Error("Device not registered, skipping device", "id", id, "model", device.Model)
 			delete(devices, id)
 			continue
 		}
 		if err := device.build(model.Maker); err != nil {
-			fmt.Println("Device setup failed, skipping device id", id, err)
+			slog.Error("Device setup failed, skipping device", "id", id, "err", err)
 			delete(devices, id)
 			continue
 		}
@@ -209,7 +209,7 @@ func deviceRouteUp(id string, pkt *Packet) {
 }
 
 func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
-	//fmt.Println("deviceRenderPkt", pkt)
+	//slog.Info("deviceRenderPkt", "pkt", pkt)
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 	if d, ok := devices[pkt.Dst]; ok {
@@ -344,7 +344,7 @@ func devicesSave() error {
 }
 
 func devicesSendState(l linker) {
-	fmt.Println("Sending /state to all devices")
+	slog.Info("Sending /state to all devices")
 	devicesMu.RLock()
 	for id, d := range devices {
 		var pkt = &Packet{
@@ -354,7 +354,7 @@ func devicesSendState(l linker) {
 		d.RLock()
 		pkt.Marshal(d.State)
 		d.RUnlock()
-		fmt.Println("Sending:", pkt)
+		slog.Info("Sending", "pkt", pkt)
 		l.Send(pkt)
 	}
 	devicesMu.RUnlock()

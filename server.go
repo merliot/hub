@@ -4,9 +4,9 @@ package hub
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"runtime/debug"
 	"time"
 )
@@ -33,20 +33,28 @@ func Run() {
 
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
 		// TODO figure out why module version prints as (devel) and not v0.0.x
-		fmt.Printf("Build Info: \n%s\n", buildInfo)
+		slog.Info("Build Info:")
+		slog.Info("Go Version:", "version", buildInfo.GoVersion)
+		slog.Info("Path", "path", buildInfo.Path)
+		for _, setting := range buildInfo.Settings {
+			slog.Info("Setting", setting.Key, setting.Value)
+		}
+		for _, dep := range buildInfo.Deps {
+			slog.Info("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
+		}
 	}
 
 	runningSite = (Getenv("SITE", "") == "true")
 	runningDemo = (Getenv("DEMO", "") == "true") || runningSite
 
 	if runningSite {
-		fmt.Println("RUNNING full web site")
+		slog.Info("RUNNING full web site")
 	} else if runningDemo {
-		fmt.Println("RUNNING in DEMO mode")
+		slog.Info("RUNNING in DEMO mode")
 	}
 
 	if err := devicesLoad(); err != nil {
-		fmt.Println("Error loading devices:", err)
+		slog.Error("Loading devices", "err", err)
 		return
 	}
 
@@ -54,12 +62,12 @@ func Run() {
 
 	root, err = devicesFindRoot()
 	if err != nil {
-		fmt.Println("Error finding root device:", err)
+		slog.Error("Finding root device", "err", err)
 		return
 	}
 
 	if err := root.setup(); err != nil {
-		fmt.Println("Error setting up root device:", err)
+		slog.Error("Setting up root device", "err", err)
 		return
 	}
 
@@ -76,7 +84,7 @@ func Run() {
 	var port = Getenv("PORT", "8000")
 	if port == "" {
 		root.run()
-		log.Println("Device", root.Name, "done, bye")
+		slog.Info("Bye, Bye", "root", root.Name)
 		return
 	}
 
@@ -105,9 +113,10 @@ func Run() {
 
 	// Run http server in go routine to be shutdown later
 	go func() {
-		fmt.Println("ListenAndServe on", addr, "\n ")
+		slog.Info("ListenAndServe", "addr", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP server ListenAndServe: %v", err)
+			slog.Error("HTTP server ListenAndServe", "err", err)
+			os.Exit(1)
 		}
 
 	}()
@@ -117,8 +126,9 @@ func Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("HTTP server Shutdown: %v", err)
+		slog.Error("HTTP server Shutdown", "err", err)
+		os.Exit(1)
 	}
 
-	log.Println("Device", root.Name, "done, bye")
+	slog.Info("Bye, Bye", "root", root.Name)
 }

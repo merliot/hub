@@ -1,7 +1,7 @@
 package hub
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -35,7 +35,7 @@ func newConfig(url *url.URL, user, passwd string) (*websocket.Config, error) {
 func wsDial(url *url.URL, user, passwd string) {
 	cfg, err := newConfig(url, user, passwd)
 	if err != nil {
-		fmt.Println("Error configuring websocket:", err)
+		slog.Error("Configuring websocket", "err", err)
 		return
 	}
 
@@ -46,7 +46,7 @@ func wsDial(url *url.URL, user, passwd string) {
 			// Service the client websocket
 			wsClient(conn)
 		} else {
-			fmt.Println("Dial error", url, err)
+			slog.Error("Dialing", "url", url, "err", err)
 		}
 
 		// Try again in a second
@@ -70,27 +70,27 @@ func wsClient(conn *websocket.Conn) {
 	}
 
 	// Send announcement
-	fmt.Println("Sending announment:", pkt)
+	slog.Info("Sending announcement", "pkt", pkt)
 	err := link.Send(pkt.Marshal(&ann))
 	if err != nil {
-		fmt.Println("Send error:", err)
+		slog.Error("Sending", "err", err)
 		return
 	}
 
 	// Receive welcome within 1 sec
 	pkt, err = link.receiveTimeout(time.Second)
 	if err != nil {
-		fmt.Println("Receive error:", err)
+		slog.Error("Receiving", "err", err)
 		return
 	}
 
-	fmt.Println("Reply from announcement:", pkt)
+	slog.Info("Reply from announcement", "pkt", pkt)
 	if pkt.Path != "/welcome" {
-		fmt.Println("Not welcomed, got:", pkt.Path)
+		slog.Error("Not welcomed, got", "path", pkt.Path)
 		return
 	}
 
-	//fmt.Println("Adding Uplink")
+	//slog.Info("Adding Uplink")
 	uplinksAdd(link)
 
 	// Send /state packets to all devices
@@ -99,17 +99,17 @@ func wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device.  Stop and
 	// disconnect on EOF.
 
-	fmt.Println("Receiving packets...")
+	slog.Info("Receiving packets")
 	for {
 		pkt, err := link.receivePoll()
 		if err != nil {
-			fmt.Println("Error receiving packet:", err)
+			slog.Error("Receiving packet", "err", err)
 			break
 		}
-		fmt.Println("Route packet DOWN:", pkt)
+		slog.Info("Route packet DOWN", "pkt", pkt)
 		deviceRouteDown(pkt.Dst, pkt)
 	}
 
-	fmt.Println("Removing Uplink")
+	slog.Info("Removing Uplink")
 	uplinksRemove(link)
 }
