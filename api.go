@@ -23,6 +23,7 @@ func (d *device) api() {
 		d.HandleFunc("GET /home", d.showSiteHome)
 		d.HandleFunc("GET /home/{page}", d.showSiteHome)
 		d.HandleFunc("GET /demo", d.showSiteDemo)
+		d.HandleFunc("GET /demo/{page}", d.showSiteDemo)
 		d.HandleFunc("GET /status", d.showSiteStatus)
 		d.HandleFunc("GET /status/{page}", d.showSiteStatus)
 		d.HandleFunc("GET /status/{page}/refresh", d.showSiteStatus)

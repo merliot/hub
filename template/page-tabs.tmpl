@@ -1,3 +1,4 @@
+<div class="flex flex-col mr-10 items-end text-sm">
 {{ range $i, $page := .pages }}
 	{{ if and (eq $page.Name "") (eq $page.Url "") }}
 		<div class="flex flex-row mt-8 w-36 h-10 text">
@@ -19,3 +20,4 @@
 		</a>
 	{{ end }}
 {{ end }}
+</div>

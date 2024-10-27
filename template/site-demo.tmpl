@@ -1,5 +1,19 @@
-<div class="m-8 max-w-lg">
-	<p class="italic">"working demo especially good trick: force big brain make something to actually work to talk about and code to look at that do thing, will help big brain see reality on ground more quickly"</p>
-	<a class="no-underline" target="_blank" href="https://grugbrain.dev/"><p class="text-right text">-- The Grug Brained Developer</p></a>
+<div class="flex flex-row mx-4 my-8">
+	<div class="flex flex-col">
+{{ template "page-tabs.tmpl" . }}
+{{ template "site-demo-grug.tmpl" . }}
+	</div>
+{{ if eq .page "devices" }}
+	<div class="mt-4">
+		{{ template "session.tmpl" . }}
+	</div>
+{{ else }}
+	<div class="max-w-lg">
+		<div hx-get="/docs/{{.page}}.html"
+			hx-trigger="load"
+			hx-swap="outerHTML"
+			hx-target="this">
+		</div>
+	</div>
+{{ end }}
 </div>
-{{ template "session.tmpl" . }}

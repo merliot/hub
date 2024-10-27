@@ -1,7 +1,5 @@
 <div class="flex flex-row mx-4 my-8">
-	<div class="flex flex-col mr-10 items-end text-sm">
 {{ template "page-tabs.tmpl" . }}
-	</div>
 	<div>
 {{ $tmpl := joinStrings "device-status-" .page ".tmpl" }}
 {{ renderTemplate $tmpl . }}

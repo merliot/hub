@@ -1,3 +1,4 @@
+<div class="flex flex-col mr-10 items-end text-sm">
 {{ range $name, $model := .models }}
 	{{ if eq $name $.model }}
 		<div class="flex flex-row items-end justify-end m-0.5 w-36 h-10
@@ -15,4 +16,4 @@
 		</a>
 	{{ end }}
 {{ end }}
-
+</div>

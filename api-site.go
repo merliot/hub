@@ -33,16 +33,27 @@ func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
+func (d *device) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
 	sessionId, ok := newSession()
 	if !ok {
 		d.noSessions(w, r)
 		return
 	}
-	d.showSection(w, r, "site.tmpl", "demo", "", nil, map[string]any{
+	d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
 		"tabs":      tabsDemo,
 		"sessionId": sessionId,
 	})
+}
+
+func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
+	page := r.PathValue("page")
+	if page == "" || page == "devices" {
+		d.showSiteDemoSession(w, r)
+	} else {
+		d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
+			"tabs":      tabsDemo,
+		})
+	}
 }
 
 func (d *device) showSiteStatus(w http.ResponseWriter, r *http.Request) {
