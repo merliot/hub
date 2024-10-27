@@ -4,11 +4,11 @@ package models
 
 import (
 	"github.com/merliot/hub"
-	"github.com/merliot/hub/examples/gadget"
-	"github.com/merliot/hub/examples/gps"
-	"github.com/merliot/hub/hubdevice"
-	"github.com/merliot/hub/examples/locker"
-	"github.com/merliot/hub/examples/relays"
+	"github.com/merliot/hub/devices/gadget"
+	"github.com/merliot/hub/devices/gps"
+	"github.com/merliot/hub/devices/hubdevice"
+	"github.com/merliot/hub/devices/locker"
+	"github.com/merliot/hub/devices/relays"
 )
 
 var AllModels = hub.ModelMap{
@@ -19,27 +19,27 @@ var AllModels = hub.ModelMap{
 	"relays": Relays,
 }
 var Gadget = hub.Model{
-	Package: "github.com/merliot/hub/examples/gadget",
-	Source: "https://github.com/merliot/hub/tree/main/examples/gadget",
+	Package: "github.com/merliot/hub/devices/gadget",
+	Source: "https://github.com/merliot/hub/tree/main/devices/gadget",
 	Maker: gadget.NewModel,
 }
 var Gps = hub.Model{
-	Package: "github.com/merliot/hub/examples/gps",
-	Source: "https://github.com/merliot/hub/tree/main/examples/gps",
+	Package: "github.com/merliot/hub/devices/gps",
+	Source: "https://github.com/merliot/hub/tree/main/devices/gps",
 	Maker: gps.NewModel,
 }
 var Hub = hub.Model{
-	Package: "github.com/merliot/hub/hubdevice",
-	Source: "https://github.com/merliot/hub/tree/main/hubdevice",
+	Package: "github.com/merliot/hub/devices/hubdevice",
+	Source: "https://github.com/merliot/hub/tree/main/devices/hubdevice",
 	Maker: hubdevice.NewModel,
 }
 var Locker = hub.Model{
-	Package: "github.com/merliot/hub/examples/locker",
-	Source: "https://github.com/merliot/hub/tree/main/examples/locker",
+	Package: "github.com/merliot/hub/devices/locker",
+	Source: "https://github.com/merliot/hub/tree/main/devices/locker",
 	Maker: locker.NewModel,
 }
 var Relays = hub.Model{
-	Package: "github.com/merliot/hub/examples/relays",
-	Source: "https://github.com/merliot/hub/tree/main/examples/relays",
+	Package: "github.com/merliot/hub/devices/relays",
+	Source: "https://github.com/merliot/hub/tree/main/devices/relays",
 	Maker: relays.NewModel,
 }

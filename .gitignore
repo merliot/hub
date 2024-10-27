@@ -22,4 +22,4 @@ go.work
 go.work.sum
 devices.json*
 uf2s/*.uf2
-cmd/gen-uf2s/*/
+cmd/uf2/*/
