@@ -28,42 +28,46 @@
 	</style>
 
 	<div class="info-grid">
-		<div class="grid-item row-header">
+		<div class="row-header">
 			<span>ID</span>
 		</div>
-		<div class="grid-item">
+		<div class="">
 			<span>{{id}}</span>
 		</div>
 
-		<div class="grid-item row-header">
+		<div class="row-header">
 			<span>Model</span>
 		</div>
-		<div class="grid-item">
+		<div class="">
 			<span>{{model}}</span>
 		</div>
 
-		<div class="grid-item row-header">
+		<div class="row-header">
 			<span>Name</span>
 		</div>
-		<div class="grid-item">
-			<span>{{name}}</span>
+		<div class="flex flex-row" id="{{uniq `edit-name`}}">
+			<span class="mr-4">{{name}}</span>
+			<img class="icon" src="/images/edit.svg"
+				hx-get="/device/{{id}}/edit-name"
+				hx-target="#{{uniq `edit-name`}}"
+				hx-swap="innerHTML">
 		</div>
 
 		<div class="hr-row">
 			<hr>
 		</div>
 
-		<div class="grid-item row-header">
+		<div class="row-header">
 			<span>Model Package</span>
 		</div>
-		<div class="grid-item">
+		<div class="">
 			<span>{{package}}</span>
 		</div>
 
-		<div class="grid-item row-header">
+		<div class="row-header">
 			<span>Model Repo</span>
 		</div>
-		<div class="grid-item">
+		<div class="">
 			<a target="_blank" href="{{source}}">{{source}}</a>
 		</div>
 

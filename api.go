@@ -63,10 +63,14 @@ func (d *device) api() {
 	d.HandleFunc("GET /instructions", d.showInstructions)
 	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
 
+	d.HandleFunc("GET /edit-name", d.editName)
+	d.HandleFunc("GET /rename", d.rename)
+
 	d.HandleFunc("GET /model", d.showModel)
 
 	d.HandleFunc("GET /create", d.createChild)
 	d.HandleFunc("DELETE /destroy", d.destroyChild)
+
 	d.HandleFunc("GET /new-modal", d.showNewModal)
 }
 
@@ -458,6 +462,35 @@ func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) 
 	if err := d.renderTmpl(w, template, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+}
+
+func (d *device) editName(w http.ResponseWriter, r *http.Request) {
+	if err := d.renderTmpl(w, "edit-name.tmpl", d.Name); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+type msgRename struct {
+	NewName string
+}
+
+func (d *device) rename(w http.ResponseWriter, r *http.Request) {
+	var msg msgRename
+
+	pkt, err := newPacketFromURL(r.URL, &msg)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if msg.NewName != "" {
+		d.Name = msg.NewName
+		deviceDirty(root.Id)
+		downlinkClose(d.Id)
+	}
+
+	// send /rename msg up
+	pkt.SetDst(d.Id).RouteUp()
 }
 
 func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
