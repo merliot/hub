@@ -273,7 +273,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	d.downloadMsgClear(sessionId)
 
 	if d.IsSet(flagLocked) {
-		err := fmt.Errorf("Refusing to download, device is locked")
+		err := fmt.Errorf("Refusing to download: device is locked")
 		d.downloadMsgError(sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
 		return

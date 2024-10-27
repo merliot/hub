@@ -22,12 +22,16 @@
 	</style>
 
 	<div class="modal-content">
+
 		<h3>Create a New Device</h3>
+
 		<form hx-get="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
+
 			<div class="flex flex-col mb-5 w-40">
 				<label class="font-bold mb-2">Name the Device</label>
 				<input type="text" name="Name" placeholder="Name" maxlength="20" required>
 			</div>
+
 			<div class="flex flex-col mb-5">
 				<label class="font-bold mb-2">Device ID</label>
 				<div class="flex flex-row">
@@ -36,6 +40,7 @@
 					<span class="icon">&#x1F512;</span>
 				</div>
 			</div>
+
 			<div class="flex flex-col mb-5">
 				<span class="font-bold mb-2">Select a Model</span>
 				<div class="flex flex-col overflow-y-auto">
@@ -49,11 +54,18 @@
 {{- end }}
 				</div>
 			</div>
+
 			<div class="flex flex-row justify-between items-center">
 				<span class=text-red-500 id="error"></span>
 				<div class="flex flex-row justify-end">
 					<button class="btn" hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
+{{ if isLocked }}
+					<button class="btn" onclick="alert('Sorry, cannot create device: hub is locked')">
+						Create
+					</button>
+{{ else }}
 					<button class="btn" type="submit">Create</button>
+{{ end }}
 				</div>
 			</div>
 		</form>

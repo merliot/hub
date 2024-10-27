@@ -47,10 +47,15 @@
 		</div>
 		<div class="flex flex-row" id="{{uniq `edit-name`}}">
 			<span class="mr-4">{{name}}</span>
+{{ if isLocked }}
+			<img src="/images/edit.svg"
+				onclick="alert('Sorry, cannot change name: device is locked')">
+{{ else }}
 			<img class="icon" src="/images/edit.svg"
 				hx-get="/device/{{id}}/edit-name"
 				hx-target="#{{uniq `edit-name`}}"
 				hx-swap="innerHTML">
+{{ end }}
 		</div>
 
 		<div class="hr-row">

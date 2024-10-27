@@ -504,6 +504,12 @@ func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
 func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	var child device
 
+	if d.IsSet(flagLocked) {
+		http.Error(w, "Create child aborted; device is locked",
+			http.StatusBadRequest)
+		return
+	}
+
 	pkt, err := newPacketFromURL(r.URL, &child)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
