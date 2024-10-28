@@ -18,9 +18,6 @@ var dev netdev.Netdever
 
 func NetConnect(ssid, pass string) error {
 
-	// wait a bit for serial
-	time.Sleep(2 * time.Second)
-
 	link, dev = probe.Probe()
 
 	return link.NetConnect(&netlink.ConnectParams{

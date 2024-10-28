@@ -31,6 +31,8 @@ func Run() {
 
 	var err error
 
+	setupLogger()
+
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
 		// TODO figure out why module version prints as (devel) and not v0.0.x
 		slog.Info("Build Info:")

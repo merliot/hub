@@ -17,6 +17,8 @@ var root *device
 func Run(maker Maker) {
 	var params uf2ParamsBlock
 
+	setupLogger()
+
 	end := bytes.IndexByte(paramsMem, 0)
 	if err := json.Unmarshal(paramsMem[:end], &params); err != nil {
 		panic(err)

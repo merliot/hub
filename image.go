@@ -67,9 +67,9 @@ func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
 		return err
 	}
 
-	println("Serving", gzipName)
+	slog.Info("Serving download file", "name", gzipName)
 	http.ServeFile(w, r, gzipName)
-	println("Done serving", gzipName)
+	slog.Info("Done serving download file", "name", gzipName)
 
 	return nil
 }
@@ -225,7 +225,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if keepBuilds != "" {
-		slog.Debug("DEBUG: Temporary build dir:", dir)
+		slog.Debug("Temporary build", "dir", dir)
 	} else {
 		defer os.RemoveAll(dir)
 	}
