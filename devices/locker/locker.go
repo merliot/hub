@@ -1,13 +1,8 @@
 package locker
 
 import (
-	"embed"
-
 	"github.com/merliot/hub"
 )
-
-//go:embed *.go images template
-var fs embed.FS
 
 type locker struct {
 	Secret string
