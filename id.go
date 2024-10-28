@@ -7,11 +7,10 @@ import (
 	"encoding/hex"
 )
 
-// generateRandomId generates a hex-encoded 8-byte random ID in format
-// 'xxxxxxxx-xxxxxxxx'
+// generateRandomId generates a hex-encoded 4-byte random ID in format
+// 'xxxxxxxx'
 func generateRandomId() string {
-	bytes := make([]byte, 8)
+	bytes := make([]byte, 4)
 	rand.Read(bytes)
-	hexString := hex.EncodeToString(bytes)
-	return hexString[:8] + "-" + hexString[8:]
+	return hex.EncodeToString(bytes)
 }
