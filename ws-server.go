@@ -55,12 +55,14 @@ func wsServer(conn *websocket.Conn) {
 
 	// Announcement is good, reply with /welcome packet
 
-	link.Send(pkt.SetPath("/welcome"))
+	pkt.SetPath("/welcome")
+	slog.Info("Sending welcome", "pkt", pkt)
+	link.Send(pkt)
 
 	// Add as active download link
 
-	//slog.Info("Adding Downlink", "id", ann.Id)
 	id := ann.Id
+	slog.Info("Adding Downlink", "id", ann.Id)
 	downlinksAdd(id, link)
 
 	// Route incoming packets up to the destination device.  Stop and
@@ -76,7 +78,7 @@ func wsServer(conn *websocket.Conn) {
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 
-	slog.Info("Removing Downlink")
+	slog.Info("Removing Downlink", "id", ann.Id)
 	downlinksRemove(id)
 
 	deviceOffline(id)

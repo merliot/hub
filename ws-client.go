@@ -69,9 +69,11 @@ func wsClient(conn *websocket.Conn) {
 		Path: "/announce",
 	}
 
+	pkt.Marshal(&ann)
+
 	// Send announcement
 	slog.Info("Sending announcement", "pkt", pkt)
-	err := link.Send(pkt.Marshal(&ann))
+	err := link.Send(pkt)
 	if err != nil {
 		slog.Error("Sending", "err", err)
 		return
