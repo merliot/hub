@@ -5,6 +5,8 @@ FROM ghcr.io/merliot/base:v0.0.3
 WORKDIR /app
 COPY . .
 
+RUN go version
+RUN tinygo version
 RUN go generate ./...
 RUN go build -o /hub ./cmd/hub
  
