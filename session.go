@@ -158,8 +158,10 @@ func sessionsRoute(pkt *Packet) {
 
 	for _, s := range sessions {
 		if s.conn != nil {
-			//slog.Info("SessionsRoute", "pkt", pkt)
-			s._renderPkt(pkt)
+			if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
+				//LogInfo("SessionsRoute", "pkt", pkt)
+				s._renderPkt(pkt)
+			}
 		}
 	}
 }

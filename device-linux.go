@@ -178,10 +178,8 @@ func deviceNotFound(id string) error {
 
 func (d *device) routeDown(pkt *Packet) {
 
-	// If device is the root device, deliver packet to device.  The root
-	// device is running on 'metal', so this is the packet's final
+	// If device is running on 'metal', this is the packet's final
 	// destination.
-	//if d == root {
 	if d.IsSet(flagMetal) {
 		d.handle(pkt)
 		return
@@ -378,7 +376,7 @@ func (d *device) demoReboot(pkt *Packet) {
 	pkt.SetPath("/state").Marshal(d.State).RouteUp()
 }
 
-func (d *device) reboot(pkt *Packet) {
+func (d *device) handleReboot(pkt *Packet) {
 	if d.IsSet(flagDemo) {
 		d.demoReboot(pkt)
 	} else {

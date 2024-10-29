@@ -44,10 +44,12 @@ type device struct {
 	sync.RWMutex `json:"-"`
 	deviceOS
 	stopChan chan struct{}
+	startup  time.Time
 }
 
 func (d *device) build(maker Maker) error {
 
+	d.startup = time.Now()
 	d.Devicer = maker()
 	d.Config = d.GetConfig()
 	d.Handlers = d.GetHandlers()
@@ -62,8 +64,10 @@ func (d *device) build(maker Maker) error {
 	}
 
 	// Special handlers
-	d.Handlers["/state"] = &Handler[any]{d.state}
-	d.Handlers["/reboot"] = &Handler[NoMsg]{d.reboot}
+	d.Handlers["/state"] = &Handler[any]{d.handleState}
+	d.Handlers["/reboot"] = &Handler[NoMsg]{d.handleReboot}
+	d.Handlers["/get-uptime"] = &Handler[NoMsg]{d.handleGetUptime}
+	d.Handlers["/uptime"] = &Handler[msgUptime]{d.handleUptime}
 
 	// Bracket poll period: [1..forever) seconds
 	if d.PollPeriod == 0 {
@@ -82,8 +86,25 @@ func (d *device) build(maker Maker) error {
 	return d.buildOS()
 }
 
-func (d *device) state(pkt *Packet) {
+func (d *device) handleState(pkt *Packet) {
 	pkt.Unmarshal(d.State).RouteUp()
+}
+
+type msgUptime struct {
+	time.Duration
+}
+
+func (d *device) handleGetUptime(pkt *Packet) {
+	var uptime = time.Since(d.startup)
+	var msg = msgUptime{uptime}
+	pkt.SetPath("/uptime").Marshal(&msg).RouteUp()
+}
+
+func (d *device) handleUptime(pkt *Packet) {
+	var msg msgUptime
+	pkt.Unmarshal(&msg)
+	d.startup = time.Now().Add(-msg.Duration)
+	pkt.RouteUp()
 }
 
 func (d *device) _formConfig(rawQuery string) (changed bool, err error) {

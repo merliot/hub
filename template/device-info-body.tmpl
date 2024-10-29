@@ -66,10 +66,24 @@
 		</div>
 
 		<div class="row-header">
-			<span>Port</span>
+			<span>Web Server Port</span>
 		</div>
 		<div class="">
+{{ if eq port "" }}
+			<span class="italic">not running</span>
+{{ else }}
 			<span>{{port}}</span>
+{{ end }}
+		</div>
+
+		<div class="row-header">
+			<span>Uptime</span>
+		</div>
+		<div class="">
+			<span id="{{uniq `uptime`}}"
+				hx-get="/device/{{id}}/get-uptime"
+				hx-trigger="load"
+				hx-swap="none"></span>
 		</div>
 
 		<div class="hr-row">

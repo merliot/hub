@@ -22,5 +22,5 @@ func deviceRouteDown(id string, pkt *Packet) {
 	root.handle(pkt)
 }
 
-func (d *device) reboot(pkt *Packet) {
+func (d *device) handleReboot(pkt *Packet) {
 }

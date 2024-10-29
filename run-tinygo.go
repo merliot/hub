@@ -42,6 +42,8 @@ func Run(maker Maker) {
 		panic(err)
 	}
 
+	root.Set(flagOnline | flagMetal)
+
 	if err := root.Setup(); err != nil {
 		panic(err)
 	}

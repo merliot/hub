@@ -15,6 +15,9 @@ var decoder = form.NewDecoder()
 
 // Packet is the basic container for messages sent between devices.
 type Packet struct {
+	// SessionId is the originating session id.  Empty means packet isn't
+	// pinned to any session.
+	SessionId string
 	// Dst is the device id of the destination device
 	Dst string
 	// Path identifies the message content.  Path format is same as
@@ -46,7 +49,11 @@ func newPacketFromURL(url *url.URL, v any) (*Packet, error) {
 func (p *Packet) String() string {
 	var msg any
 	json.Unmarshal(p.Msg, &msg)
-	return fmt.Sprintf("[%s%s] %v", p.Dst, p.Path, msg)
+	if p.SessionId == "" {
+		return fmt.Sprintf("[%s%s] %v", p.Dst, p.Path, msg)
+	} else {
+		return fmt.Sprintf("[%s%s*] %v", p.Dst, p.Path, msg)
+	}
 }
 
 // Marshal the packet message payload as JSON from v
@@ -66,6 +73,12 @@ func (p *Packet) Unmarshal(v any) *Packet {
 			fmt.Printf("JSON unmarshal error %s\r\n", err.Error())
 		}
 	}
+	return p
+}
+
+// SetSession pins the packet to session
+func (p *Packet) SetSession(sessionId string) *Packet {
+	p.SessionId = sessionId
 	return p
 }
 

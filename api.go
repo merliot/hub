@@ -65,6 +65,7 @@ func (d *device) api() {
 
 	d.HandleFunc("GET /edit-name", d.editName)
 	d.HandleFunc("GET /rename", d.rename)
+	d.HandleFunc("GET /get-uptime", d.apiRouteDown)
 
 	d.HandleFunc("GET /model", d.showModel)
 
@@ -492,6 +493,19 @@ func (d *device) rename(w http.ResponseWriter, r *http.Request) {
 
 	// send /rename msg up
 	pkt.SetDst(d.Id).RouteUp()
+}
+
+func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
+	var msg any
+	var sessionId = r.Header.Get("session-id")
+
+	pkt, err := newPacketFromURL(r.URL, &msg)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	pkt.SetSession(sessionId).SetDst(d.Id).RouteDown()
 }
 
 func (d *device) showModel(w http.ResponseWriter, r *http.Request) {

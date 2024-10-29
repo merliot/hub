@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/merliot/hub/target"
 	"golang.org/x/exp/maps"
@@ -46,6 +47,7 @@ func (d *device) funcs() template.FuncMap {
 		"deployParams":   func() template.HTML { return d.DeployParams },
 		"state":          func() any { return d.State },
 		"stateJSON":      d.stateJSON,
+		"uptime":         func() string { return time.Since(d.startup).Truncate(time.Second).String() },
 		"title":          strings.Title,
 		"add":            func(a, b int) int { return a + b },
 		"mult":           func(a, b int) int { return a * b },
