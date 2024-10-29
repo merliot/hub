@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/go-playground/form"
+	"github.com/go-playground/form/v4"
 )
 
 // NoMsg is used as an empty message type when creating a Handle.
