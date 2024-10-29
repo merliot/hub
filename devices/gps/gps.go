@@ -29,7 +29,7 @@ func (g *gps) GetConfig() hub.Config {
 		Model:      "gps",
 		State:      g,
 		FS:         &fs,
-		Targets:    []string{"x86-64", "rpi", "nano-rp2040", "wioterminal"},
+		Targets:    []string{"x86-64", "rpi", "nano-rp2040"},
 		BgColor:    "green",
 		FgColor:    "black",
 		PollPeriod: time.Second * time.Duration(g.PollPeriod),
