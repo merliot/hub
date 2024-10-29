@@ -75,7 +75,8 @@ func (d *device) build(maker Maker) error {
 	// Configure the device using DeployParams
 	_, err := d._formConfig(string(d.DeployParams))
 	if err != nil {
-		slog.Error("Configuring device using DeployParams", "err", err, "device", d)
+		LogError("Configuring device using DeployParams", "err", err, "device", d)
+		// TODO should there be a return here?
 	}
 
 	return d.buildOS()
