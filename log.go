@@ -1,89 +1,83 @@
+// Poor-man's version of slog.  slog wasn't working for me on tinygo...kept
+// running OOM.
+
 package hub
 
 import (
-	"context"
+	"bytes"
 	"fmt"
-	"io"
-	"log/slog"
-	"strings"
+	"sync"
+	"time"
 )
+
+// Scratch buffer and mutex
+var (
+	logBuffer   bytes.Buffer
+	logBufferMu sync.Mutex
+)
+
+// Format the args into key=value pairs
+func formatArgs(args ...any) string {
+	logBufferMu.Lock()
+	defer logBufferMu.Unlock()
+
+	logBuffer.Reset()
+
+	for i := 0; i < len(args); i += 2 {
+		switch {
+		case i == 0:
+			logBuffer.WriteString(" ")
+		case i > 0:
+			logBuffer.WriteString(", ")
+		}
+		fmt.Fprintf(&logBuffer, "%v=%v", args[i], args[i+1])
+	}
+	return logBuffer.String()
+}
 
 // ANSI escape codes for colors
 const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Yellow = "\033[33m"
-	Green  = "\033[32m"
-	Blue   = "\033[34m"
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorYellow = "\033[33m"
+	colorGreen  = "\033[32m"
+	colorBlue   = "\033[34m"
 )
 
-// logHandler implements slog.Handler and colorizes log entries based on level.
-type logHandler struct {
-	io.Writer
-}
-
-func newLogHandler(w io.Writer) *logHandler {
-	return &logHandler{w}
-}
-
-// getColor returns the appropriate color for a given log level.
-func getColor(level slog.Level) string {
+func getColor(level string) string {
 	switch level {
-	case slog.LevelError:
-		return Red
-	case slog.LevelWarn:
-		return Yellow
-	case slog.LevelInfo:
-		return Reset
-	case slog.LevelDebug:
-		return Blue
+	case "ERROR":
+		return colorRed
+	case "WARN":
+		return colorYellow
+	case "INFO":
+		return colorGreen
+	case "DEBUG":
+		return colorBlue
 	default:
-		return Reset
+		return colorReset
 	}
 }
 
-// formatAttrs collects and formats attributes from the log record.
-func formatAttrs(rec slog.Record) string {
-	var sb strings.Builder
-	rec.Attrs(func(attr slog.Attr) bool {
-		fmt.Fprintf(&sb, "%s=%v ", attr.Key, attr.Value)
-		return true // Continue iteration
-	})
-	return strings.TrimSpace(sb.String()) // Remove trailing space
+func log(level string, msg string, args ...any) {
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	color := getColor(level)
+	fmt.Printf("%s %s[%s]%s %s%s%s", timestamp, color, level,
+		colorReset, msg, formatArgs(args...), crlf)
 }
 
-// Handle formats and outputs the log record with colorized output.
-func (h *logHandler) Handle(ctx context.Context, rec slog.Record) error {
-	// Custom time formatting
-	timestamp := rec.Time.Format("2006-01-02 15:04:05")
-
-	// Colorized level string
-	color := getColor(rec.Level)
-	level := rec.Level.String()
-
-	// Collect attributes into a formatted string
-	attrStr := formatAttrs(rec)
-
-	// Format log line with time, colorized level, message, and attributes
-	logLine := fmt.Sprintf("[%s] %s[%s]%s %s", timestamp, color, level, Reset, rec.Message)
-	if attrStr != "" {
-		logLine += fmt.Sprintf(" %s", attrStr)
-	}
-	logLine += "\n"
-
-	// Write the log line to the provided writer (e.g., stdout or file)
-	_, err := h.Write([]byte(logLine))
-	return err
+func LogInfo(msg string, args ...any) {
+	log("INFO", msg, args...)
 }
 
-func (h *logHandler) Enabled(_ context.Context, level slog.Level) bool {
-	return level >= logLevel
+func LogWarn(msg string, args ...any) {
+	log("WARN", msg, args...)
 }
 
-func (h *logHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return h
+func LogDebug(msg string, args ...any) {
+	log("DEBUG", msg, args...)
 }
 
-func (h *logHandler) WithGroup(name string) slog.Handler {
-	return h
+func LogError(msg string, args ...any) {
+	log("ERROR", msg, args...)
 }

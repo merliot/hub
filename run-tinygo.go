@@ -17,7 +17,8 @@ var root *device
 func Run(maker Maker) {
 	var params uf2ParamsBlock
 
-	setupLogger()
+	// wait a bit for serial
+	time.Sleep(2 * time.Second)
 
 	end := bytes.IndexByte(paramsMem, 0)
 	if err := json.Unmarshal(paramsMem[:end], &params); err != nil {

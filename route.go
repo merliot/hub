@@ -3,7 +3,6 @@
 package hub
 
 import (
-	"log/slog"
 	"sync"
 )
 
@@ -39,7 +38,7 @@ func routesBuild(root *device) {
 		_routesBuild(child, child)
 	}
 
-	slog.Info("Routes", "map[dst]nexthop", routes)
+	LogInfo("Routes", "map[dst]nexthop", routes)
 }
 
 func downlinksRoute(p *Packet) {

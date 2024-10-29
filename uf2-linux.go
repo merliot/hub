@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,7 +32,7 @@ func (d *device) generateUf2(dir, target string) error {
 	}
 
 	if keepBuilds != "" {
-		slog.Info("Temporary build", "dir", temp)
+		LogInfo("Temporary build", "dir", temp)
 	} else {
 		defer os.RemoveAll(temp)
 	}
@@ -49,12 +48,12 @@ func (d *device) generateUf2(dir, target string) error {
 	uf2Name := d.Model + "-" + target + ".uf2"
 	output := filepath.Join(dir, uf2Name)
 	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "short", runnerGo)
-	slog.Info(cmd.String())
+	LogInfo(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
-	slog.Info(string(stdoutStderr))
+	LogInfo(string(stdoutStderr))
 
 	return nil
 }

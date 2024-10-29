@@ -2,7 +2,6 @@ package hub
 
 import (
 	"html/template"
-	"log/slog"
 	"math"
 	"net/url"
 	"sync"
@@ -98,7 +97,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//	slog.Info("Proposed DeployParams:", proposedParams)
+	//	LogInfo("Proposed DeployParams:", proposedParams)
 
 	// Form-decode these values into the device to configure the device
 	if err := decoder.Decode(d.State, values); err != nil {

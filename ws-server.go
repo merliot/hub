@@ -3,7 +3,6 @@
 package hub
 
 import (
-	"log/slog"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -25,44 +24,44 @@ func wsServer(conn *websocket.Conn) {
 
 	pkt, err := link.receive()
 	if err != nil {
-		slog.Error("Receiving first packet", "err", err)
+		LogError("Receiving first packet", "err", err)
 		return
 	}
 
 	if pkt.Path != "/announce" {
-		slog.Error("Expected announcement, got", "path", pkt.Path)
+		LogError("Expected announcement, got", "path", pkt.Path)
 		return
 	}
-	slog.Info("Announcement", "pkt", pkt)
+	LogInfo("Announcement", "pkt", pkt)
 
 	var ann announcement
 	pkt.Unmarshal(&ann)
 
 	if ann.Id != pkt.Dst {
-		slog.Error("Id mismatch", "announcement-id", ann.Id, "pkt-id", pkt.Dst)
+		LogError("Id mismatch", "announcement-id", ann.Id, "pkt-id", pkt.Dst)
 		return
 	}
 
 	if ann.Id == root.Id {
-		slog.Error("Cannot dial into root (self)", "id", ann.Id)
+		LogError("Cannot dial into root (self)", "id", ann.Id)
 		return
 	}
 
 	if err := deviceOnline(ann); err != nil {
-		slog.Error("Cannot switch device online", "id", ann.Id, "err", err)
+		LogError("Cannot switch device online", "id", ann.Id, "err", err)
 		return
 	}
 
 	// Announcement is good, reply with /welcome packet
 
 	pkt.SetPath("/welcome")
-	slog.Info("Sending welcome", "pkt", pkt)
+	LogInfo("Sending welcome", "pkt", pkt)
 	link.Send(pkt)
 
 	// Add as active download link
 
 	id := ann.Id
-	slog.Info("Adding Downlink", "id", ann.Id)
+	LogInfo("Adding Downlink", "id", ann.Id)
 	downlinksAdd(id, link)
 
 	// Route incoming packets up to the destination device.  Stop and
@@ -71,14 +70,14 @@ func wsServer(conn *websocket.Conn) {
 	for {
 		pkt, err := link.receivePoll()
 		if err != nil {
-			slog.Error("Receiving packet", "err", err)
+			LogError("Receiving packet", "err", err)
 			break
 		}
-		slog.Info("Route packet UP", "pkt", pkt)
+		LogInfo("Route packet UP", "pkt", pkt)
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 
-	slog.Info("Removing Downlink", "id", ann.Id)
+	LogInfo("Removing Downlink", "id", ann.Id)
 	downlinksRemove(id)
 
 	deviceOffline(id)

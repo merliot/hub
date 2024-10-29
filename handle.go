@@ -1,7 +1,5 @@
 package hub
 
-import "log/slog"
-
 type handler interface {
 	gen() any
 	cb(pkt *Packet)
@@ -34,7 +32,7 @@ func (d *device) handle(pkt *Packet) {
 	defer d.Unlock()
 	if d.IsSet(flagOnline) {
 		if handler, ok := d.Handlers[pkt.Path]; ok {
-			slog.Info("Handling", "pkt", pkt)
+			LogInfo("Handling", "pkt", pkt)
 			handler.cb(pkt)
 		}
 	}

@@ -3,7 +3,6 @@
 package hub
 
 import (
-	"log/slog"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -23,7 +22,7 @@ func wsxServe(ws *websocket.Conn) {
 	req := ws.Request()
 	sessionId := req.URL.Query().Get("session-id")
 	if !sessionUpdate(sessionId) {
-		slog.Error("Invalid session", "id", sessionId)
+		LogError("Invalid session", "id", sessionId)
 		return
 	}
 
@@ -44,10 +43,10 @@ func wsxServe(ws *websocket.Conn) {
 	for {
 		var message string
 		if err := websocket.Message.Receive(ws, &message); err != nil {
-			//slog.Error("Can't receive", "err", err)
+			//LogError("Can't receive", "err", err)
 			break
 		}
-		slog.Error("Received unexpected message from client", "msg", message)
+		LogError("Received unexpected message from client", "msg", message)
 	}
 
 	sessionConn(sessionId, nil)

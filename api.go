@@ -9,7 +9,6 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"path"
@@ -95,7 +94,7 @@ func (d *device) modelInstall() {
 	prefix := "/model/" + d.Model
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	slog.Info("Model installed", "prefix", prefix)
+	LogInfo("Model installed", "prefix", prefix)
 }
 
 func modelsInstall() {
@@ -114,7 +113,7 @@ func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	slog.Info("Device installed", "prefix", prefix)
+	LogInfo("Device installed", "prefix", prefix)
 }
 
 func devicesInstall() {
@@ -132,7 +131,7 @@ func (d *device) _renderTmpl(w io.Writer, template string, data any) error {
 	}
 	err := tmpl.Execute(w, data)
 	if err != nil {
-		slog.Error("Rendering template", "err", err)
+		LogError("Rendering template", "err", err)
 	}
 	return err
 }
@@ -199,7 +198,7 @@ func (d *device) _render(w io.Writer, sessionId, path, view string, level int) e
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//slog.Info("_render", "id", d.Id, "session-id", sessionId,
+	//LogInfo("_render", "id", d.Id, "session-id", sessionId,
 	//	"path", path, "level", level, "template", template)
 	if err := d._renderSession(w, template, sessionId, level); err != nil {
 		return err
@@ -223,7 +222,7 @@ func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		return err
 	}
 
-	//slog.Info("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
+	//LogInfo("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
 	return d._render(w, sessionId, pkt.Path, view, level)
 }
 

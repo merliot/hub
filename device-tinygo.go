@@ -2,8 +2,6 @@
 
 package hub
 
-import "log/slog"
-
 type deviceOS struct{}
 
 func (d *device) buildOS() error { return nil }
@@ -16,7 +14,7 @@ func devicesSendState(l linker) {
 	root.RLock()
 	pkt.Marshal(root.State)
 	root.RUnlock()
-	slog.Info("Sending", "pkt", pkt)
+	LogInfo("Sending", "pkt", pkt)
 	l.Send(pkt)
 }
 

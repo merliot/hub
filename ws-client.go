@@ -1,7 +1,6 @@
 package hub
 
 import (
-	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -35,7 +34,7 @@ func newConfig(url *url.URL, user, passwd string) (*websocket.Config, error) {
 func wsDial(url *url.URL, user, passwd string) {
 	cfg, err := newConfig(url, user, passwd)
 	if err != nil {
-		slog.Error("Configuring websocket", "err", err)
+		LogError("Configuring websocket", "err", err)
 		return
 	}
 
@@ -46,7 +45,7 @@ func wsDial(url *url.URL, user, passwd string) {
 			// Service the client websocket
 			wsClient(conn)
 		} else {
-			slog.Error("Dialing", "url", url, "err", err)
+			LogError("Dialing", "url", url, "err", err)
 		}
 
 		// Try again in a second
@@ -72,27 +71,27 @@ func wsClient(conn *websocket.Conn) {
 	pkt.Marshal(&ann)
 
 	// Send announcement
-	slog.Info("Sending announcement", "pkt", pkt)
+	LogInfo("Sending announcement", "pkt", pkt)
 	err := link.Send(pkt)
 	if err != nil {
-		slog.Error("Sending", "err", err)
+		LogError("Sending", "err", err)
 		return
 	}
 
 	// Receive welcome within 1 sec
 	pkt, err = link.receiveTimeout(time.Second)
 	if err != nil {
-		slog.Error("Receiving", "err", err)
+		LogError("Receiving", "err", err)
 		return
 	}
 
-	slog.Info("Reply from announcement", "pkt", pkt)
+	LogInfo("Reply from announcement", "pkt", pkt)
 	if pkt.Path != "/welcome" {
-		slog.Error("Not welcomed, got", "path", pkt.Path)
+		LogError("Not welcomed, got", "path", pkt.Path)
 		return
 	}
 
-	//slog.Info("Adding Uplink")
+	LogInfo("Adding Uplink")
 	uplinksAdd(link)
 
 	// Send /state packets to all devices
@@ -101,17 +100,17 @@ func wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device.  Stop and
 	// disconnect on EOF.
 
-	slog.Info("Receiving packets")
+	LogInfo("Receiving packets")
 	for {
 		pkt, err := link.receivePoll()
 		if err != nil {
-			slog.Error("Receiving packet", "err", err)
+			LogError("Receiving packet", "err", err)
 			break
 		}
-		slog.Info("Route packet DOWN", "pkt", pkt)
+		LogInfo("Route packet DOWN", "pkt", pkt)
 		deviceRouteDown(pkt.Dst, pkt)
 	}
 
-	slog.Info("Removing Uplink")
+	LogInfo("Removing Uplink")
 	uplinksRemove(link)
 }
