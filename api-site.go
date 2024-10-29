@@ -51,7 +51,7 @@ func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 		d.showSiteDemoSession(w, r)
 	} else {
 		d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
-			"tabs":      tabsDemo,
+			"tabs": tabsDemo,
 		})
 	}
 }
