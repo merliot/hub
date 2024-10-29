@@ -14,15 +14,6 @@ import (
 	"github.com/merliot/hub/uf2"
 )
 
-func (d *device) generateUf2s(dir string) error {
-	for _, target := range target.TinyGoTargets(d.Targets) {
-		if err := d.generateUf2(dir, target); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (d *device) generateUf2(dir, target string) error {
 
 	// Create temp build directory
@@ -58,12 +49,18 @@ func (d *device) generateUf2(dir, target string) error {
 	return nil
 }
 
-func Uf2GenerateBaseImages(dir string) error {
+func Uf2GenerateBaseImages(dir, modelName, targetName string) error {
 	for name, model := range Models {
-		var proto = &device{Model: name}
-		proto.build(model.Maker)
-		if err := proto.generateUf2s(dir); err != nil {
-			return err
+		if name == modelName || modelName == "" {
+			var proto = &device{Model: name}
+			proto.build(model.Maker)
+			for _, target := range target.TinyGoTargets(proto.Targets) {
+				if target == targetName || targetName == "" {
+					if err := proto.generateUf2(dir, target); err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 	return nil

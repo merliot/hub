@@ -23,7 +23,18 @@ func main() {
 	switch os.Args[1] {
 	case "base":
 		hub.Models = models.AllModels
-		if err := hub.Uf2GenerateBaseImages("../../uf2s/"); err != nil {
+
+		model := ""
+		if len(os.Args) > 2 {
+			model = os.Args[2]
+		}
+
+		target := ""
+		if len(os.Args) > 3 {
+			target = os.Args[3]
+		}
+
+		if err := hub.Uf2GenerateBaseImages("uf2s/", model, target); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
