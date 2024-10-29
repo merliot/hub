@@ -34,7 +34,7 @@ func main() {
 			target = os.Args[3]
 		}
 
-		if err := hub.Uf2GenerateBaseImages("uf2s/", model, target); err != nil {
+		if err := hub.Uf2GenerateBaseImages("../../uf2s/", model, target); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
