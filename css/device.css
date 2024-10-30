@@ -772,6 +772,10 @@ textarea {
   margin-right: 2.5rem;
 }
 
+.mr-16 {
+  margin-right: 4rem;
+}
+
 .text-center {
   text-align: center;
 }
