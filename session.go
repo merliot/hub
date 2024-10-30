@@ -99,7 +99,9 @@ func sessionKeepAlive(sessionId string) bool {
 	if s, ok := sessions[sessionId]; ok {
 		s.lastUpdate = time.Now()
 		data, _ := json.Marshal(&Packet{Path: "/ping"})
-		websocket.Message.Send(s.conn, string(data))
+		if s.conn != nil {
+			websocket.Message.Send(s.conn, string(data))
+		}
 		return true
 	}
 
