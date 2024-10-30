@@ -9,7 +9,7 @@ require (
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	gobot.io/x/gobot/v2 v2.3.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
-	golang.org/x/net v0.27.0
+	golang.org/x/net v0.21.0
 	tinygo.org/x/drivers v0.27.0
 )
 
