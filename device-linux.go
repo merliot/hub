@@ -43,17 +43,8 @@ func (d *device) buildOS() error {
 
 	// Build the device templates using device funcs
 	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.funcs())
-	if err != nil {
-		return err
-	}
 
-	// All devices have a base device API
-	d.api()
-
-	// Install the device-specific API handlers
-	d.handlersInstall()
-
-	return nil
+	return err
 }
 
 func devicesBuild() {
@@ -70,7 +61,7 @@ func devicesBuild() {
 			continue
 		}
 		if err := device.build(model.Maker); err != nil {
-			LogError("Device setup failed, skipping device", "id", id, "err", err)
+			LogError("Device build failed, skipping device", "id", id, "err", err)
 			delete(devices, id)
 			continue
 		}
@@ -106,14 +97,26 @@ func devicesFindRoot() (*device, error) {
 	switch {
 	case len(roots) == 1:
 		root := roots[0]
-		root.Set(flagOnline)
-		root.Set(flagMetal)
+		root.Set(flagOnline | flagMetal)
 		return root, nil
 	case len(roots) > 1:
 		return nil, fmt.Errorf("More than one tree found in devices, aborting")
 	}
 
 	return nil, fmt.Errorf("No tree found in devices")
+}
+
+func (d *device) setupAPI() {
+	// All devices have a base device API
+	d.api()
+	// Install the device-specific API handlers
+	d.handlersInstall()
+}
+
+func devicesSetupAPI() {
+	for _, d := range devices {
+		d.setupAPI()
+	}
 }
 
 func addChild(parent *device, id, model, name string) error {

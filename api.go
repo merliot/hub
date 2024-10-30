@@ -18,7 +18,7 @@ import (
 )
 
 func (d *device) api() {
-	if runningSite {
+	if runningSite && d == root {
 		d.HandleFunc("GET /{$}", d.showSiteHome)
 		d.HandleFunc("GET /home", d.showSiteHome)
 		d.HandleFunc("GET /home/{page}", d.showSiteHome)
@@ -103,6 +103,7 @@ func modelsInstall() {
 		model := Models[name]
 		proto := &device{Model: name}
 		proto.build(model.Maker)
+		proto.setupAPI()
 		proto.modelInstall()
 		model.Config = proto.GetConfig()
 		Models[name] = model

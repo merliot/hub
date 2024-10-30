@@ -30,18 +30,7 @@ func Run() {
 
 	var err error
 
-	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		// TODO figure out why module version prints as (devel) and not v0.0.x
-		LogInfo("Build Info:")
-		LogInfo("Go Version:", "version", buildInfo.GoVersion)
-		LogInfo("Path", "path", buildInfo.Path)
-		for _, setting := range buildInfo.Settings {
-			LogInfo("Setting", setting.Key, setting.Value)
-		}
-		for _, dep := range buildInfo.Deps {
-			LogInfo("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
-		}
-	}
+	logBuildInfo()
 
 	runningSite = (Getenv("SITE", "") == "true")
 	runningDemo = (Getenv("DEMO", "") == "true") || runningSite
@@ -64,6 +53,8 @@ func Run() {
 		LogError("Finding root device", "err", err)
 		return
 	}
+
+	devicesSetupAPI()
 
 	if err := root.setup(); err != nil {
 		LogError("Setting up root device", "err", err)
@@ -130,4 +121,19 @@ func Run() {
 	}
 
 	LogInfo("Bye, Bye", "root", root.Name)
+}
+
+func logBuildInfo() {
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		// TODO figure out why module version prints as (devel) and not v0.0.x
+		LogInfo("Build Info:")
+		LogInfo("Go Version:", "version", buildInfo.GoVersion)
+		LogInfo("Path", "path", buildInfo.Path)
+		for _, setting := range buildInfo.Settings {
+			LogInfo("Setting", setting.Key, setting.Value)
+		}
+		for _, dep := range buildInfo.Deps {
+			LogInfo("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
+		}
+	}
 }
