@@ -1,6 +1,9 @@
 package relays
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/merliot/hub"
 	io "github.com/merliot/hub/io/relay"
 )
@@ -9,11 +12,32 @@ type relays struct {
 	Relays [4]io.Relay
 }
 
-type MsgClick struct {
+func (r *relays) Decode(values url.Values) error {
+
+	// We shouldn't need a custom URL values decoder here, but tinygo's
+	// reflect.ArrayOf() panics when trying to decode URL values with an
+	// array using the form decorder.
+	//
+	// TODO this func can go away if reflect.ArrayOf() is implemented in
+	// tinygo.
+
+	if len(values) != 0 {
+		for i := range r.Relays {
+			relay := &r.Relays[i]
+			nameKey := fmt.Sprintf("Relays[%d].Name", i)
+			relay.Name = values.Get(nameKey)
+			gpioKey := fmt.Sprintf("Relays[%d].Gpio", i)
+			relay.Gpio = values.Get(gpioKey)
+		}
+	}
+	return nil
+}
+
+type msgClick struct {
 	Relay int
 }
 
-type MsgClicked struct {
+type msgClicked struct {
 	Relay int
 	State bool
 }
@@ -35,8 +59,8 @@ func (r *relays) GetConfig() hub.Config {
 
 func (r *relays) GetHandlers() hub.Handlers {
 	return hub.Handlers{
-		"/click":   &hub.Handler[MsgClick]{r.click},
-		"/clicked": &hub.Handler[MsgClicked]{r.clicked},
+		"/click":   &hub.Handler[msgClick]{r.click},
+		"/clicked": &hub.Handler[msgClicked]{r.clicked},
 	}
 }
 
@@ -54,16 +78,16 @@ func (r *relays) Poll(pkt *hub.Packet) {
 }
 
 func (r *relays) click(pkt *hub.Packet) {
-	var click MsgClick
+	var click msgClick
 	pkt.Unmarshal(&click)
 	relay := &r.Relays[click.Relay]
 	relay.Set(!relay.State)
-	var clicked = MsgClicked{click.Relay, relay.State}
+	var clicked = msgClicked{click.Relay, relay.State}
 	pkt.SetPath("/clicked").Marshal(&clicked).RouteUp()
 }
 
 func (r *relays) clicked(pkt *hub.Packet) {
-	var clicked MsgClicked
+	var clicked msgClicked
 	pkt.Unmarshal(&clicked)
 	relay := &r.Relays[clicked.Relay]
 	relay.Set(clicked.State)

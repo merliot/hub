@@ -4,14 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-
-	"github.com/go-playground/form/v4"
 )
 
 // NoMsg is used as an empty message type when creating a Handle.
 type NoMsg struct{}
-
-var decoder = form.NewDecoder()
 
 // Packet is the basic container for messages sent between devices.
 type Packet struct {
@@ -34,7 +30,7 @@ func newPacketFromURL(url *url.URL, v any) (*Packet, error) {
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
 	}
-	err := decoder.Decode(v, url.Query())
+	err := decode(v, url.Query())
 	if err != nil {
 		return nil, err
 	}
