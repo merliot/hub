@@ -148,6 +148,7 @@ func addChild(parent *device, id, model, name string) error {
 	parent.Children = append(parent.Children, id)
 
 	devices[id] = child
+	child.setupAPI()
 	child.deviceInstall()
 
 	return nil

@@ -1,0 +1,11 @@
+<div class="flex flex-col">
+	<div class="flex flex-row mb-5">
+		<label>
+			Content:
+			<input type="text" name="Content" value="{{state.Content}}"
+				placeholder="Enter QR code content" autofocus
+				hx-post="/device/{{id}}/update"
+				hx-swap="none">
+		</label>
+	</div>
+</div>

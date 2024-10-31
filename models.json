@@ -23,5 +23,10 @@
 		"Package": "github.com/merliot/hub/devices/locker",
 		"Source": "https://github.com/merliot/hub/tree/main/devices/locker",
 		"Maker": "locker.NewModel"
+	},
+	"qrcode": {
+		"Package": "github.com/merliot/hub/devices/qrcode",
+		"Source": "https://github.com/merliot/hub/tree/main/devices/qrcode",
+		"Maker": "qrcode.NewModel"
 	}
 }
