@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"fmt"
 	"html/template"
 	"math"
 	"net/url"
@@ -45,6 +46,10 @@ type device struct {
 	deviceOS
 	stopChan chan struct{}
 	startup  time.Time
+}
+
+func (d *device) String() string {
+	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
 func (d *device) build(maker Maker) error {
