@@ -4,6 +4,7 @@ package gps
 
 import (
 	"machine"
+	"sync"
 	"time"
 
 	"github.com/merliot/hub/io/gps/nmea"
@@ -13,7 +14,8 @@ type air530 struct {
 	uart *machine.UART
 	lat  float64
 	long float64
-	buf  [128]byte
+	sync.RWMutex
+	buf [128]byte
 }
 
 func (a *air530) Setup(uart *machine.UART, tx, rx machine.Pin, baudrate uint32) error {
