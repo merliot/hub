@@ -4,7 +4,6 @@ package gps
 
 import (
 	"bufio"
-	"sync"
 
 	"github.com/merliot/hub"
 	"github.com/merliot/hub/io/gps/nmea"
@@ -15,7 +14,6 @@ type Gps struct {
 	*serial.Port
 	lat  float64
 	long float64
-	sync.RWMutex
 }
 
 func (g *Gps) Setup() (err error) {
