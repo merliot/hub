@@ -1,3 +1,6 @@
-<span id="{{uniq `uptime`}}">
+<span id="{{uniq `uptime`}}"
+	hx-get="/device/{{id}}/get-uptime"
+	hx-trigger="load delay:1s"
+	hx-swap="none">
 	{{uptime}}
 </span>
