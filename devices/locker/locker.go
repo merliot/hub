@@ -5,7 +5,7 @@ import (
 )
 
 type locker struct {
-	Secret string
+	Secret string `json:"-"`
 }
 
 func NewModel() hub.Devicer {
