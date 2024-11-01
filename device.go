@@ -18,8 +18,6 @@ var (
 type Devicer interface {
 	// GetConfig returns the device configuration
 	GetConfig() Config
-	// GetHandlers returns the device message Handlers
-	GetHandlers() Handlers
 	// Setup prepares the device for operation.  Device hardware and other
 	// initializations are done here.  Returning an error fails the device load.
 	Setup() error
@@ -41,7 +39,6 @@ type device struct {
 	flags        `json:"-"`
 	Config       `json:"-"`
 	Devicer      `json:"-"`
-	Handlers     `json:"-"`
 	sync.RWMutex `json:"-"`
 	deviceOS
 	stopChan chan struct{}
@@ -57,22 +54,24 @@ func (d *device) build(maker Maker) error {
 	d.startup = time.Now()
 	d.Devicer = maker()
 	d.Config = d.GetConfig()
-	d.Handlers = d.GetHandlers()
 	d.flags = d.Config.Flags
+
+	if d.PacketHandlers == nil {
+		d.PacketHandlers = PacketHandlers{}
+	}
 
 	if runningSite {
 		d.Set(flagLocked)
 	}
-
 	if runningDemo {
 		d.Set(flagDemo | flagOnline | flagMetal)
 	}
 
 	// Special handlers
-	d.Handlers["/state"] = &Handler[any]{d.handleState}
-	d.Handlers["/reboot"] = &Handler[NoMsg]{d.handleReboot}
-	d.Handlers["/get-uptime"] = &Handler[NoMsg]{d.handleGetUptime}
-	d.Handlers["/uptime"] = &Handler[msgUptime]{d.handleUptime}
+	d.PacketHandlers["/state"] = &PacketHandler[any]{d.handleState}
+	d.PacketHandlers["/reboot"] = &PacketHandler[NoMsg]{d.handleReboot}
+	d.PacketHandlers["/get-uptime"] = &PacketHandler[NoMsg]{d.handleGetUptime}
+	d.PacketHandlers["/uptime"] = &PacketHandler[msgUptime]{d.handleUptime}
 
 	// Bracket poll period: [1..forever) seconds
 	if d.PollPeriod == 0 {

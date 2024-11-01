@@ -33,6 +33,10 @@ type deviceOS struct {
 func (d *device) buildOS() error {
 	var err error
 
+	if d.Funcs == nil {
+		d.Funcs = Funcs{}
+	}
+
 	d.ServeMux = http.NewServeMux()
 
 	// Build device's layered FS.  fs is stacked on top of
@@ -107,10 +111,10 @@ func devicesFindRoot() (*device, error) {
 }
 
 func (d *device) setupAPI() {
-	// All devices have a base device API
-	d.api()
-	// Install the device-specific API handlers
-	d.handlersInstall()
+	// All base + device APIs
+	d.installAPIs()
+	// Install the device-specific packet handlers API
+	d.packetHandlersInstall()
 }
 
 func devicesSetupAPI() {

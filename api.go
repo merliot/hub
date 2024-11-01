@@ -17,7 +17,12 @@ import (
 	"strings"
 )
 
-func (d *device) api() {
+type APIs map[string]http.HandlerFunc
+
+func (d *device) installAPIs() {
+
+	// Base APIs for all devices
+
 	if runningSite && d == root {
 		d.HandleFunc("GET /{$}", d.showSiteHome)
 		d.HandleFunc("GET /home", d.showSiteHome)
@@ -54,7 +59,6 @@ func (d *device) api() {
 
 	d.HandleFunc("GET /save", d.saveDevices)
 	//d.HandleFunc("GET /devices", d.showDevices)
-	//d.HandleFunc("GET /download", d.showDownload)
 
 	d.HandleFunc("GET /download-target", d.showDownloadTarget)
 	d.HandleFunc("GET /download-image", d.downloadImage)
@@ -73,6 +77,14 @@ func (d *device) api() {
 	d.HandleFunc("DELETE /destroy", d.destroyChild)
 
 	d.HandleFunc("GET /new-modal", d.showNewModal)
+
+	// Device-specific APIs, if any
+
+	if d.APIs != nil {
+		for path, fun := range d.APIs {
+			d.HandleFunc(path, fun)
+		}
+	}
 }
 
 /*

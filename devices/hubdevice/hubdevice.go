@@ -28,10 +28,6 @@ func (h *hubDevice) GetConfig() hub.Config {
 	}
 }
 
-func (h *hubDevice) GetHandlers() hub.Handlers {
-	return hub.Handlers{}
-}
-
 func (h *hubDevice) Setup() error             { return nil }
 func (h *hubDevice) Poll(pkt *hub.Packet)     {}
 func (h *hubDevice) DemoSetup() error         { return nil }

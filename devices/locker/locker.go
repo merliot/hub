@@ -23,8 +23,7 @@ func (l *locker) GetConfig() hub.Config {
 	}
 }
 
-func (l *locker) GetHandlers() hub.Handlers { return hub.Handlers{} }
-func (l *locker) Setup() error              { return nil }
-func (l *locker) Poll(pkt *hub.Packet)      {}
-func (l *locker) DemoSetup() error          { return l.Setup() }
-func (l *locker) DemoPoll(pkt *hub.Packet)  { l.Poll(pkt) }
+func (l *locker) Setup() error             { return nil }
+func (l *locker) Poll(pkt *hub.Packet)     {}
+func (l *locker) DemoSetup() error         { return l.Setup() }
+func (l *locker) DemoPoll(pkt *hub.Packet) { l.Poll(pkt) }

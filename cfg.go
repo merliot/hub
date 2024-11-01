@@ -24,4 +24,8 @@ type Config struct {
 	BgColor string
 	// FgColor is the device forground (text, border) color
 	FgColor string
+	//
+	PacketHandlers
+	APIs
+	Funcs
 }

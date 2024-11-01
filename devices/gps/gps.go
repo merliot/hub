@@ -33,13 +33,14 @@ func (g *gps) GetConfig() hub.Config {
 		BgColor:    "green",
 		FgColor:    "black",
 		PollPeriod: time.Second * time.Duration(g.PollPeriod),
+		PacketHandlers: hub.PacketHandlers{
+			"/update": &hub.PacketHandler[updateMsg]{g.update},
+		},
 	}
 }
 
-func (g *gps) GetHandlers() hub.Handlers {
-	return hub.Handlers{
-		"/update": &hub.Handler[updateMsg]{g.update},
-	}
+func (g *gps) update(pkt *hub.Packet) {
+	pkt.Unmarshal(g).RouteUp()
 }
 
 func (g *gps) Poll(pkt *hub.Packet) {
@@ -50,8 +51,4 @@ func (g *gps) Poll(pkt *hub.Packet) {
 		g.Lat, g.Long = lat, long
 		pkt.SetPath("/update").Marshal(&up).RouteUp()
 	}
-}
-
-func (g *gps) update(pkt *hub.Packet) {
-	pkt.Unmarshal(g).RouteUp()
 }

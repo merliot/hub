@@ -30,13 +30,10 @@ func (g *gadget) GetConfig() hub.Config {
 		PollPeriod: time.Second,
 		BgColor:    "african-violet",
 		FgColor:    "black",
-	}
-}
-
-func (g *gadget) GetHandlers() hub.Handlers {
-	return hub.Handlers{
-		"/takeone": &hub.Handler[hub.NoMsg]{g.takeone},
-		"/update":  &hub.Handler[gadget]{g.update},
+		PacketHandlers: hub.PacketHandlers{
+			"/takeone": &hub.PacketHandler[hub.NoMsg]{g.takeone},
+			"/update":  &hub.PacketHandler[gadget]{g.update},
+		},
 	}
 }
 

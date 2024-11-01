@@ -54,13 +54,10 @@ func (r *relays) GetConfig() hub.Config {
 		Targets: []string{"rpi", "nano-rp2040", "wioterminal"},
 		BgColor: "ice",
 		FgColor: "black",
-	}
-}
-
-func (r *relays) GetHandlers() hub.Handlers {
-	return hub.Handlers{
-		"/click":   &hub.Handler[msgClick]{r.click},
-		"/clicked": &hub.Handler[msgClicked]{r.clicked},
+		PacketHandlers: hub.PacketHandlers{
+			"/click":   &hub.PacketHandler[msgClick]{r.click},
+			"/clicked": &hub.PacketHandler[msgClicked]{r.clicked},
+		},
 	}
 }
 
@@ -72,9 +69,6 @@ func (r *relays) Setup() error {
 		}
 	}
 	return nil
-}
-
-func (r *relays) Poll(pkt *hub.Packet) {
 }
 
 func (r *relays) click(pkt *hub.Packet) {
@@ -94,5 +88,6 @@ func (r *relays) clicked(pkt *hub.Packet) {
 	pkt.RouteUp()
 }
 
+func (r *relays) Poll(pkt *hub.Packet)     {}
 func (r *relays) DemoSetup() error         { return r.Setup() }
 func (r *relays) DemoPoll(pkt *hub.Packet) { r.Poll(pkt) }

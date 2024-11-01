@@ -13,6 +13,8 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+type Funcs template.FuncMap
+
 func linuxTarget(target string) bool {
 	return target == "x86-64" || target == "rpi"
 }
