@@ -6,20 +6,24 @@ package hub
 import (
 	"bytes"
 	"fmt"
-	"sync"
 	"time"
+
+	"github.com/ietxaniz/delock"
 )
 
 // Scratch buffer and mutex
 var (
 	logBuffer   bytes.Buffer
-	logBufferMu sync.Mutex
+	logBufferMu delock.Mutex
 )
 
 // Format the args into key=value pairs
 func formatArgs(args ...any) string {
-	logBufferMu.Lock()
-	defer logBufferMu.Unlock()
+	lockId, err := logBufferMu.Lock()
+	if err != nil {
+		panic(err)
+	}
+	defer logBufferMu.Unlock(lockId)
 
 	logBuffer.Reset()
 

@@ -3,11 +3,11 @@
 package hub
 
 import (
-	"sync"
+	"github.com/ietxaniz/delock"
 )
 
 var routes map[string]string // key: dst id, value: nexthop id
-var routesMu sync.RWMutex
+var routesMu delock.RWMutex
 
 func _routesBuild(parent, base *device) {
 	for _, childId := range parent.Children {
@@ -20,13 +20,19 @@ func _routesBuild(parent, base *device) {
 
 func routesBuild(root *device) {
 
-	routesMu.RLock()
-	defer routesMu.RUnlock()
+	lockId, err := routesMu.RLock()
+	if err != nil {
+		panic(err)
+	}
+	defer routesMu.RUnlock(lockId)
 
 	routes = make(map[string]string)
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	lockId2, err := devicesMu.RLock()
+	if err != nil {
+		panic(err)
+	}
+	defer devicesMu.RUnlock(lockId2)
 
 	// root points to self
 	routes[root.Id] = root.Id
@@ -42,8 +48,11 @@ func routesBuild(root *device) {
 }
 
 func downlinksRoute(p *Packet) {
-	routesMu.RLock()
+	lockId, err := routesMu.RLock()
+	if err != nil {
+		panic(err)
+	}
 	nexthop := routes[p.Dst]
-	routesMu.RUnlock()
+	routesMu.RUnlock(lockId)
 	deviceRouteDown(nexthop, p)
 }
