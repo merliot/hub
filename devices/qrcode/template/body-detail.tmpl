@@ -1,12 +1,8 @@
 <div class="flex flex-col items-center">
-	<span>{{state.Content}}</span>
-	<div class="flex flex-row justify-center"
-	     hx-post="/device/{{id}}/generate?Content={{state.Content}}"
-		hx-target="#{{uniq `qr-code`}}"
-		hx-trigger="load"
-		hx-swap="innerHTML">
-		<div class="m-8 w-52 h-52" id="{{uniq `qr-code`}}">
-			<!-- contents to be replaced -->
+	<span class="m-8">{{state.Content}}</span>
+	<div class="flex flex-row justify-center">
+		<div class="m-8">
+			<img src="{{png state.Content -5}}">
 		</div>
 	</div>
 </div>
