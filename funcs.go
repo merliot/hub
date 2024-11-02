@@ -13,8 +13,6 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-type Funcs template.FuncMap
-
 func linuxTarget(target string) bool {
 	return target == "x86-64" || target == "rpi"
 }
@@ -40,7 +38,7 @@ func (d *device) stateJSON() (string, error) {
 //
 // TODO how to split these into ones that all can use and ones that only core
 // TODO template/ templates can use?
-func (d *device) funcs() template.FuncMap {
+func (d *device) baseFuncs() template.FuncMap {
 	return template.FuncMap{
 		"id":             func() string { return d.Id },
 		"model":          func() string { return d.Model },

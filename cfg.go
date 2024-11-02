@@ -2,6 +2,7 @@ package hub
 
 import (
 	"embed"
+	"html/template"
 	"time"
 )
 
@@ -24,8 +25,10 @@ type Config struct {
 	BgColor string
 	// FgColor is the device forground (text, border) color
 	FgColor string
-	//
+	// PacketHandlers
 	PacketHandlers
+	// Custom device APIs
 	APIs
-	Funcs
+	// Custom device funcs
+	template.FuncMap
 }

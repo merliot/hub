@@ -4,6 +4,8 @@ package hub
 
 type deviceOS struct{}
 
+type APIs struct{}
+
 func (d *device) buildOS() error { return nil }
 
 func devicesSendState(l linker) {

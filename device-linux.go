@@ -18,6 +18,8 @@ import (
 //go:embed robots.txt blog css docs images js template
 var deviceFs embed.FS
 
+type APIs map[string]http.HandlerFunc
+
 type devicesMap map[string]*device // key: device id
 
 var devices = make(devicesMap)
@@ -32,10 +34,6 @@ type deviceOS struct {
 func (d *device) buildOS() error {
 	var err error
 
-	if d.Funcs == nil {
-		d.Funcs = Funcs{}
-	}
-
 	d.ServeMux = http.NewServeMux()
 
 	// Build device's layered FS.  fs is stacked on top of
@@ -44,8 +42,16 @@ func (d *device) buildOS() error {
 	d.layeredFS.stack(deviceFs)
 	d.layeredFS.stack(d.FS)
 
-	// Build the device templates using device funcs
-	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.funcs())
+	// Merge base funcs with device funcs to make one FuncMap
+	if d.FuncMap == nil {
+		d.FuncMap = template.FuncMap{}
+	}
+	for k, v := range d.baseFuncs() {
+		d.FuncMap[k] = v
+	}
+
+	// Build the device templates using combined funcs
+	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.FuncMap)
 
 	return err
 }

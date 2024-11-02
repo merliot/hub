@@ -17,8 +17,6 @@ import (
 	"strings"
 )
 
-type APIs map[string]http.HandlerFunc
-
 func (d *device) installAPIs() {
 
 	// Base APIs for all devices
