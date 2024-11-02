@@ -149,7 +149,9 @@ func (s session) _renderPkt(pkt *Packet) {
 		LogError("Rendering pkt", "err", err)
 		return
 	}
+	LogError("_renderPkt sending")
 	websocket.Message.Send(s.conn, string(buf.Bytes()))
+	LogError("_renderPkt sent")
 }
 
 func sessionsRoute(pkt *Packet) {
@@ -160,7 +162,7 @@ func sessionsRoute(pkt *Packet) {
 	for _, s := range sessions {
 		if s.conn != nil {
 			if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
-				//LogInfo("SessionsRoute", "pkt", pkt)
+				LogInfo("SessionsRoute", "pkt", pkt)
 				s._renderPkt(pkt)
 			}
 		}
