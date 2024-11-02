@@ -85,13 +85,17 @@ func devicesFindRoot() (*device, error) {
 	childSet := make(map[string]bool)
 
 	// Populate the childSet with the Ids of all children
-	for _, device := range devices {
+	for i, device := range devices {
+		var validChildren []string
 		for _, child := range device.Children {
 			if _, ok := devices[child]; !ok {
-				return nil, fmt.Errorf("Child Id %s not found in devices", child)
+				fmt.Printf("Warning: Child Id %s not found in devices\n", child)
+				continue
 			}
+			validChildren = append(validChildren, child)
 			childSet[child] = true
 		}
+		devices[i].Children = validChildren
 	}
 
 	// Find all root devices
