@@ -4,9 +4,9 @@ package gps
 
 import (
 	"machine"
+	"sync"
 	"time"
 
-	"github.com/ietxaniz/delock"
 	"github.com/merliot/hub/io/gps/nmea"
 )
 
@@ -14,7 +14,7 @@ type air530 struct {
 	uart *machine.UART
 	lat  float64
 	long float64
-	delock.RWMutex
+	sync.RWMutex
 	buf [128]byte
 }
 
@@ -28,11 +28,8 @@ func (a *air530) Setup(uart *machine.UART, tx, rx machine.Pin, baudrate uint32) 
 func (a *air530) process(raw string) {
 	lat, long, err := nmea.ParseGLL(raw)
 	if err == nil {
-		lockId, err := a.Lock()
-		if err != nil {
-			panic(err)
-		}
-		defer a.Unlock(lockId)
+		a.Lock()
+		defer a.Unlock()
 		a.lat, a.long = lat, long
 	}
 }
@@ -60,10 +57,7 @@ func (a *air530) scan() {
 }
 
 func (a air530) Location() (float64, float64, error) {
-	lockId, err := a.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer a.RUnlock(lockId)
+	a.RLock()
+	defer a.RUnlock()
 	return a.lat, a.long, nil
 }

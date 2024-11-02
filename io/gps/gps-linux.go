@@ -4,8 +4,8 @@ package gps
 
 import (
 	"bufio"
+	"sync"
 
-	"github.com/ietxaniz/delock"
 	"github.com/merliot/hub"
 	"github.com/merliot/hub/io/gps/nmea"
 	"github.com/tarm/serial"
@@ -15,18 +15,15 @@ type Gps struct {
 	*serial.Port
 	lat  float64
 	long float64
-	delock.RWMutex
+	sync.RWMutex
 }
 
 func (g *Gps) Setup() (err error) {
 	cfg := &serial.Config{Name: "/dev/ttyUSB0", Baud: 9600}
 
-	lockId, err := g.Lock()
-	if err != nil {
-		panic(err)
-	}
+	g.Lock()
 	g.Port, err = serial.OpenPort(cfg)
-	g.Unlock(lockId)
+	g.Unlock()
 
 	if err != nil {
 		return err
@@ -46,12 +43,9 @@ func (g *Gps) scan() {
 			//hub.LogError("Scan", "err", err)
 			continue
 		}
-		lockId, err := g.Lock()
-		if err != nil {
-			panic(err)
-		}
+		g.Lock()
 		g.lat, g.long = lat, long
-		g.Unlock(lockId)
+		g.Unlock()
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -60,24 +54,18 @@ func (g *Gps) scan() {
 
 	g.Port.Close()
 
-	lockId, err := g.Lock()
-	if err != nil {
-		panic(err)
-	}
+	g.Lock()
 	g.Port = nil
 	g.lat, g.long = 0.0, 0.0
-	g.Unlock(lockId)
+	g.Unlock()
 }
 
 func (g *Gps) Location() (float64, float64, error) {
-	lockId, err := g.RLock()
-	if err != nil {
-		panic(err)
-	}
+	g.RLock()
 	if g.Port == nil {
-		g.RUnlock(lockId)
+		g.RUnlock()
 		return 0.0, 0.0, g.Setup()
 	}
-	defer g.RUnlock(lockId)
+	defer g.RUnlock()
 	return g.lat, g.long, nil
 }

@@ -13,8 +13,6 @@ import (
 	"slices"
 	"sort"
 	"time"
-
-	"github.com/ietxaniz/delock"
 )
 
 //go:embed robots.txt blog css docs images js template
@@ -23,7 +21,7 @@ var deviceFs embed.FS
 type devicesMap map[string]*device // key: device id
 
 var devices = make(devicesMap)
-var devicesMu delock.RWMutex
+var devicesMu rwMutex
 
 type deviceOS struct {
 	*http.ServeMux
@@ -132,21 +130,15 @@ func addChild(parent *device, id, model, name string) error {
 		return fmt.Errorf("Unknown model")
 	}
 
-	lockId, err := devicesMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.Unlock(lockId)
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 
 	if _, ok := devices[id]; ok {
 		return fmt.Errorf("Child device already exists")
 	}
 
-	lockId2, err := parent.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer parent.Unlock(lockId2)
+	parent.Lock()
+	defer parent.Unlock()
 
 	if err := child.build(maker.Maker); err != nil {
 		return err
@@ -167,24 +159,18 @@ func addChild(parent *device, id, model, name string) error {
 
 func removeChild(id string) error {
 
-	lockId, err := devicesMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.Unlock(lockId)
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 
 	if _, ok := devices[id]; ok {
 		delete(devices, id)
 		for _, device := range devices {
-			lockId, err := device.Lock()
-			if err != nil {
-				panic(err)
-			}
+			device.Lock()
 			if index := slices.Index(device.Children, id); index != -1 {
 				device.Children = slices.Delete(device.Children, index, index+1)
 				// TODO remove everything below child
 			}
-			device.Unlock(lockId)
+			device.Unlock()
 		}
 		return nil
 	}
@@ -211,22 +197,16 @@ func (d *device) routeDown(pkt *Packet) {
 }
 
 func deviceRouteDown(id string, pkt *Packet) {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	if d, ok := devices[id]; ok {
 		d.routeDown(pkt)
 	}
 }
 
 func deviceRouteUp(id string, pkt *Packet) {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	if d, ok := devices[id]; ok {
 		d.handle(pkt)
 	}
@@ -234,11 +214,8 @@ func deviceRouteUp(id string, pkt *Packet) {
 
 func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	//LogInfo("deviceRenderPkt", "pkt", pkt)
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	if d, ok := devices[pkt.Dst]; ok {
 		return d._renderPkt(w, sessionId, pkt)
 	}
@@ -246,11 +223,8 @@ func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 }
 
 func deviceOnline(ann announcement) error {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	d, ok := devices[ann.Id]
 	if !ok {
@@ -272,12 +246,9 @@ func deviceOnline(ann announcement) error {
 			d.DeployParams, ann.DeployParams)
 	}
 
-	lockId2, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
+	d.Lock()
 	d.Set(flagOnline)
-	d.Unlock(lockId2)
+	d.Unlock()
 
 	// We don't need to send a /online pkt up because /state is going to be
 	// sent UP
@@ -286,50 +257,38 @@ func deviceOnline(ann announcement) error {
 }
 
 func deviceOffline(id string) {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	d, ok := devices[id]
 	if !ok {
 		return
 	}
 
-	lockId2, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
+	d.Lock()
 	d.Unset(flagOnline)
-	d.Unlock(lockId2)
+	d.Unlock()
 
 	pkt := &Packet{Dst: id, Path: "/offline"}
 	pkt.RouteUp()
 }
 
 func updateDirty(id string, dirty bool) {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	d, ok := devices[id]
 	if !ok {
 		return
 	}
 
-	lockId2, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
+	d.Lock()
 	if dirty {
 		d.Set(flagDirty)
 	} else {
 		d.Unset(flagDirty)
 	}
-	d.Unlock(lockId2)
+	d.Unlock()
 
 	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
 	pkt.RouteUp()
@@ -344,11 +303,8 @@ func deviceClean(id string) {
 }
 
 func deviceParent(id string) string {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	for _, device := range devices {
 		if slices.Contains(device.Children, id) {
 			return device.Id
@@ -361,11 +317,8 @@ func devicesLoad() error {
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "devices.json")
 
-	lockId, err := devicesMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.Unlock(lockId)
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 
 	// Give DEVICES priority over DEVICES_FILE
 
@@ -381,11 +334,8 @@ func devicesSave() error {
 	//var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "devices.json")
 
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	//if devicesJSON == "" {
 	println("writing file", devicesFile)
@@ -399,25 +349,19 @@ func devicesSave() error {
 
 func devicesSendState(l linker) {
 	LogInfo("Sending /state to all devices")
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
+	devicesMu.RLock()
 	for id, d := range devices {
 		var pkt = &Packet{
 			Dst:  id,
 			Path: "/state",
 		}
-		lockId2, err := d.RLock()
-		if err != nil {
-			panic(err)
-		}
+		d.RLock()
 		pkt.Marshal(d.State)
-		d.RUnlock(lockId2)
+		d.RUnlock()
 		LogInfo("Sending", "pkt", pkt)
 		l.Send(pkt)
 	}
-	devicesMu.RUnlock(lockId)
+	devicesMu.RUnlock()
 }
 
 func (d *device) demoReboot(pkt *Packet) {
@@ -462,11 +406,8 @@ type deviceStatus struct {
 }
 
 func devicesStatus() []deviceStatus {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	var statuses = make([]deviceStatus, len(devices))
 	for _, id := range devicesSortedId() {

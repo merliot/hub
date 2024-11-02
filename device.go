@@ -6,8 +6,6 @@ import (
 	"math"
 	"net/url"
 	"time"
-
-	"github.com/ietxaniz/delock"
 )
 
 var (
@@ -32,15 +30,15 @@ type Devicer interface {
 }
 
 type device struct {
-	Id             string
-	Model          string
-	Name           string
-	Children       []string
-	DeployParams   template.HTML
-	flags          `json:"-"`
-	Config         `json:"-"`
-	Devicer        `json:"-"`
-	delock.RWMutex `json:"-"`
+	Id           string
+	Model        string
+	Name         string
+	Children     []string
+	DeployParams template.HTML
+	flags        `json:"-"`
+	Config       `json:"-"`
+	Devicer      `json:"-"`
+	rwMutex      `json:"-"`
 	deviceOS
 	stopChan chan struct{}
 	startup  time.Time
@@ -142,10 +140,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 }
 
 func (d *device) formConfig(rawQuery string) (changed bool, err error) {
-	lockId, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer d.Unlock(lockId)
+	d.Lock()
+	defer d.Unlock()
 	return d._formConfig(rawQuery)
 }

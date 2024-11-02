@@ -28,11 +28,8 @@ func (h *PacketHandler[T]) cb(pkt *Packet) {
 type PacketHandlers map[string]packetHandler
 
 func (d *device) handle(pkt *Packet) {
-	lockId, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer d.Unlock(lockId)
+	d.Lock()
+	defer d.Unlock()
 	if d.IsSet(flagOnline) {
 		if handler, ok := d.PacketHandlers[pkt.Path]; ok {
 			LogInfo("Handling", "pkt", pkt)

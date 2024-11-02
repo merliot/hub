@@ -7,23 +7,18 @@ import (
 	"bytes"
 	"fmt"
 	"time"
-
-	"github.com/ietxaniz/delock"
 )
 
 // Scratch buffer and mutex
 var (
 	logBuffer   bytes.Buffer
-	logBufferMu delock.Mutex
+	logBufferMu mutex
 )
 
 // Format the args into key=value pairs
 func formatArgs(args ...any) string {
-	lockId, err := logBufferMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer logBufferMu.Unlock(lockId)
+	logBufferMu.Lock()
+	defer logBufferMu.Unlock()
 
 	logBuffer.Reset()
 

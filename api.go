@@ -131,11 +131,8 @@ func (d *device) deviceInstall() {
 }
 
 func devicesInstall() {
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	for _, device := range devices {
 		device.deviceInstall()
 	}
@@ -154,11 +151,8 @@ func (d *device) _renderTmpl(w io.Writer, template string, data any) error {
 }
 
 func (d *device) renderTmpl(w io.Writer, template string, data any) error {
-	lockId, err := d.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer d.RUnlock(lockId)
+	d.RLock()
+	defer d.RUnlock()
 	return d._renderTmpl(w, template, data)
 }
 
@@ -170,11 +164,8 @@ func (d *device) _renderSession(w io.Writer, template, sessionId string, level i
 }
 
 func (d *device) renderSession(w io.Writer, template, sessionId string, level int) error {
-	lockId, err := d.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer d.RUnlock(lockId)
+	d.RLock()
+	defer d.RUnlock()
 	return d._renderSession(w, template, sessionId, level)
 }
 
@@ -233,11 +224,8 @@ func (d *device) _render(w io.Writer, sessionId, path, view string, level int) e
 }
 
 func (d *device) render(w io.Writer, sessionId, path, view string, level int) error {
-	lockId, err := d.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer d.RUnlock(lockId)
+	d.RLock()
+	defer d.RUnlock()
 	return d._render(w, sessionId, path, view, level)
 }
 
@@ -265,11 +253,8 @@ func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
 func (d *device) renderView(sessionId, path, view string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
 
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	if err := d._render(&buf, sessionId, path, view, level); err != nil {
 		return template.HTML(""), err
@@ -281,11 +266,8 @@ func (d *device) renderView(sessionId, path, view string, level int) (template.H
 func (d *device) renderChildren(sessionId string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
 
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	if err := d._renderChildren(&buf, sessionId, level); err != nil {
 		return template.HTML(""), err
@@ -440,11 +422,8 @@ func (d *device) saveDevices(w http.ResponseWriter, r *http.Request) {
 func (d *device) showDevices(w http.ResponseWriter, r *http.Request) {
 	var childDevices = make(devicesMap)
 
-	lockId, err := devicesMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer devicesMu.RUnlock(lockId)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 
 	for _, childId := range d.Children {
 		child := devices[childId]

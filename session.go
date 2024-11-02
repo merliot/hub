@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ietxaniz/delock"
 	"golang.org/x/net/websocket"
 )
 
@@ -27,11 +26,11 @@ type session struct {
 	conn       *websocket.Conn
 	lastUpdate time.Time
 	lastViews  map[string]lastView // key: device Id
-	delock.RWMutex
+	rwMutex
 }
 
 var sessions = make(map[string]*session) // key: sessionId
-var sessionsMu delock.RWMutex
+var sessionsMu rwMutex
 var sessionCount int32
 var sessionCountMax = int32(1000)
 
@@ -49,11 +48,8 @@ func _newSession(sessionId string, conn *websocket.Conn) *session {
 }
 
 func newSession() (string, bool) {
-	lockId, err := sessionsMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.Unlock(lockId)
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
 
 	if sessionCount >= sessionCountMax {
 		return "", false
@@ -68,11 +64,8 @@ func newSession() (string, bool) {
 
 func sessionConn(sessionId string, conn *websocket.Conn) {
 
-	lockId, err := sessionsMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.Unlock(lockId)
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.conn = conn
@@ -85,11 +78,8 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 
 func sessionUpdate(sessionId string) bool {
 
-	lockId, err := sessionsMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.Unlock(lockId)
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.lastUpdate = time.Now()
@@ -102,11 +92,8 @@ func sessionUpdate(sessionId string) bool {
 
 func sessionKeepAlive(sessionId string) bool {
 
-	lockId, err := sessionsMu.Lock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.Unlock(lockId)
+	sessionsMu.Lock()
+	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.lastUpdate = time.Now()
@@ -124,11 +111,8 @@ func sessionKeepAlive(sessionId string) bool {
 func _sessionSave(sessionId, deviceId, view string, level int) {
 
 	if s, ok := sessions[sessionId]; ok {
-		lockId, err := s.Lock()
-		if err != nil {
-			panic(err)
-		}
-		defer s.Unlock(lockId)
+		s.Lock()
+		defer s.Unlock()
 		s.lastUpdate = time.Now()
 		lastView := s.lastViews[deviceId]
 		lastView.view = view
@@ -143,11 +127,8 @@ func _sessionLastView(sessionId, deviceId string) (string, int, error) {
 		return "", 0, fmt.Errorf("Invalid session %s", sessionId)
 	}
 
-	lockId, err := s.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer s.RUnlock(lockId)
+	s.RLock()
+	defer s.RUnlock()
 
 	view, ok := s.lastViews[deviceId]
 	if !ok {
@@ -157,11 +138,8 @@ func _sessionLastView(sessionId, deviceId string) (string, int, error) {
 }
 
 func sessionLastView(sessionId, deviceId string) (view string, level int, err error) {
-	lockId, err := sessionsMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.RUnlock(lockId)
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 	return _sessionLastView(sessionId, deviceId)
 }
 
@@ -176,11 +154,8 @@ func (s session) _renderPkt(pkt *Packet) {
 
 func sessionsRoute(pkt *Packet) {
 
-	lockId, err := sessionsMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.RUnlock(lockId)
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	for _, s := range sessions {
 		if s.conn != nil {
@@ -194,11 +169,8 @@ func sessionsRoute(pkt *Packet) {
 
 func sessionRoute(sessionId string, pkt *Packet) {
 
-	lockId, err := sessionsMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.RUnlock(lockId)
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		if s.conn != nil {
@@ -210,11 +182,8 @@ func sessionRoute(sessionId string, pkt *Packet) {
 
 func sessionSend(sessionId, htmlSnippet string) {
 
-	lockId, err := sessionsMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.RUnlock(lockId)
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		if s.conn != nil {
@@ -228,17 +197,14 @@ func gcSessions() {
 	ticker := time.NewTicker(minute)
 	defer ticker.Stop()
 	for range ticker.C {
-		lockId, err := sessionsMu.Lock()
-		if err != nil {
-			panic(err)
-		}
+		sessionsMu.Lock()
 		for sessionId, s := range sessions {
 			if time.Since(s.lastUpdate) > minute {
 				delete(sessions, sessionId)
 				sessionCount -= 1
 			}
 		}
-		sessionsMu.Unlock(lockId)
+		sessionsMu.Unlock()
 	}
 }
 
@@ -257,11 +223,8 @@ func sessionsSortedAge() []string {
 }
 
 func (s session) sortedViewIds() []string {
-	lockId, err := s.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer s.RUnlock(lockId)
+	s.RLock()
+	defer s.RUnlock()
 
 	keys := make([]string, 0, len(s.lastViews))
 	for id := range s.lastViews {
@@ -277,11 +240,8 @@ type sessionStatus struct {
 }
 
 func sessionsStatus() []sessionStatus {
-	lockId, err := sessionsMu.RLock()
-	if err != nil {
-		panic(err)
-	}
-	defer sessionsMu.RUnlock(lockId)
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	color := func(s *session) string {
 		elapsed := time.Since(s.lastUpdate)

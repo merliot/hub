@@ -8,12 +8,9 @@ func (d *device) runDemo() {
 	d.stopChan = make(chan struct{})
 
 	// Poll right away and then on ticker
-	lockId, err := d.Lock()
-	if err != nil {
-		panic(err)
-	}
+	d.Lock()
 	d.DemoPoll(&Packet{Dst: d.Id})
-	d.Unlock(lockId)
+	d.Unlock()
 
 	ticker := time.NewTicker(d.PollPeriod)
 	defer ticker.Stop()
@@ -21,12 +18,9 @@ func (d *device) runDemo() {
 	for {
 		select {
 		case <-ticker.C:
-			lockId, err := d.Lock()
-			if err != nil {
-				panic(err)
-			}
+			d.Lock()
 			d.DemoPoll(&Packet{Dst: d.Id})
-			d.Unlock(lockId)
+			d.Unlock()
 		case <-d.stopChan:
 			return
 		}
