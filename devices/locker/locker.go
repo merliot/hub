@@ -17,7 +17,7 @@ func (l *locker) GetConfig() hub.Config {
 		Model:   "locker",
 		State:   l,
 		FS:      &fs,
-		Targets: []string{"x86-64", "rpi", "nano-rp2040", "wioterminal"},
+		Targets: []string{"x86-64", "rpi", "nano-rp2040", "wioterminal", "pyportal"},
 		BgColor: "mars",
 		FgColor: "black",
 	}
