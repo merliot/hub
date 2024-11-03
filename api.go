@@ -49,7 +49,6 @@ func (d *device) installAPIs() {
 	d.HandleFunc("GET /", d.serveStaticFile)
 
 	d.HandleFunc("PUT /nop", d.nop)
-	d.HandleFunc("PUT /keep-alive", d.keepAlive)
 	d.HandleFunc("GET /show-view", d.showView)
 
 	d.HandleFunc("GET /state", d.showState)
@@ -286,14 +285,6 @@ func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *device) nop(w http.ResponseWriter, r *http.Request) {}
-
-func (d *device) keepAlive(w http.ResponseWriter, r *http.Request) {
-	sessionId := r.Header.Get("session-id")
-	if !sessionKeepAlive(sessionId) {
-		// Session expired, force full page refresh to start new session
-		w.Header().Set("HX-Refresh", "true")
-	}
-}
 
 func (d *device) noSessions(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "no more sessions", http.StatusTooManyRequests)

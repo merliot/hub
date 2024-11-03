@@ -5,7 +5,6 @@ package hub
 import (
 	"bytes"
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strconv"
@@ -90,22 +89,14 @@ func sessionUpdate(sessionId string) bool {
 	return false
 }
 
-func sessionKeepAlive(sessionId string) bool {
+func sessionKeepAlive(sessionId string) {
 
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.lastUpdate = time.Now()
-		data, _ := json.Marshal(&Packet{Path: "/ping"})
-		if s.conn != nil {
-			websocket.Message.Send(s.conn, string(data))
-		}
-		return true
 	}
-
-	// Session expired
-	return false
 }
 
 func _sessionSave(sessionId, deviceId, view string, level int) {
@@ -149,9 +140,7 @@ func (s session) _renderPkt(pkt *Packet) {
 		LogError("Rendering pkt", "err", err)
 		return
 	}
-	LogError("_renderPkt sending")
 	websocket.Message.Send(s.conn, string(buf.Bytes()))
-	LogError("_renderPkt sent")
 }
 
 func sessionsRoute(pkt *Packet) {
