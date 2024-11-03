@@ -19,7 +19,7 @@ func (d *device) packetHandlersInstall() {
 func (d *device) newPacketRoute(h packetHandler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		msg := h.gen()
-		pkt, err := newPacketFromURL(r.URL, msg)
+		pkt, err := newPacketFromRequest(r, msg)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

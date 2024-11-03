@@ -3,10 +3,10 @@ package hub
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
+	"net/http"
 )
 
-// NoMsg is used as an empty message type when creating a Handle.
+// NoMsg is an empty message type for PacketHandle's
 type NoMsg struct{}
 
 // Packet is the basic container for messages sent between devices.
@@ -23,14 +23,15 @@ type Packet struct {
 	Msg json.RawMessage
 }
 
-func newPacketFromURL(url *url.URL, v any) (*Packet, error) {
+func newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 	var pkt = &Packet{
-		Path: url.Path,
+		Path: r.URL.Path,
 	}
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
 	}
-	err := decode(v, url.Query())
+	r.ParseForm()
+	err := decode(v, r.Form)
 	if err != nil {
 		return nil, err
 	}

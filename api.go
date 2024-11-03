@@ -247,9 +247,19 @@ func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
 	return template.HTML(buf.String()), nil
 }
 
+func RenderTemplate(w io.Writer, id, name string, data any) error {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+	if d, ok := devices[id]; ok {
+		return d.renderTmpl(w, name, data)
+	}
+	return fmt.Errorf("RenderTemplate unknown device id %s", id)
+}
+
 func (d *device) renderView(sessionId, path, view string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
 
+	// We're going to walk children in _render, so hold devices lock
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
@@ -481,7 +491,7 @@ type msgRename struct {
 func (d *device) rename(w http.ResponseWriter, r *http.Request) {
 	var msg msgRename
 
-	pkt, err := newPacketFromURL(r.URL, &msg)
+	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -501,7 +511,7 @@ func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
 	var msg any
 	var sessionId = r.Header.Get("session-id")
 
-	pkt, err := newPacketFromURL(r.URL, &msg)
+	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -527,7 +537,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pkt, err := newPacketFromURL(r.URL, &child)
+	pkt, err := newPacketFromRequest(r, &child)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -557,7 +567,7 @@ type msgDestroy struct {
 func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 	var msg msgDestroy
 
-	pkt, err := newPacketFromURL(r.URL, &msg)
+	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
