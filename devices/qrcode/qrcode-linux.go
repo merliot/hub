@@ -28,8 +28,12 @@ func (q *qrcode) GetConfig() hub.Config {
 		Targets: []string{"wioterminal", "pyportal"},
 		BgColor: "magenta",
 		FgColor: "black",
+		PacketHandlers: hub.PacketHandlers{
+			"/update": &hub.PacketHandler[qrcode]{q.update},
+		},
 		APIs: hub.APIs{
-			"POST /generate": q.generate,
+			"POST /generate":    q.generate,
+			"GET /edit-content": q.editContent,
 		},
 		FuncMap: template.FuncMap{
 			"png": q.png,
@@ -39,7 +43,15 @@ func (q *qrcode) GetConfig() hub.Config {
 
 func (q *qrcode) Setup() error { return nil }
 
+func (q *qrcode) update(pkt *hub.Packet) {
+	pkt.Unmarshal(q).RouteUp()
+}
+
 func (q *qrcode) png(content string, size int) (template.URL, error) {
+	if content == "" {
+		content = "missing content?"
+	}
+
 	// Generate the QR code as PNG image
 	var png []byte
 	png, err := goqr.Encode(content, goqr.Medium, size)
@@ -56,9 +68,6 @@ func (q *qrcode) png(content string, size int) (template.URL, error) {
 func (q *qrcode) generate(w http.ResponseWriter, r *http.Request) {
 
 	content := r.FormValue("Content")
-	if content == "" {
-		return
-	}
 
 	url, err := q.png(content, -5)
 	if err != nil {
@@ -68,4 +77,11 @@ func (q *qrcode) generate(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.New("qr").Parse(`<img src="{{.}}">`))
 	tmpl.Execute(w, url)
+}
+
+func (q *qrcode) editContent(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	if err := hub.RenderTemplate(w, id, "edit-content.tmpl", nil); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }

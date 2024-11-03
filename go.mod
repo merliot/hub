@@ -25,4 +25,5 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect
+	tinygo.org/x/tinyfs v0.4.0 // indirect
 )

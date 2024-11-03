@@ -56,3 +56,5 @@ periph.io/x/host/v3 v3.8.2 h1:ayKUDzgUCN0g8+/xM9GTkWaOBhSLVcVHGTfjAOi8OsQ=
 periph.io/x/host/v3 v3.8.2/go.mod h1:yFL76AesNHR68PboofSWYaQTKmvPXsQH2Apvp/ls/K4=
 tinygo.org/x/drivers v0.27.0 h1:TEGk1lQvEhXxfvpEhUu+pwmCnhtldPI+hpHlO9VYixI=
 tinygo.org/x/drivers v0.27.0/go.mod h1:q/mU8G/wz821p8xXqbkBACOlmZFDHXd//DnYnCW+dDQ=
+tinygo.org/x/tinyfs v0.4.0 h1:35/XmBXSZKz5eqAqkhe83i56qYLhyZ09JarforFoTNQ=
+tinygo.org/x/tinyfs v0.4.0/go.mod h1:QM+MK9aXJKKgXZmHJHquzULUVB7h60nIJQmOyKDyA1E=
