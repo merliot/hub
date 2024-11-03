@@ -30,6 +30,10 @@ func (d *device) stateJSON() (string, error) {
 	return string(bytes), err
 }
 
+func (d *device) uptime() string {
+	return formatDuration(time.Since(d.startup).Truncate(time.Second))
+}
+
 // funcs are device functions passed to templates.
 //
 // IMPORTANT!
@@ -47,7 +51,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"deployParams":   func() template.HTML { return d.DeployParams },
 		"state":          func() any { return d.State },
 		"stateJSON":      d.stateJSON,
-		"uptime":         func() string { return time.Since(d.startup).Truncate(time.Second).String() },
+		"uptime":         d.uptime,
 		"title":          strings.Title,
 		"add":            func(a, b int) int { return a + b },
 		"mult":           func(a, b int) int { return a * b },
