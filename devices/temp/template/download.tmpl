@@ -1,0 +1,59 @@
+<div class="flex flex-row mb-5">
+	<span class="mr-4">Sensor</span>
+	<label class="mr-2.5">
+{{ if or (eq state.Sensor "DHT11") (eq state.Sensor "") }}
+		<input type="radio" name="Sensor" value="DHT11" checked>
+{{ else }}
+		<input type="radio" name="Sensor" value="DHT11">
+{{ end }}
+		DHT11
+	</label>
+
+	<label class="mr-2.5">
+{{ if eq state.Sensor "DHT22" }}
+		<input type="radio" name="Sensor" value="DHT22" checked>
+{{ else }}
+		<input type="radio" name="Sensor" value="DHT22">
+{{ end }}
+		DHT22
+	</label>
+</div>
+
+<div class="flex flex-row mb-5">
+	<span class="mr-4">Temperature Units</span>
+	<label class="mr-2.5">
+{{ if or (eq state.TempUnits "F") (eq state.TempUnits "") }}
+		<input type="radio" name="TempUnits" value="F" checked>
+{{ else }}
+		<input type="radio" name="TempUnits" value="F">
+{{ end }}
+		F&deg;
+	</label>
+
+	<label class="mr-2.5">
+{{ if eq state.TempUnits "C" }}
+		<input type="radio" name="TempUnits" value="C" checked>
+{{ else }}
+		<input type="radio" name="TempUnits" value="C">
+{{ end }}
+		C&deg;
+	</label>
+</div>
+
+<div class="flex flex-row mb-5">
+	<span class="mr-4">GPIO</span>
+	<select class="h-5" name="Gpio">
+		<option value="">Select GPIO</option>
+{{- range $key, $target := targets }}
+	{{- if eq $key $.selectedTarget }}
+		{{- range $gpio, $pin := $target.GpioPins }}
+			{{- if eq $gpio state.Gpio }}
+		<option selected value="{{$gpio}}">{{$gpio}}</option>
+			{{- else }}
+		<option value="{{$gpio}}">{{$gpio}}</option>
+			{{- end }}
+		{{- end }}
+	{{- end }}
+{{- end }}
+	</select>
+</div>

@@ -10,6 +10,7 @@ import (
 	"github.com/merliot/hub/devices/locker"
 	"github.com/merliot/hub/devices/qrcode"
 	"github.com/merliot/hub/devices/relays"
+	"github.com/merliot/hub/devices/temp"
 )
 
 var AllModels = hub.ModelMap{
@@ -19,6 +20,7 @@ var AllModels = hub.ModelMap{
 	"locker": Locker,
 	"qrcode": Qrcode,
 	"relays": Relays,
+	"temp": Temp,
 }
 var Gadget = hub.Model{
 	Package: "github.com/merliot/hub/devices/gadget",
@@ -49,4 +51,9 @@ var Relays = hub.Model{
 	Package: "github.com/merliot/hub/devices/relays",
 	Source: "https://github.com/merliot/hub/tree/main/devices/relays",
 	Maker: relays.NewModel,
+}
+var Temp = hub.Model{
+	Package: "github.com/merliot/hub/devices/temp",
+	Source: "https://github.com/merliot/hub/tree/main/devices/temp",
+	Maker: temp.NewModel,
 }

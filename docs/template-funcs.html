@@ -1,8 +1,9 @@
 <h2>TEMPLATE FUNCTIONS</h2>
 
-<p>Each device model includes a set of built-in template helper functions, making it
-easier to include device state in template output.  For example, use functions
-<code>target</code> and <code>state</code> to return a custom html snippet:</p>
+<p>Each device model includes a set of base and custom template helper
+functions, making it easier to include device state in template output.  For
+example, use the functions <code>target</code> and <code>state</code> in the
+template:</p>
 
 <pre class="code-snippet">
 &lt;div&gt;
@@ -13,6 +14,10 @@ easier to include device state in template output.  For example, use functions
 	{{ end }}
 &lt;/div&gt;
 </pre>
+
+<h3>BASE FUNCTIONS</h3>
+
+<p>All devices can use the base functions in their templates.</p>
 
 <style>
 	.template-grid {
@@ -72,5 +77,50 @@ easier to include device state in template output.  For example, use functions
 	<div class="grid-item">Returns strings.Join(parts, "")</div>
 
 	<div class="grid-item">target() string</div>
-	<div class="grid-item">Returns device target<div>
+	<div class="grid-item">Returns device target</div>
 </div>
+
+<h3>CUSTOM FUNCTIONS</h3>
+
+<p>A device can add custom template functions using a template.FuncMap.</p>
+
+<pre class="code-snippet">
+func (t *temp) GetConfig() hub.Config {
+        return hub.Config{
+		...
+                FuncMap: template.FuncMap{
+                        "tempf": t.tempf,
+                        "humf":  t.humf,
+                },
+        }
+}
+
+func (t *temp) tempf() string {
+        value := t.Temperature
+        if t.TempUnits == "F" {
+                value = (value * 9.0 / 5.0) + 32.0
+        }
+        return fmt.Sprintf("%.1f", value)
+}
+
+func (t *temp) humf() string {
+        return fmt.Sprintf("%.1f", t.Humidity)
+}
+</pre>
+
+<p>Use the functions to get pretty-print strings for temperature and
+humidity.</p>
+
+<pre class="code-snippet">
+&lt;div class="flex flex-row items-center justify-evenly"
+	id="{{uniq `temp-hum`}}"&gt;
+	&lt;div class="flex flex-row mr-2.5"&gt;
+		&lt;span class="text-3xl"&gt;{{<span class="text-gold">tempf</span>}}&lt;/span&gt;
+                &lt;span&gt;&deg;{{state.TempUnits}}&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="flex flex-row mr-2.5"&gt;
+		&lt;span class="text-3xl"&gt;{{<span class="text-gold">humf</span>}}&lt;/span&gt;
+                &lt;span&gt;%&lt;/span&gt;
+        &lt;/div&gt;
+&lt;/div&gt;
+</pre>

@@ -28,5 +28,10 @@
 		"Package": "github.com/merliot/hub/devices/qrcode",
 		"Source": "https://github.com/merliot/hub/tree/main/devices/qrcode",
 		"Maker": "qrcode.NewModel"
+	},
+	"temp": {
+		"Package": "github.com/merliot/hub/devices/temp",
+		"Source": "https://github.com/merliot/hub/tree/main/devices/temp",
+		"Maker": "temp.NewModel"
 	}
 }

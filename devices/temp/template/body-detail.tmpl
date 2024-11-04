@@ -1,0 +1,18 @@
+<div class="flex flex-col" id="{{uniq `temp-hum`}}">
+	<div class="flex flex-row w-full items-center justify-evenly">
+		<div class="flex flex-col">
+			<span>Temperature</span>
+			<div class="flex flex-row mr-4">
+				<span class="text-6xl">{{tempf}}</span>
+				<span>&deg;{{state.TempUnits}}</span>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<span>Humidity</span>
+			<div class="flex flex-row mr-4">
+				<span class="text-6xl">{{humf}}</span>
+				<span>%</span>
+			</div>
+		</div>
+	</div>
+</div>

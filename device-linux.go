@@ -40,7 +40,9 @@ func (d *device) buildOS() error {
 	// deviceFs, so fs:foo.tmpl will override deviceFs:foo.tmpl,
 	// when searching for file foo.tmpl.
 	d.layeredFS.stack(deviceFs)
-	d.layeredFS.stack(d.FS)
+	if d.FS != nil {
+		d.layeredFS.stack(d.FS)
+	}
 
 	// Merge base funcs with device funcs to make one FuncMap
 	if d.FuncMap == nil {

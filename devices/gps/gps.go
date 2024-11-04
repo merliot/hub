@@ -40,6 +40,7 @@ func (g *gps) GetConfig() hub.Config {
 }
 
 func (g *gps) update(pkt *hub.Packet) {
+	println("gps /update", pkt.String())
 	pkt.Unmarshal(g).RouteUp()
 }
 
