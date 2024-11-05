@@ -1,0 +1,39 @@
+<style>
+	#tty {
+		margin-left: 10px;
+	}
+</style>
+
+<hr>
+<div class="divFlexRow" id="tty-div">
+	<span>Serial Device</span>
+	<input id="tty" type="text" placeholder="/dev/ttyUSB0" name="tty">
+</div>
+
+<script>
+
+	function update(target) {
+		var div = document.getElementById('tty-div')
+		var tty = document.getElementById('tty')
+		switch (target) {
+			case "x86-64":
+			case "rpi":
+				div.style.display = "flex"
+				tty.disabled = false
+				tty.name = "tty"
+				break
+			default:
+				div.style.display = "none"
+				tty.disabled = true
+				tty.name = ""
+				break
+		}
+	}
+
+
+
+	let t = document.getElementById('download-target')
+	t.addEventListener('change', function() { update(this.value) })
+	update(t.value)
+
+</script>

@@ -1,13 +1,19 @@
 package temp
 
 import (
-	"fmt"
-	"html/template"
 	"time"
 
 	"github.com/merliot/hub"
 	io "github.com/merliot/hub/io/temp"
 )
+
+var (
+	pollPeriod = 10 * time.Second
+)
+
+type Record []float32
+
+type History []Record
 
 type temp struct {
 	Temperature float32 // deg C
@@ -15,6 +21,7 @@ type temp struct {
 	Sensor      string
 	Gpio        string
 	TempUnits   string
+	History
 	io.Temp
 }
 
@@ -24,41 +31,23 @@ type msgUpdate struct {
 }
 
 func NewModel() hub.Devicer {
-	return &temp{}
-}
-
-func (t *temp) GetConfig() hub.Config {
-	return hub.Config{
-		Model:      "temp",
-		State:      t,
-		FS:         &fs,
-		Targets:    []string{"rpi", "nano-rp2040", "wioterminal"},
-		BgColor:    "orange",
-		FgColor:    "black",
-		PollPeriod: 5 * time.Second,
-		PacketHandlers: hub.PacketHandlers{
-			"/update": &hub.PacketHandler[msgUpdate]{t.update},
-		},
-		FuncMap: template.FuncMap{
-			"tempf": t.tempf,
-			"humf":  t.humf,
-		},
+	return &temp{
+		History: []Record{},
 	}
 }
 
-func (t *temp) tempf() string {
-	value := t.Temperature
-	if t.TempUnits == "F" {
-		value = (value * 9.0 / 5.0) + 32.0
+func (t *temp) addRecord() {
+	if len(t.History) >= 60 {
+		// Remove the oldest
+		t.History = t.History[1:]
 	}
-	return fmt.Sprintf("%.1f", value)
-}
-
-func (t *temp) humf() string {
-	return fmt.Sprintf("%.1f", t.Humidity)
+	// Add the new
+	rec := Record{t.Temperature, t.Humidity}
+	t.History = append(t.History, rec)
 }
 
 func (t *temp) update(pkt *hub.Packet) {
+	t.addRecord()
 	pkt.Unmarshal(t).RouteUp()
 }
 
@@ -74,6 +63,7 @@ func (t *temp) Poll(pkt *hub.Packet) {
 	}
 	t.Temperature = temp
 	t.Humidity = hum
+	t.addRecord()
 	var msg = msgUpdate{temp, hum}
 	pkt.SetPath("/update").Marshal(&msg).RouteUp()
 }

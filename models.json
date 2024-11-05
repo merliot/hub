@@ -33,5 +33,10 @@
 		"Package": "github.com/merliot/hub/devices/temp",
 		"Source": "https://github.com/merliot/hub/tree/main/devices/temp",
 		"Maker": "temp.NewModel"
+	},
+	"prostar": {
+		"Package": "github.com/merliot/hub/devices/prostar",
+		"Source": "https://github.com/merliot/hub/tree/main/devices/prostar",
+		"Maker": "prostar.NewModel"
 	}
 }

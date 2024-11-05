@@ -3,7 +3,6 @@
 package qrcode
 
 import (
-	"embed"
 	"fmt"
 	"image/color"
 	"machine"
@@ -15,8 +14,6 @@ import (
 	"tinygo.org/x/drivers/ili9341"
 	"tinygo.org/x/tinyfs/littlefs"
 )
-
-var fs embed.FS
 
 var (
 	black = color.RGBA{0, 0, 0, 255}
@@ -33,7 +30,6 @@ func (q *qrcode) GetConfig() hub.Config {
 	return hub.Config{
 		Model: "qrcode",
 		State: q,
-		FS:    &fs,
 		PacketHandlers: hub.PacketHandlers{
 			"/update": &hub.PacketHandler[qrcode]{q.update},
 		},

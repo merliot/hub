@@ -16,6 +16,8 @@ require (
 )
 
 require (
+	github.com/Arafatk/glot v0.0.0-20230425001707-a00521b72ee4 // indirect
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

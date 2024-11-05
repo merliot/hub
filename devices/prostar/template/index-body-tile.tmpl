@@ -1,0 +1,45 @@
+<style>
+	#grid {
+		display: grid;
+		grid-template-columns: 50px 40px 40px;
+		grid-gap: 2px;
+	}
+
+	#grid div {
+		text-align: center;
+	}
+
+	.hdr {
+		font-weight: bold;
+	}
+
+	.value {
+		border: 1px solid;
+		background: lightgreen;
+	}
+
+	.offline .value {
+		background: lightgrey;
+	}
+
+	.tile-body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>
+
+<div id="grid" style="font-size: smaller">
+	<div class=""></div>
+	<div class="hdr">Volts</div>
+	<div class="hdr">Amps</div>
+	<div class="hdr">Battery</div>
+	<div class="value" id="battery-volts"></div>
+	<div class="value" id="battery-amps"></div>
+	<div class="hdr">Load</div>
+	<div class="value" id="load-volts"></div>
+	<div class="value" id="load-amps"></div>
+	<div class="hdr">Solar</div>
+	<div class="value" id="solar-volts"></div>
+	<div class="value" id="solar-amps"></div>
+</div>

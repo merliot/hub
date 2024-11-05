@@ -2,6 +2,14 @@
 
 package temp
 
-import "embed"
+import (
+	"github.com/merliot/hub"
+)
 
-var fs embed.FS
+func (t *temp) GetConfig() hub.Config {
+	return hub.Config{
+		Model:      "temp",
+		State:      t,
+		PollPeriod: pollPeriod,
+	}
+}
