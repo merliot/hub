@@ -1,0 +1,82 @@
+<div class="flex flex-col" id="{{uniq `charge`}}">
+
+	<div class="flex flex-row items-center relative">
+		<style>
+			td:nth-child(1) {
+				padding-right: 10px;
+			}
+			td:nth-child(2) {
+				text-align: right;
+			}
+		</style>
+
+		<img class="w-120" src="/device/{{id}}/images/prostar.svg">
+
+		<table class="absolute panel {{textColor}} text-sm" style="top: 260px; left: 20px">
+			<tr>
+				<th colspan="2">CHARGE SUMMARY</th>
+			</tr>
+			<tr>
+				<td>Array Voltage</td>
+				<td>{{state.Array.Volts}}V</td>
+			</tr>
+			<tr>
+				<td>Array Current</td>
+				<td>{{state.Array.Amps}}A</td>
+			</tr>
+			<tr>
+				<td>Daily System Charge</td>
+				<td>{{state.Daily.ChargeAh}}Ah</td>
+			</tr>
+			<tr>
+				<td>Charge State</td>
+				<td>{{chargeState state.Array.State}}</td>
+			</tr>
+		</table>
+
+		<table class="absolute panel {{textColor}} text-sm" style="top: 0px; left: 155px">
+			<tr>
+				<th colspan="2">BATTERY SUMMARY</th>
+			</tr>
+			<tr>
+				<td>Net Battery Current</td>
+				<td>{{state.Battery.SlowNetAmps}}A</td>
+			</tr>
+			<tr>
+				<td>Battery Terminal Voltage</td>
+				<td>{{state.Battery.Volts}}V</td>
+			</tr>
+		</table>
+
+		<table class="absolute panel {{textColor}} text-sm" style="top: 260px; left: 320px">
+			<tr>
+				<th colspan="2">LOAD SUMMARY</th>
+			</tr>
+			<tr>
+				<td>Load Voltage</td>
+				<td>{{state.Load.Volts}}V</td>
+			</tr>
+			<tr>
+				<td>Load Current</td>
+				<td>{{state.Load.Amps}}A</td>
+			</tr>
+			<tr>
+				<td>Daily Load</td>
+				<td>{{state.Daily.LoadAh}}Ah</td>
+			</tr>
+			<tr>
+				<td>Load State</td>
+				<td>{{loadState state.Load.State}}</td>
+			</tr>
+		</table>
+
+	</div>
+
+	<div class="flex flex-row h-8 justify-center">
+	{{ if ne state.Status "OK" }}
+		<img src="/device/{{id}}/images/modbus-disconnected.png"></img>
+		<span class="ml-4">{{state.Status}}</span>
+	{{ end }}
+	</div>
+
+</div>

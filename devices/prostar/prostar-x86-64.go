@@ -8,8 +8,6 @@ import (
 	"github.com/tarm/serial"
 )
 
-var defaultTty = "/dev/ttyUSB0"
-
 type transport struct {
 	*serial.Port
 	tty string
@@ -17,7 +15,7 @@ type transport struct {
 
 func newTransport(tty string) *transport {
 	if tty == "" {
-		tty = defaultTty
+		tty = ttyUSB0
 	}
 	return &transport{tty: tty}
 }

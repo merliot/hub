@@ -25,6 +25,7 @@ const (
 
 var (
 	pollPeriod = 5 * time.Second
+	ttyUSB0    = "/dev/ttyUSB0"
 )
 
 type Status string
@@ -79,7 +80,7 @@ type prostar struct {
 }
 
 func NewModel() hub.Devicer {
-	return &prostar{}
+	return &prostar{TTY: ttyUSB0}
 }
 
 func (p *prostar) save(pkt *hub.Packet) {
@@ -185,11 +186,14 @@ func (p *prostar) readDynamic(c *Controller, b *Battery, l *Load, s *Array) erro
 var statusOK = Status("OK")
 
 func (p *prostar) sendStatus(pkt *hub.Packet, newStatus Status) {
+	if newStatus == "EOF" {
+		newStatus = "METERBUS DISCONNECTED"
+	}
 	if p.Status == newStatus {
 		return
 	}
 	p.Status = newStatus
-	pkt.SetPath("/update/status").Marshal(p.Status).RouteUp()
+	pkt.SetPath("/update-status").Marshal(p.Status).RouteUp()
 }
 
 func (p *prostar) sendDynamic(pkt *hub.Packet) {
@@ -207,19 +211,19 @@ func (p *prostar) sendDynamic(pkt *hub.Packet) {
 
 	if controller != p.Controller {
 		p.Controller = controller
-		pkt.SetPath("/update/controller").Marshal(controller).RouteUp()
+		pkt.SetPath("/update-controller").Marshal(controller).RouteUp()
 	}
 	if battery != p.Battery {
 		p.Battery = battery
-		pkt.SetPath("/update/battery").Marshal(battery).RouteUp()
+		pkt.SetPath("/update-battery").Marshal(battery).RouteUp()
 	}
 	if load != p.Load {
 		p.Load = load
-		pkt.SetPath("/update/load").Marshal(load).RouteUp()
+		pkt.SetPath("/update-load").Marshal(load).RouteUp()
 	}
 	if array != p.Array {
 		p.Array = array
-		pkt.SetPath("/update/array").Marshal(array).RouteUp()
+		pkt.SetPath("/update-array").Marshal(array).RouteUp()
 	}
 
 	p.sendStatus(pkt, statusOK)
@@ -237,7 +241,7 @@ func (p *prostar) sendHourly(pkt *hub.Packet) (err error) {
 
 	if daily != p.Daily {
 		p.Daily = daily
-		pkt.SetPath("/update/daily").Marshal(daily).RouteUp()
+		pkt.SetPath("/update-daily").Marshal(daily).RouteUp()
 	}
 
 	p.sendStatus(pkt, statusOK)

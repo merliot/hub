@@ -25,12 +25,12 @@ func (t *transport) Read(buf []byte) (n int, err error) {
 	switch t.start {
 	case regVerSw:
 	case regAdcIa:
-		copy(res[0:2], unf16(5.3))                // solar.Amps
+		copy(res[0:2], unf16(random(5.3, 5.4)))   // solar.Amps
 		copy(res[2:4], unf16(random(14.1, 14.2))) // battery.Volts
 		copy(res[4:6], unf16(random(15.3, 16.0))) // solar.Volts
 		copy(res[6:8], unf16(random(12.6, 13.1))) // load.Volts
 	case regAdcIl:
-		copy(res[0:2], unf16(3.3))              // load.amps
+		copy(res[0:2], unf16(random(3.3, 3.2))) // load.amps
 		copy(res[2:4], unf16(0))                // battery.SenseVolts
 		copy(res[4:6], unf16(0))                // battery.SlowVolts
 		copy(res[6:8], unf16(random(1.2, 1.4))) // battery.SlowNetAmps

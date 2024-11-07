@@ -259,6 +259,10 @@ textarea {
   width: 1.5rem;
 }
 
+.w-8 {
+  width: 2rem;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -297,6 +301,10 @@ textarea {
 
 .w-80 {
   width: 20rem;
+}
+
+.w-120 {
+  width: 30rem;
 }
 
 .w-1\/5 {
