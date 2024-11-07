@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	pollPeriod = 10 * time.Second
+	pollPeriod  = time.Hour
+	historyRecs = 24
 )
 
 type Record []float32
@@ -16,7 +17,7 @@ type Record []float32
 type History []Record
 
 type temp struct {
-	Temperature float32 // deg C
+	Temperature float32 // deg F or C, depends on TempUnits
 	Humidity    float32 // %
 	Sensor      string
 	Gpio        string
@@ -37,7 +38,7 @@ func NewModel() hub.Devicer {
 }
 
 func (t *temp) addRecord() {
-	if len(t.History) >= 60 {
+	if len(t.History) >= historyRecs {
 		// Remove the oldest
 		t.History = t.History[1:]
 	}
@@ -60,6 +61,10 @@ func (t *temp) Poll(pkt *hub.Packet) {
 	if err != nil {
 		hub.LogError("Temp device poll read", "err", err)
 		return
+	}
+	if t.TempUnits == "F" {
+		// Convert from Celcius
+		temp = (temp * 9.0 / 5.0) + 32.0
 	}
 	t.Temperature = temp
 	t.Humidity = hum

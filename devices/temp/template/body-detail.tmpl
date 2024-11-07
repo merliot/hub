@@ -1,5 +1,5 @@
 <div class="flex flex-col" id="{{uniq `temp-hum`}}">
-	<div class="flex flex-row w-full items-center justify-evenly">
+	<div class="flex flex-row w-full mb-8 items-center justify-evenly">
 		<div class="flex flex-col">
 			<span>Temperature</span>
 			<div class="flex flex-row mr-4">
@@ -17,11 +17,35 @@
 	</div>
 	<svg viewBox="0 0 400 300">
 
+		<!-- Axis -->
 		<line x1="50" y1="50" x2="50" y2="250" style="stroke:blue;stroke-width:2"/>
 		<line x1="50" y1="250" x2="350" y2="250" style="stroke:blue;stroke-width:2"/>
 		<line x1="350" y1="250" x2="350" y2="50" style="stroke:blue;stroke-width:2"/>
 
+		<!-- X-Axis Ticks -->
+		<line x1="350" y1="250" x2="350" y2="255" style="stroke:blue;stroke-width:2"/>
+		<text x="350" y="275" font-size="14" text-anchor="end" fill="currentColor">0</text>
+
+		<!-- Y-Axis Ticks -->
+		<line x1="45" y1="250" x2="55" y2="250" style="stroke:blue;stroke-width:2"/>
+		<text x="35" y="255" font-size="14" text-anchor="end" fill="currentColor">0</text>
+		<line x1="45" y1="50" x2="55" y2="50" style="stroke:blue;stroke-width:2"/>
+		<text x="35" y="55" font-size="14" text-anchor="end" fill="currentColor">100</text>
+
+		<!-- X and Y Axis Labels -->
+		<text x="200" y="280" font-size="16" text-anchor="middle" fill="currentColor">24 Hours</text>
+
+		<!-- Data Series -->
 		<polyline fill="none" stroke="red" stroke-width="3"
-			points="{{points "temp" 50 50 300 200}}"/>
+		      points="{{points 0 50 50 300 200 0 100}}"/>
+		<polyline fill="none" stroke="green" stroke-width="3"
+		      points="{{points 1 50 50 300 200 0 100}}"/>
+
+		<!-- Legend -->
+		<rect x="130" y="20" width="10" height="10" fill="red"/>
+		<text x="145" y="30" font-size="12" fill="currentColor">Temperature</text>
+		<rect x="230" y="20" width="10" height="10" fill="green"/>
+		<text x="245" y="30" font-size="12" fill="currentColor">Humidity</text>
+
 	</svg>
 </div>

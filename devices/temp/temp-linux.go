@@ -34,21 +34,25 @@ func (t *temp) GetConfig() hub.Config {
 	}
 }
 
-func (t *temp) points(set string, originX, originY, width, height uint) string {
+func (t *temp) points(series, originX, originY, width, height uint, minY, maxY int) string {
 	var points []string
-	for _, rec := range t.History {
-		points = append(points, fmt.Sprintf("%.1f,%.1f", rec[0], rec[1]))
+
+	stepX := float32(width) / float32(historyRecs-1)
+	scaleY := float32(height) / float32(maxY-minY)
+
+	for i, rec := range t.History {
+		pos := len(t.History) - 1 - i
+		x := float32(originX) + float32(width) - (float32(pos) * stepX)
+		y := float32(originY) + float32(height) - (rec[series] * scaleY)
+		points = append(points, fmt.Sprintf("%.1f,%.1f", x, y))
 	}
+
 	// points="0,120 20,60 40,80 60,20"
 	return strings.Join(points, " ")
 }
 
 func (t *temp) tempf() string {
-	value := t.Temperature
-	if t.TempUnits == "F" {
-		value = (value * 9.0 / 5.0) + 32.0
-	}
-	return fmt.Sprintf("%.1f", value)
+	return fmt.Sprintf("%.1f", t.Temperature)
 }
 
 func (t *temp) humf() string {

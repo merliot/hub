@@ -27,10 +27,15 @@ func randomValue(mean, stddev float64) float32 {
 
 func (t *temp) DemoPoll(pkt *hub.Packet) {
 	var msg = msgUpdate{
-		Temperature: randomValue(24.1, 0.05),
-		Humidity:    randomValue(34.5, 0.05),
+		Temperature: randomValue(24.1, 1.5),
+		Humidity:    randomValue(34.5, 0.5),
+	}
+	if t.TempUnits == "F" {
+		// Convert from Celcius
+		msg.Temperature = (msg.Temperature * 9.0 / 5.0) + 32.0
 	}
 	t.Temperature = msg.Temperature
 	t.Humidity = msg.Humidity
+	t.addRecord()
 	pkt.SetPath("/update").Marshal(&msg).RouteUp()
 }

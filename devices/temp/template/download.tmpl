@@ -2,20 +2,29 @@
 	<span class="mr-4">Sensor</span>
 	<label class="mr-2.5">
 {{ if or (eq state.Sensor "DHT11") (eq state.Sensor "") }}
-		<input type="radio" name="Sensor" value="DHT11" checked>
+		<input type="radio" name="Sensor" value="DHT11" checked onchange="toggleGpioSelect()">
 {{ else }}
-		<input type="radio" name="Sensor" value="DHT11">
+		<input type="radio" name="Sensor" value="DHT11" onchange="toggleGpioSelect()">
 {{ end }}
 		DHT11
 	</label>
 
 	<label class="mr-2.5">
 {{ if eq state.Sensor "DHT22" }}
-		<input type="radio" name="Sensor" value="DHT22" checked>
+		<input type="radio" name="Sensor" value="DHT22" checked onchange="toggleGpioSelect()">
 {{ else }}
-		<input type="radio" name="Sensor" value="DHT22">
+		<input type="radio" name="Sensor" value="DHT22" onchange="toggleGpioSelect()">
 {{ end }}
 		DHT22
+	</label>
+
+	<label class="mr-2.5">
+{{ if eq state.Sensor "BME280" }}
+		<input type="radio" name="Sensor" value="BME280" id="sensor-bme280" checked onchange="toggleGpioSelect()">
+{{ else }}
+		<input type="radio" name="Sensor" value="BME280" id="sensor-bme280" onchange="toggleGpioSelect()">
+{{ end }}
+		BME280
 	</label>
 </div>
 
@@ -40,7 +49,7 @@
 	</label>
 </div>
 
-<div class="flex flex-row mb-5">
+<div class="flex flex-row mb-5" id="gpio-selector" style="display: none;">
 	<span class="mr-4">GPIO</span>
 	<select class="h-5" name="Gpio">
 		<option value="">Select GPIO</option>
@@ -57,3 +66,11 @@
 {{- end }}
 	</select>
 </div>
+
+<script>
+	function toggleGpioSelect() {
+		const isBme280Selected = document.getElementById('sensor-bme280').checked;
+		document.getElementById('gpio-selector').style.display = isBme280Selected ? 'none' : 'flex';
+	}
+	toggleGpioSelect();
+</script>
