@@ -361,7 +361,7 @@ func devicesLoad() error {
 		return fileReadJSON("devices.json", &devices)
 	}
 
-	if !noJSON {
+	if noJSON {
 		LogInfo("Loading from", "DEVICES_FILE", devicesFile)
 		return fileReadJSON(devicesFile, &devices)
 	}
