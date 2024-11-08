@@ -325,36 +325,71 @@ func deviceParent(id string) string {
 	return ""
 }
 
+var emptyHub = `{
+	"hub": {
+		"Id": "hub",
+		"Model": "hub",
+		"Name": "Hub",
+		"Children": [],
+		"DeployParams": "target=x86-64&port=8000"
+	}
+}`
+
 func devicesLoad() error {
 	var devicesJSON = Getenv("DEVICES", "")
-	var devicesFile = Getenv("DEVICES_FILE", "devices.json")
+	var devicesFile = Getenv("DEVICES_FILE", "")
+	var noJSON bool = (devicesJSON == "")
+	var noFile bool = (devicesFile == "")
+	var noDefault bool
+
+	defaultFile, err := os.Open("devices.json")
+	if err == nil {
+		defaultFile.Close()
+	}
+	noDefault = (err != nil)
 
 	devicesMu.Lock()
 	defer devicesMu.Unlock()
 
-	// Give DEVICES priority over DEVICES_FILE
+	if noJSON && noFile && noDefault {
+		LogInfo("Loading with empty hub")
+		return json.Unmarshal([]byte(emptyHub), &devices)
+	}
 
-	if devicesJSON == "" {
+	if noJSON && noFile && !noDefault {
+		LogInfo("Loading from devices.json")
+		return fileReadJSON("devices.json", &devices)
+	}
+
+	if !noJSON {
+		LogInfo("Loading from", "DEVICES_FILE", devicesFile)
 		return fileReadJSON(devicesFile, &devices)
 	}
 
+	LogInfo("Loading from DEVICES")
 	return json.Unmarshal([]byte(devicesJSON), &devices)
 }
 
 func devicesSave() error {
-	println("deviceSave")
-	//var devicesJSON = Getenv("DEVICES", "")
-	var devicesFile = Getenv("DEVICES_FILE", "devices.json")
+	var devicesJSON = Getenv("DEVICES", "")
+	var devicesFile = Getenv("DEVICES_FILE", "")
+	var noJSON bool = (devicesJSON == "")
+	var noFile bool = (devicesFile == "")
 
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
-	//if devicesJSON == "" {
-	println("writing file", devicesFile)
-	return fileWriteJSON(devicesFile, &devices)
-	//}
+	if noJSON && noFile {
+		LogInfo("Saving to devices.json")
+		return fileWriteJSON("devices.json", &devices)
+	}
 
-	// TODO save to clipboard?
+	if noJSON && !noFile {
+		LogInfo("Saving to", "DEVICES_FILE", devicesFile)
+		return fileWriteJSON(devicesFile, &devices)
+	}
+
+	// Save to clipboard?
 
 	return nil
 }
