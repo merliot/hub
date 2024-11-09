@@ -6,6 +6,7 @@ require (
 	github.com/adrianmo/go-nmea v1.10.0
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/ietxaniz/delock v0.3.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07

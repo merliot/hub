@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type lastView struct {
@@ -47,6 +47,7 @@ func _newSession(sessionId string, conn *websocket.Conn) *session {
 }
 
 func newSession() (string, bool) {
+
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
 
@@ -56,7 +57,7 @@ func newSession() (string, bool) {
 
 	sessionId := uuid.New().String()
 	sessions[sessionId] = _newSession(sessionId, nil)
-	sessionCount += 1
+	sessionCount++
 
 	return sessionId, true
 }
@@ -71,7 +72,7 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 		s.lastUpdate = time.Now()
 	} else {
 		sessions[sessionId] = _newSession(sessionId, conn)
-		sessionCount += 1
+		sessionCount++
 	}
 }
 
@@ -100,7 +101,6 @@ func sessionKeepAlive(sessionId string) {
 }
 
 func _sessionSave(sessionId, deviceId, view string, level int) {
-
 	if s, ok := sessions[sessionId]; ok {
 		s.Lock()
 		defer s.Unlock()
@@ -140,7 +140,9 @@ func (s session) _renderPkt(pkt *Packet) {
 		LogError("Rendering pkt", "err", err)
 		return
 	}
-	websocket.Message.Send(s.conn, string(buf.Bytes()))
+	if s.conn != nil {
+		s.conn.WriteMessage(websocket.TextMessage, buf.Bytes())
+	}
 }
 
 func sessionsRoute(pkt *Packet) {
@@ -163,11 +165,9 @@ func sessionRoute(sessionId string, pkt *Packet) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 
-	if s, ok := sessions[sessionId]; ok {
-		if s.conn != nil {
-			//LogInfo("SessionRoute", "pkt", pkt)
-			s._renderPkt(pkt)
-		}
+	if s, ok := sessions[sessionId]; ok && s.conn != nil {
+		// LogInfo("SessionRoute", "pkt", pkt)
+		s._renderPkt(pkt)
 	}
 }
 
@@ -176,10 +176,8 @@ func sessionSend(sessionId, htmlSnippet string) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 
-	if s, ok := sessions[sessionId]; ok {
-		if s.conn != nil {
-			websocket.Message.Send(s.conn, htmlSnippet)
-		}
+	if s, ok := sessions[sessionId]; ok && s.conn != nil {
+		s.conn.WriteMessage(websocket.TextMessage, []byte(htmlSnippet))
 	}
 }
 
@@ -192,7 +190,7 @@ func gcSessions() {
 		for sessionId, s := range sessions {
 			if time.Since(s.lastUpdate) > minute {
 				delete(sessions, sessionId)
-				sessionCount -= 1
+				sessionCount--
 			}
 		}
 		sessionsMu.Unlock()
@@ -231,6 +229,7 @@ type sessionStatus struct {
 }
 
 func sessionsStatus() []sessionStatus {
+
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 
@@ -261,7 +260,7 @@ func sessionsStatus() []sessionStatus {
 		return fmt.Sprintf("%s %3d %s %s", id, age, connected, views)
 	}
 
-	var statuses = make([]sessionStatus, len(sessions))
+	var statuses = make([]sessionStatus, 0, len(sessions))
 	for _, id := range sessionsSortedAge() {
 		s := sessions[id]
 		statuses = append(statuses, sessionStatus{
