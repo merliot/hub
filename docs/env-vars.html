@@ -71,6 +71,13 @@ WIFI_PASSPHRASES="xxx,yyy"
 	<p>Comma-separated URLs for dialing parent hub(s).</p>
 </div>
 
+<div class="">
+	<h4 id="PING_PERIOD">PING_PERIOD</h4>
+	<p>Client ping period, in seconds.  To keep the websocket connection
+	alive, the client (browser) uses htmx's ws-send to send a ping packet
+	back to the server (hub).  The default is 30.</p>
+</div>
+
 <h3>DEBUG ENVIRONMENT VARIABLES</h3>
 
 <div class="">

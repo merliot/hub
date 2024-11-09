@@ -33,6 +33,10 @@ func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+var (
+	pingPeriod = Getenv("PING_PERIOD", "30")
+)
+
 func (d *device) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
 	sessionId, ok := newSession()
 	if !ok {
@@ -40,8 +44,9 @@ func (d *device) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
-		"tabs":      tabsDemo,
-		"sessionId": sessionId,
+		"tabs":       tabsDemo,
+		"sessionId":  sessionId,
+		"pingPeriod": pingPeriod,
 	})
 }
 
