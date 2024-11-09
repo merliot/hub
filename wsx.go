@@ -23,7 +23,7 @@ func wsxServe(ws *websocket.Conn) {
 	req := ws.Request()
 	sessionId := req.URL.Query().Get("session-id")
 	if !sessionUpdate(sessionId) {
-		//LogError("Invalid session", "id", sessionId)
+		LogError("Invalid session", "id", sessionId)
 		return
 	}
 

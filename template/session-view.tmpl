@@ -1,6 +1,6 @@
 <div class="offline" id="session"
 	hx-headers='{"session-id": "{{.sessionId}}"}'
-	hx-trigger="every 30s" ws-send
+	hx-trigger="every 1s" ws-send
 	hx-ext="ws" ws-connect="/wsx?session-id={{.sessionId}}">
 {{ renderView .sessionId "/device" "detail" 0 }}
 </div>
