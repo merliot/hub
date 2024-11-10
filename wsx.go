@@ -9,9 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	WriteBufferSize: 128,
-}
+var upgrader = websocket.Upgrader{}
 
 // wsxHandle handles /wsx requests on an htmx WebSocket
 func wsxHandle(w http.ResponseWriter, r *http.Request) {

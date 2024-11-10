@@ -135,13 +135,17 @@ func sessionLastView(sessionId, deviceId string) (view string, level int, err er
 }
 
 func (s session) _renderPkt(pkt *Packet) {
+	if s.conn == nil {
+		return
+	}
 	var buf bytes.Buffer
 	if err := deviceRenderPkt(&buf, s.sessionId, pkt); err != nil {
 		LogError("Rendering pkt", "err", err)
 		return
 	}
-	if s.conn != nil {
-		s.conn.WriteMessage(websocket.TextMessage, buf.Bytes())
+	s.conn.WriteMessage(websocket.TextMessage, buf.Bytes())
+	if !pkt.Born.IsZero() {
+		println("Pkt lifetime", time.Since(pkt.Born).String())
 	}
 }
 
