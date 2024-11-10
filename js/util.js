@@ -25,6 +25,7 @@ function loadScript(src, callback) {
 	TODO: figure out how to this with 100% htmx:
 	 - need to set/clear class "offline" on body on ws
 	   connect/disconnect
+	 - if websocket connects to a stale session, refresh the page
 */
 
 document.addEventListener("htmx:wsOpen", function(event) {
@@ -35,4 +36,10 @@ document.addEventListener("htmx:wsClose", function(event) {
 });
 document.addEventListener("htmx:wsError", function(event) {
 	document.getElementById("session").classList.add("offline")
+});
+document.addEventListener("htmx:wsBeforeMessage", function(event) {
+	if (event.detail.message === "refresh") {
+		event.preventDefault();  // Prevent HTMX from processing this message
+		location.reload();       // Refresh the page
+	}
 });

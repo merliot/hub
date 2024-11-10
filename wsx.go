@@ -17,22 +17,25 @@ var upgrader = websocket.Upgrader{
 
 // wsxHandle handles /wsx requests on an htmx WebSocket
 func wsxHandle(w http.ResponseWriter, r *http.Request) {
+
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		LogError("Failed to upgrade to websocket", "error", err)
 		return
 	}
-	defer ws.Close()
+
 	wsxServe(ws, r)
+	ws.Close()
 }
 
 // wsxServe handles htmx WebSocket connections
 func wsxServe(ws *websocket.Conn, r *http.Request) {
-	defer ws.Close()
 
 	sessionId := r.URL.Query().Get("session-id")
 	if !sessionUpdate(sessionId) {
-		LogError("Invalid session", "id", sessionId)
+		// Session expired, send a "refresh" msg to reload page
+		LogInfo("Session expired, refreshing", "id", sessionId)
+		ws.WriteMessage(websocket.TextMessage, []byte("refresh"))
 		return
 	}
 
