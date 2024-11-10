@@ -10,9 +10,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // Adjust origin checks as needed
-	},
+	WriteBufferSize: 128,
 }
 
 // wsxHandle handles /wsx requests on an htmx WebSocket
