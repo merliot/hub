@@ -13,7 +13,7 @@ import (
 	goqr "github.com/skip2/go-qrcode"
 )
 
-//go:embed *.go template
+//go:embed *.go images template
 var fs embed.FS
 
 type qrcode struct {
