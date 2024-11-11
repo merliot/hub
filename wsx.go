@@ -4,6 +4,7 @@ package hub
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -19,9 +20,22 @@ func wsxHandle(w http.ResponseWriter, r *http.Request) {
 		LogError("Failed to upgrade to websocket", "error", err)
 		return
 	}
+	defer ws.Close()
+
+	conn := ws.NetConn()
+	tcpConn, ok := conn.(*net.TCPConn)
+	if !ok {
+		LogError("Underlying connection is not TCP")
+		return
+	}
+
+	// Disable Nagle's algorithm to send messages immediately
+	if err := tcpConn.SetNoDelay(true); err != nil {
+		LogError("Failed to set TCP_NODELAY", "err", err)
+		return
+	}
 
 	wsxServe(ws, r)
-	ws.Close()
 }
 
 // wsxServe handles htmx WebSocket connections

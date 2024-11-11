@@ -154,7 +154,6 @@ func (s session) _renderPkt(pkt *Packet) {
 		return
 	}
 	s.conn.WriteMessage(websocket.TextMessage, buf.Bytes())
-	s.conn.WriteMessage(websocket.TextMessage, []byte("foo"))
 	if !pkt.Born.IsZero() {
 		println("Pkt lifetime", time.Since(pkt.Born).String())
 	}
