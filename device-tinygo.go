@@ -2,6 +2,8 @@
 
 package hub
 
+import "machine"
+
 type deviceOS struct{}
 
 type APIs struct{}
@@ -25,4 +27,5 @@ func deviceRouteDown(id string, pkt *Packet) {
 }
 
 func (d *device) handleReboot(pkt *Packet) {
+	machine.CPUReset()
 }
