@@ -1181,6 +1181,10 @@ textarea {
   top: 0px;
 }
 
+.top-24 {
+  top: 6rem;
+}
+
 .top-36 {
   top: 9rem;
 }
