@@ -5,7 +5,7 @@
 	{{- if and (ne $relay.Gpio "") (ne $relay.Name "") }}
 		{{- $added = true }}
 
-	<div class="flex flex-row items-center"
+	<div class="flex flex-row items-center cursor-pointer"
 	     hx-post="/device/{{id}}/click?Relay={{$i}}"
 	     hx-swap="none">
 		<span class="w-16 text-right mx-6">{{$relay.Name}}</span>
