@@ -199,6 +199,23 @@ func sessionSend(sessionId, htmlSnippet string) {
 	}
 }
 
+func sessionHijack() string {
+
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
+	for _, s := range sessions {
+		s.RLock()
+		if s.conn != nil {
+			s.RUnlock()
+			return s.sessionId
+		}
+		s.RUnlock()
+	}
+
+	return "none-to-hijack"
+}
+
 func gcSessions() {
 	minute := 1 * time.Minute
 	ticker := time.NewTicker(minute)
