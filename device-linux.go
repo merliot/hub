@@ -423,6 +423,7 @@ func (d *device) demoReboot(pkt *Packet) {
 	model, _ := Models[d.Model]
 	d.build(model.Maker)
 
+	d.setupAPI()
 	d.setup()
 
 	go d.runDemo()
