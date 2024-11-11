@@ -68,11 +68,10 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
+		s.Lock()
 		s.conn = conn
 		s.lastUpdate = time.Now()
-	} else {
-		sessions[sessionId] = _newSession(sessionId, conn)
-		sessionCount++
+		s.Unlock()
 	}
 }
 
@@ -82,7 +81,9 @@ func sessionUpdate(sessionId string) bool {
 	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
+		s.Lock()
 		s.lastUpdate = time.Now()
+		s.Unlock()
 		return true
 	}
 
@@ -96,14 +97,14 @@ func sessionKeepAlive(sessionId string) {
 	defer sessionsMu.Unlock()
 
 	if s, ok := sessions[sessionId]; ok {
+		s.Lock()
 		s.lastUpdate = time.Now()
+		s.Unlock()
 	}
 }
 
 func _sessionSave(sessionId, deviceId, view string, level int) {
 	if s, ok := sessions[sessionId]; ok {
-		s.Lock()
-		defer s.Unlock()
 		s.lastUpdate = time.Now()
 		lastView := s.lastViews[deviceId]
 		lastView.view = view
@@ -117,21 +118,30 @@ func _sessionLastView(sessionId, deviceId string) (string, int, error) {
 	if !ok {
 		return "", 0, fmt.Errorf("Invalid session %s", sessionId)
 	}
-
-	s.RLock()
-	defer s.RUnlock()
-
-	view, ok := s.lastViews[deviceId]
+	v, ok := s.lastViews[deviceId]
 	if !ok {
 		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", sessionId, deviceId)
 	}
-	return view.view, view.level, nil
+	return v.view, v.level, nil
 }
 
 func sessionLastView(sessionId, deviceId string) (view string, level int, err error) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
-	return _sessionLastView(sessionId, deviceId)
+
+	s, ok := sessions[sessionId]
+	if !ok {
+		return "", 0, fmt.Errorf("Invalid session %s", sessionId)
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	v, ok := s.lastViews[deviceId]
+	if !ok {
+		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", sessionId, deviceId)
+	}
+	return v.view, v.level, nil
 }
 
 func (s session) _renderPkt(pkt *Packet) {
@@ -155,12 +165,12 @@ func sessionsRoute(pkt *Packet) {
 	defer sessionsMu.RUnlock()
 
 	for _, s := range sessions {
-		if s.conn != nil {
-			if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
-				LogInfo("SessionsRoute", "pkt", pkt)
-				s._renderPkt(pkt)
-			}
+		s.Lock()
+		if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
+			LogInfo("SessionsRoute", "pkt", pkt)
+			s._renderPkt(pkt)
 		}
+		s.Unlock()
 	}
 }
 
@@ -169,9 +179,11 @@ func sessionRoute(sessionId string, pkt *Packet) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 
-	if s, ok := sessions[sessionId]; ok && s.conn != nil {
+	if s, ok := sessions[sessionId]; ok {
 		// LogInfo("SessionRoute", "pkt", pkt)
+		s.Lock()
 		s._renderPkt(pkt)
+		s.Unlock()
 	}
 }
 
@@ -181,7 +193,9 @@ func sessionSend(sessionId, htmlSnippet string) {
 	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok && s.conn != nil {
+		s.Lock()
 		s.conn.WriteMessage(websocket.TextMessage, []byte(htmlSnippet))
+		s.Unlock()
 	}
 }
 
