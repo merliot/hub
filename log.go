@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-// Scratch buffer and mutex
 var (
 	logBuffer   bytes.Buffer
 	logBufferMu mutex
+	logLevel    = Getenv("LOG_LEVEL", "INFO")
 )
 
 // Format the args into key=value pairs
@@ -58,11 +58,27 @@ func getColor(level string) string {
 	}
 }
 
+func ok(level string) bool {
+	switch logLevel {
+	case "DEBUG":
+		return true
+	case "INFO":
+		return level == "INFO" || level == "WARN" || level == "ERROR"
+	case "WARN":
+		return level == "WARN" || level == "ERROR"
+	case "ERROR":
+		return level == "ERROR"
+	}
+	return false
+}
+
 func log(level string, msg string, args ...any) {
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	color := getColor(level)
-	fmt.Printf("%s %s[%s]%s %s%s%s", timestamp, color, level,
-		colorReset, msg, formatArgs(args...), crlf)
+	if ok(level) {
+		timestamp := time.Now().Format("2006-01-02 15:04:05")
+		color := getColor(level)
+		fmt.Printf("%s %s[%s]%s %s%s%s", timestamp, color, level,
+			colorReset, msg, formatArgs(args...), crlf)
+	}
 }
 
 func LogInfo(msg string, args ...any) {

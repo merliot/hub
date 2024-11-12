@@ -10,25 +10,68 @@
 
 <pre class="cmd-line">$ DEMO=true go run ./cmd/</pre>
 
-<h3>REGULAR ENVIRONMENT VARIABLES</h3>
-
 <div class="">
-	<h4 id="PORT">PORT</h4>
+	<h3 id="PORT">PORT</h3>
 	<p>Port on which the hub web server runs. Defaults to 8000.</p>
 </div>
 
 <div class="">
-	<h4 id="DEVICES">DEVICES</h4>
-	<p>JSON string or device list for hardware setup.</p>
+	<h3 id="DEVICES">DEVICES</h3>
+
+	<p>JSON-encoded map of devices in the device tree.  The key is the device ID.  A device is the structure:</p>
+
+	<pre class="code-snippet">
+type device struct {
+	Id           string
+	Model        string
+	Name         string
+	Children     []string  // child Ids
+	DeployParams template.HTML
+}
+	</pre>
+
+	<h4>Example</h4>
+
+	<pre class="code-snippet">
+{
+	"qrcode1": {
+		"Id": "qrcode1",
+		"Model": "qrcode",
+		"Name": "QR Code",
+		"Children": null,
+		"DeployParams": "target=wioterminal"
+	},
+	"gps1": {
+		"Id": "gps1",
+		"Model": "gps",
+		"Name": "GPS",
+		"Children": null,
+		"DeployParams": "target=nano-rp2040"
+	},
+	"hub": {
+		"Id": "hub",
+		"Model": "hub",
+		"Name": "Hub",
+		"Children": [
+			"gps1",
+			"qrcode1",
+		],
+		"DeployParams": "target=x86-64\u0026port=8000"
+	}
+}
+	</pre>
+
 </div>
 
 <div class="">
-	<h4 id="DEVICES_FILES">DEVICES_FILE</h4>
-	<p>File path for device configuration, defaults to devices.json.</p>
+	<h3 id="DEVICES_FILES">DEVICES_FILE</h3>
+	<p>File path for JSON-encoded devices file, defaults to devices.json.
+	See DEVICES above for format of file.  If DEVICES is also given, then
+	DEVICES takes presedence over DEVICES_FILE.</p>
 </div>
 
 <div class="">
-	<h4 id="USER">USER</h4>
+	<h3 id="USER">USER</h3>
 	<p>Username for authentication.  If non-blank, a new client
 	session will prompt for the user/passwd.  In addition, devices
 	will also use same user/passwd to authenticate to the hub.  The
@@ -36,12 +79,12 @@
 </div>
 
 <div class="">
-	<h4 id="PASSWD">PASSWD</h4>
+	<h3 id="PASSWD">PASSWD</h3>
 	<p>Password for authentication.  Only valid if USER is non-blank</p>
 </div>
 
 <div class="">
-	<h4 id="WIFI_SSIDS">WIFI_SSIDS</h4>
+	<h3 id="WIFI_SSIDS">WIFI_SSIDS</h3>
 
 	<p>Comma-separated list of WiFi SSIDs.  Each SSID in the list has a
 	matching passphrase in WIFI_PASSPHRASES.  The SSID and passphrase pair
@@ -61,27 +104,28 @@ WIFI_PASSPHRASES="xxx,yyy"
 </div>
 
 <div class="">
-	<h4 id="WIFI_PASSPHRASES">WIFI_PASSPHRASES</h4>
+	<h3 id="WIFI_PASSPHRASES">WIFI_PASSPHRASES</h3>
 	<p>Comma-separated list of WiFi passphrases.  This list pairs
 	the passphrases with the SSIDs set in WIFI_SSIDS.</p>
 </div>
 
 <div class="">
-	<h4 id="DIAL_URLS">DIAL_URLS</h4>
-	<p>Comma-separated URLs for dialing parent hub(s).</p>
+	<h3 id="DIAL_URLS">DIAL_URLS</h3>
+	<p>Comma-separated URLs for dialing parent hub(s). (TODO not working at
+	the moment).</p>
 </div>
 
 <div class="">
-	<h4 id="PING_PERIOD">PING_PERIOD</h4>
+	<h3 id="PING_PERIOD">PING_PERIOD</h3>
 	<p>Client ping period, in seconds.  To keep the websocket connection
 	alive, the client (browser) uses htmx's ws-send to send a ping packet
 	back to the server (hub).  The default is 30.</p>
 </div>
 
-<h3>DEBUG ENVIRONMENT VARIABLES</h3>
+<h2>DEBUG ENVIRONMENT VARIABLES</h2>
 
 <div class="">
-	<h4 id="LOG_LEVEL">LOG_LEVEL</h4>
+	<h3 id="LOG_LEVEL">LOG_LEVEL</h3>
 	<p>Set the hub logging level.  The options are "DEBUG", "INFO", "WARN",
 	and "ERROR", in that order.  The default is "INFO", meaning only
 	"INFO", "WARN", and "ERROR" would be logged.  Set to "DEBUG" to catch
@@ -89,7 +133,7 @@ WIFI_PASSPHRASES="xxx,yyy"
 </div>
 
 <div class="">
-	<h4 id="DEMO">DEMO</h4>
+	<h3 id="DEMO">DEMO</h3>
 	<p>Runs the hub in demo mode if set to "true".  In demo mode, all the
 	devices on the hub will run locally on the hub, simulating the devices.
 	Demo mode is handy for demos, but also for device developement and
@@ -97,12 +141,12 @@ WIFI_PASSPHRASES="xxx,yyy"
 </div>
 
 <div class="">
-	<h4 id="SITE">SITE</h4>
+	<h3 id="SITE">SITE</h3>
 	<p>Runs the hub in site mode if set to "true".  Implies demo mode.
 	The hub and devices are locked (read-only) in site mode.</p>
 </div>
 
 <div class="">
-	<h4 id="DEBUG_KEEP_BUILDS">DEBUG_KEEP_BUILDS</h4>
+	<h3 id="DEBUG_KEEP_BUILDS">DEBUG_KEEP_BUILDS</h3>
 	<p>If set to "true", keeps build artifacts for debugging.</p>
 </div>
