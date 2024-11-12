@@ -101,6 +101,8 @@ func Run() {
 	addr := ":" + port
 	server := &http.Server{Addr: addr}
 
+	http.HandleFunc("/devices", basicAuthHandlerFunc(showDevices))
+
 	// Run http server in go routine to be shutdown later
 	go func() {
 		LogInfo("ListenAndServe", "addr", addr)
@@ -111,6 +113,7 @@ func Run() {
 
 	}()
 
+	// Ok, here we go...should run until interrupted
 	root.run()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

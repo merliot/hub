@@ -1,8 +1,16 @@
 <div id="{{uniq `save`}}">
 {{ if isDirty }}
-	<img class="icon"
-		src="/model/{{model}}/images/save.svg"
-		hx-get="/device/{{id}}/save"
-		hx-swap="none">
+	{{ if saveToClipboard }}
+		<img class="icon"
+			src="/model/{{model}}/images/save.svg"
+			hx-get="/device/{{id}}/save-modal"
+			hx-target="body"
+			hx-swap="beforeend">
+	{{ else }}
+		<img class="icon"
+			src="/model/{{model}}/images/save.svg"
+			hx-get="/device/{{id}}/save"
+			hx-swap="none">
+	{{ end }}
 {{ end }}
 </div>

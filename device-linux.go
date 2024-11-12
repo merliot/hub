@@ -335,6 +335,8 @@ var emptyHub = `{
 	}
 }`
 
+var loadedFromDEVICES bool
+
 func devicesLoad() error {
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
@@ -367,6 +369,7 @@ func devicesLoad() error {
 	}
 
 	LogInfo("Loading from DEVICES")
+	loadedFromDEVICES = true
 	return json.Unmarshal([]byte(devicesJSON), &devices)
 }
 
@@ -389,7 +392,7 @@ func devicesSave() error {
 		return fileWriteJSON(devicesFile, &devices)
 	}
 
-	// Save to clipboard?
+	// Save to clipboard
 
 	return nil
 }

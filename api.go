@@ -55,7 +55,7 @@ func (d *device) installAPIs() {
 	d.HandleFunc("GET /code", d.showCode)
 
 	d.HandleFunc("GET /save", d.saveDevices)
-	//d.HandleFunc("GET /devices", d.showDevices)
+	d.HandleFunc("GET /save-modal", d.showSaveModal)
 
 	d.HandleFunc("GET /download-target", d.showDownloadTarget)
 	d.HandleFunc("GET /download-image", d.downloadImage)
@@ -418,20 +418,18 @@ func (d *device) saveDevices(w http.ResponseWriter, r *http.Request) {
 	deviceClean(d.Id)
 }
 
-func (d *device) showDevices(w http.ResponseWriter, r *http.Request) {
-	var childDevices = make(devicesMap)
+func (d *device) showSaveModal(w http.ResponseWriter, r *http.Request) {
+	if err := d.renderTmpl(w, "modal-save.tmpl", nil); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
 
+func showDevices(w http.ResponseWriter, r *http.Request) {
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
-
-	for _, childId := range d.Children {
-		child := devices[childId]
-		childDevices[childId] = child
-	}
-	childDevices[d.Id] = d // add self
-
 	w.Header().Set("Content-Type", "application/json")
-	state, _ := json.MarshalIndent(childDevices, "", "\t")
+	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
+	state, _ := json.MarshalIndent(devices, "", "\t")
 	w.Write(state)
 }
 
