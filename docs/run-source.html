@@ -1,0 +1,62 @@
+<h2>RUN FROM SOURCE</h2>
+
+<p>You can run the hub directly from source.</p>
+
+<p>Prerequisite: Latest <a target="_blank" href="https://go.dev">Go</a> and
+<a target="_blank" href="https://tinygo.org">TinyGo</a> versions installed:</p>
+
+<pre class="cmd-line">
+$ go version
+go version go1.23.2 linux/amd64
+$ tinygo version
+tinygo version 0.34.0 linux/amd64 (using go version go1.23.2 and LLVM version 17.0.6)
+</pre>
+
+<h3>RUN FROM SOURCE</h3>
+
+<p>Clone from Github, or fork and clone from your fork.</p>
+
+<pre class="cmd-line">
+$ git clone https://github.com/merliot/hub.git
+</pre>
+
+<p>Now run the hub.</p>
+
+<pre class="cmd-line">
+$ cd hub
+$ go run ./cmd
+</pre>
+
+<p>Browse to http://localhost:8000 to see hub.<p>
+
+<p>The hub listens on port :8000, by default.  You can override this with the
+PORT environment variable.</p>
+
+<h3>RUN FROM DOCKER</h3>
+
+<pre class="cmd-line">
+$ sudo docker build -t hub
+$ sudo docker run -p 8000:8000 hub
+</pre>
+
+<p>Browse to http://localhost:8000 to see hub.<p>
+
+<p>The hub reads devices from devices.json file, if present.  Any changes made
+to the devices are stored back to devices.json.  When running in docker, we
+need to store the devices.json file outside the container so saved changes
+persist.  Use the -v option to map a local directory to a directory inside the
+container.  Use /app for container directory.  For example, map current
+directory to /app:</p>
+
+<pre class="cmd-line">
+$ sudo docker run -p 8000:8000 -v ./:/app hub
+</pre>
+
+<h3>BUILDING TINYGO UF2 IMAGES</h3>
+
+<p>To deploy to tinygo targets, pre-compiled tinygo UF2 images are needed for each device model.  Build the images using:</p>
+
+<pre class="cmd-line">
+$ go generate ./...
+$ go run ./cmd
+</pre>

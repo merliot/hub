@@ -19,6 +19,7 @@
 
 # Go workspace file
 d
+env
 go.work
 go.work.sum
 devices.json*

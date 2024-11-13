@@ -31,7 +31,7 @@ func (t *temp) DemoPoll(pkt *hub.Packet) {
 		Humidity:    randomValue(34.5, 0.5),
 	}
 	if t.TempUnits == "F" {
-		// Convert from Celcius
+		// Convert from Celsius
 		msg.Temperature = (msg.Temperature * 9.0 / 5.0) + 32.0
 	}
 	t.Temperature = msg.Temperature

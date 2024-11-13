@@ -20,7 +20,7 @@ func random(start, end float32) float32 {
 }
 
 func (t *transport) Read(buf []byte) (n int, err error) {
-	// simluate a Modbus request read on the device
+	// simulate a Modbus request read on the device
 	res := buf[3:]
 	switch t.start {
 	case regVerSw:

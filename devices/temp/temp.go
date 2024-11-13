@@ -63,7 +63,7 @@ func (t *temp) Poll(pkt *hub.Packet) {
 		return
 	}
 	if t.TempUnits == "F" {
-		// Convert from Celcius
+		// Convert from Celsius
 		temp = (temp * 9.0 / 5.0) + 32.0
 	}
 	t.Temperature = temp
