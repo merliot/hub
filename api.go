@@ -327,7 +327,8 @@ func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	d.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
-		"sessionId": sessionId,
+		"sessionId":  sessionId,
+		"pingPeriod": pingPeriod,
 	})
 }
 
