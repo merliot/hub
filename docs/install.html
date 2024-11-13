@@ -1,6 +1,6 @@
 <h2>INSTALL GUIDE</h2>
 
-<h3>RUN FROM DOCKER</h3>
+<h3>DOCKER</h3>
 
 <p>Run the latest version of Merliot hub using Docker.  Prerequisite: 
 <a target="_blank" href="https://www.docker.com/">docker</a> installed.</p>
@@ -22,5 +22,57 @@ container.  Use /app for container directory.  For example, map current
 directory to /app:</p>
 
 <pre class="cmd-line">
-$ sudo docker run -p 8000:8000 -v ./:/app hub
+$ sudo docker run -p 8000:8000 -v ./:/app merliot/hub
 </pre>
+
+<h3>CLOUD</h3>
+
+<p>Run Merliot Hub on the cloud using the merliot/hub docker image.  The
+minimum VM requirements are: 512MB RAM and 2GB disk.</p>
+
+<p>Here are several cloud provider options, ranging from FREE to $$:</p>
+
+<h4>Koyeb (FREE)</h4>
+
+<p>You can run Merliot Hub on <a target="_blank" href="koyeb.com">Koyeb</a> for
+FREE using Koyeb's Free Forever offer.  You have to create an account on Koyeb.
+Click the one-click button below to create a hub instance on Koyeb.</p>
+
+<a href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/">
+	<img class="m-8" src="https://www.koyeb.com/static/images/deploy/button.svg">
+</a>
+
+<p>Follow the prompts to install the hub.  You can add enviroment <a
+	href="/doc/env-vars">variables</a> to configure the hub.  The hub
+address will be something like:</p>
+
+<pre class="cmd-line">https://asquare-eloise-merliot-67e2796c.koyeb.app/</pre>
+
+<p>If you have a domain name registered, you can assign it to the hub.</p>
+
+<h4>Digital Ocean ($5/month)</h4>
+
+<p>Run Merliot Hub on <a href="https://www.digitalocean.com/">Digital Ocean</a>.  It cost $5/month to run the hub.</p>
+
+<ol>
+  <li>Click the "Deploy to web app" button on the project page.</li>
+  <li>Under Service Provider, select "Docker Hub".</li>
+  <li>Repository is "merliot/hub". No tag. No credentials.</li>
+  <li>Edit the Service Resources:
+    <ul>
+      <li>Resource Size and select the $5 VM with 512MB RAM.</li>
+      <li>Edit the Port to 8000.</li>
+    </ul>
+  </li>
+  <li>Create the Resource.</li>
+</ol>
+
+<p>It takes a few minutes to start the hub.  The hub address will be something like:</p>
+
+<pre class="cmd-line">https://monkfish-app-4kzqh.ondigitalocean.app/</pre>
+
+<p>If you have a domain name registered, you can assign it to the hub.</p>
+
+<h4>Google Cloud Platform (~$20/month)</h4>
+
+TODO finish GCP doc
