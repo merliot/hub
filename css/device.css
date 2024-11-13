@@ -207,6 +207,10 @@ textarea {
   height: 13rem;
 }
 
+.h-120 {
+  width: 30rem;
+}
+
 .h-full {
   height: 100%;
 }
@@ -418,6 +422,10 @@ textarea {
 
 .border-dashed {
   border-style: dashed;
+}
+
+.border-dotted {
+  border-style: dotted;
 }
 
 .border-separate {
