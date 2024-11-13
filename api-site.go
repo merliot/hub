@@ -34,7 +34,7 @@ func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	pingPeriod = Getenv("PING_PERIOD", "30")
+	pingPeriod = Getenv("PING_PERIOD", "2")
 )
 
 func (d *device) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
