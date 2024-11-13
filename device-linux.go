@@ -355,6 +355,7 @@ func devicesLoad() error {
 
 	if noJSON && noFile && noDefault {
 		LogInfo("Loading with empty hub")
+		loadedFromDEVICES = true
 		return json.Unmarshal([]byte(emptyHub), &devices)
 	}
 
