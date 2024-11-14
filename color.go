@@ -2,6 +2,13 @@
 
 package hub
 
+func bodyColors() string {
+	if Getenv("BACKGROUND", "") == "LIGHT" {
+		return "bg-space-white text"
+	}
+	return "bg-black text"
+}
+
 func (d *device) bgColor() string {
 	if d.Config.BgColor == "" {
 		return "bg-space-white"

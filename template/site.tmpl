@@ -13,7 +13,7 @@
 		<script src="/js/htmx.min.js.gz"></script>
 	</head >
 
-	<body class="bg-black text m-4">
+	<body class="{{bodyColors}} m-4">
 {{ template "site-header.tmpl" . }}
 {{ $tmpl := joinStrings "site-" .section ".tmpl" }}
 {{ renderTemplate $tmpl . }}

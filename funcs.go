@@ -85,6 +85,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"bgColor":         d.bgColor,
 		"textColor":       d.textColor,
 		"borderColor":     d.borderColor,
+		"bodyColors":      bodyColors,
 		"classOffline":    d.classOffline,
 		"renderTemplate":  d.renderTemplate,
 		"renderView":      d.renderView,

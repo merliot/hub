@@ -1,9 +1,22 @@
 <h2>INSTALL GUIDE</h2>
 
+<p>There a multiple ways to install Merliot Hub.  The main decision is to run
+the hub on the cloud or to run on local hardware.</p>
+
+<img src="/docs/images/install-flowchart.svg">
+
+<p>If you have your own server, you can install your hub locally.  This is the
+more private choice.  The server doesn't have to be a huge system; a raspberry
+Pi is sufficient, as well as a laptop.  If you want to access the hub remotely,
+over the Internet, use <a target="_blank" href="https://tailscale.com">Tailscale</a>.</p>
+
+<p>If you don't have a server, you can "rent" one in the cloud to host your
+hub.  This is a less private choice because a third party is now hosting your
+hub, and you'll have to create an account.</p>
+
 <h3>DOCKER</h3>
 
-<p>Run the latest version of Merliot hub using Docker.  Prerequisite: 
-<a target="_blank" href="https://www.docker.com/">docker</a> installed.</p>
+<p>Run the latest version of Merliot hub using <a target="_blank" href="https://www.docker.com/">Docker</a>.</p>
 
 <pre class="cmd-line">
 $ sudo docker run -p 8000:8000 merliot/hub
@@ -24,6 +37,16 @@ directory to /app:</p>
 <pre class="cmd-line">
 $ sudo docker run -p 8000:8000 -v ./:/app merliot/hub
 </pre>
+
+<h3>TAILSCALE</h3>
+
+<p>Use <a target="_blank" href="https://tailscale.com">Tailscale</a> to create
+a private network, the tailnet, for the hub.  The hub runs on a local server
+using the docker image and is connected to the tailnet.  Other devices on the
+tailnet can now access the hub from anywhere on the Internet.  See the
+Tailscale <a target="_blank" href="https://tailscale.com/download">guides</a> on installing Tailscale.</p>
+
+<img src="/docs/images/tailscale.svg">
 
 <h3>CLOUD</h3>
 
