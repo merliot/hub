@@ -1,0 +1,91 @@
+<h4>DEVICE TO UI</h4>
+
+<p>The device can route packets up the network tree using Packet.RouteUp().
+Packets are routed to uplinks and sessions.</p>
+
+<img src="/docs/images/route-up.png">
+
+<p>An uplink is a dialed connection from the device to another device,
+typically a hub.  A device may be dialed into multiple uplinks.  The uplink
+device will process the incoming packets using the device packet handlers.</p> 
+
+<p>A session is an active http session.  Active because each session opens a
+websocket which persists the lifetime of the session.  Packets are transformed
+into html snippets and sent to the http client over the websocket, per <a
+target="_blank" href="https://htmx.org/extensions/ws/">htmx</a>.</p>
+
+<h3>UPLINKS</h3>
+
+<p>Each uplink is a websocket connected on /ws.  The packet is JSON-encoded
+before sending on the websocket, and JSON-decoded by the receiving device.
+Let's send up a /clicked message for a relay state change:</p>
+
+<pre class="code-snippet">
+var msg = MsgClicked{Relay: 2, State: true}
+pkt.SetPath("/clicked").Marshal(&amp;msg).RouteUp()
+</pre>
+
+<p>The receiving device will catch the /clicked message using a packet handler:</p>
+
+<pre class="code-snippet">
+func (r *Relays) GetHandlers() hub.Handlers {
+	return hub.Handlers{
+		"/clicked":   &amp;hub.Handler[MsgClick]{r.clicked},
+		// ... other handlers
+	}
+}
+
+func (r *relays) clicked(pkt *hub.Packet) {
+	var clicked msgClicked
+	pkt.Unmarshal(&amp;clicked)
+	// update state
+	relay := &amp;r.Relays[clicked.Relay]
+	relay.Set(clicked.State)
+	// forward /clicked packet up
+	pkt.RouteUp()
+}
+</pre>
+
+<p>The handler will decode the packet and typically update the device state and
+forward the packet up</p>
+
+<h3>SESSIONS</h3>
+
+<p>A session is an http(s) client (browser, etc) that has also opened, and is
+listening on, a websocket at /wsx.  The browser opens the websocket using htmx.</p>
+
+<p>There may be multiple sessions open on a device.  The device will forward
+the packet up to each active session.</p>
+
+<p>A packet is transformed into an html snippet before being forwarded on the
+websocket to the client (see htmx, websockets).  The packet path and the
+current session's view name the html template used for the transformation.  The
+template name is in the format:</p>
+
+<pre class="cmd-line">
+{path}-{view}.tmpl
+</pre>
+
+For example, consider routing the packet from earlier:
+
+<pre class="code-snippet">
+var msg = MsgClicked{Relay: 2, State: true}
+pkt.SetPath("/clicked").Marshal(&amp;msg).RouteUp()
+</pre>
+
+And say the current <a href="/doc/device-views">view</a> is "overview".
+The template name would be:
+
+<pre class="cmd-line">
+clicked-overview.tmpl
+</pre>
+
+The template is executed and the resulting html snippet is sent on the
+websocket.  Per htmx, the html snippet is swap by DOM id, so use a
+unique id in the template like:
+
+&lt;pre class="code-snippet"&gt;
+&lt;div id="{{uniq `relay`}}"&gt;
+...
+&lt;/div&gt;
+</pre>

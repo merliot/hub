@@ -13,7 +13,7 @@
 		<script src="/js/htmx.min.js.gz"></script>
 	</head >
 
-	<body class="bg-black text">
+	<body class="{{bodyColors}}">
 {{ template "device-header.tmpl" . }}
 {{ $tmpl := joinStrings "device-" .section ".tmpl" }}
 {{ renderTemplate $tmpl . }}
