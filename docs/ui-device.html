@@ -67,3 +67,20 @@ func (r *Relays) click(pkt *hub.Packet) {
 	// ... click.Relay == 2
 }
 </pre>
+
+<p>The handler can update device state and forward the packet up, perhaps with a new message.  In the click handler, we'll update the relay state and send a /clicked message up:</p>
+
+<pre class="code-snippet">
+func (r *relays) click(pkt *hub.Packet) {
+	var click msgClick
+	pkt.Unmarshal(&amp;click)
+	// update state
+	relay := &amp;r.Relays[click.Relay]
+	relay.Set(!relay.State)
+	// send /clicked msg up
+	var clicked = msgClicked{click.Relay, relay.State}
+	pkt.SetPath("/clicked").Marshal(&amp;clicked).RouteUp()
+}
+</pre>
+
+<p><a href="/doc/device-ui">Follow</a> the packet from the device back to the UI.
