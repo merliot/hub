@@ -1205,6 +1205,10 @@ textarea {
   white-space: pre;
 }
 
+.whitespace-pre-wrap {
+  white-space: pre-wrap;
+}
+
 /*
 .icon {
 	@apply no-underline text-xl cursor-pointer px-2 text-current;

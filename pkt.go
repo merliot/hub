@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 // NoMsg is an empty message type for PacketHandle's
@@ -21,13 +20,11 @@ type Packet struct {
 	// url.URL.Path, with the leading slash.  e.g. /takeone.
 	Path string
 	// Msg is the packet payload.  Use NoMsg for no message.
-	Msg  json.RawMessage
-	Born time.Time
+	Msg json.RawMessage
 }
 
 func newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 	var pkt = &Packet{
-		Born: time.Now(),
 		Path: r.URL.Path,
 	}
 	if _, ok := v.(*NoMsg); ok {

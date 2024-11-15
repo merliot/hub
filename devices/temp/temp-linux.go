@@ -19,7 +19,7 @@ func (t *temp) GetConfig() hub.Config {
 		Model:      "temp",
 		State:      t,
 		FS:         &fs,
-		Targets:    []string{"nano-rp2040", "wioterminal"},
+		Targets:    []string{"nano-rp2040"},
 		BgColor:    "orange",
 		FgColor:    "black",
 		PollPeriod: pollPeriod,

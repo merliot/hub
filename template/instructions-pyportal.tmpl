@@ -1,0 +1,52 @@
+<p>Use a <a target="_blank" href="https://www.adafruit.com/product/4116">Adafruit PyPortal</a> microcontroller to build a {{model}} device.</p>
+
+<center>
+	<img src="/device/{{id}}/images/pyportal-{{model}}.png" width="100%">
+</center>
+
+<h4>Parts List</h4>
+
+{{template "instructions-pyportal-parts.tmpl" .}}
+
+
+<h4>Step 1</h4>
+
+{{template "instructions-pyportal-step1.tmpl" .}}
+
+<h4>Step 2</h4>
+
+<p>Click the Download button to download the device firmware UF2 image file.  The file name is:</p>
+
+<pre>
+<code>
+	{{model}}-{{id}}-installer.uf2
+</code>
+</pre>
+
+<h4>Step 3</h4>
+
+<p>Plug the PyPortal into a computer USB port and double-click the reset button
+to mount the PyPortal as a USB drive.  The USB drive is named "PORTALBOOT".</p>
+
+<h4>Step 4</h4>
+
+<p>Copy the UF2 firmware image to the "PORTALBOOT" USB drive.  The firmware is installed on the device and the device restarts automatically.</p>
+
+<center>
+	<img src="/device/{{id}}/images/arduino-install.png" width="100%">
+</center>
+
+<div class="note">
+	<span class="note-icon">📝</span>
+	The UF2 firmware image file has embedded secrets so it's a good idea to delete the file after device install.
+</div>
+
+<p>That's it!</p>
+
+<p>The device will connect to this hub.  To troubleshoot connectivity issues, use minicom to view device log:</p>
+
+<pre>
+<code>
+	$ minicom -c on -D /dev/ttyACM0 -b 115200
+</code>
+</pre>
