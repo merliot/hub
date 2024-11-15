@@ -18,6 +18,14 @@ func (d *device) packetHandlersInstall() {
 
 func (d *device) newPacketRoute(h packetHandler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		sessionId := r.Header.Get("session-id")
+		if !sessionUpdate(sessionId) {
+			// Session expired, force full page refresh to start new session
+			w.Header().Set("HX-Refresh", "true")
+			return
+		}
+
 		msg := h.gen()
 		pkt, err := newPacketFromRequest(r, msg)
 		if err != nil {
@@ -25,6 +33,7 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 			return
 		}
 		pkt.SetDst(d.Id)
+
 		if d.IsSet(flagMetal) {
 			d.handle(pkt)
 		} else {

@@ -64,8 +64,8 @@ func newSession() (string, bool) {
 
 func sessionConn(sessionId string, conn *websocket.Conn) {
 
-	sessionsMu.Lock()
-	defer sessionsMu.Unlock()
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.Lock()
@@ -75,16 +75,27 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 	}
 }
 
+func sessionExpired(sessionId string) bool {
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+	_, ok := sessions[sessionId]
+	return !ok
+}
+
 func sessionUpdate(sessionId string) bool {
 
-	sessionsMu.Lock()
-	defer sessionsMu.Unlock()
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.Lock()
-		s.lastUpdate = time.Now()
-		s.Unlock()
-		return true
+		defer s.Unlock()
+		connected := (s.conn != nil)
+		if connected {
+			s.lastUpdate = time.Now()
+			return true
+		}
+		return false
 	}
 
 	// Session expired
@@ -93,8 +104,8 @@ func sessionUpdate(sessionId string) bool {
 
 func sessionKeepAlive(sessionId string) {
 
-	sessionsMu.Lock()
-	defer sessionsMu.Unlock()
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
 		s.Lock()

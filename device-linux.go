@@ -473,3 +473,18 @@ func devicesStatus() []deviceStatus {
 	}
 	return statuses
 }
+
+/*
+func dumpStack() {
+	buf := make([]byte, 1024)
+	for {
+		n := runtime.Stack(buf, true)
+		if n < len(buf) {
+			buf = buf[:n]
+			break
+		}
+		buf = make([]byte, 2*len(buf))
+	}
+	fmt.Printf("Stack:\n%s", buf)
+}
+*/
