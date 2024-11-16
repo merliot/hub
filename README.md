@@ -6,7 +6,9 @@
 # Merliot
 Private Device Hub
 
-<img src="docs/images/hub-light.png" width="300px">
+<a href="https://merliot.io/demo">
+	<img src="docs/images/hub-light.png" width="300px">
+</a>
 
 ## Run from Docker
 
@@ -18,15 +20,6 @@ Browse to `http://localhost:8000` to view hub.
 
 See other [install](https://merliot.io/doc/install) methods.
 
-## Run from Source
-
-<pre>
-$ git clone https://github.com/merliot/hub.git
-$ cd hub
-$ go run ./cmd
-</pre>
-
-
 ## Run on Cloud
 
 Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use the one-click button to get started:
@@ -36,3 +29,11 @@ Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use t
 </a>
 
 See other cloud [install](https://merliot.io/doc/install) methods.
+
+## Run from Source
+
+<pre>
+$ git clone https://github.com/merliot/hub.git
+$ cd hub
+$ go run ./cmd
+</pre>
