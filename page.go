@@ -20,7 +20,7 @@ var homePages = []page{
 var demoPages = []page{
 	{"", "DEMO", ""},
 	{"devices", "DEVICE VIEW", "/demo/devices"},
-	{"network", "NETWORK VIEW", "/demo/network"},
+	//{"network", "NETWORK VIEW", "/demo/network"},
 	{"about-demo", "ABOUT", "/demo/about-demo"},
 }
 
