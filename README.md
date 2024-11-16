@@ -25,3 +25,14 @@ $ git clone https://github.com/merliot/hub.git
 $ cd hub
 $ go run ./cmd
 </pre>
+
+
+## Run on Cloud
+
+Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use the one-click button to get started:
+
+<a href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/">
+	<img src="https://www.koyeb.com/static/images/deploy/button.svg">
+</a>
+
+See other cloud [install](https://merliot.io/doc/install) methods.
