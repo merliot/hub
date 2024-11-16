@@ -7,7 +7,7 @@
 Private Device Hub
 
 <a href="https://merliot.io/demo">
-	<img src="docs/images/hub-light.png" width="300px">
+	<img src="docs/images/demo.svg" width="500px">
 </a>
 
 ## Run from Docker
