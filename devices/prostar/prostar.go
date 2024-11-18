@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/merliot/hub"
-	"github.com/merliot/hub/io/modbus"
+	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/io/modbus"
 	"github.com/x448/float16"
 )
 
@@ -79,11 +79,11 @@ type prostar struct {
 	nextHour time.Time
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &prostar{TTY: ttyUSB0}
 }
 
-func (p *prostar) save(pkt *hub.Packet) {
+func (p *prostar) save(pkt *device.Packet) {
 	pkt.Unmarshal(p).RouteUp()
 }
 
@@ -185,7 +185,7 @@ func (p *prostar) readDynamic(c *Controller, b *Battery, l *Load, s *Array) erro
 
 var statusOK = Status("OK")
 
-func (p *prostar) sendStatus(pkt *hub.Packet, newStatus Status) {
+func (p *prostar) sendStatus(pkt *device.Packet, newStatus Status) {
 	if newStatus == "EOF" {
 		newStatus = "METERBUS DISCONNECTED"
 	}
@@ -196,7 +196,7 @@ func (p *prostar) sendStatus(pkt *hub.Packet, newStatus Status) {
 	pkt.SetPath("/update-status").Marshal(p.Status).RouteUp()
 }
 
-func (p *prostar) sendDynamic(pkt *hub.Packet) {
+func (p *prostar) sendDynamic(pkt *device.Packet) {
 	var controller Controller
 	var battery Battery
 	var load Load
@@ -229,7 +229,7 @@ func (p *prostar) sendDynamic(pkt *hub.Packet) {
 	p.sendStatus(pkt, statusOK)
 }
 
-func (p *prostar) sendHourly(pkt *hub.Packet) (err error) {
+func (p *prostar) sendHourly(pkt *device.Packet) (err error) {
 	var daily Daily
 
 	if err = p.readDaily(&daily); err != nil {
@@ -293,7 +293,7 @@ func (p *prostar) Setup() error {
 	return nil
 }
 
-func (p *prostar) Poll(pkt *hub.Packet) {
+func (p *prostar) Poll(pkt *device.Packet) {
 	p.sendDynamic(pkt)
 	if time.Now().After(p.nextHour) {
 		p.sendHourly(pkt)
@@ -301,5 +301,5 @@ func (p *prostar) Poll(pkt *hub.Packet) {
 	}
 }
 
-func (p *prostar) DemoSetup() error         { return p.Setup() }
-func (p *prostar) DemoPoll(pkt *hub.Packet) { p.Poll(pkt) }
+func (p *prostar) DemoSetup() error            { return p.Setup() }
+func (p *prostar) DemoPoll(pkt *device.Packet) { p.Poll(pkt) }

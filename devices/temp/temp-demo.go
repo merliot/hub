@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 func (t *temp) DemoSetup() error {
@@ -25,7 +25,7 @@ func randomValue(mean, stddev float64) float32 {
 	return float32(math.Round(value*10) / 10)
 }
 
-func (t *temp) DemoPoll(pkt *hub.Packet) {
+func (t *temp) DemoPoll(pkt *device.Packet) {
 	var msg = msgUpdate{
 		Temperature: randomValue(24.1, 1.5),
 		Humidity:    randomValue(34.5, 0.5),

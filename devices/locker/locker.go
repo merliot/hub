@@ -1,19 +1,19 @@
 package locker
 
 import (
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 type locker struct {
 	Secret string `json:"-"`
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &locker{}
 }
 
-func (l *locker) GetConfig() hub.Config {
-	return hub.Config{
+func (l *locker) GetConfig() device.Config {
+	return device.Config{
 		Model:   "locker",
 		State:   l,
 		FS:      &fs,
@@ -23,7 +23,7 @@ func (l *locker) GetConfig() hub.Config {
 	}
 }
 
-func (l *locker) Setup() error             { return nil }
-func (l *locker) Poll(pkt *hub.Packet)     {}
-func (l *locker) DemoSetup() error         { return l.Setup() }
-func (l *locker) DemoPoll(pkt *hub.Packet) { l.Poll(pkt) }
+func (l *locker) Setup() error                { return nil }
+func (l *locker) Poll(pkt *device.Packet)     {}
+func (l *locker) DemoSetup() error            { return l.Setup() }
+func (l *locker) DemoPoll(pkt *device.Packet) { l.Poll(pkt) }

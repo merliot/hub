@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/merliot/hub"
-	io "github.com/merliot/hub/io/relay"
+	"github.com/merliot/hub/pkg/device"
+	io "github.com/merliot/hub/pkg/io/relay"
 )
 
 type relays struct {
@@ -42,21 +42,21 @@ type msgClicked struct {
 	State bool
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &relays{}
 }
 
-func (r *relays) GetConfig() hub.Config {
-	return hub.Config{
+func (r *relays) GetConfig() device.Config {
+	return device.Config{
 		Model:   "relays",
 		State:   r,
 		FS:      &fs,
 		Targets: []string{"rpi", "nano-rp2040", "wioterminal"},
 		BgColor: "ice",
 		FgColor: "black",
-		PacketHandlers: hub.PacketHandlers{
-			"/click":   &hub.PacketHandler[msgClick]{r.click},
-			"/clicked": &hub.PacketHandler[msgClicked]{r.clicked},
+		PacketHandlers: device.PacketHandlers{
+			"/click":   &device.PacketHandler[msgClick]{r.click},
+			"/clicked": &device.PacketHandler[msgClicked]{r.clicked},
 		},
 	}
 }
@@ -71,7 +71,7 @@ func (r *relays) Setup() error {
 	return nil
 }
 
-func (r *relays) click(pkt *hub.Packet) {
+func (r *relays) click(pkt *device.Packet) {
 	var click msgClick
 	pkt.Unmarshal(&click)
 	relay := &r.Relays[click.Relay]
@@ -80,7 +80,7 @@ func (r *relays) click(pkt *hub.Packet) {
 	pkt.SetPath("/clicked").Marshal(&clicked).RouteUp()
 }
 
-func (r *relays) clicked(pkt *hub.Packet) {
+func (r *relays) clicked(pkt *device.Packet) {
 	var clicked msgClicked
 	pkt.Unmarshal(&clicked)
 	relay := &r.Relays[clicked.Relay]
@@ -88,6 +88,6 @@ func (r *relays) clicked(pkt *hub.Packet) {
 	pkt.RouteUp()
 }
 
-func (r *relays) Poll(pkt *hub.Packet)     {}
-func (r *relays) DemoSetup() error         { return r.Setup() }
-func (r *relays) DemoPoll(pkt *hub.Packet) { r.Poll(pkt) }
+func (r *relays) Poll(pkt *device.Packet)     {}
+func (r *relays) DemoSetup() error            { return r.Setup() }
+func (r *relays) DemoPoll(pkt *device.Packet) { r.Poll(pkt) }

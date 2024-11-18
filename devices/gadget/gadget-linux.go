@@ -6,14 +6,14 @@ import (
 	"embed"
 	"time"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 //go:embed *.go images template
 var fs embed.FS
 
-func (g *gadget) GetConfig() hub.Config {
-	return hub.Config{
+func (g *gadget) GetConfig() device.Config {
+	return device.Config{
 		Model:      "gadget",
 		State:      g,
 		FS:         &fs,
@@ -21,9 +21,9 @@ func (g *gadget) GetConfig() hub.Config {
 		PollPeriod: time.Second,
 		BgColor:    "african-violet",
 		FgColor:    "black",
-		PacketHandlers: hub.PacketHandlers{
-			"/takeone": &hub.PacketHandler[hub.NoMsg]{g.takeone},
-			"/update":  &hub.PacketHandler[gadget]{g.update},
+		PacketHandlers: device.PacketHandlers{
+			"/takeone": &device.PacketHandler[device.NoMsg]{g.takeone},
+			"/update":  &device.PacketHandler[gadget]{g.update},
 		},
 	}
 }

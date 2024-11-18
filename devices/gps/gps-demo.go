@@ -4,15 +4,15 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/merliot/hub"
-	io "github.com/merliot/hub/io/gps"
+	"github.com/merliot/hub/pkg/device"
+	io "github.com/merliot/hub/pkg/io/gps"
 )
 
 func (g *gps) DemoSetup() error {
 	rand.Seed(time.Now().UnixNano())
 	return nil
 }
-func (g *gps) DemoPoll(pkt *hub.Packet) {
+func (g *gps) DemoPoll(pkt *device.Packet) {
 	x := rand.Intn(len(places))
 	lat, long := places[x].lat, places[x].long
 	dist := io.Distance(lat, long, g.Lat, g.Long)

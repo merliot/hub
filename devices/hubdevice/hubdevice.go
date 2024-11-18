@@ -3,7 +3,7 @@ package hubdevice
 import (
 	"embed"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 //go:embed images *.go template
@@ -12,14 +12,14 @@ var fs embed.FS
 type hubDevice struct {
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &hubDevice{}
 }
 
-func (h *hubDevice) GetConfig() hub.Config {
-	return hub.Config{
+func (h *hubDevice) GetConfig() device.Config {
+	return device.Config{
 		Model:   "hub",
-		Flags:   hub.FlagProgenitive | hub.FlagWantsHttpPort,
+		Flags:   device.FlagProgenitive | device.FlagWantsHttpPort,
 		State:   h,
 		FS:      &fs,
 		Targets: []string{"x86-64", "rpi"},
@@ -28,7 +28,7 @@ func (h *hubDevice) GetConfig() hub.Config {
 	}
 }
 
-func (h *hubDevice) Setup() error             { return nil }
-func (h *hubDevice) Poll(pkt *hub.Packet)     {}
-func (h *hubDevice) DemoSetup() error         { return nil }
-func (h *hubDevice) DemoPoll(pkt *hub.Packet) {}
+func (h *hubDevice) Setup() error                { return nil }
+func (h *hubDevice) Poll(pkt *device.Packet)     {}
+func (h *hubDevice) DemoSetup() error            { return nil }
+func (h *hubDevice) DemoPoll(pkt *device.Packet) {}

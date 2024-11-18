@@ -7,11 +7,11 @@ import (
 	"machine"
 	"time"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
-func (p *prostar) GetConfig() hub.Config {
-	return hub.Config{
+func (p *prostar) GetConfig() device.Config {
+	return device.Config{
 		Model:      "prostar",
 		State:      p,
 		PollPeriod: pollPeriod,

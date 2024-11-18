@@ -5,11 +5,11 @@
 package main
 
 import (
-	"github.com/merliot/hub"
-	"github.com/merliot/hub/models"
+	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/models"
 )
 
 func main() {
-	hub.Models = models.AllModels
-	hub.Run()
+	device.Models = models.AllModels
+	device.Run()
 }

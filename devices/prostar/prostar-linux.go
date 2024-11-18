@@ -6,14 +6,14 @@ import (
 	"embed"
 	"text/template"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 //go:embed images *.go template
 var fs embed.FS
 
-func (p *prostar) GetConfig() hub.Config {
-	return hub.Config{
+func (p *prostar) GetConfig() device.Config {
+	return device.Config{
 		Model:      "prostar",
 		State:      p,
 		FS:         &fs,
@@ -21,14 +21,14 @@ func (p *prostar) GetConfig() hub.Config {
 		BgColor:    "sky",
 		FgColor:    "black",
 		PollPeriod: pollPeriod,
-		PacketHandlers: hub.PacketHandlers{
-			"/update-status":     &hub.PacketHandler[Status]{p.save},
-			"/update-system":     &hub.PacketHandler[System]{p.save},
-			"/update-controller": &hub.PacketHandler[Controller]{p.save},
-			"/update-battery":    &hub.PacketHandler[Battery]{p.save},
-			"/update-load":       &hub.PacketHandler[Load]{p.save},
-			"/update-array":      &hub.PacketHandler[Array]{p.save},
-			"/update-daily":      &hub.PacketHandler[Daily]{p.save},
+		PacketHandlers: device.PacketHandlers{
+			"/update-status":     &device.PacketHandler[Status]{p.save},
+			"/update-system":     &device.PacketHandler[System]{p.save},
+			"/update-controller": &device.PacketHandler[Controller]{p.save},
+			"/update-battery":    &device.PacketHandler[Battery]{p.save},
+			"/update-load":       &device.PacketHandler[Load]{p.save},
+			"/update-array":      &device.PacketHandler[Array]{p.save},
+			"/update-daily":      &device.PacketHandler[Daily]{p.save},
 		},
 		FuncMap: template.FuncMap{
 			"chargeState": p.chargeState,

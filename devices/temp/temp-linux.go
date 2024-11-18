@@ -8,14 +8,14 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
 //go:embed *.go images template
 var fs embed.FS
 
-func (t *temp) GetConfig() hub.Config {
-	return hub.Config{
+func (t *temp) GetConfig() device.Config {
+	return device.Config{
 		Model:      "temp",
 		State:      t,
 		FS:         &fs,
@@ -23,8 +23,8 @@ func (t *temp) GetConfig() hub.Config {
 		BgColor:    "orange",
 		FgColor:    "black",
 		PollPeriod: pollPeriod,
-		PacketHandlers: hub.PacketHandlers{
-			"/update": &hub.PacketHandler[msgUpdate]{t.update},
+		PacketHandlers: device.PacketHandlers{
+			"/update": &device.PacketHandler[msgUpdate]{t.update},
 		},
 		FuncMap: template.FuncMap{
 			"tempf":  t.tempf,

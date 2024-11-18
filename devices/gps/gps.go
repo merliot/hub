@@ -3,8 +3,8 @@ package gps
 import (
 	"time"
 
-	"github.com/merliot/hub"
-	io "github.com/merliot/hub/io/gps"
+	"github.com/merliot/hub/pkg/device"
+	io "github.com/merliot/hub/pkg/io/gps"
 )
 
 type gps struct {
@@ -20,12 +20,12 @@ type updateMsg struct {
 	Long float64
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &gps{Radius: 50, PollPeriod: 30}
 }
 
-func (g *gps) GetConfig() hub.Config {
-	return hub.Config{
+func (g *gps) GetConfig() device.Config {
+	return device.Config{
 		Model:      "gps",
 		State:      g,
 		FS:         &fs,
@@ -33,18 +33,18 @@ func (g *gps) GetConfig() hub.Config {
 		BgColor:    "green",
 		FgColor:    "black",
 		PollPeriod: time.Second * time.Duration(g.PollPeriod),
-		PacketHandlers: hub.PacketHandlers{
-			"/update": &hub.PacketHandler[updateMsg]{g.update},
+		PacketHandlers: device.PacketHandlers{
+			"/update": &device.PacketHandler[updateMsg]{g.update},
 		},
 	}
 }
 
-func (g *gps) update(pkt *hub.Packet) {
+func (g *gps) update(pkt *device.Packet) {
 	println("gps /update", pkt.String())
 	pkt.Unmarshal(g).RouteUp()
 }
 
-func (g *gps) Poll(pkt *hub.Packet) {
+func (g *gps) Poll(pkt *device.Packet) {
 	lat, long, _ := g.Location()
 	dist := io.Distance(lat, long, g.Lat, g.Long)
 	if dist >= g.Radius {

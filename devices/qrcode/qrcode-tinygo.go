@@ -8,7 +8,7 @@ import (
 	"machine"
 	"os"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 	goqr "github.com/skip2/go-qrcode"
 	"tinygo.org/x/drivers/examples/ili9341/initdisplay"
 	"tinygo.org/x/drivers/ili9341"
@@ -26,17 +26,17 @@ type qrcode struct {
 	lfs     *littlefs.LFS
 }
 
-func (q *qrcode) GetConfig() hub.Config {
-	return hub.Config{
+func (q *qrcode) GetConfig() device.Config {
+	return device.Config{
 		Model: "qrcode",
 		State: q,
-		PacketHandlers: hub.PacketHandlers{
-			"/update": &hub.PacketHandler[qrcode]{q.update},
+		PacketHandlers: device.PacketHandlers{
+			"/update": &device.PacketHandler[qrcode]{q.update},
 		},
 	}
 }
 
-func (q *qrcode) update(pkt *hub.Packet) {
+func (q *qrcode) update(pkt *device.Packet) {
 	pkt.Unmarshal(q)
 	if err := q.paint(); err == nil {
 		// save q.Content to FLASH
@@ -109,7 +109,7 @@ func (q *qrcode) setupFS() error {
 	// Try to mount the filesystem
 	err := q.lfs.Mount()
 	if err != nil {
-		hub.LogInfo("Filesystem not formatted. Formatting now...")
+		device.LogInfo("Filesystem not formatted. Formatting now...")
 		// If mounting fails, format the filesystem
 		err = q.lfs.Format()
 		if err != nil {

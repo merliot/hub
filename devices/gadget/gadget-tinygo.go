@@ -5,17 +5,17 @@ package gadget
 import (
 	"time"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 )
 
-func (g *gadget) GetConfig() hub.Config {
-	return hub.Config{
+func (g *gadget) GetConfig() device.Config {
+	return device.Config{
 		Model:      "gadget",
 		State:      g,
 		PollPeriod: time.Second,
-		PacketHandlers: hub.PacketHandlers{
-			"/takeone": &hub.PacketHandler[hub.NoMsg]{g.takeone},
-			"/update":  &hub.PacketHandler[gadget]{g.update},
+		PacketHandlers: device.PacketHandlers{
+			"/takeone": &device.PacketHandler[device.NoMsg]{g.takeone},
+			"/update":  &device.PacketHandler[gadget]{g.update},
 		},
 	}
 }

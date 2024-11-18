@@ -3,8 +3,8 @@ package temp
 import (
 	"time"
 
-	"github.com/merliot/hub"
-	io "github.com/merliot/hub/io/temp"
+	"github.com/merliot/hub/pkg/device"
+	io "github.com/merliot/hub/pkg/io/temp"
 )
 
 var (
@@ -31,7 +31,7 @@ type msgUpdate struct {
 	Humidity    float32
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &temp{
 		History: []Record{},
 	}
@@ -47,7 +47,7 @@ func (t *temp) addRecord() {
 	t.History = append(t.History, rec)
 }
 
-func (t *temp) update(pkt *hub.Packet) {
+func (t *temp) update(pkt *device.Packet) {
 	t.addRecord()
 	pkt.Unmarshal(t).RouteUp()
 }
@@ -56,10 +56,10 @@ func (t *temp) Setup() error {
 	return t.Temp.Setup(t.Sensor, t.Gpio)
 }
 
-func (t *temp) Poll(pkt *hub.Packet) {
+func (t *temp) Poll(pkt *device.Packet) {
 	temp, hum, err := t.Read()
 	if err != nil {
-		hub.LogError("Temp device poll read", "err", err)
+		device.LogError("Temp device poll read", "err", err)
 		return
 	}
 	if t.TempUnits == "F" {

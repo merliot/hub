@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/merliot/hub"
-	"github.com/merliot/hub/models"
+	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/models"
 )
 
 //go:generate go run ../gen-models/
@@ -22,7 +22,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "base":
-		hub.Models = models.AllModels
+		device.Models = models.AllModels
 
 		dir := "../../uf2s/"
 		if len(os.Args) > 2 {
@@ -39,7 +39,7 @@ func main() {
 			target = os.Args[4]
 		}
 
-		if err := hub.Uf2GenerateBaseImages(dir, model, target); err != nil {
+		if err := device.Uf2GenerateBaseImages(dir, model, target); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -49,7 +49,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Usage: %s dump <file>\n", progName)
 			os.Exit(1)
 		}
-		dump, err := hub.Uf2Dump(os.Args[2])
+		dump, err := device.Uf2Dump(os.Args[2])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -9,7 +9,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 	goqr "github.com/skip2/go-qrcode"
 )
 
@@ -20,18 +20,18 @@ type qrcode struct {
 	Content string
 }
 
-func (q *qrcode) GetConfig() hub.Config {
-	return hub.Config{
+func (q *qrcode) GetConfig() device.Config {
+	return device.Config{
 		Model:   "qrcode",
 		State:   q,
 		FS:      &fs,
 		Targets: []string{"wioterminal", "pyportal"},
 		BgColor: "magenta",
 		FgColor: "black",
-		PacketHandlers: hub.PacketHandlers{
-			"/update": &hub.PacketHandler[qrcode]{q.update},
+		PacketHandlers: device.PacketHandlers{
+			"/update": &device.PacketHandler[qrcode]{q.update},
 		},
-		APIs: hub.APIs{
+		APIs: device.APIs{
 			"POST /generate":    q.generate,
 			"GET /edit-content": q.editContent,
 		},
@@ -43,7 +43,7 @@ func (q *qrcode) GetConfig() hub.Config {
 
 func (q *qrcode) Setup() error { return nil }
 
-func (q *qrcode) update(pkt *hub.Packet) {
+func (q *qrcode) update(pkt *device.Packet) {
 	pkt.Unmarshal(q).RouteUp()
 }
 
@@ -81,7 +81,7 @@ func (q *qrcode) generate(w http.ResponseWriter, r *http.Request) {
 
 func (q *qrcode) editContent(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
-	if err := hub.RenderTemplate(w, id, "edit-content.tmpl", nil); err != nil {
+	if err := device.RenderTemplate(w, id, "edit-content.tmpl", nil); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

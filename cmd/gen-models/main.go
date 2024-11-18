@@ -24,20 +24,20 @@ const modelsTemplate = `// This file auto-generated from ./cmd/gen-models using 
 package models
 
 import (
-	"github.com/merliot/hub"
+	"github.com/merliot/hub/pkg/device"
 {{- range . }}
 	"{{ .Package }}"
 {{- end }}
 )
 
-var AllModels = hub.ModelMap{
+var AllModels = device.ModelMap{
 {{- range $key, $value := . }}
 	"{{$key}}": {{title $key}},
 {{- end }}
 }
 
 {{- range $key, $value := . }}
-var {{title $key}} = hub.Model{
+var {{title $key}} = device.Model{
 	Package: "{{$value.Package}}",
 	Source: "{{$value.Source}}",
 	Maker: {{$value.Maker}},
@@ -59,7 +59,7 @@ func main() {
 		panic(err)
 	}
 
-	outFile, err := os.Create("../../models/models.go")
+	outFile, err := os.Create("../../pkg/models/models.go")
 	if err != nil {
 		panic(err)
 	}

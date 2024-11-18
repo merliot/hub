@@ -18,6 +18,7 @@
 # vendor/
 
 # Go workspace file
+s
 d
 env
 go.work

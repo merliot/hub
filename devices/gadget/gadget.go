@@ -3,8 +3,8 @@ package gadget
 import (
 	"fmt"
 
-	"github.com/merliot/hub"
-	io "github.com/merliot/hub/io/led"
+	"github.com/merliot/hub/pkg/device"
+	io "github.com/merliot/hub/pkg/io/led"
 )
 
 type gadget struct {
@@ -14,7 +14,7 @@ type gadget struct {
 	io.Led
 }
 
-func NewModel() hub.Devicer {
+func NewModel() device.Devicer {
 	return &gadget{Bottles: 99, Restock: 70}
 }
 
@@ -29,7 +29,7 @@ func (g *gadget) Setup() error {
 	return nil
 }
 
-func (g *gadget) Poll(pkt *hub.Packet) {
+func (g *gadget) Poll(pkt *device.Packet) {
 	if g.Bottles < g.fullCount {
 		if g.Restock == 1 {
 			g.Bottles = g.fullCount
@@ -43,16 +43,16 @@ func (g *gadget) Poll(pkt *hub.Packet) {
 	}
 }
 
-func (g *gadget) takeone(pkt *hub.Packet) {
+func (g *gadget) takeone(pkt *device.Packet) {
 	if g.Bottles > 0 {
 		g.Bottles--
 		pkt.SetPath("/update").Marshal(g).RouteUp()
 	}
 }
 
-func (g *gadget) update(pkt *hub.Packet) {
+func (g *gadget) update(pkt *device.Packet) {
 	pkt.Unmarshal(g).RouteUp()
 }
 
-func (g *gadget) DemoSetup() error         { return g.Setup() }
-func (g *gadget) DemoPoll(pkt *hub.Packet) { g.Poll(pkt) }
+func (g *gadget) DemoSetup() error            { return g.Setup() }
+func (g *gadget) DemoPoll(pkt *device.Packet) { g.Poll(pkt) }
