@@ -3,17 +3,17 @@
 package main
 
 import (
-	"github.com/merliot/hub"
-	"github.com/merliot/hub/models"
+	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/models"
 )
 
 func main() {
-	hub.Setenv("PORT", "{{.port}}")
-	hub.Setenv("USER", "{{.user}}")
-	hub.Setenv("PASSWD", "{{.passwd}}")
-	hub.Setenv("DIAL_URLS", "{{.dialurls}}")
+	device.Setenv("PORT", "{{.port}}")
+	device.Setenv("USER", "{{.user}}")
+	device.Setenv("PASSWD", "{{.passwd}}")
+	device.Setenv("DIAL_URLS", "{{.dialurls}}")
 
-	hub.Setenv("DEVICES", `{
+	device.Setenv("DEVICES", `{
 	"{{id}}": {
 		"Id": "{{id}}",
 		"Model": "{{model}}",
@@ -23,12 +23,12 @@ func main() {
 	}
 }`)
 {{ if isProgenitive }}
-	hub.Models = models.AllModels
+	device.Models = models.AllModels
 {{- else }}
-	hub.Models = hub.ModelMap{
+	device.Models = device.ModelMap{
 		"{{model}}": models.{{title model}},
 	}
 {{- end }}
 
-	hub.Run()
+	device.Run()
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/merliot/hub/target"
+	"github.com/merliot/hub/pkg/target"
 	"gobot.io/x/gobot/v2/drivers/gpio"
 )
 
