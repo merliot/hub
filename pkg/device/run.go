@@ -27,11 +27,19 @@ func (d *device) runDemo() {
 	}
 }
 
+func (d *device) startDemo() {
+	go d.runDemo()
+}
+
+func (d *device) stopDemo() {
+	close(d.stopChan)
+}
+
 // In demo mode, start a go func for each child device
 func (d *device) startDemoChildren() {
 	for _, childId := range d.Children {
 		child := devices[childId]
-		go child.runDemo()
+		child.startDemo()
 		child.startDemoChildren()
 	}
 }
@@ -39,7 +47,7 @@ func (d *device) startDemoChildren() {
 func (d *device) stopDemoChildren() {
 	for _, childId := range d.Children {
 		child := devices[childId]
-		close(child.stopChan)
+		child.stopDemo()
 		child.stopDemoChildren()
 	}
 }

@@ -166,6 +166,13 @@ func addChild(parent *device, id, model, name string) error {
 	child.setupAPI()
 	child.deviceInstall()
 
+	if runningDemo {
+		if err := child.setup(); err != nil {
+			return err
+		}
+		child.startDemo()
+	}
+
 	return nil
 }
 
@@ -174,7 +181,10 @@ func removeChild(id string) error {
 	devicesMu.Lock()
 	defer devicesMu.Unlock()
 
-	if _, ok := devices[id]; ok {
+	if device, ok := devices[id]; ok {
+		if runningDemo {
+			device.stopDemo()
+		}
 		delete(devices, id)
 		for _, device := range devices {
 			device.Lock()
