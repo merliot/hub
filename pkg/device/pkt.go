@@ -25,7 +25,8 @@ type Packet struct {
 
 func newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 	var pkt = &Packet{
-		Path: r.URL.Path,
+		Path:      r.URL.Path,
+		SessionId: r.Header.Get("session-id"),
 	}
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
@@ -101,8 +102,12 @@ func (p *Packet) RouteDown() {
 
 // RouteUp routes the packet up to:
 //
-//  1. Each listening session, where a session is an http(s) client (browser,
-//     etc) that has also opened, and is listening on, a websocket at /wsx.
+//  1. Sessions, where a session is an http(s) client (browser, etc) that has
+//     also opened, and is listening on, a websocket at /wsx.
+//
+//     If SessionId is set on packet, the packet is routed to the session.  If
+//     SessionId is not set on the packet, the packet is broadcast to all
+//     sessions.
 //
 //     The packet is transformed into an html snippet before being sent on the
 //     websocket to the client (see htmx, websockets).  The packet path and the
@@ -135,4 +140,17 @@ func (p *Packet) RouteUp() {
 	LogInfo("RouteUp", "pkt", p)
 	sessionsRoute(p)
 	uplinksRoute(p)
+}
+
+// RouteUp is a device packet handler that routes the packet up
+func RouteUp(p *Packet) {
+	p.RouteUp()
+}
+
+func (p *Packet) BroadcastUp() {
+	p.SetSession("").RouteUp()
+}
+
+func BroadcastUp(p *Packet) {
+	p.BroadcastUp()
 }

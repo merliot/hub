@@ -39,19 +39,19 @@ func (g *gadget) Poll(pkt *device.Packet) {
 			g.Restock--
 			g.Led.On()
 		}
-		pkt.SetPath("/update").Marshal(g).RouteUp()
+		pkt.SetPath("/update").Marshal(g).BroadcastUp()
 	}
 }
 
 func (g *gadget) takeone(pkt *device.Packet) {
 	if g.Bottles > 0 {
 		g.Bottles--
-		pkt.SetPath("/update").Marshal(g).RouteUp()
+		pkt.SetPath("/update").Marshal(g).BroadcastUp()
 	}
 }
 
 func (g *gadget) update(pkt *device.Packet) {
-	pkt.Unmarshal(g).RouteUp()
+	pkt.Unmarshal(g).BroadcastUp()
 }
 
 func (g *gadget) DemoSetup() error            { return g.Setup() }

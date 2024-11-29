@@ -44,7 +44,7 @@ func (q *qrcode) GetConfig() device.Config {
 func (q *qrcode) Setup() error { return nil }
 
 func (q *qrcode) update(pkt *device.Packet) {
-	pkt.Unmarshal(q).RouteUp()
+	pkt.Unmarshal(q).BroadcastUp()
 }
 
 func (q *qrcode) png(content string, size int) (template.URL, error) {

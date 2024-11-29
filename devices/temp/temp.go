@@ -49,7 +49,7 @@ func (t *temp) addRecord() {
 
 func (t *temp) update(pkt *device.Packet) {
 	t.addRecord()
-	pkt.Unmarshal(t).RouteUp()
+	pkt.Unmarshal(t).BroadcastUp()
 }
 
 func (t *temp) Setup() error {
@@ -70,5 +70,5 @@ func (t *temp) Poll(pkt *device.Packet) {
 	t.Humidity = hum
 	t.addRecord()
 	var msg = msgUpdate{temp, hum}
-	pkt.SetPath("/update").Marshal(&msg).RouteUp()
+	pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
 }

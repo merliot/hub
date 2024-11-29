@@ -504,13 +504,12 @@ func (d *device) rename(w http.ResponseWriter, r *http.Request) {
 		downlinkClose(d.Id)
 	}
 
-	// send /rename msg up
-	pkt.SetDst(d.Id).RouteUp()
+	// Broadcast /rename msg up
+	pkt.SetDst(d.Id).BroadcastUp()
 }
 
 func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
 	var msg any
-	var sessionId = r.Header.Get("session-id")
 
 	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
@@ -518,7 +517,7 @@ func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pkt.SetSession(sessionId).SetDst(d.Id).RouteDown()
+	pkt.SetDst(d.Id).RouteDown()
 }
 
 func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
@@ -557,8 +556,8 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// send /create msg up
-	pkt.SetDst(d.Id).RouteUp()
+	// Broadcast /create msg up
+	pkt.SetDst(d.Id).BroadcastUp()
 }
 
 type msgDestroy struct {
@@ -587,8 +586,8 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// send /destroy msg up
-	pkt.SetDst(parentId).RouteUp()
+	// Broadcast /destroy msg up
+	pkt.SetDst(parentId).BroadcastUp()
 }
 
 func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {

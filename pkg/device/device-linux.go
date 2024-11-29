@@ -292,7 +292,7 @@ func deviceOffline(id string) {
 	d.Unlock()
 
 	pkt := &Packet{Dst: id, Path: "/offline"}
-	pkt.RouteUp()
+	pkt.BroadcastUp()
 }
 
 func updateDirty(id string, dirty bool) {
@@ -313,7 +313,7 @@ func updateDirty(id string, dirty bool) {
 	d.Unlock()
 
 	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
-	pkt.RouteUp()
+	pkt.BroadcastUp()
 }
 
 func deviceDirty(id string) {
@@ -431,7 +431,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	// go offline for 3 seconds
 	d.Unset(flagOnline)
-	pkt.SetPath("/state").Marshal(d.State).RouteUp()
+	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 	time.Sleep(3 * time.Second)
 
 	model, _ := Models[d.Model]
@@ -442,7 +442,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	go d.runDemo()
 
-	pkt.SetPath("/state").Marshal(d.State).RouteUp()
+	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleReboot(pkt *Packet) {

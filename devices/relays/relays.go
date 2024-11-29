@@ -77,7 +77,7 @@ func (r *relays) click(pkt *device.Packet) {
 	relay := &r.Relays[click.Relay]
 	relay.Set(!relay.State)
 	var clicked = msgClicked{click.Relay, relay.State}
-	pkt.SetPath("/clicked").Marshal(&clicked).RouteUp()
+	pkt.SetPath("/clicked").Marshal(&clicked).BroadcastUp()
 }
 
 func (r *relays) clicked(pkt *device.Packet) {
@@ -85,7 +85,7 @@ func (r *relays) clicked(pkt *device.Packet) {
 	pkt.Unmarshal(&clicked)
 	relay := &r.Relays[clicked.Relay]
 	relay.Set(clicked.State)
-	pkt.RouteUp()
+	pkt.BroadcastUp()
 }
 
 func (r *relays) Poll(pkt *device.Packet)     {}

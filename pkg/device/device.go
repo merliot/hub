@@ -90,7 +90,7 @@ func (d *device) build(maker Maker) error {
 }
 
 func (d *device) handleState(pkt *Packet) {
-	pkt.Unmarshal(d.State).RouteUp()
+	pkt.Unmarshal(d.State).BroadcastUp()
 }
 
 type msgUptime struct {

@@ -40,8 +40,7 @@ func (g *gps) GetConfig() device.Config {
 }
 
 func (g *gps) update(pkt *device.Packet) {
-	println("gps /update", pkt.String())
-	pkt.Unmarshal(g).RouteUp()
+	pkt.Unmarshal(g).BroadcastUp()
 }
 
 func (g *gps) Poll(pkt *device.Packet) {
@@ -50,6 +49,6 @@ func (g *gps) Poll(pkt *device.Packet) {
 	if dist >= g.Radius {
 		var up = updateMsg{lat, long}
 		g.Lat, g.Long = lat, long
-		pkt.SetPath("/update").Marshal(&up).RouteUp()
+		pkt.SetPath("/update").Marshal(&up).BroadcastUp()
 	}
 }

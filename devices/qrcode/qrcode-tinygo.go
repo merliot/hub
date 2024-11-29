@@ -41,7 +41,7 @@ func (q *qrcode) update(pkt *device.Packet) {
 	if err := q.paint(); err == nil {
 		// save q.Content to FLASH
 		q.writeContent()
-		pkt.RouteUp()
+		pkt.BroadcastUp()
 	}
 }
 
