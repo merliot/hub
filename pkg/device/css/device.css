@@ -1248,7 +1248,6 @@ button {
   background-color: #000000 !important;
   border-color: #f5f6fa !important;
   border-style: dashed !important;
-  cursor: default;
   /*transition: all 2s ease-in;*/
 }
 
