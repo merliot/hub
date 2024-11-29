@@ -4,6 +4,7 @@ package models
 
 import (
 	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/devices/camera"
 	"github.com/merliot/hub/devices/gadget"
 	"github.com/merliot/hub/devices/gps"
 	"github.com/merliot/hub/devices/hubdevice"
@@ -15,6 +16,7 @@ import (
 )
 
 var AllModels = device.ModelMap{
+	"camera": Camera,
 	"gadget": Gadget,
 	"gps": Gps,
 	"hub": Hub,
@@ -23,6 +25,11 @@ var AllModels = device.ModelMap{
 	"qrcode": Qrcode,
 	"relays": Relays,
 	"temp": Temp,
+}
+var Camera = device.Model{
+	Package: "github.com/merliot/hub/devices/camera",
+	Source: "https://github.com/merliot/hub/tree/main/devices/camera",
+	Maker: camera.NewModel,
 }
 var Gadget = device.Model{
 	Package: "github.com/merliot/hub/devices/gadget",

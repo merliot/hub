@@ -38,5 +38,10 @@
 		"Package": "github.com/merliot/hub/devices/prostar",
 		"Source": "https://github.com/merliot/hub/tree/main/devices/prostar",
 		"Maker": "prostar.NewModel"
+	},
+	"camera": {
+		"Package": "github.com/merliot/hub/devices/camera",
+		"Source": "https://github.com/merliot/hub/tree/main/devices/camera",
+		"Maker": "camera.NewModel"
 	}
 }
