@@ -57,7 +57,7 @@ func (c *camera) getImage(pkt *device.Packet) {
 	if err == nil {
 		pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
 	} else {
-		println(string(err))
+		println(err.Error())
 	}
 }
 
