@@ -47,10 +47,18 @@ func newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 func (p *Packet) String() string {
 	var msg any
 	json.Unmarshal(p.Msg, &msg)
+
+	// Convert msg to string and truncate if needed
+	msgStr := fmt.Sprintf("%v", msg)
+	const maxLength = 100
+	if len(msgStr) > maxLength {
+		msgStr = msgStr[:maxLength] + "..."
+	}
+
 	if p.SessionId == "" {
-		return fmt.Sprintf("[%s%s] %v", p.Dst, p.Path, msg)
+		return fmt.Sprintf("[%s%s*] %v", p.Dst, p.Path, msgStr)
 	} else {
-		return fmt.Sprintf("[%s%s*] %v", p.Dst, p.Path, msg)
+		return fmt.Sprintf("[%s%s] %v", p.Dst, p.Path, msgStr)
 	}
 }
 
@@ -148,6 +156,7 @@ func RouteUp(p *Packet) {
 }
 
 func (p *Packet) BroadcastUp() {
+	// Route to all sessions
 	p.SetSession("").RouteUp()
 }
 

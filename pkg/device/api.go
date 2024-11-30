@@ -153,17 +153,17 @@ func (d *device) renderTmpl(w io.Writer, template string, data any) error {
 	return d._renderTmpl(w, template, data)
 }
 
-func (d *device) _renderSession(w io.Writer, template, sessionId string, level int) error {
-	return d._renderTmpl(w, template, map[string]any{
-		"sessionId": sessionId,
-		"level":     level,
-	})
+func (d *device) _renderSession(w io.Writer, template, sessionId string,
+	level int, data map[string]any) error {
+	data["sessionId"] = sessionId
+	data["level"] = level
+	return d._renderTmpl(w, template, data)
 }
 
 func (d *device) renderSession(w io.Writer, template, sessionId string, level int) error {
 	d.RLock()
 	defer d.RUnlock()
-	return d._renderSession(w, template, sessionId, level)
+	return d._renderSession(w, template, sessionId, level, map[string]any{})
 }
 
 func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error {
@@ -196,7 +196,8 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 			view = "overview"
 		}
 
-		if err := child._render(w, sessionId, "/device", view, level); err != nil {
+		if err := child._render(w, sessionId, "/device", view, level,
+			map[string]any{}); err != nil {
 			return err
 		}
 	}
@@ -204,14 +205,15 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 	return nil
 }
 
-func (d *device) _render(w io.Writer, sessionId, path, view string, level int) error {
+func (d *device) _render(w io.Writer, sessionId, path, view string,
+	level int, data map[string]any) error {
 
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
 	//LogInfo("_render", "id", d.Id, "session-id", sessionId,
 	//	"path", path, "level", level, "template", template)
-	if err := d._renderSession(w, template, sessionId, level); err != nil {
+	if err := d._renderSession(w, template, sessionId, level, data); err != nil {
 		return err
 	}
 
@@ -223,7 +225,7 @@ func (d *device) _render(w io.Writer, sessionId, path, view string, level int) e
 func (d *device) render(w io.Writer, sessionId, path, view string, level int) error {
 	d.RLock()
 	defer d.RUnlock()
-	return d._render(w, sessionId, path, view, level)
+	return d._render(w, sessionId, path, view, level, map[string]any{})
 }
 
 func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
@@ -233,8 +235,11 @@ func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		return err
 	}
 
+	var data = make(map[string]any)
+	json.Unmarshal(pkt.Msg, &data)
+
 	//LogInfo("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
-	return d._render(w, sessionId, pkt.Path, view, level)
+	return d._render(w, sessionId, pkt.Path, view, level, data)
 }
 
 func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
@@ -263,7 +268,7 @@ func (d *device) renderView(sessionId, path, view string, level int) (template.H
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
-	if err := d._render(&buf, sessionId, path, view, level); err != nil {
+	if err := d._render(&buf, sessionId, path, view, level, map[string]any{}); err != nil {
 		return template.HTML(""), err
 	}
 
