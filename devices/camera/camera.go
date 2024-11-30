@@ -56,6 +56,8 @@ func (c *camera) getImage(pkt *device.Packet) {
 	msgImage.Jpeg, err = c.getJpeg(msgGet.Index)
 	if err == nil {
 		pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
+	} else {
+		println(string(err))
 	}
 }
 
@@ -71,7 +73,7 @@ func (c *camera) rawJpeg(index int) ([]byte, error) {
 	// Define the command to capture the image using `raspistill`
 	// -o - : Outputs the image to stdout
 	// -t 1 : Takes the picture immediately
-	cmd := exec.Command("raspistill", "-o", "-", "-t", "1")
+	cmd := exec.Command("rpicam-still", "-o", "-", "-t", "1", "--width", "640", "--height", "480")
 
 	// Create a buffer to store the image
 	var out bytes.Buffer
