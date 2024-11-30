@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"sync"
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
@@ -18,6 +19,7 @@ var embedFS embed.FS
 type camera struct {
 	getJpeg func(int) ([]byte, error)
 	latest  string
+	sync.RWMutex
 }
 
 type msgGetImage struct {
@@ -74,6 +76,9 @@ func (c *camera) jpeg(raw string) (template.URL, error) {
 }
 
 func (c *camera) rawJpeg(index int) ([]byte, error) {
+	c.RLock()
+	defer c.RUnlock()
+
 	if c.latest == "" {
 		return nil, fmt.Errorf("Image file not set yet")
 	}
@@ -93,7 +98,7 @@ func (c *camera) Setup() error {
 	return nil
 }
 
-func (c *camera) Poll(pkt *device.Packet) {
+func (c *camera) poll() {
 
 	timestamp := time.Now().Format("20060102_150405")
 	filename := fmt.Sprintf("image_%s.jpg", timestamp)
@@ -104,6 +109,12 @@ func (c *camera) Poll(pkt *device.Packet) {
 		fmt.Printf("Error capturing image: %v\n", err)
 	} else {
 		fmt.Printf("Captured %s\n", filename)
+		c.Lock()
 		c.latest = filename
+		c.Unlock()
 	}
+}
+
+func (c *camera) Poll(pkt *device.Packet) {
+	go c.poll()
 }
