@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"time"
 )
@@ -128,7 +129,6 @@ func Run() {
 
 func logBuildInfo() {
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		// TODO figure out why module version prints as (devel) and not v0.0.x
 		LogInfo("Build Info:")
 		LogInfo("Go Version:", "version", buildInfo.GoVersion)
 		LogInfo("Path", "path", buildInfo.Path)
@@ -139,4 +139,5 @@ func logBuildInfo() {
 			LogInfo("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
 		}
 	}
+	LogInfo("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
 }
