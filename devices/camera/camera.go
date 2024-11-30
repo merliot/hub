@@ -1,11 +1,13 @@
 package camera
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 	"html/template"
+	"io"
+	"os"
 	"os/exec"
+	"time"
 
 	"github.com/merliot/hub/pkg/device"
 )
@@ -15,6 +17,7 @@ var embedFS embed.FS
 
 type camera struct {
 	getJpeg func(int) ([]byte, error)
+	latest  string
 }
 
 type msgGetImage struct {
@@ -31,12 +34,13 @@ func NewModel() device.Devicer {
 
 func (c *camera) GetConfig() device.Config {
 	return device.Config{
-		Model:   "camera",
-		State:   c,
-		FS:      &embedFS,
-		Targets: []string{"rpi"},
-		BgColor: "almond-creme",
-		FgColor: "black",
+		Model:      "camera",
+		State:      c,
+		FS:         &embedFS,
+		Targets:    []string{"rpi"},
+		BgColor:    "almond-creme",
+		FgColor:    "black",
+		PollPeriod: 5 * time.Second,
 		PacketHandlers: device.PacketHandlers{
 			"/get-image": &device.PacketHandler[msgGetImage]{c.getImage},
 			"/image":     &device.PacketHandler[msgImage]{device.RouteUp},
@@ -70,23 +74,18 @@ func (c *camera) jpeg(raw string) (template.URL, error) {
 }
 
 func (c *camera) rawJpeg(index int) ([]byte, error) {
-	// Define the command to capture the image using `raspistill`
-	// -o - : Outputs the image to stdout
-	// -t 1 : Takes the picture immediately
-	cmd := exec.Command("libcamera-still", "-o", "-", "-t", "1", "--width", "640", "--height", "480")
-
-	// Create a buffer to store the image
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	// Run the command
-	err := cmd.Run()
-	if err != nil {
-		return nil, fmt.Errorf("failed to capture image: %w", err)
+	if c.latest == "" {
+		return nil, fmt.Errorf("Image file not set yet")
 	}
 
-	// Return the captured image as a byte slice
-	return out.Bytes(), nil
+	file, err := os.Open(c.latest)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	// Read the file contents
+	return io.ReadAll(file)
 }
 
 func (c *camera) Setup() error {
@@ -94,4 +93,17 @@ func (c *camera) Setup() error {
 	return nil
 }
 
-func (c *camera) Poll(pkt *device.Packet) {}
+func (c *camera) Poll(pkt *device.Packet) {
+
+	timestamp := time.Now().Format("20060102_150405")
+	filename := fmt.Sprintf("image_%s.jpg", timestamp)
+
+	cmd := exec.Command("libcamera-still", "-o", filename, "--width", "640", "--height", "480", "-t", "1", "--immediate")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("Error capturing image: %v\n", err)
+	} else {
+		fmt.Printf("Captured %s\n", filename)
+		c.latest = filename
+	}
+}
