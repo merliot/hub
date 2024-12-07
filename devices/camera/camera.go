@@ -4,12 +4,9 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"io"
-	"os"
-	"os/exec"
-	"sync"
 	"time"
 
+	"github.com/merliot/hub/devices/camera/cache"
 	"github.com/merliot/hub/pkg/device"
 )
 
@@ -17,21 +14,21 @@ import (
 var embedFS embed.FS
 
 type camera struct {
-	getJpeg func(int) ([]byte, error)
-	latest  string
-	sync.RWMutex
+	*cache.Cache
 }
 
 type msgGetImage struct {
-	Index int
+	Index uint32
 }
 
 type msgImage struct {
 	Jpeg []byte
+	Prev uint32
+	Next uint32
 }
 
 func NewModel() device.Devicer {
-	return &camera{}
+	return &camera{Cache: cache.New()}
 }
 
 func (c *camera) GetConfig() device.Config {
@@ -39,7 +36,7 @@ func (c *camera) GetConfig() device.Config {
 		Model:      "camera",
 		State:      c,
 		FS:         &embedFS,
-		Targets:    []string{"rpi"},
+		Targets:    []string{"rpi", "x86-64"},
 		BgColor:    "almond-creme",
 		FgColor:    "black",
 		PollPeriod: 5 * time.Second,
@@ -59,7 +56,7 @@ func (c *camera) getImage(pkt *device.Packet) {
 	var err error
 
 	pkt.Unmarshal(&msgGet)
-	msgImage.Jpeg, err = c.getJpeg(msgGet.Index)
+	msgImage.Jpeg, msgImage.Prev, msgImage.Next, err = c.Cache.GetJpeg(msgGet.Index)
 	if err == nil {
 		pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
 	} else {
@@ -75,46 +72,29 @@ func (c *camera) jpeg(raw string) (template.URL, error) {
 	return template.URL(url), nil
 }
 
-func (c *camera) rawJpeg(index int) ([]byte, error) {
-	c.RLock()
-	defer c.RUnlock()
-
-	if c.latest == "" {
-		return nil, fmt.Errorf("Image file not set yet")
-	}
-
-	file, err := os.Open(c.latest)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to open file: %w", err)
-	}
-	defer file.Close()
-
-	// Read the file contents
-	return io.ReadAll(file)
-}
-
 func (c *camera) Setup() error {
-	c.getJpeg = c.rawJpeg
-	return nil
+	return c.Cache.Init()
 }
 
 func (c *camera) poll() {
 
-	timestamp := time.Now().Format("20060102_150405")
-	filename := fmt.Sprintf("image_%s.jpg", timestamp)
-
-	cmd := exec.Command("libcamera-still", "-o", filename, "--width", "640", "--height", "480", "-t", "1", "--immediate")
-	err := cmd.Run()
+	// Capture the jpeg image from the webcam
+	jpeg, err := captureJpeg()
 	if err != nil {
 		fmt.Printf("Error capturing image: %v\n", err)
-	} else {
-		fmt.Printf("Captured %s\n", filename)
-		c.Lock()
-		c.latest = filename
-		c.Unlock()
+		return
+	}
+
+	// Save the jpeg image to the cache (and to disc)
+	err = c.Cache.SaveJpeg(jpeg)
+	if err != nil {
+		fmt.Printf("Error saving image: %v\n", err)
+		return
 	}
 }
 
 func (c *camera) Poll(pkt *device.Packet) {
+	// Run image capture/save in separate go func so device lock is not
+	// held long during Polling
 	go c.poll()
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/merliot/hub/pkg/device"
 )
 
-func (c *camera) demoRawJpeg(index int) ([]byte, error) {
+func (c *camera) demoRawJpeg(index uint) ([]byte, error) {
 	filename := fmt.Sprintf("images/%d.jpg", index)
 	data, err := fs.ReadFile(embedFS, filename)
 	if err != nil {
@@ -17,7 +17,7 @@ func (c *camera) demoRawJpeg(index int) ([]byte, error) {
 }
 
 func (c *camera) DemoSetup() error {
-	c.getJpeg = c.demoRawJpeg
+	//c.getJpeg = c.demoRawJpeg
 	return nil
 }
 

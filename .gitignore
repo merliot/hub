@@ -26,3 +26,4 @@ go.work.sum
 devices.json*
 uf2s/*.uf2
 cmd/uf2/*/
+camera-images
