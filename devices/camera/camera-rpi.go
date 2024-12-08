@@ -3,24 +3,28 @@
 package camera
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
-	"time"
 )
 
-func (c *camera) poll() {
+// captureImage captures a jpeg image using libcamera-still
+func captureJpeg() ([]byte, error) {
 
-	timestamp := time.Now().Format("20060102_150405")
-	filename := fmt.Sprintf("image_%s.jpg", timestamp)
+	cmd := exec.Command("libcamera-still", "-o", "-", "--width", "640",
+		"--height", "480", "-t", "1", "--immediate")
 
-	cmd := exec.Command("libcamera-still", "-o", filename, "--width", "640", "--height", "480", "-t", "1", "--immediate")
+	// Create a buffer to capture the output (stdout) from libcamera-still
+	var outBuf bytes.Buffer
+	cmd.Stdout = &outBuf
+	cmd.Stderr = nil // Suppress error output, handle separately if needed
+
+	// Execute the command
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("Error capturing image: %v\n", err)
-	} else {
-		fmt.Printf("Captured %s\n", filename)
-		c.Lock()
-		c.latest = filename
-		c.Unlock()
+		return nil, fmt.Errorf("libcamera-still command failed: %v", err)
 	}
+
+	// Return the captured image data
+	return outBuf.Bytes(), nil
 }

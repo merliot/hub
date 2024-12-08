@@ -65,8 +65,6 @@ func (c *camera) getImage(pkt *device.Packet) {
 }
 
 func (c *camera) jpeg(raw string) (template.URL, error) {
-	// Convert the image to base64
-	//base64Image := base64.StdEncoding.EncodeToString([]byte(raw))
 	url := fmt.Sprintf("data:image/jpeg;base64,%s", raw)
 	// Return it as template-safe url to use with <img src={{.}}>
 	return template.URL(url), nil
