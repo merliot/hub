@@ -13,6 +13,7 @@ func captureJpeg() ([]byte, error) {
 
 	cmd := exec.Command("ffmpeg", "-f", "v4l2", "-framerate", "30",
 		"-video_size", "640x480", "-i", "/dev/video0", "-vframes", "1",
+		"-vf", "drawtext=text='%{localtime}':fontcolor=black:fontsize=24:x=10:y=10",
 		"-q:v", "7", "-f", "image2pipe", "-vcodec", "mjpeg", "-")
 
 	// Create a buffer to capture the output (stdout) from ffmpeg

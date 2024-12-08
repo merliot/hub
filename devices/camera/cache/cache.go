@@ -112,19 +112,24 @@ func (c *Cache) Init() error {
 // GetJpeg retrieves the jpeg file from the cache, along with the previous and next file indices
 func (c *Cache) GetJpeg(index uint32) ([]byte, uint32, uint32, error) {
 
-	// If 0 is passed as the index, use the currentIndex
-	if index == 0 {
-		index = atomic.LoadUint32(&c.currentIndex)
-	}
+	var curr uint32 = atomic.LoadUint32(&c.currentIndex)
+	var prev, next uint32
 
-	previousIndex := c.calculatePreviousIndex(index)
-	nextIndex := c.calculateNextIndex(index)
+	// If 0 is passed as the index, use the currentIndex
+	if index == 0 || index == curr {
+		index = curr
+		prev = c.calculatePreviousIndex(index)
+		next = 0
+	} else {
+		prev = c.calculatePreviousIndex(index)
+		next = c.calculateNextIndex(index)
+	}
 
 	// Try to get from memory cache
 	c.memoryCacheLock.RLock()
 	if jpeg, found := c.memoryCache[index]; found {
 		c.memoryCacheLock.RUnlock()
-		return jpeg, previousIndex, nextIndex, nil
+		return jpeg, prev, next, nil
 	}
 	c.memoryCacheLock.RUnlock()
 
@@ -134,14 +139,14 @@ func (c *Cache) GetJpeg(index uint32) ([]byte, uint32, uint32, error) {
 	jpeg, err := os.ReadFile(filename)
 	if err != nil {
 		c.unlockFile(index)
-		return jpeg, previousIndex, nextIndex, err
+		return jpeg, prev, next, err
 	}
 	c.unlockFile(index)
 
 	// Save file in cache
 	c.addToMemoryCache(index, jpeg)
 
-	return jpeg, previousIndex, nextIndex, nil
+	return jpeg, prev, next, nil
 }
 
 func (c *Cache) calculatePreviousIndex(index uint32) uint32 {
