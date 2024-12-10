@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"net"
-	"sync"
 	"time"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type wsLink struct {
-	conn *websocket.Conn
-	sync.Mutex
+	conn     *websocket.Conn
 	lastRecv time.Time
 	lastSend time.Time
 }
@@ -30,9 +27,7 @@ func (l *wsLink) Send(pkt *Packet) error {
 	if err != nil {
 		return fmt.Errorf("Marshal error: %w", err)
 	}
-	l.Lock()
-	defer l.Unlock()
-	if err := websocket.Message.Send(l.conn, string(data)); err != nil {
+	if err := l.conn.WriteMessage(websocket.TextMessage, data); err != nil {
 		return fmt.Errorf("Send error: %w", err)
 	}
 	l.lastSend = time.Now()
@@ -44,13 +39,14 @@ func (l *wsLink) Close() {
 }
 
 func (l *wsLink) receive() (*Packet, error) {
-	var data []byte
-	var pkt Packet
-
-	if err := websocket.Message.Receive(l.conn, &data); err != nil {
+	_, data, err := l.conn.ReadMessage()
+	if err != nil {
 		return nil, err
 	}
+
 	l.lastRecv = time.Now()
+
+	var pkt Packet
 	if err := json.Unmarshal(data, &pkt); err != nil {
 		LogError("Unmarshal Error", "data", string(data))
 		return nil, fmt.Errorf("Unmarshalling error: %w", err)
@@ -82,13 +78,11 @@ func (l *wsLink) receivePoll() (*Packet, error) {
 			}
 			return pkt, nil
 		}
-		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
-			if time.Since(l.lastRecv) > pingTimeout {
-				return nil, err
-			}
-			continue
+		if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+			return nil, err
 		}
-		return nil, err
+		if time.Since(l.lastRecv) > pingTimeout {
+			return nil, err
+		}
 	}
-	return nil, nil
 }

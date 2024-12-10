@@ -9,11 +9,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{}
-
 // wsxHandle handles /wsx requests on an htmx WebSocket
 func wsxHandle(w http.ResponseWriter, r *http.Request) {
 
+	upgrader := websocket.Upgrader{}
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		LogError("Failed to upgrade to websocket", "error", err)
