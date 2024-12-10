@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"html/template"
 	"net"
+	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
 )
 
 type wsLink struct {
-	conn     *websocket.Conn
+	conn *websocket.Conn
+	sync.Mutex
 	lastRecv time.Time
 	lastSend time.Time
 }
@@ -28,6 +30,8 @@ func (l *wsLink) Send(pkt *Packet) error {
 	if err != nil {
 		return fmt.Errorf("Marshal error: %w", err)
 	}
+	l.Lock()
+	defer l.Unlock()
 	if err := websocket.Message.Send(l.conn, string(data)); err != nil {
 		return fmt.Errorf("Send error: %w", err)
 	}
