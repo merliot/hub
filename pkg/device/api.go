@@ -124,7 +124,7 @@ func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := basicAuthHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
-	LogInfo("Device installed", "prefix", prefix)
+	LogInfo("Device installed", "prefix", prefix, "device", d)
 }
 
 func devicesInstall() {

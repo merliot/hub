@@ -71,7 +71,7 @@ func (c *camera) jpeg(raw string) (template.URL, error) {
 }
 
 func (c *camera) Setup() error {
-	return c.Cache.Init()
+	return c.Cache.Preload()
 }
 
 func (c *camera) poll() {
@@ -96,3 +96,6 @@ func (c *camera) Poll(pkt *device.Packet) {
 	// held long during Polling
 	go c.poll()
 }
+
+func (c *camera) DemoSetup() error            { return c.Setup() }
+func (c *camera) DemoPoll(pkt *device.Packet) { c.Poll(pkt) }

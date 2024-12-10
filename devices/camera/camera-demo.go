@@ -1,13 +1,14 @@
+//go:build !rpi && !x86_64
+
 package camera
 
 import (
 	"fmt"
 	"io/fs"
-
-	"github.com/merliot/hub/pkg/device"
 )
 
-func (c *camera) demoRawJpeg(index uint) ([]byte, error) {
+func captureJpeg() ([]byte, error) {
+	index := 0
 	filename := fmt.Sprintf("images/%d.jpg", index)
 	data, err := fs.ReadFile(embedFS, filename)
 	if err != nil {
@@ -15,10 +16,3 @@ func (c *camera) demoRawJpeg(index uint) ([]byte, error) {
 	}
 	return data, err
 }
-
-func (c *camera) DemoSetup() error {
-	//c.getJpeg = c.demoRawJpeg
-	return nil
-}
-
-func (c *camera) DemoPoll(pkt *device.Packet) {}

@@ -41,8 +41,8 @@ func New() *Cache {
 	return &c
 }
 
-// Init reads files from the disk and loads them into memory
-func (c *Cache) Init() error {
+// Preload reads files from the disk and loads them into memory
+func (c *Cache) Preload() error {
 
 	// Create file cache directory if it doesn't exist
 	if _, err := os.Stat(fileCacheDir); os.IsNotExist(err) {
