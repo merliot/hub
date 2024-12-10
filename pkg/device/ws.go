@@ -48,6 +48,7 @@ func (l *wsLink) receive() (*Packet, error) {
 	}
 	l.lastRecv = time.Now()
 	if err := json.Unmarshal(data, &pkt); err != nil {
+		LogError("Unmarshal Error", "data", data)
 		return nil, fmt.Errorf("Unmarshalling error: %w", err)
 	}
 	return &pkt, nil
