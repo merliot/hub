@@ -1,26 +1,57 @@
-//go:build !tinygo
-
-// TODO get gorilla/websocket working on tinygo.  Currently hit:
-//       ../../../go/pkg/mod/github.com/gorilla/websocket@v1.5.1/client.go:18:2: package net/http/httptrace is not in std (/root/...
+//go:build tinygo
 
 package device
 
 import (
+	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
-func wsDial(wsURL *url.URL, user, passwd string) {
+func newConfig(wsUrl *url.URL, user, passwd string) (*websocket.Config, error) {
+
+	// Set the origin to match the WebSocket server’s scheme and host
+	origin := &url.URL{Scheme: "http", Host: wsUrl.Host}
+	if wsUrl.Scheme == "wss" {
+		origin.Scheme = "https"
+	}
+
+	// Configure the websocket
+	config, err := websocket.NewConfig(wsUrl.String(), origin.String())
+	if err != nil {
+		return nil, err
+	}
+
+	// If valid user, set the basic auth header for the request
+	if user != "" {
+		req, err := http.NewRequest("GET", wsUrl.String(), nil)
+		if err != nil {
+			return nil, err
+		}
+		req.SetBasicAuth(user, passwd)
+		config.Header = req.Header
+	}
+
+	return config, nil
+}
+
+func wsDial(url *url.URL, user, passwd string) {
+	cfg, err := newConfig(url, user, passwd)
+	if err != nil {
+		LogError("Configuring websocket", "err", err)
+		return
+	}
+
 	for {
-		// Connect to the server
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
+		// Dial the websocket
+		conn, err := websocket.DialConfig(cfg)
 		if err == nil {
 			// Service the client websocket
 			wsClient(conn)
 		} else {
-			LogError("Dialing", "url", wsURL, "err", err)
+			LogError("Dialing", "url", url, "err", err)
 		}
 
 		// Try again in a second
@@ -72,7 +103,9 @@ func wsClient(conn *websocket.Conn) {
 	// Send /state packets to all devices
 	devicesSendState(link)
 
-	// Route incoming packets down to the destination device
+	// Route incoming packets down to the destination device.  Stop and
+	// disconnect on EOF.
+
 	LogInfo("Receiving packets")
 	for {
 		pkt, err := link.receivePoll()

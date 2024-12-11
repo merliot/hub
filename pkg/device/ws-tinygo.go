@@ -1,7 +1,4 @@
-//go:build !tinygo
-
-// TODO get gorilla/websocket working on tinygo.  Currently hit:
-//       ../../../go/pkg/mod/github.com/gorilla/websocket@v1.5.1/client.go:18:2: package net/http/httptrace is not in std (/root/...
+//go:build tinygo
 
 package device
 
@@ -9,13 +6,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"net"
+	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
 type wsLink struct {
-	conn     *websocket.Conn
+	conn *websocket.Conn
+	sync.Mutex
 	lastRecv time.Time
 	lastSend time.Time
 }
@@ -32,7 +32,9 @@ func (l *wsLink) Send(pkt *Packet) error {
 	if err != nil {
 		return fmt.Errorf("Marshal error: %w", err)
 	}
-	if err := l.conn.WriteMessage(websocket.TextMessage, data); err != nil {
+	l.Lock()
+	defer l.Unlock()
+	if err := websocket.Message.Send(l.conn, string(data)); err != nil {
 		return fmt.Errorf("Send error: %w", err)
 	}
 	l.lastSend = time.Now()
@@ -44,14 +46,13 @@ func (l *wsLink) Close() {
 }
 
 func (l *wsLink) receive() (*Packet, error) {
-	_, data, err := l.conn.ReadMessage()
-	if err != nil {
+	var data []byte
+	var pkt Packet
+
+	if err := websocket.Message.Receive(l.conn, &data); err != nil {
 		return nil, err
 	}
-
 	l.lastRecv = time.Now()
-
-	var pkt Packet
 	if err := json.Unmarshal(data, &pkt); err != nil {
 		LogError("Unmarshal Error", "data", string(data))
 		return nil, fmt.Errorf("Unmarshalling error: %w", err)
@@ -83,11 +84,13 @@ func (l *wsLink) receivePoll() (*Packet, error) {
 			}
 			return pkt, nil
 		}
-		if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-			return nil, err
+		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
+			if time.Since(l.lastRecv) > pingTimeout {
+				return nil, err
+			}
+			continue
 		}
-		if time.Since(l.lastRecv) > pingTimeout {
-			return nil, err
-		}
+		return nil, err
 	}
+	return nil, nil
 }
