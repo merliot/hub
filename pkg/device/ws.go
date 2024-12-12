@@ -39,10 +39,10 @@ func (l *wsLink) Close() {
 var wsPingPeriod = 5 * time.Second
 
 func (l *wsLink) setPongHandler() {
-	l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + time.Second))
+	l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + 2*time.Second))
 	l.conn.SetPongHandler(func(appData string) error {
-		l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + time.Second))
-		LogInfo("Pong received, read deadline extended")
+		l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + 2*time.Second))
+		//LogInfo("Pong received, read deadline extended")
 		return nil
 	})
 }
@@ -58,7 +58,7 @@ func (l *wsLink) startPing() {
 				return
 			}
 			l.Unlock()
-			LogInfo("Ping sent")
+			//LogInfo("Ping sent")
 		}
 	}()
 }
@@ -66,7 +66,6 @@ func (l *wsLink) startPing() {
 func (l *wsLink) receive() (*Packet, error) {
 	var pkt Packet
 	if err := l.conn.ReadJSON(&pkt); err != nil {
-		LogError("ReadJSON Error", "err", err)
 		return nil, fmt.Errorf("ReadJSON error: %w", err)
 	}
 	return &pkt, nil
