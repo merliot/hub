@@ -36,12 +36,18 @@ func (l *wsLink) Close() {
 	l.conn.Close()
 }
 
-var wsPingPeriod = 5 * time.Second
+var pingDuration = 4 * time.Second
+
+// var pingTimeout = pingDuration + time.Second
+// TODO allow two ping periods before timing out, rather than one, to
+// workaround some issue I'm having deploying to cloud where ping (or pong)
+// packet's are getting buffered and timing out.
+var pingTimeout = 2*pingDuration + time.Second
 
 func (l *wsLink) setPongHandler() {
-	l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + 2*time.Second))
+	l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
 	l.conn.SetPongHandler(func(appData string) error {
-		l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + 2*time.Second))
+		l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
 		//LogInfo("Pong received, read deadline extended")
 		return nil
 	})
@@ -50,15 +56,15 @@ func (l *wsLink) setPongHandler() {
 func (l *wsLink) startPing() {
 	go func() {
 		for {
-			time.Sleep(wsPingPeriod)
 			l.Lock()
 			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				LogInfo("Ping error:", "err", err)
+				//LogError("Ping error:", "err", err)
 				l.Unlock()
 				return
 			}
-			l.Unlock()
 			//LogInfo("Ping sent")
+			l.Unlock()
+			time.Sleep(pingDuration)
 		}
 	}()
 }
