@@ -29,6 +29,9 @@ func wsServer(conn *websocket.Conn) {
 
 	var link = &wsLink{conn: conn}
 
+	link.setPongHandler()
+	link.startPing()
+
 	// First receive should be an /announce packet
 	pkt, err := link.receive()
 	if err != nil {
@@ -72,7 +75,7 @@ func wsServer(conn *websocket.Conn) {
 
 	// Route incoming packets up to the destination device
 	for {
-		pkt, err := link.receivePoll()
+		pkt, err := link.receive()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break

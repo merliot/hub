@@ -6,6 +6,7 @@
 package device
 
 import (
+	"net/http"
 	"net/url"
 	"time"
 
@@ -13,9 +14,23 @@ import (
 )
 
 func wsDial(wsURL *url.URL, user, passwd string) {
+
+	var hdr = http.Header{}
+
+	// If valid user, set the basic auth header for the request
+	if user != "" {
+		req, err := http.NewRequest("GET", wsURL.String(), nil)
+		if err != nil {
+			LogError("Dialing", "url", wsURL, "err", err)
+			return
+		}
+		req.SetBasicAuth(user, passwd)
+		hdr = req.Header
+	}
+
 	for {
-		// Connect to the server
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
+		// Connect to the server with custom headers
+		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), hdr)
 		if err == nil {
 			// Service the client websocket
 			wsClient(conn)
@@ -43,6 +58,9 @@ func wsClient(conn *websocket.Conn) {
 		Path: "/announce",
 	}
 
+	link.setPongHandler()
+	link.startPing()
+
 	pkt.Marshal(&ann)
 
 	// Send announcement
@@ -53,8 +71,8 @@ func wsClient(conn *websocket.Conn) {
 		return
 	}
 
-	// Receive welcome within 1 sec
-	pkt, err = link.receiveTimeout(time.Second)
+	// Receive welcome
+	pkt, err = link.receive()
 	if err != nil {
 		LogError("Receiving", "err", err)
 		return
@@ -75,7 +93,7 @@ func wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device
 	LogInfo("Receiving packets")
 	for {
-		pkt, err := link.receivePoll()
+		pkt, err := link.receive()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break

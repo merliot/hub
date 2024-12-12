@@ -6,18 +6,17 @@
 package device
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 type wsLink struct {
-	conn     *websocket.Conn
-	lastRecv time.Time
-	lastSend time.Time
+	conn *websocket.Conn
+	sync.Mutex
 }
 
 type announcement struct {
@@ -28,66 +27,47 @@ type announcement struct {
 }
 
 func (l *wsLink) Send(pkt *Packet) error {
-	data, err := json.Marshal(pkt)
-	if err != nil {
-		return fmt.Errorf("Marshal error: %w", err)
-	}
-	if err := l.conn.WriteMessage(websocket.TextMessage, data); err != nil {
-		return fmt.Errorf("Send error: %w", err)
-	}
-	l.lastSend = time.Now()
-	return nil
+	l.Lock()
+	defer l.Unlock()
+	return l.conn.WriteJSON(pkt)
 }
 
 func (l *wsLink) Close() {
 	l.conn.Close()
 }
 
+var wsPingPeriod = 5 * time.Second
+
+func (l *wsLink) setPongHandler() {
+	l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + time.Second))
+	l.conn.SetPongHandler(func(appData string) error {
+		l.conn.SetReadDeadline(time.Now().Add(wsPingPeriod + time.Second))
+		LogInfo("Pong received, read deadline extended")
+		return nil
+	})
+}
+
+func (l *wsLink) startPing() {
+	go func() {
+		for {
+			time.Sleep(wsPingPeriod)
+			l.Lock()
+			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				LogInfo("Ping error:", "err", err)
+				l.Unlock()
+				return
+			}
+			l.Unlock()
+			LogInfo("Ping sent")
+		}
+	}()
+}
+
 func (l *wsLink) receive() (*Packet, error) {
-	_, data, err := l.conn.ReadMessage()
-	if err != nil {
-		return nil, err
-	}
-
-	l.lastRecv = time.Now()
-
 	var pkt Packet
-	if err := json.Unmarshal(data, &pkt); err != nil {
-		LogError("Unmarshal Error", "data", string(data))
-		return nil, fmt.Errorf("Unmarshalling error: %w", err)
+	if err := l.conn.ReadJSON(&pkt); err != nil {
+		LogError("ReadJSON Error", "err", err)
+		return nil, fmt.Errorf("ReadJSON error: %w", err)
 	}
 	return &pkt, nil
-}
-
-func (l *wsLink) receiveTimeout(timeout time.Duration) (*Packet, error) {
-	l.conn.SetReadDeadline(time.Now().Add(timeout))
-	pkt, err := l.receive()
-	l.conn.SetReadDeadline(time.Time{})
-	return pkt, err
-}
-
-var pingDuration = 4 * time.Second
-var pingTimeout = 2*pingDuration + time.Second
-
-func (l *wsLink) receivePoll() (*Packet, error) {
-	for {
-		if time.Since(l.lastSend) >= pingDuration {
-			if err := l.Send(&Packet{Path: "/ping"}); err != nil {
-				return nil, err
-			}
-		}
-		pkt, err := l.receiveTimeout(time.Second)
-		if err == nil {
-			if pkt.Path == "/ping" {
-				continue
-			}
-			return pkt, nil
-		}
-		if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-			return nil, err
-		}
-		if time.Since(l.lastRecv) > pingTimeout {
-			return nil, err
-		}
-	}
 }
