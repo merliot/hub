@@ -175,7 +175,7 @@ func sessionsRoute(pkt *Packet) {
 	for _, s := range sessions {
 		s.Lock()
 		if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
-			LogInfo("SessionsRoute", "pkt", pkt)
+			LogDebug("SessionsRoute", "pkt", pkt)
 			s._renderPkt(pkt)
 		}
 		s.Unlock()
@@ -188,7 +188,7 @@ func sessionRoute(sessionId string, pkt *Packet) {
 	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
-		// LogInfo("SessionRoute", "pkt", pkt)
+		// LogDebug("SessionRoute", "pkt", pkt)
 		s.Lock()
 		s._renderPkt(pkt)
 		s.Unlock()

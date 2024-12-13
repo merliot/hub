@@ -104,7 +104,7 @@ func (p *Packet) SetPath(path string) *Packet {
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
 func (p *Packet) RouteDown() {
-	LogInfo("RouteDown", "pkt", p)
+	LogDebug("RouteDown", "pkt", p)
 	downlinksRoute(p)
 }
 
@@ -145,7 +145,7 @@ func (p *Packet) RouteDown() {
 //     websocket connected on /ws.  The packet is JSON-encoded before sending on
 //     the websocket, and JSON-decoded by the receiving uplink device.
 func (p *Packet) RouteUp() {
-	LogInfo("RouteUp", "pkt", p)
+	LogDebug("RouteUp", "pkt", p)
 	sessionsRoute(p)
 	uplinksRoute(p)
 }

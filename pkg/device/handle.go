@@ -32,7 +32,7 @@ func (d *device) handle(pkt *Packet) {
 	defer d.Unlock()
 	if d.IsSet(flagOnline) {
 		if handler, ok := d.PacketHandlers[pkt.Path]; ok {
-			LogInfo("Handling", "pkt", pkt)
+			LogDebug("Handling", "pkt", pkt)
 			handler.cb(pkt)
 		}
 	}
