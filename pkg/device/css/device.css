@@ -1201,6 +1201,10 @@ textarea {
   left: 0px;
 }
 
+.left-24 {
+  left: 6rem;
+}
+
 .whitespace-pre {
   white-space: pre;
 }
