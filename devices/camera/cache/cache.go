@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	maxMemoryFiles = 10                // Maximum files in memory cache
-	maxFiles       = 20                // Maximum files in disk cache
-	maxBuckets     = 10                // Number of lock buckets
+	maxMemoryFiles = 100               // Maximum files in memory cache
+	maxFiles       = 2000              // Maximum files in disk cache
+	maxBuckets     = 40                // Number of lock buckets
 	fileCacheDir   = "./camera-images" // Directory where files will be stored
 )
 
