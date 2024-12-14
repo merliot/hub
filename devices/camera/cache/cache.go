@@ -13,31 +13,39 @@ import (
 )
 
 const (
-	maxMemoryFiles = 100               // Maximum files in memory cache
-	maxFiles       = 2000              // Maximum files in disk cache
-	maxBuckets     = 40                // Number of lock buckets
-	fileCacheDir   = "./camera-images" // Directory where files will be stored
+	fileCacheDir = "./camera-images" // Directory where files will be stored
 )
 
 // Cache struct encapsulates the memory cache, file cache, and index tracking
 type Cache struct {
-	memoryCache     map[uint32][]byte         // Memory cache (FIFO)
-	memoryCacheList *list.List                // List to track the order of keys in memory cache
-	memoryCacheLock sync.RWMutex              // Lock for memory cache
-	fileLocks       [maxBuckets]*sync.RWMutex // Array of lock buckets
-	currentIndex    uint32                    // Tracks the current file index (accessed atomically)
+	memoryCache     map[uint32][]byte // Memory cache (FIFO)
+	memoryCacheList *list.List        // List to track the order of keys in memory cache
+	memoryCacheLock sync.RWMutex      // Lock for memory cache
+	fileLocks       []sync.RWMutex    // Array of lock buckets
+	maxMemoryFiles  uint32            // Maximum files in memory cache
+	maxFiles        uint32            // Maximum files in disk cache
+	maxBuckets      uint32            // Number of lock buckets
+	currentIndex    uint32            // Tracks the current file index (accessed atomically)
 }
 
 // New creates and initializes a new Cache instance
-func New() *Cache {
+func New(maxMemoryFiles, maxFiles uint32) *Cache {
 	var c Cache
+
+	c.maxMemoryFiles = maxMemoryFiles
+	c.maxFiles = maxFiles
+	c.maxBuckets = (maxFiles / 50) + 1
+
 	// Initialize the file lock buckets
-	for i := 0; i < maxBuckets; i++ {
-		c.fileLocks[i] = &sync.RWMutex{}
+	c.fileLocks = make([]sync.RWMutex, c.maxBuckets)
+	for i := uint32(0); i < c.maxBuckets; i++ {
+		c.fileLocks[i] = sync.RWMutex{}
 	}
+
 	c.memoryCache = make(map[uint32][]byte)
 	c.memoryCacheList = list.New()
 	c.currentIndex = 1
+
 	return &c
 }
 
@@ -94,10 +102,10 @@ func (c *Cache) Preload() error {
 		atomic.StoreUint32(&c.currentIndex, 1)
 	}
 
-	// Add files to memory cache in the correct order (newest first), but no more than maxMemoryFiles
+	// Add files to memory cache in the correct order (newest first), but no more than c.maxMemoryFiles
 	for i, file := range fileData {
-		if i >= maxMemoryFiles {
-			break // Stop after adding maxMemoryFiles files to memory cache
+		if uint32(i) >= c.maxMemoryFiles {
+			break // Stop after adding c.maxMemoryFiles files to memory cache
 		}
 		jpeg, err := os.ReadFile(file.filename)
 		if err != nil {
@@ -150,17 +158,17 @@ func (c *Cache) GetJpeg(index uint32) ([]byte, uint32, uint32, error) {
 }
 
 func (c *Cache) calculatePreviousIndex(index uint32) uint32 {
-	// If the index is 1, the previous index is maxFiles (wrap around)
+	// If the index is 1, the previous index is c.maxFiles (wrap around)
 	if index == 1 {
-		return maxFiles
+		return c.maxFiles
 	}
 	// Otherwise, just subtract 1
 	return index - 1
 }
 
 func (c *Cache) calculateNextIndex(index uint32) uint32 {
-	// If the index is maxFiles, the next index is 1 (wrap around)
-	if index == maxFiles {
+	// If the index is c.maxFiles, the next index is 1 (wrap around)
+	if index == c.maxFiles {
 		return 1
 	}
 	// Otherwise, just add 1
@@ -168,12 +176,12 @@ func (c *Cache) calculateNextIndex(index uint32) uint32 {
 }
 
 func (c *Cache) lockFile(index uint32) {
-	bucketIndex := index % maxBuckets
+	bucketIndex := index % c.maxBuckets
 	c.fileLocks[bucketIndex].Lock()
 }
 
 func (c *Cache) unlockFile(index uint32) {
-	bucketIndex := index % maxBuckets
+	bucketIndex := index % c.maxBuckets
 	c.fileLocks[bucketIndex].Unlock()
 }
 
@@ -181,7 +189,7 @@ func (c *Cache) addToMemoryCache(index uint32, jpeg []byte) {
 
 	c.memoryCacheLock.Lock()
 
-	if len(c.memoryCache) >= maxMemoryFiles {
+	if uint32(len(c.memoryCache)) >= c.maxMemoryFiles {
 		// Remove the oldest memory cache item if full
 		oldestElement := c.memoryCacheList.Front()
 		if oldestElement != nil {
@@ -202,7 +210,7 @@ func (c *Cache) SaveJpeg(jpeg []byte) error {
 	current := atomic.LoadUint32(&c.currentIndex)
 
 	next := current + 1
-	if next > maxFiles {
+	if next > c.maxFiles {
 		next = 1
 	}
 

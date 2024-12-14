@@ -28,7 +28,7 @@ type msgImage struct {
 }
 
 func NewModel() device.Devicer {
-	return &camera{Cache: cache.New()}
+	return &camera{Cache: cache.New(maxMemoryFiles, maxFiles)}
 }
 
 func (c *camera) GetConfig() device.Config {

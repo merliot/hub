@@ -8,6 +8,11 @@ import (
 	"os/exec"
 )
 
+var (
+	maxMemoryFiles uint32 = 200
+	maxFiles       uint32 = 2000
+)
+
 func captureJpeg() ([]byte, error) {
 
 	// Create a command for libcamera-still to output to stdout

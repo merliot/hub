@@ -8,6 +8,11 @@ import (
 	"os/exec"
 )
 
+var (
+	maxMemoryFiles uint32 = 200
+	maxFiles       uint32 = 2000
+)
+
 // captureImage captures a jpeg image using ffmpeg
 func captureJpeg() ([]byte, error) {
 

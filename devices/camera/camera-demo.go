@@ -9,6 +9,11 @@ import (
 	"os/exec"
 )
 
+var (
+	maxMemoryFiles uint32 = 50
+	maxFiles       uint32 = 500
+)
+
 func captureJpeg() ([]byte, error) {
 	index := 0
 	filename := fmt.Sprintf("images/%d.jpg", index)
