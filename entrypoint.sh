@@ -8,10 +8,9 @@ echo "Warming up Go compiler cache..."
 go version
 tinygo version
 
-echo "Building ARM arch..."
-CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 go build -ldflags "-s -w" -tags rpi -o /dev/null ./cmd
-echo "Building x86-64 arch..."
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -tags x86_64 -o /dev/null ./cmd
+echo "Building ARM and x86-64 arch in the background..."
+CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=5 go build -ldflags "-s -w" -tags rpi -o /dev/null ./cmd &
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -tags x86_64 -o /dev/null ./cmd &
 
-echo "Go cache warmed up. Executing: $@"
+echo "Executing: $@"
 exec "$@"  # Run whatever command is passed from CMD (default is /hub)
