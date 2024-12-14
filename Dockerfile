@@ -11,7 +11,7 @@ RUN tinygo version
 
 # Generate UF2 base images and build the hub
 RUN go generate ./...
-RUN go build -o /hub ./cmd
+RUN go build -race -o /hub ./cmd
 
 # Expose the port for /hub
 EXPOSE 8000
