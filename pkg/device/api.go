@@ -196,10 +196,13 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 			view = "overview"
 		}
 
+		child.RLock()
 		if err := child._render(w, sessionId, "/device", view, level,
 			map[string]any{}); err != nil {
+			child.RUnlock()
 			return err
 		}
+		child.RUnlock()
 	}
 
 	return nil
