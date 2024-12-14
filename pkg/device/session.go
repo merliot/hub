@@ -231,10 +231,12 @@ func gcSessions() {
 	for range ticker.C {
 		sessionsMu.Lock()
 		for sessionId, s := range sessions {
+			s.RLock()
 			if time.Since(s.lastUpdate) > minute {
 				delete(sessions, sessionId)
 				sessionCount--
 			}
+			s.RUnlock()
 		}
 		sessionsMu.Unlock()
 	}
