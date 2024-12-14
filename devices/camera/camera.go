@@ -37,7 +37,7 @@ func (c *camera) GetConfig() device.Config {
 		State:      c,
 		FS:         &embedFS,
 		Targets:    []string{"rpi", "x86-64"},
-		BgColor:    "gold",
+		BgColor:    "blue",
 		FgColor:    "black",
 		PollPeriod: 5 * time.Second,
 		PacketHandlers: device.PacketHandlers{
