@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM merliot/base:v0.0.3
+FROM merliot/base:v0.0.4
 
 WORKDIR /app
 COPY . .
