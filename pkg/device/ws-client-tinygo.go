@@ -113,7 +113,7 @@ func wsClient(conn *websocket.Conn) {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogInfo("Route packet DOWN", "pkt", pkt)
+		LogDebug("Route packet DOWN", "pkt", pkt)
 		deviceRouteDown(pkt.Dst, pkt)
 	}
 
