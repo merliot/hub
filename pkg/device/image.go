@@ -148,7 +148,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 	var tag = strings.Replace(target, "-", "_", -1)
 	var binary = filepath.Join(dir, service)
 
-	cmd := exec.Command("go", "build", "-race", "-ldflags", "-s -w", "-o", binary, "-tags", tag, runnerGo)
+	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", binary, "-tags", tag, runnerGo)
 	LogDebug(cmd.String())
 	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
