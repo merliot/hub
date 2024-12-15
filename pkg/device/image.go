@@ -233,11 +233,11 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 
 	switch target {
 	case "x86-64":
-		envs := []string{"CGO_ENABLED=1", "GOOS=linux", "GOARCH=amd64"}
+		envs := []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
 		return d.buildLinuxImage(w, r, dir, envs, target)
 	case "rpi":
 		// TODO: do we want more targets for GOARM=7|8?
-		envs := []string{"CGO_ENABLED=1", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
+		envs := []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
 		return d.buildLinuxImage(w, r, dir, envs, target)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return d.buildTinyGoImage(w, r, dir, target)
