@@ -190,19 +190,17 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 	// Render the child devices in sorted order
 	for _, child := range children {
 
-		view, _, err := _sessionLastView(sessionId, child.Id)
+		view, _, err := sessionLastView(sessionId, child.Id)
 		if err != nil {
 			// If there was no view saved, default to overview
 			view = "overview"
 		}
 
-		child.RLock()
-		if err := child._render(w, sessionId, "/device", view, level,
-			map[string]any{}); err != nil {
-			child.RUnlock()
+		if err := child.render(w, sessionId, "/device", view, level); err != nil {
 			return err
 		}
-		child.RUnlock()
+
+		sessionSave(sessionId, child.Id, view, level)
 	}
 
 	return nil
@@ -214,15 +212,9 @@ func (d *device) _render(w io.Writer, sessionId, path, view string,
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//LogInfo("_render", "id", d.Id, "session-id", sessionId,
+	//LogDebug("_render", "id", d.Id, "session-id", sessionId,
 	//	"path", path, "level", level, "template", template)
-	if err := d._renderSession(w, template, sessionId, level, data); err != nil {
-		return err
-	}
-
-	_sessionSave(sessionId, d.Id, view, level)
-
-	return nil
+	return d._renderSession(w, template, sessionId, level, data)
 }
 
 func (d *device) render(w io.Writer, sessionId, path, view string, level int) error {
@@ -241,7 +233,7 @@ func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	var data = make(map[string]any)
 	json.Unmarshal(pkt.Msg, &data)
 
-	//LogInfo("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
+	//LogDebug("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
 	return d._render(w, sessionId, pkt.Path, view, level, data)
 }
 
@@ -274,6 +266,8 @@ func (d *device) renderView(sessionId, path, view string, level int) (template.H
 	if err := d._render(&buf, sessionId, path, view, level, map[string]any{}); err != nil {
 		return template.HTML(""), err
 	}
+
+	sessionSave(sessionId, d.Id, view, level)
 
 	return template.HTML(buf.String()), nil
 }
@@ -398,7 +392,10 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 
 	if err := d.render(w, sessionId, "/device", view, level); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	sessionSave(sessionId, d.Id, view, level)
 }
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {

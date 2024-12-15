@@ -41,7 +41,7 @@ func wsxServe(ws *websocket.Conn, r *http.Request) {
 	// Force a refresh of root full view on successful ws connection, in
 	// case anything has changed since last connect
 	pkt := Packet{Dst: root.Id, Path: "/device"}
-	sessionRoute(sessionId, &pkt)
+	_sessionRoute(sessionId, &pkt)
 
 	for {
 		_, message, err := ws.ReadMessage()

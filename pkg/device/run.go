@@ -5,7 +5,6 @@ package device
 import "time"
 
 func (d *device) runDemo() {
-	d.stopChan = make(chan struct{})
 
 	// Poll right away and then on ticker
 	d.Lock()
@@ -28,6 +27,7 @@ func (d *device) runDemo() {
 }
 
 func (d *device) startDemo() {
+	d.stopChan = make(chan struct{})
 	go d.runDemo()
 }
 

@@ -124,6 +124,22 @@ func _sessionSave(sessionId, deviceId, view string, level int) {
 	}
 }
 
+func sessionSave(sessionId, deviceId, view string, level int) {
+
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
+	if s, ok := sessions[sessionId]; ok {
+		s.Lock()
+		s.lastUpdate = time.Now()
+		lastView := s.lastViews[deviceId]
+		lastView.view = view
+		lastView.level = level
+		s.lastViews[deviceId] = lastView
+		s.Unlock()
+	}
+}
+
 func _sessionLastView(sessionId, deviceId string) (string, int, error) {
 	s, ok := sessions[sessionId]
 	if !ok {
@@ -182,16 +198,10 @@ func sessionsRoute(pkt *Packet) {
 	}
 }
 
-func sessionRoute(sessionId string, pkt *Packet) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
+func _sessionRoute(sessionId string, pkt *Packet) {
 	if s, ok := sessions[sessionId]; ok {
-		// LogDebug("SessionRoute", "pkt", pkt)
-		s.Lock()
+		// LogDebug("_sessionRoute", "pkt", pkt)
 		s._renderPkt(pkt)
-		s.Unlock()
 	}
 }
 
