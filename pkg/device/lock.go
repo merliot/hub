@@ -2,10 +2,11 @@
 
 package device
 
-import "sync"
+//import "sync"
 
-//import "github.com/ietxaniz/delock"
+import "github.com/ietxaniz/delock"
 
+/*
 type mutex struct {
 	sync.Mutex
 }
@@ -13,8 +14,8 @@ type mutex struct {
 type rwMutex struct {
 	sync.RWMutex
 }
+*/
 
-/*
 type mutex struct {
 	mu delock.Mutex
 	id int
@@ -60,4 +61,3 @@ func (m *rwMutex) RLock() {
 func (m *rwMutex) RUnlock() {
 	m.mu.RUnlock(m.id)
 }
-*/
