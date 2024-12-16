@@ -46,7 +46,8 @@ func wsxServe(ws *websocket.Conn, r *http.Request) {
 	for {
 		_, message, err := ws.ReadMessage()
 		if err != nil {
-			if !websocket.IsCloseError(err, websocket.CloseGoingAway) {
+			if !websocket.IsCloseError(err, websocket.CloseGoingAway,
+				websocket.CloseAbnormalClosure) {
 				LogError("Failed to read message", "error", err)
 			}
 			break
