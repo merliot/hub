@@ -1,8 +1,3 @@
-//go:build !tinygo
-
-// TODO get gorilla/websocket working on tinygo.  Currently hit:
-//       ../../../go/pkg/mod/github.com/gorilla/websocket@v1.5.1/client.go:18:2: package net/http/httptrace is not in std (/root/...
-
 package device
 
 import (
@@ -10,32 +5,51 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
-func wsDial(wsURL *url.URL, user, passwd string) {
+func newConfig(wsUrl *url.URL, user, passwd string) (*websocket.Config, error) {
 
-	var hdr = http.Header{}
+	// Set the origin to match the WebSocket server’s scheme and host
+	origin := &url.URL{Scheme: "http", Host: wsUrl.Host}
+	if wsUrl.Scheme == "wss" {
+		origin.Scheme = "https"
+	}
+
+	// Configure the websocket
+	config, err := websocket.NewConfig(wsUrl.String(), origin.String())
+	if err != nil {
+		return nil, err
+	}
 
 	// If valid user, set the basic auth header for the request
 	if user != "" {
-		req, err := http.NewRequest("GET", wsURL.String(), nil)
+		req, err := http.NewRequest("GET", wsUrl.String(), nil)
 		if err != nil {
-			LogError("Dialing", "url", wsURL, "err", err)
-			return
+			return nil, err
 		}
 		req.SetBasicAuth(user, passwd)
-		hdr = req.Header
+		config.Header = req.Header
+	}
+
+	return config, nil
+}
+
+func wsDial(url *url.URL, user, passwd string) {
+	cfg, err := newConfig(url, user, passwd)
+	if err != nil {
+		LogError("Configuring websocket", "err", err)
+		return
 	}
 
 	for {
-		// Connect to the server with custom headers
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), hdr)
+		// Dial the websocket
+		conn, err := websocket.DialConfig(cfg)
 		if err == nil {
 			// Service the client websocket
 			wsClient(conn)
 		} else {
-			LogError("Dialing", "url", wsURL, "err", err)
+			LogError("Dialing", "url", url, "err", err)
 		}
 
 		// Try again in a second
@@ -58,9 +72,6 @@ func wsClient(conn *websocket.Conn) {
 		Path: "/announce",
 	}
 
-	link.setPongHandler()
-	link.startPing()
-
 	pkt.Marshal(&ann)
 
 	// Send announcement
@@ -71,8 +82,8 @@ func wsClient(conn *websocket.Conn) {
 		return
 	}
 
-	// Receive welcome
-	pkt, err = link.receive()
+	// Receive welcome within 1 sec
+	pkt, err = link.receiveTimeout(time.Second)
 	if err != nil {
 		LogError("Receiving", "err", err)
 		return
@@ -90,15 +101,17 @@ func wsClient(conn *websocket.Conn) {
 	// Send /state packets to all devices
 	devicesSendState(link)
 
-	// Route incoming packets down to the destination device
+	// Route incoming packets down to the destination device.  Stop and
+	// disconnect on EOF.
+
 	LogInfo("Receiving packets")
 	for {
-		pkt, err := link.receive()
+		pkt, err := link.receivePoll()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogDebug("Route packet DOWN", "pkt", pkt)
+		LogInfo("Route packet DOWN", "pkt", pkt)
 		deviceRouteDown(pkt.Dst, pkt)
 	}
 

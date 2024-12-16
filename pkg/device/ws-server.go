@@ -5,34 +5,23 @@ package device
 import (
 	"net/http"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		// Allow all origins, update as necessary
-		return true
-	},
-}
-
+// ws handles /ws requests
 func wsHandle(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		LogError("Upgrading WebSocket", "err", err)
-		return
-	}
-	wsServer(conn)
+	serv := websocket.Server{Handler: websocket.Handler(wsServer)}
+	serv.ServeHTTP(w, r)
 }
 
 func wsServer(conn *websocket.Conn) {
+
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
 
-	link.setPongHandler()
-	link.startPing()
-
 	// First receive should be an /announce packet
+
 	pkt, err := link.receive()
 	if err != nil {
 		LogError("Receiving first packet", "err", err)
@@ -64,23 +53,27 @@ func wsServer(conn *websocket.Conn) {
 	}
 
 	// Announcement is good, reply with /welcome packet
+
 	pkt.SetPath("/welcome")
 	LogInfo("Sending welcome", "pkt", pkt)
 	link.Send(pkt)
 
-	// Add as active downlink
+	// Add as active download link
+
 	id := ann.Id
 	LogInfo("Adding Downlink", "id", ann.Id)
 	downlinksAdd(id, link)
 
-	// Route incoming packets up to the destination device
+	// Route incoming packets up to the destination device.  Stop and
+	// disconnect on EOF.
+
 	for {
-		pkt, err := link.receive()
+		pkt, err := link.receivePoll()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogDebug("Route packet UP", "pkt", pkt)
+		LogInfo("Route packet UP", "pkt", pkt)
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 

@@ -1,22 +1,21 @@
-//go:build !tinygo
-
-// TODO get gorilla/websocket working on tinygo.  Currently hit:
-//       ../../../go/pkg/mod/github.com/gorilla/websocket@v1.5.1/client.go:18:2: package net/http/httptrace is not in std (/root/...
-
 package device
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"net"
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 )
 
 type wsLink struct {
 	conn *websocket.Conn
 	sync.Mutex
+	lastRecv time.Time
+	lastSend time.Time
 }
 
 type announcement struct {
@@ -27,52 +26,69 @@ type announcement struct {
 }
 
 func (l *wsLink) Send(pkt *Packet) error {
+	data, err := json.Marshal(pkt)
+	if err != nil {
+		return fmt.Errorf("Marshal error: %w", err)
+	}
 	l.Lock()
 	defer l.Unlock()
-	return l.conn.WriteJSON(pkt)
+	if err := websocket.Message.Send(l.conn, string(data)); err != nil {
+		return fmt.Errorf("Send error: %w", err)
+	}
+	l.lastSend = time.Now()
+	return nil
 }
 
 func (l *wsLink) Close() {
 	l.conn.Close()
 }
 
-var pingDuration = 4 * time.Second
-
-// var pingTimeout = pingDuration + time.Second
-// TODO allow two ping periods before timing out, rather than one, to
-// workaround some issue I'm having deploying to cloud where ping (or pong)
-// packet's are getting buffered and timing out.
-var pingTimeout = 2*pingDuration + time.Second
-
-func (l *wsLink) setPongHandler() {
-	l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
-	l.conn.SetPongHandler(func(appData string) error {
-		l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
-		//LogInfo("Pong received, read deadline extended")
-		return nil
-	})
-}
-
-func (l *wsLink) startPing() {
-	go func() {
-		for {
-			l.Lock()
-			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				//LogError("Ping error:", "err", err)
-				l.Unlock()
-				return
-			}
-			//LogInfo("Ping sent")
-			l.Unlock()
-			time.Sleep(pingDuration)
-		}
-	}()
-}
-
 func (l *wsLink) receive() (*Packet, error) {
+	var data []byte
 	var pkt Packet
-	if err := l.conn.ReadJSON(&pkt); err != nil {
-		return nil, fmt.Errorf("ReadJSON error: %w", err)
+
+	if err := websocket.Message.Receive(l.conn, &data); err != nil {
+		return nil, err
+	}
+	l.lastRecv = time.Now()
+	if err := json.Unmarshal(data, &pkt); err != nil {
+		LogError("Unmarshal Error", "data", string(data))
+		return nil, fmt.Errorf("Unmarshalling error: %w", err)
 	}
 	return &pkt, nil
+}
+
+func (l *wsLink) receiveTimeout(timeout time.Duration) (*Packet, error) {
+	l.conn.SetReadDeadline(time.Now().Add(timeout))
+	pkt, err := l.receive()
+	l.conn.SetReadDeadline(time.Time{})
+	return pkt, err
+}
+
+var pingDuration = 4 * time.Second
+var pingTimeout = 2*pingDuration + time.Second
+
+func (l *wsLink) receivePoll() (*Packet, error) {
+	for {
+		if time.Since(l.lastSend) >= pingDuration {
+			if err := l.Send(&Packet{Path: "/ping"}); err != nil {
+				return nil, err
+			}
+		}
+		pkt, err := l.receiveTimeout(time.Second)
+		if err == nil {
+			if pkt.Path == "/ping" {
+				continue
+			}
+			return pkt, nil
+		}
+		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
+			if time.Since(l.lastRecv) > pingTimeout {
+				return nil, err
+			}
+			continue
+		}
+		return nil, err
+	}
+	return nil, nil
 }
