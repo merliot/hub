@@ -73,7 +73,7 @@ func wsServer(conn *websocket.Conn) {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogInfo("Route packet UP", "pkt", pkt)
+		LogDebug("Route packet UP", "pkt", pkt)
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 
