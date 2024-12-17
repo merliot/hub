@@ -5,6 +5,7 @@ package device
 import (
 	"bytes"
 	_ "embed"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -90,8 +91,7 @@ func sessionUpdate(sessionId string) bool {
 	if s, ok := sessions[sessionId]; ok {
 		s.Lock()
 		defer s.Unlock()
-		connected := (s.conn != nil)
-		if connected {
+		if s.connected() {
 			s.lastUpdate = time.Now()
 			return true
 		}
@@ -114,16 +114,6 @@ func sessionKeepAlive(sessionId string) {
 	}
 }
 
-func _sessionSave(sessionId, deviceId, view string, level int) {
-	if s, ok := sessions[sessionId]; ok {
-		s.lastUpdate = time.Now()
-		lastView := s.lastViews[deviceId]
-		lastView.view = view
-		lastView.level = level
-		s.lastViews[deviceId] = lastView
-	}
-}
-
 func sessionSave(sessionId, deviceId, view string, level int) {
 
 	sessionsMu.RLock()
@@ -138,18 +128,6 @@ func sessionSave(sessionId, deviceId, view string, level int) {
 		s.lastViews[deviceId] = lastView
 		s.Unlock()
 	}
-}
-
-func _sessionLastView(sessionId, deviceId string) (string, int, error) {
-	s, ok := sessions[sessionId]
-	if !ok {
-		return "", 0, fmt.Errorf("Invalid session %s", sessionId)
-	}
-	v, ok := s.lastViews[deviceId]
-	if !ok {
-		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", sessionId, deviceId)
-	}
-	return v.view, v.level, nil
 }
 
 func sessionLastView(sessionId, deviceId string) (view string, level int, err error) {
@@ -171,16 +149,33 @@ func sessionLastView(sessionId, deviceId string) (view string, level int, err er
 	return v.view, v.level, nil
 }
 
-func (s session) _renderPkt(pkt *Packet) {
-	if s.conn == nil {
-		return
+var errSessionNotConnected = errors.New("Session not connected")
+
+func (s *session) connected() bool {
+	return s.conn != nil
+}
+
+func (s *session) send(data []byte) error {
+	s.Lock()
+	defer s.Unlock()
+	if s.connected() {
+		return s.conn.WriteMessage(websocket.TextMessage, data)
 	}
+	return errSessionNotConnected
+}
+
+func (s *session) renderPkt(pkt *Packet) error {
+	s.RLock()
+	if !s.connected() {
+		s.RUnlock()
+		return errSessionNotConnected
+	}
+	s.RUnlock()
 	var buf bytes.Buffer
 	if err := deviceRenderPkt(&buf, s.sessionId, pkt); err != nil {
-		LogError("Rendering pkt", "err", err)
-		return
+		return err
 	}
-	s.conn.WriteMessage(websocket.TextMessage, buf.Bytes())
+	return s.send(buf.Bytes())
 }
 
 func sessionsRoute(pkt *Packet) {
@@ -189,19 +184,29 @@ func sessionsRoute(pkt *Packet) {
 	defer sessionsMu.RUnlock()
 
 	for _, s := range sessions {
-		s.Lock()
 		if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
-			LogDebug("SessionsRoute", "pkt", pkt)
-			s._renderPkt(pkt)
+			LogDebug("sessionsRoute", "pkt", pkt)
+			if err := s.renderPkt(pkt); err != nil {
+				if err != errSessionNotConnected {
+					LogError("sessionsRoute", "err", err)
+				}
+			}
 		}
-		s.Unlock()
 	}
 }
 
-func _sessionRoute(sessionId string, pkt *Packet) {
+func sessionRoute(sessionId string, pkt *Packet) {
+
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
 	if s, ok := sessions[sessionId]; ok {
-		// LogDebug("_sessionRoute", "pkt", pkt)
-		s._renderPkt(pkt)
+		// LogDebug("sessionRoute", "pkt", pkt)
+		if err := s.renderPkt(pkt); err != nil {
+			if err != errSessionNotConnected {
+				LogError("sessionRoute", "err", err)
+			}
+		}
 	}
 }
 
@@ -210,10 +215,10 @@ func sessionSend(sessionId, htmlSnippet string) {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
 
-	if s, ok := sessions[sessionId]; ok && s.conn != nil {
-		s.Lock()
-		s.conn.WriteMessage(websocket.TextMessage, []byte(htmlSnippet))
-		s.Unlock()
+	if s, ok := sessions[sessionId]; ok {
+		if err := s.send([]byte(htmlSnippet)); err != nil {
+			LogError("sessionSend", "err", err)
+		}
 	}
 }
 

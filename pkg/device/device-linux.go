@@ -427,7 +427,7 @@ func devicesSendState(l linker) {
 
 func (d *device) demoReboot(pkt *Packet) {
 	// Simulate a reboot
-	close(d.stopChan)
+	d.stopDemo()
 
 	// go offline for 3 seconds
 	d.Unset(flagOnline)
@@ -439,8 +439,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	d.setupAPI()
 	d.setup()
-
-	go d.runDemo()
+	d.startDemo()
 
 	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 }
