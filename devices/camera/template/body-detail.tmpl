@@ -1,9 +1,5 @@
-<!-- The delay is a work-around for a deadlock that will occur without it.  The
-	deadlock is /get-image handler wants r/w device lock, but it was
-	already grabbed read-only by / handler -->
-
 <div class="flex flex-col m-4" id="{{uniq `image`}}"
 	hx-post="/device/{{id}}/get-image"
 	hx-swap="none"
-	hx-trigger="load delay:0.25s">
+	hx-trigger="load">
 </div>

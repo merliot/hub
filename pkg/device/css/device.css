@@ -207,8 +207,16 @@ textarea {
   height: 13rem;
 }
 
+.h-96 {
+  height: 24rem;
+}
+
 .h-120 {
-  width: 30rem;
+  height: 30rem;
+}
+
+.h-128 {
+  height: 32rem;
 }
 
 .h-full {
