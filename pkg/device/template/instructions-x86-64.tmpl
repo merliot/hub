@@ -16,7 +16,7 @@
 
 <h4>Step 1</h4>
 
-<p>Select "Linux x86-64" target.</p>
+{{template "instructions-x86-64-step1.tmpl" .}}
 
 {{- if wantsHttpPort }}
 <p>The {{model}} device runs as a local web server.  Specify a port to listen on.  The device's address is http://addr:port, where addr is the local IP (or hostname).</p>
@@ -24,15 +24,13 @@
 <p>(Optional) The {{model}} device can run as a local web server.  To enable, specify a port to listen on.  The device's address is http://addr:port, where addr is the local IP (or hostname).  This is useful, for example, when the hub is not accessible, and you want to check in on the device.</p>
 {{- end }}
 
-{{template "instructions-x86-64-step1.tmpl" .}}
-
 <h4>Step 2</h4>
 
 <p>Click the Download button to download the x86-64 installer file.  The installer file name is:</p>
 
 <pre>
 <code>
-	{{id}}-installer
+	{{model}}-{{id}}-installer
 </code>
 </pre>
 
@@ -42,21 +40,21 @@
 
 <pre>
 <code>
-	$ chmod +x {{id}}-installer
-	$ sudo ./{{id}}-installer
+	$ chmod +x {{model}}-{{id}}-installer
+	$ sudo ./{{model}}-{{id}}-installer
 
-	Intalling {{model}}...
-	Intalling logging for {{model}}...
-	Intalling systemd service for {{model}}...
+	Intalling {{model}}-{{model}}...
+	Intalling logging for {{model}}-{{model}}...
+	Intalling systemd service for {{model}}-{{model}}...
 	Success!
 </code>
 </pre>
 
-<p>The installer will install the device as a service named "{{model}}".  To uninstall:</p>
+<p>The installer will install the device as a service named "{{model}}-{{id}}".  To uninstall:</p>
 
 <pre>
 <code>
-	$ sudo ./{{id}}-installer -u
+	$ sudo ./{{model}}-{{id}}-installer -u
 </code>
 </pre>
 
@@ -64,6 +62,6 @@
 
 <pre>
 <code>
-	$ sudo tail -f /var/log/{{model}}.log
+	$ sudo tail -f /var/log/{{model}}-{{id}}.log
 </code>
 </p>
