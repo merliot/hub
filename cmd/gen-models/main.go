@@ -39,7 +39,6 @@ var AllModels = device.ModelMap{
 {{- range $key, $value := . }}
 var {{title $key}} = device.Model{
 	Package: "{{$value.Package}}",
-	Source: "{{$value.Source}}",
 	Maker: {{$value.Maker}},
 }
 

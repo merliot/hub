@@ -1,10 +1,11 @@
 package device
 
+import "slices"
+
 type Maker func() Devicer
 
 type Model struct {
 	Package string
-	Source  string
 	Maker
 	Config
 }

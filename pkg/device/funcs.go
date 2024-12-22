@@ -70,7 +70,6 @@ func (d *device) baseFuncs() template.FuncMap {
 		"port":            func() string { return d.deployValues().Get("port") },
 		"ssid":            func() string { return d.deployValues().Get("ssid") },
 		"package":         func() string { return Models[d.Model].Package },
-		"source":          func() string { return Models[d.Model].Source },
 		"devicesJSON":     devicesJSON,
 		"isLinuxTarget":   linuxTarget,
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
