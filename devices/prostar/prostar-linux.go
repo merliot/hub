@@ -15,6 +15,7 @@ var fs embed.FS
 func (p *prostar) GetConfig() device.Config {
 	return device.Config{
 		Model:      "prostar",
+		Parents:    []string{"hub"},
 		State:      p,
 		FS:         &fs,
 		Targets:    []string{"x86-64", "rpi", "nano-rp2040"},

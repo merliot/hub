@@ -15,6 +15,7 @@ func NewModel() device.Devicer {
 func (l *locker) GetConfig() device.Config {
 	return device.Config{
 		Model:   "locker",
+		Parents: []string{"hub"},
 		State:   l,
 		FS:      &fs,
 		Targets: []string{"x86-64", "rpi", "nano-rp2040", "wioterminal", "pyportal"},

@@ -49,6 +49,7 @@ func NewModel() device.Devicer {
 func (r *relays) GetConfig() device.Config {
 	return device.Config{
 		Model:   "relays",
+		Parents: []string{"hub"},
 		State:   r,
 		FS:      &fs,
 		Targets: []string{"rpi", "nano-rp2040", "wioterminal"},

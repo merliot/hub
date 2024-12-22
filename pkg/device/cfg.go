@@ -10,6 +10,8 @@ import (
 type Config struct {
 	// Model is the device model name
 	Model string
+	// Parents are the supported parent models
+	Parents []string
 	// Flags see FlagXxxx
 	Flags flags
 	// The device state

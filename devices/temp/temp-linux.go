@@ -17,6 +17,7 @@ var fs embed.FS
 func (t *temp) GetConfig() device.Config {
 	return device.Config{
 		Model:      "temp",
+		Parents:    []string{"hub"},
 		State:      t,
 		FS:         &fs,
 		Targets:    []string{"nano-rp2040"},

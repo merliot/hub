@@ -603,7 +603,7 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 
 func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {
 	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
-		"models": Models,
+		"models": d.childModels(),
 		"newid":  generateRandomId(),
 	})
 	if err != nil {

@@ -27,6 +27,7 @@ func NewModel() device.Devicer {
 func (g *gps) GetConfig() device.Config {
 	return device.Config{
 		Model:      "gps",
+		Parents:    []string{"hub"},
 		State:      g,
 		FS:         &fs,
 		Targets:    []string{"x86-64", "rpi", "nano-rp2040"},

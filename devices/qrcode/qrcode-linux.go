@@ -23,6 +23,7 @@ type qrcode struct {
 func (q *qrcode) GetConfig() device.Config {
 	return device.Config{
 		Model:   "qrcode",
+		Parents: []string{"hub"},
 		State:   q,
 		FS:      &fs,
 		Targets: []string{"wioterminal", "pyportal"},

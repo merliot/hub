@@ -34,6 +34,7 @@ func NewModel() device.Devicer {
 func (c *camera) GetConfig() device.Config {
 	return device.Config{
 		Model:      "camera",
+		Parents:    []string{"hub"},
 		State:      c,
 		FS:         &embedFS,
 		Targets:    []string{"rpi", "x86-64"},

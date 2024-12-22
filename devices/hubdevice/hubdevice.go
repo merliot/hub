@@ -19,6 +19,7 @@ func NewModel() device.Devicer {
 func (h *hubDevice) GetConfig() device.Config {
 	return device.Config{
 		Model:   "hub",
+		Parents: []string{"hub"},
 		Flags:   device.FlagProgenitive | device.FlagWantsHttpPort,
 		State:   h,
 		FS:      &fs,
