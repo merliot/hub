@@ -9,6 +9,8 @@ import (
 	"github.com/merliot/hub/devices/gps"
 	"github.com/merliot/hub/devices/hubdevice"
 	"github.com/merliot/hub/devices/locker"
+	"github.com/merliot/hub/devices/moist"
+	"github.com/merliot/hub/devices/moistbase"
 	"github.com/merliot/hub/devices/prostar"
 	"github.com/merliot/hub/devices/qrcode"
 	"github.com/merliot/hub/devices/relays"
@@ -21,6 +23,8 @@ var AllModels = device.ModelMap{
 	"gps": Gps,
 	"hub": Hub,
 	"locker": Locker,
+	"moist": Moist,
+	"moistbase": Moistbase,
 	"prostar": Prostar,
 	"qrcode": Qrcode,
 	"relays": Relays,
@@ -45,6 +49,14 @@ var Hub = device.Model{
 var Locker = device.Model{
 	Package: "github.com/merliot/hub/devices/locker",
 	Maker: locker.NewModel,
+}
+var Moist = device.Model{
+	Package: "github.com/merliot/hub/devices/moist",
+	Maker: moist.NewModel,
+}
+var Moistbase = device.Model{
+	Package: "github.com/merliot/hub/devices/moistbase",
+	Maker: moistbase.NewModel,
 }
 var Prostar = device.Model{
 	Package: "github.com/merliot/hub/devices/prostar",

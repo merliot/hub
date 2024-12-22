@@ -34,5 +34,13 @@
 	"camera": {
 		"Package": "github.com/merliot/hub/devices/camera",
 		"Maker": "camera.NewModel"
+	},
+	"moist": {
+		"Package": "github.com/merliot/hub/devices/moist",
+		"Maker": "moist.NewModel"
+	},
+	"moistbase": {
+		"Package": "github.com/merliot/hub/devices/moistbase",
+		"Maker": "moistbase.NewModel"
 	}
 }

@@ -532,6 +532,10 @@ textarea {
   border-color: #ff2200
 }
 
+.border-moonlit-violet {
+  border-color: #9944ff
+}
+
 .border-peach {
   border-color: #ff8866
 }
@@ -941,6 +945,10 @@ textarea {
   color: #ff2200
 }
 
+.text-moonlit-violet {
+  color: #9944ff
+}
+
 .text-peach {
   color: #ff8866
 }
@@ -1087,6 +1095,10 @@ textarea {
 
 .bg-mars {
   background-color: #ff2200
+}
+
+.bg-moonlit-violet {
+  background-color: #9944ff
 }
 
 .bg-peach {
