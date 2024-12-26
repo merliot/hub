@@ -25,7 +25,7 @@
 
 		<h3>CREATE A NEW DEVICE</h3>
 
-		<form hx-get="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
+		<form hx-post="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
 
 			<div class="flex flex-col mb-5 w-40">
 				<label class="font-bold mb-2">Name the Device</label>

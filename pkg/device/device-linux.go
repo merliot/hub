@@ -201,7 +201,6 @@ func removeChild(id string) error {
 }
 
 func deviceNotFound(id string) error {
-	//dumpStackTrace()
 	return fmt.Errorf("Device '%s' not found", id)
 }
 

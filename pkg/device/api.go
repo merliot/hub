@@ -70,7 +70,7 @@ func (d *device) installAPIs() {
 
 	d.HandleFunc("GET /model", d.showModel)
 
-	d.HandleFunc("GET /create", d.createChild)
+	d.HandleFunc("POST /create", d.createChild)
 	d.HandleFunc("DELETE /destroy", d.destroyChild)
 
 	d.HandleFunc("GET /new-modal", d.showNewModal)
@@ -83,21 +83,6 @@ func (d *device) installAPIs() {
 		}
 	}
 }
-
-/*
-func dumpStack() {
-	buf := make([]byte, 1024)
-	for {
-		n := runtime.Stack(buf, true)
-		if n < len(buf) {
-			buf = buf[:n]
-			break
-		}
-		buf = make([]byte, 2*len(buf))
-	}
-	println("Stack:\n%s", string(buf))
-}
-*/
 
 // modelInstall installs /model/{model} pattern for device in default ServeMux
 func (d *device) modelInstall() {
@@ -539,8 +524,14 @@ func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type MsgCreated struct {
+	Id    string
+	Model string
+	Name  string
+}
+
 func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
-	var child device
+	var msg MsgCreated
 
 	if d.IsSet(flagLocked) {
 		http.Error(w, "Create child aborted; device is locked",
@@ -548,7 +539,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pkt, err := newPacketFromRequest(r, &child)
+	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -556,7 +547,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 
 	// TODO validate msg.Id, msg.Model, msg.Name
 
-	if err := addChild(d, child.Id, child.Model, child.Name); err != nil {
+	if err := addChild(d, msg.Id, msg.Model, msg.Name); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -567,16 +558,16 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// Broadcast /create msg up
-	pkt.SetDst(d.Id).BroadcastUp()
+	// Route /created msg down
+	pkt.SetDst(d.Id).SetPath("/created").RouteDown()
 }
 
-type msgDestroy struct {
+type MsgDestroyed struct {
 	ChildId string
 }
 
 func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
-	var msg msgDestroy
+	var msg MsgDestroyed
 
 	pkt, err := newPacketFromRequest(r, &msg)
 	if err != nil {
@@ -597,8 +588,8 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// Broadcast /destroy msg up
-	pkt.SetDst(parentId).BroadcastUp()
+	// Route /destroyed msg down
+	pkt.SetDst(parentId).SetPath("/destroyed").RouteDown()
 }
 
 func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {
