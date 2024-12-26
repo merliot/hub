@@ -14,19 +14,6 @@ import (
 var root *device
 
 // Run the device
-//
-// Environment variables:
-//
-// PORT
-// SITE
-// DEMO
-// WIFI_SSIDS
-// WIFI_PASSPHRASES
-// DEVICES
-// DEVICES_FILE
-// DEBUG_KEEP_BUILDS
-// USER
-// PASSWD
 func Run() {
 
 	var err error
@@ -49,7 +36,7 @@ func Run() {
 
 	devicesBuild()
 
-	root, err = devicesFindRoot()
+	root, err = findRoot(devices)
 	if err != nil {
 		LogError("Finding root device", "err", err)
 		return

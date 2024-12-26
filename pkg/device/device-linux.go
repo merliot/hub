@@ -79,48 +79,6 @@ func devicesBuild() {
 	}
 }
 
-// devicesFindRoot returns the root *Device if there is exactly one tree
-// defined by the devices map, otherwise nil.
-func devicesFindRoot() (*device, error) {
-
-	// Create a map to track all devices that are children
-	childSet := make(map[string]bool)
-
-	// Populate the childSet with the Ids of all children
-	for i, device := range devices {
-		var validChildren []string
-		for _, child := range device.Children {
-			if _, ok := devices[child]; !ok {
-				fmt.Printf("Warning: Child Id %s not found in devices\n", child)
-				continue
-			}
-			validChildren = append(validChildren, child)
-			childSet[child] = true
-		}
-		devices[i].Children = validChildren
-	}
-
-	// Find all root devices
-	var roots []*device
-	for id, device := range devices {
-		if _, isChild := childSet[id]; !isChild {
-			roots = append(roots, device)
-		}
-	}
-
-	// Return the root if there is exactly one tree
-	switch {
-	case len(roots) == 1:
-		root := roots[0]
-		root.Set(flagOnline | flagMetal)
-		return root, nil
-	case len(roots) > 1:
-		return nil, fmt.Errorf("More than one tree found in devices, aborting")
-	}
-
-	return nil, fmt.Errorf("No tree found in devices")
-}
-
 func (d *device) setupAPI() {
 	// All base + device APIs
 	d.installAPIs()
@@ -243,7 +201,49 @@ func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	return deviceNotFound(pkt.Dst)
 }
 
+// findRoot returns the root *device of the device map
+func findRoot(devices devicesMap) (*device, error) {
+
+	// Create a map to track all devices that are children
+	childSet := make(map[string]bool)
+
+	// Populate the childSet with the Ids of all children
+	for i, device := range devices {
+		var validChildren []string
+		for _, child := range device.Children {
+			if _, ok := devices[child]; !ok {
+				fmt.Printf("Warning: Child Id %s not found in devices\n", child)
+				continue
+			}
+			validChildren = append(validChildren, child)
+			childSet[child] = true
+		}
+		devices[i].Children = validChildren
+	}
+
+	// Find all root devices
+	var roots []*device
+	for id, device := range devices {
+		if _, isChild := childSet[id]; !isChild {
+			roots = append(roots, device)
+		}
+	}
+
+	// Return the root if there is exactly one tree
+	switch {
+	case len(roots) == 1:
+		root := roots[0]
+		root.Set(flagOnline | flagMetal)
+		return root, nil
+	case len(roots) > 1:
+		return nil, fmt.Errorf("More than one tree found in devices, aborting")
+	}
+
+	return nil, fmt.Errorf("No tree found in devices")
+}
+
 func deviceOnline(ann announcement) error {
+
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
