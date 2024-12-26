@@ -100,6 +100,12 @@ func (p *Packet) SetPath(path string) *Packet {
 	return p
 }
 
+// ClearMsg empties the packet message
+func (p *Packet) ClearMsg() *Packet {
+	p.Msg, _ = json.Marshal(map[string]interface{}{})
+	return p
+}
+
 // RouteDown routes the packet down to a downlink.  Which downlink is
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
