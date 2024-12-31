@@ -96,7 +96,7 @@ func modelsInstall() {
 	for name := range Models {
 		model := Models[name]
 		proto := &device{Model: name}
-		proto.build(model.Maker)
+		proto._build(model.Maker)
 		proto.setupAPI()
 		proto.modelInstall()
 		model.Config = proto.GetConfig()
@@ -104,10 +104,21 @@ func modelsInstall() {
 	}
 }
 
+func (d *device) deviceHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if d.isGhost() {
+			// Ignore API request for ghost devices
+			http.Error(w, "Device is a Ghost", http.StatusGone)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // install installs /device/{id} pattern for device in default ServeMux
 func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
-	handler := basicAuthHandler(http.StripPrefix(prefix, d))
+	handler := d.deviceHandler(basicAuthHandler(http.StripPrefix(prefix, d)))
 	http.Handle(prefix+"/", handler)
 	LogInfo("Device installed", "prefix", prefix, "device", d)
 }

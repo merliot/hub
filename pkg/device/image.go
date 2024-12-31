@@ -4,7 +4,6 @@ package device
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -20,27 +19,7 @@ var (
 	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "")
 )
 
-func gzipFile(src, dst string) error {
-	inputFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer inputFile.Close()
-
-	outputFile, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer outputFile.Close()
-
-	gzipWriter := gzip.NewWriter(outputFile)
-	defer gzipWriter.Close()
-
-	_, err = io.Copy(gzipWriter, inputFile)
-	return err
-}
-
-func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
+func setContentMd5(w http.ResponseWriter, fileName string) error {
 
 	// Calculate MD5 checksum
 	cmd := exec.Command("md5sum", fileName)
@@ -52,29 +31,29 @@ func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
 	md5sum := bytes.Fields(stdoutStderr)[0]
 	md5sumBase64 := base64.StdEncoding.EncodeToString(md5sum)
 
-	// Set the Content-Disposition header to suggest the original filename for download
-	downloadName := filepath.Base(fileName)
-	w.Header().Set("Content-Disposition", "attachment; filename="+downloadName)
 	// Set the MD5 checksum header
 	w.Header().Set("Content-MD5", md5sumBase64)
+	return nil
+}
 
-	// Gzip the file
-	w.Header().Set("Content-Encoding", "gzip")
-	gzipName := fileName + ".gz"
-	err = gzipFile(fileName, gzipName)
-	if err != nil {
+func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
+
+	if err := setContentMd5(w, fileName); err != nil {
 		return err
 	}
 
-	LogInfo("Serving download file", "name", gzipName)
-	http.ServeFile(w, r, gzipName)
-	LogInfo("Done serving download file", "name", gzipName)
+	w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(fileName))
+	w.Header().Set("Content-Type", "application/octet-stream")
+
+	LogInfo("Serving download file", "name", fileName)
+	http.ServeFile(w, r, fileName)
 
 	return nil
 }
 
-func (d *device) genFile(template string, name string, data any) error {
-	file, err := os.Create(name)
+func (d *device) genFile(dir, template, name string, data any) error {
+	filePath := filepath.Join(dir, name)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -88,90 +67,137 @@ func isLocalhost(referer string) bool {
 	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
 }
 
-func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir string,
-	envs []string, target string) error {
+// createSFX concatenates the tar ball to the SFX installer script, making the
+// SFX installer
+func createSFX(dir, sfxFile, tarFile, installerFile string) error {
 
-	var referer = r.Referer()
+	script, err := os.Open(filepath.Join(dir, sfxFile))
+	if err != nil {
+		return fmt.Errorf("error opening sfx script file: %v", err)
+	}
+	defer script.Close()
+
+	archive, err := os.Open(filepath.Join(dir, tarFile))
+	if err != nil {
+		return fmt.Errorf("error opening archive file: %v", err)
+	}
+	defer archive.Close()
+
+	installer, err := os.Create(filepath.Join(dir, installerFile))
+	if err != nil {
+		return fmt.Errorf("error creating installer file: %v", err)
+	}
+	defer installer.Close()
+
+	// Copy the script file to the installer file
+	if _, err := io.Copy(installer, script); err != nil {
+		return fmt.Errorf("error writing script to installer file: %v", err)
+	}
+
+	// Copy the archive file to the installer file
+	if _, err := io.Copy(installer, archive); err != nil {
+		return fmt.Errorf("error writing archive to installer file: %v", err)
+	}
+
+	return nil
+}
+
+func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir string) error {
+
+	referer := r.Referer()
 	if isLocalhost(referer) {
 		return fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
 			"using the hostname or IP address of the host; something that " +
 			"is addressable on the network so the device can dial into the hub.")
 	}
 
-	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 	var service = d.Model + "-" + d.Id
+	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 
-	// Generate runner.go from device-runner-linux.tmpl
-	var runnerGo = filepath.Join(dir, "runner.go")
-	if err := d.genFile("device-runner-linux.tmpl", runnerGo, map[string]any{
+	// Generate environment variable file.  The service will load env vars
+	// from this file.
+	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
+		"port":     r.URL.Query().Get("port"),
 		"user":     Getenv("USER", ""),
 		"passwd":   Getenv("PASSWD", ""),
 		"dialurls": dialurls,
-		"port":     r.URL.Query().Get("port"),
 	}); err != nil {
 		return err
 	}
 
-	// Generate installer.go from device-installer.tmpl
-	var installerGo = filepath.Join(dir, "installer.go")
-	if err := d.genFile("device-installer.tmpl", installerGo, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate systemd merliot.target unit from device-merliot-target.tmpl
-	var output = filepath.Join(dir, "merliot.target")
-	if err := d.genFile("device-merliot-target.tmpl", output, nil); err != nil {
+	// Generate systemd merliot.target unit from
+	// device-merliot-target.tmpl.  This will be the parent unit of all
+	// device units.
+	targetFile := "merliot.target"
+	if err := d.genFile(dir, "device-merliot-target.tmpl", targetFile, nil); err != nil {
 		return err
 	}
 
 	// Generate systemd {{service}}.service unit from device-service.tmpl
-	output = filepath.Join(dir, service+".service")
-	if err := d.genFile("device-service.tmpl", output, map[string]any{
+	serviceFile := service + ".service"
+	if err := d.genFile(dir, "device-service.tmpl", serviceFile, map[string]any{
 		"service": service,
 	}); err != nil {
 		return err
 	}
 
-	// Generate {{service}}.conf from device-conf.tmpl
-	output = filepath.Join(dir, service+".conf")
-	if err := d.genFile("device-conf.tmpl", output, map[string]any{
+	// Generate {{service}}.conf from device-conf.tmpl.  This sets up
+	// logging service for the device.  Logs are available at
+	// /var/log/{{.service}}.log.
+	confFile := service + ".conf"
+	if err := d.genFile(dir, "device-conf.tmpl", confFile, map[string]any{
 		"service": service,
 	}); err != nil {
 		return err
 	}
 
-	// Build runner binary
+	// Generate SelF-eXtracting (SFX) installer script
+	sfxFile := "sfx.sh"
+	if err := d.genFile(dir, "device-sfx.tmpl", sfxFile, map[string]any{
+		"service": service,
+	}); err != nil {
+		return err
+	}
 
-	// substitute "-" for "_" in target, ala TinyGo, when using as tag
-	var tag = strings.Replace(target, "-", "_", -1)
-	var binary = filepath.Join(dir, service)
+	// Generate service install script
+	if err := d.genFile(dir, "device-install.tmpl", "install.sh", map[string]any{
+		"service": service,
+	}); err != nil {
+		return err
+	}
 
-	cmd := exec.Command("go", "build", "-ldflags", "-s -w", "-o", binary, "-tags", tag, runnerGo)
+	// Make a devices.json file
+	if err := fileWriteJSON(filepath.Join(dir, "devices.json"), d.devices()); err != nil {
+		return err
+	}
+
+	// TODO only tar up bin/ files that are needed for the target device
+
+	// Create a gzipped tar ball with everything inside need to
+	// install/uninstall the device
+	tarFile := service + ".tar.gz"
+	tarFilePath := filepath.Join(dir, tarFile)
+	cmd := exec.Command("tar",
+		"--exclude", tarFile,
+		"-czf", tarFilePath,
+		"-C", ".", "bin/",
+		"-C", dir, ".")
 	LogDebug(cmd.String())
-	cmd.Env = append(cmd.Environ(), envs...)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 
-	// Build installer
+	// Create final SFX image as the installer
 
-	var installer = filepath.Join(dir, service+"-installer")
-
-	cmd = exec.Command("go", "build", "-ldflags", "-s -w", "-o", installer, installerGo)
-	LogDebug(cmd.String())
-	cmd.Env = append(cmd.Environ(), envs...)
-	stdoutStderr, err = cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	installer := service + "-installer"
+	if err := createSFX(dir, sfxFile, tarFile, installer); err != nil {
+		return err
 	}
 
 	// Serve installer file for download
 
-	LogInfo("Built Linux device image", "installer", installer)
-	return serveFile(w, r, installer)
+	return serveFile(w, r, filepath.Join(dir, installer))
 }
 
 func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
@@ -232,13 +258,8 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 	target := r.URL.Query().Get("target")
 
 	switch target {
-	case "x86-64":
-		envs := []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"}
-		return d.buildLinuxImage(w, r, dir, envs, target)
-	case "rpi":
-		// TODO: do we want more targets for GOARM=7|8?
-		envs := []string{"CGO_ENABLED=0", "GOOS=linux", "GOARCH=arm", "GOARM=5"}
-		return d.buildLinuxImage(w, r, dir, envs, target)
+	case "x86-64", "rpi":
+		return d.buildLinuxImage(w, r, dir)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return d.buildTinyGoImage(w, r, dir, target)
 	default:

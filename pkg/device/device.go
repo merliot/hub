@@ -35,10 +35,10 @@ type device struct {
 	Name         string
 	Children     []string
 	DeployParams template.HTML
-	flags        `json:"-"`
 	Config       `json:"-"`
 	Devicer      `json:"-"`
-	rwMutex      `json:"-"`
+	flags
+	rwMutex
 	deviceOS
 	stopChan chan struct{}
 	startup  time.Time
@@ -48,7 +48,7 @@ func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
-func (d *device) build(maker Maker) error {
+func (d *device) _build(maker Maker) error {
 
 	d.startup = time.Now()
 	d.Devicer = maker()
@@ -86,7 +86,7 @@ func (d *device) build(maker Maker) error {
 			"device", d, "err", err)
 	}
 
-	return d.buildOS()
+	return d._buildOS()
 }
 
 func (d *device) handleState(pkt *Packet) {

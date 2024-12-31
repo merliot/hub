@@ -7,10 +7,11 @@ PartOf=merliot.target
 [Service]
 Type=simple
 User=root
+WorkingDirectory=/var/lib/{{.service}}
 ExecStart=/usr/local/bin/{{.service}}
+EnvironmentFile=/var/lib/{{.service}}/env
 Restart=always
 RestartSec=2
-
 SyslogIdentifier={{.service}}
  
 [Install]

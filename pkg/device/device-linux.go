@@ -20,9 +20,9 @@ var deviceFs embed.FS
 
 type APIs map[string]http.HandlerFunc
 
-type devicesMap map[string]*device // key: device id
+type deviceMap map[string]*device // key: device id
 
-var devices = make(devicesMap)
+var devices = make(deviceMap)
 var devicesMu rwMutex
 
 type deviceOS struct {
@@ -31,7 +31,29 @@ type deviceOS struct {
 	layeredFS
 }
 
-func (d *device) buildOS() error {
+func (d *device) _devices(family deviceMap) {
+	d.RLock()
+	defer d.RUnlock()
+
+	family[d.Id] = devices[d.Id]
+	for _, childId := range d.Children {
+		devices[childId]._devices(family)
+	}
+}
+
+// devices returns a deviceMap with this device and all its children
+func (d *device) devices() deviceMap {
+	var family = make(deviceMap)
+
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
+	d._devices(family)
+
+	return family
+}
+
+func (d *device) _buildOS() error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
@@ -59,23 +81,32 @@ func (d *device) buildOS() error {
 }
 
 func devicesBuild() {
-	for id, device := range devices {
-		if id != device.Id {
-			LogError("Mismatching Ids, skipping device", "key-id", id, "device-id", device.Id)
+
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
+
+	for id, d := range devices {
+		d.Lock()
+		if id != d.Id {
+			LogError("Mismatching Ids, skipping device", "key-id", id, "device-id", d.Id)
 			delete(devices, id)
+			d.Unlock()
 			continue
 		}
-		model, ok := Models[device.Model]
+		model, ok := Models[d.Model]
 		if !ok {
-			LogError("Device not registered, skipping device", "id", id, "model", device.Model)
+			LogError("Device not registered, skipping device", "id", id, "model", d.Model)
 			delete(devices, id)
+			d.Unlock()
 			continue
 		}
-		if err := device.build(model.Maker); err != nil {
+		if err := d._build(model.Maker); err != nil {
 			LogError("Device build failed, skipping device", "id", id, "err", err)
 			delete(devices, id)
+			d.Unlock()
 			continue
 		}
+		d.Unlock()
 	}
 }
 
@@ -92,37 +123,64 @@ func devicesSetupAPI() {
 	}
 }
 
+func (d *device) isGhost() bool {
+	d.RLock()
+	defer d.RUnlock()
+	return d.IsSet(flagGhost)
+}
+
 func addChild(parent *device, id, model, name string) error {
-	var child = &device{Id: id, Model: model, Name: name}
+
+	var reanimate bool
 
 	maker, ok := Models[model]
 	if !ok {
 		return fmt.Errorf("Unknown model")
 	}
 
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-
-	if _, ok := devices[id]; ok {
-		return fmt.Errorf("Child device already exists")
-	}
-
 	parent.Lock()
 	defer parent.Unlock()
-
-	if err := child.build(maker.Maker); err != nil {
-		return err
-	}
 
 	if slices.Contains(parent.Children, id) {
 		return fmt.Errorf("Device's children already includes child")
 	}
 
-	parent.Children = append(parent.Children, id)
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 
+	child, ok := devices[id]
+	if ok {
+		if !child.isGhost() {
+			return fmt.Errorf("Child device already exists")
+		}
+		// Child exists, but it's a ghost: reanimate
+		reanimate = true
+	} else {
+		child = &device{Id: id, Model: model, Name: name}
+	}
+
+	child.Lock()
+	defer child.Unlock()
+
+	if reanimate {
+		// Reanimate ghost child back to life
+		child.Unset(flagGhost)
+		child.DeployParams = ""
+		child.Children = []string{}
+	}
+
+	if err := child._build(maker.Maker); err != nil {
+		return err
+	}
+
+	parent.Children = append(parent.Children, id)
 	devices[id] = child
+
 	child.setupAPI()
-	child.deviceInstall()
+
+	if !reanimate {
+		child.deviceInstall()
+	}
 
 	if runningDemo {
 		if err := child.setup(); err != nil {
@@ -202,7 +260,7 @@ func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 }
 
 // findRoot returns the root *device of the device map
-func findRoot(devices devicesMap) (*device, error) {
+func findRoot(devices deviceMap) (*device, error) {
 
 	// Create a map to track all devices that are children
 	childSet := make(map[string]bool)
@@ -242,37 +300,159 @@ func findRoot(devices devicesMap) (*device, error) {
 	return nil, fmt.Errorf("No tree found in devices")
 }
 
-func deviceOnline(ann announcement) error {
+func _ghostChild(id string) error {
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	d, ok := devices[ann.Id]
+	d, ok := devices[id]
 	if !ok {
-		return deviceNotFound(ann.Id)
+		return deviceNotFound(id)
 	}
 
-	if d.Model != ann.Model {
-		return fmt.Errorf("Device model wrong.  Want %s; got %s",
-			d.Model, ann.Model)
-	}
-
-	if d.Name != ann.Name {
-		return fmt.Errorf("Device name wrong.  Want %s; got %s",
-			d.Name, ann.Name)
-	}
-
-	if d.DeployParams != ann.DeployParams {
-		return fmt.Errorf("Device DeployParams wrong.\nWant: %s\nGot: %s",
-			d.DeployParams, ann.DeployParams)
+	if runningDemo {
+		d.stopDemo()
 	}
 
 	d.Lock()
-	d.Set(flagOnline)
-	d.Unlock()
+	defer d.Unlock()
 
-	// We don't need to send a /online pkt up because /state is going to be
-	// sent UP
+	d.Set(flagGhost)
+
+	for _, childId := range d.Children {
+		if err := _ghostChild(childId); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func _ghostChildren(id string) error {
+
+	d, ok := devices[id]
+	if !ok {
+		return deviceNotFound(id)
+	}
+
+	d.Lock()
+	defer d.Unlock()
+
+	for _, childId := range d.Children {
+		if err := _ghostChild(childId); err != nil {
+			return err
+		}
+	}
+
+	d.Children = []string{}
+
+	return nil
+}
+
+func ghostChildren(id string) error {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+	return _ghostChildren(id)
+}
+
+func (d *device) copyDevice(from *device) {
+	d.Model = from.Model
+	d.Name = from.Name
+	d.Children = from.Children
+	d.DeployParams = from.DeployParams
+	d.Config = from.Config
+	d.flags = from.flags
+}
+
+func merge(devices, newDevices deviceMap) error {
+
+	anchor, err := findRoot(newDevices)
+	if err != nil {
+		return err
+	}
+
+	if err := ghostChildren(anchor.Id); err != nil {
+		return err
+	}
+
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
+
+	anchor = devices[anchor.Id]
+
+	anchor.Lock()
+	defer anchor.Unlock()
+
+	for newId, newDevice := range newDevices {
+		if newId == anchor.Id {
+			anchor.Children = newDevice.Children
+			continue
+		}
+
+		device, exists := devices[newId]
+		if !exists {
+			device = newDevice
+		}
+
+		device.Lock()
+
+		device.copyDevice(newDevice)
+
+		maker, ok := Models[device.Model]
+		if !ok {
+			device.Unlock()
+			return fmt.Errorf("Unknown model")
+		}
+
+		if err := device._build(maker.Maker); err != nil {
+			device.Unlock()
+			return err
+		}
+
+		devices[newId] = device
+
+		device.setupAPI()
+
+		if !exists {
+			device.deviceInstall()
+		}
+
+		if runningDemo {
+			if err := device.setup(); err != nil {
+				device.Unlock()
+				return err
+			}
+			device.startDemo()
+		}
+
+		device.Unlock()
+	}
+
+	anchor.Set(flagOnline)
+
+	return nil
+}
+
+func validate(a *device) error {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
+	d, ok := devices[a.Id]
+	if !ok {
+		return deviceNotFound(a.Id)
+	}
+
+	if d.Model != a.Model {
+		return fmt.Errorf("Device model wrong.  Want %s; got %s",
+			d.Model, a.Model)
+	}
+
+	if d.Name != a.Name {
+		return fmt.Errorf("Device name wrong.  Want %s; got %s",
+			d.Name, a.Name)
+	}
+
+	if d.DeployParams != a.DeployParams {
+		return fmt.Errorf("Device DeployParams wrong.\nWant: %s\nGot: %s",
+			d.DeployParams, a.DeployParams)
+	}
 
 	return nil
 }
@@ -389,17 +569,14 @@ func devicesSave() error {
 	var noJSON bool = (devicesJSON == "")
 	var noFile bool = (devicesFile == "")
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
 	if noJSON && noFile {
 		LogInfo("Saving to devices.json")
-		return fileWriteJSON("devices.json", &devices)
+		return fileWriteJSON("devices.json", aliveDevices())
 	}
 
 	if noJSON && !noFile {
 		LogInfo("Saving to", "DEVICES_FILE", devicesFile)
-		return fileWriteJSON(devicesFile, &devices)
+		return fileWriteJSON(devicesFile, aliveDevices())
 	}
 
 	// Save to clipboard
@@ -428,18 +605,22 @@ func (d *device) demoReboot(pkt *Packet) {
 	// Simulate a reboot
 	d.stopDemo()
 
-	// go offline for 3 seconds
+	// Go offline for 3 seconds
 	d.Unset(flagOnline)
 	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 	time.Sleep(3 * time.Second)
 
 	model, _ := Models[d.Model]
-	d.build(model.Maker)
+
+	d.Lock()
+	d._build(model.Maker)
+	d.Unlock()
 
 	d.setupAPI()
 	d.setup()
 	d.startDemo()
 
+	// Come back online
 	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 }
 
@@ -447,6 +628,8 @@ func (d *device) handleReboot(pkt *Packet) {
 	if d.IsSet(flagDemo) {
 		d.demoReboot(pkt)
 	} else {
+		// Exit the app, stopping the device.  A systemd script will
+		// restart the device.
 		os.Exit(0)
 	}
 }
@@ -472,12 +655,18 @@ func devicesStatus() []deviceStatus {
 	var statuses = make([]deviceStatus, len(devices))
 	for _, id := range devicesSortedId() {
 		d := devices[id]
+		d.RLock()
 		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
 			d.Id, d.Model, d.Name, len(d.Children))
+		color := "gold"
+		if d.IsSet(flagGhost) {
+			color = "gray"
+		}
 		statuses = append(statuses, deviceStatus{
-			Color:  "gold",
+			Color:  color,
 			Status: status,
 		})
+		d.RUnlock()
 	}
 	return statuses
 }
@@ -493,6 +682,6 @@ func dumpStack() {
 		}
 		buf = make([]byte, 2*len(buf))
 	}
-	fmt.Printf("Stack:\n%s", buf)
+	println("Stack:\n%s", string(buf))
 }
 */

@@ -3,7 +3,6 @@ package device
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net"
 	"sync"
 	"time"
@@ -16,13 +15,6 @@ type wsLink struct {
 	sync.Mutex
 	lastRecv time.Time
 	lastSend time.Time
-}
-
-type announcement struct {
-	Id           string
-	Model        string
-	Name         string
-	DeployParams template.HTML
 }
 
 func (l *wsLink) Send(pkt *Packet) error {

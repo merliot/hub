@@ -1,4 +1,8 @@
-<div class="flex flex-col">
+<div class="flex flex-col"
+	hx-get="/device/{{id}}/status/devices/refresh"
+	hx-trigger="every 1s"
+	hx-target="this"
+	hx-swap="outerHTML">
 	<h2>DEVICES</h2>
 {{ range $i, $device := .devices }}
 	<span class="whitespace-pre font-mono test-base text-{{$device.Color}}">{{$device.Status}}</span>

@@ -6,7 +6,7 @@ import "time"
 
 func (d *device) runDemo() {
 
-	// Poll right away and then on ticker
+	// Poll right away, once, and then on ticker
 	d.Lock()
 	d.DemoPoll(&Packet{Dst: d.Id})
 	d.Unlock()

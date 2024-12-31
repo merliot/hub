@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This SelF-eXtracting archive (SFX) script will get concatenated to a gzipped
+# tar file to make the final device installer script. Running with -u will
+# uninstall the device.
+
+ARCHIVE_START=$(awk '/^__ARCHIVE_START__/ {print NR + 1; exit 0; }' "$0")
+INSTALL_DIR="/var/lib/{{.service}}"
+
+if [ "$EUID" -ne 0 ]; then
+	echo "Installer must be run as root."
+	exit 1
+fi
+
+# Ensure the installation directory exists
+mkdir -p "$INSTALL_DIR"
+
+# Extract the archive into the installation directory
+tail -n+$ARCHIVE_START "$0" | tar -xz -C "$INSTALL_DIR"
+
+# Change to the installation directory
+cd "$INSTALL_DIR" || exit 1
+
+# Make the install script executable and run it
+chmod +x ./install.sh
+./install.sh "$1"
+
+exit 0
+
+__ARCHIVE_START__

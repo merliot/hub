@@ -1,5 +1,3 @@
-//go:generate go run ./
-
 package main
 
 import (
@@ -47,9 +45,17 @@ var {{title $key}} = device.Model{
 
 func main() {
 
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: go run main.go <input models.json path> <output models.go path>")
+		os.Exit(1)
+	}
+
+	inputPath := os.Args[1]
+	outputPath := os.Args[2]
+
 	var models models
 
-	data, err := ioutil.ReadFile("../../models.json")
+	data, err := ioutil.ReadFile(inputPath)
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +64,7 @@ func main() {
 		panic(err)
 	}
 
-	outFile, err := os.Create("../../pkg/models/models.go")
+	outFile, err := os.Create(outputPath)
 	if err != nil {
 		panic(err)
 	}
@@ -78,6 +84,4 @@ func main() {
 	if err := tmpl.Execute(outFile, models); err != nil {
 		panic(err)
 	}
-
-	fmt.Println("Created Models from models.json")
 }

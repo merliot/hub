@@ -24,6 +24,6 @@ env
 go.work
 go.work.sum
 devices.json*
-uf2s/*.uf2
+bin/*
 cmd/uf2/*/
 camera-images

@@ -26,6 +26,10 @@ func (h *hubDevice) GetConfig() device.Config {
 		Targets: []string{"x86-64", "rpi"},
 		BgColor: "sunflower",
 		FgColor: "black",
+		PacketHandlers: device.PacketHandlers{
+			"/created":   &device.PacketHandler[device.MsgCreated]{device.BroadcastUp},
+			"/destroyed": &device.PacketHandler[device.MsgDestroyed]{device.BroadcastUp},
+		},
 	}
 }
 

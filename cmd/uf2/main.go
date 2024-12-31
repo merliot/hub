@@ -8,8 +8,8 @@ import (
 	"github.com/merliot/hub/pkg/models"
 )
 
-//go:generate go run ../gen-models/
-//go:generate go run ./ base
+//go:generate sh -x -c "go run ../gen-models/ ../../models.json ../../pkg/models/models.go"
+//go:generate sh -x -c "go run ./ base ../../bin"
 
 func main() {
 	progName := os.Args[0]
@@ -24,7 +24,7 @@ func main() {
 	case "base":
 		device.Models = models.AllModels
 
-		dir := "../../uf2s/"
+		dir := "../../bin/"
 		if len(os.Args) > 2 {
 			dir = os.Args[2]
 		}

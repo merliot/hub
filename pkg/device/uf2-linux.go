@@ -28,8 +28,8 @@ func (d *device) generateUf2(dir, target string) error {
 		defer os.RemoveAll(temp)
 	}
 
-	var runnerGo = filepath.Join(temp, "runner.go")
-	if err := d.genFile("device-runner-tinygo.tmpl", runnerGo, map[string]any{
+	var runnerFile = "runner.go"
+	if err := d.genFile(temp, "device-runner-tinygo.tmpl", runnerFile, map[string]any{
 		"model": Models[d.Model],
 	}); err != nil {
 		return err
@@ -38,7 +38,8 @@ func (d *device) generateUf2(dir, target string) error {
 	// Build the uf2 file
 	uf2Name := d.Model + "-" + target + ".uf2"
 	output := filepath.Join(dir, uf2Name)
-	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "short", runnerGo)
+	input := filepath.Join(temp, runnerFile)
+	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "short", input)
 	LogInfo(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -53,7 +54,7 @@ func Uf2GenerateBaseImages(dir, modelName, targetName string) error {
 	for name, model := range Models {
 		if name == modelName || modelName == "" {
 			var proto = &device{Model: name}
-			proto.build(model.Maker)
+			proto._build(model.Maker)
 			for _, target := range target.TinyGoTargets(proto.Targets) {
 				if target == targetName || targetName == "" {
 					if err := proto.generateUf2(dir, target); err != nil {

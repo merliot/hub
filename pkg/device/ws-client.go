@@ -61,18 +61,12 @@ func wsClient(conn *websocket.Conn) {
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
-	var ann = announcement{
-		Id:           root.Id,
-		Model:        root.Model,
-		Name:         root.Name,
-		DeployParams: root.DeployParams,
-	}
 	var pkt = &Packet{
-		Dst:  ann.Id,
+		Dst:  root.Id,
 		Path: "/announce",
 	}
 
-	pkt.Marshal(&ann)
+	pkt.Marshal(&devices)
 
 	// Send announcement
 	LogInfo("Sending announcement", "pkt", pkt)
@@ -111,7 +105,7 @@ func wsClient(conn *websocket.Conn) {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogInfo("Route packet DOWN", "pkt", pkt)
+		LogDebug("Route packet DOWN", "pkt", pkt)
 		deviceRouteDown(pkt.Dst, pkt)
 	}
 

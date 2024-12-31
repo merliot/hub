@@ -10,6 +10,7 @@ const (
 	flagLocked                          // Administratively locked
 	flagDemo                            // Running in DEMO mode
 	flagMetal                           // Device is running on real hardware
+	flagGhost                           // Device is dead but still around
 )
 
 func (f *flags) Set(flags flags) {
