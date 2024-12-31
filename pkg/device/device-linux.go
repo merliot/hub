@@ -20,11 +20,6 @@ var deviceFs embed.FS
 
 type APIs map[string]http.HandlerFunc
 
-type deviceMap map[string]*device // key: device id
-
-var devices = make(deviceMap)
-var devicesMu rwMutex
-
 type deviceOS struct {
 	*http.ServeMux
 	templates *template.Template

@@ -38,7 +38,7 @@ func Run(maker Maker) {
 		DeployParams: params.DeployParams,
 	}
 
-	if err := root.build(maker); err != nil {
+	if err := root._build(maker); err != nil {
 		panic(err)
 	}
 

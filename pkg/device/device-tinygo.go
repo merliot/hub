@@ -8,7 +8,7 @@ type deviceOS struct{}
 
 type APIs struct{}
 
-func (d *device) buildOS() error { return nil }
+func (d *device) _buildOS() error { return nil }
 
 func devicesSendState(l linker) {
 	var pkt = &Packet{
