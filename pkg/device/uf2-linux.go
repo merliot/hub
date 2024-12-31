@@ -145,7 +145,7 @@ func Uf2Create(target, paramsJSON string) error {
 		MagicEnd:   uf2Magic,
 	}
 
-	base := filepath.Join("uf2s", p.Model+"-"+target+".uf2")
+	base := filepath.Join("bin", p.Model+"-"+target+".uf2")
 	installer := p.Model + "-" + p.Id + "-installer.uf2"
 
 	return uf2Create(base, installer, p)

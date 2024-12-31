@@ -230,7 +230,7 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 		MagicEnd: uf2Magic,
 	}
 
-	base := filepath.Join("uf2s", d.Model+"-"+target+".uf2")
+	base := filepath.Join("bin", d.Model+"-"+target+".uf2")
 	installer := filepath.Join(dir, d.Model+"-"+d.Id+"-installer.uf2")
 
 	if err := uf2Create(base, installer, p); err != nil {
