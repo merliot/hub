@@ -48,6 +48,8 @@ func Run(maker Maker) {
 		panic(err)
 	}
 
+	devices[root.Id] = root
+
 	dialParents(params.DialURLs, params.User, params.Passwd)
 
 	// Poll right away and then on ticker

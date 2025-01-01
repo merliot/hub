@@ -66,7 +66,9 @@ func wsClient(conn *websocket.Conn) {
 		Path: "/announce",
 	}
 
+	devicesMu.RLock()
 	pkt.Marshal(&devices)
+	devicesMu.RUnlock()
 
 	// Send announcement
 	LogInfo("Sending announcement", "pkt", pkt)
