@@ -32,7 +32,7 @@ func wsServer(conn *websocket.Conn) {
 		LogError("Expected announcement, got", "path", pkt.Path)
 		return
 	}
-	LogInfo("Announcement", "pkt", pkt)
+	LogDebug("Announcement", "pkt", pkt)
 
 	var annDevices = make(deviceMap)
 	pkt.Unmarshal(&annDevices)
@@ -41,18 +41,18 @@ func wsServer(conn *websocket.Conn) {
 
 	annRoot, err := findRoot(annDevices)
 	if err != nil {
-		LogError("Cannot find root", "err", err)
+		LogDebug("Cannot find root", "err", err)
 		return
 	}
 	id := annRoot.Id
 
 	if id != pkt.Dst {
-		LogError("Id mismatch", "announcement-id", id, "pkt-id", pkt.Dst)
+		LogDebug("Id mismatch", "announcement-id", id, "pkt-id", pkt.Dst)
 		return
 	}
 
 	if id == root.Id {
-		LogError("Cannot dial into root (self)", "id", id)
+		LogDebug("Cannot dial into root (self)", "id", id)
 		return
 	}
 
@@ -60,14 +60,14 @@ func wsServer(conn *websocket.Conn) {
 	// matches existing device
 
 	if err := validate(annRoot); err != nil {
-		LogError("Announcement mismatch", "id", id, "err", err)
+		LogDebug("Announcement mismatch", "id", id, "err", err)
 		return
 	}
 
 	// Merge in annoucement devices
 
 	if err := merge(devices, annDevices); err != nil {
-		LogError("Cannot merge device", "id", id, "err", err)
+		LogDebug("Cannot merge device", "id", id, "err", err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func wsServer(conn *websocket.Conn) {
 	// Announcement is good, reply with /welcome packet
 
 	pkt.ClearMsg().SetPath("/welcome")
-	LogInfo("Sending welcome", "pkt", pkt)
+	LogDebug("Sending welcome", "pkt", pkt)
 	link.Send(pkt)
 
 	// Add as active download link
