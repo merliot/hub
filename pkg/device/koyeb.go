@@ -48,9 +48,6 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	// Redirect the browser to Koyeb to build the device
 
-	// TODO figure out how to do this using POST so address bar isn't
-	// cluttered with passwds and such
-
 	devs, _ := json.Marshal(d.devices())
 	dialurls := strings.Replace(r.Referer(), "http", "ws", 1) + "ws"
 
@@ -62,12 +59,14 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	q.Set("instance_type", "eco-micro")
 	q.Set("ports", "8000;http;/")
 	q.Set("image", "merliot/hub")
-	q.Set("env[USER]", Getenv("USER", ""))
-	q.Set("env[PASSWD]", Getenv("PASSWD", ""))
+	q.Set("env[USER]", "")
+	q.Set("env[PASSWD]", "")
 	q.Set("env[DIAL_URLS]", dialurls)
 	q.Set("env[LOG_LEVEL]", logLevel)
 	q.Set("env[PING_PERIOD]", pingPeriod)
 	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
+	q.Set("env[WIFI_SSIDS]", "")
+	q.Set("env[WIFI_PASSPHRASES]", "")
 	q.Set("env[DEVICES]", string(devs))
 
 	u.RawQuery = q.Encode()
