@@ -71,6 +71,9 @@ func wsServer(conn *websocket.Conn) {
 		return
 	}
 
+	// Rebuild routing table
+	routesBuild(root)
+
 	// Announcement is good, reply with /welcome packet
 
 	pkt.ClearMsg().SetPath("/welcome")
