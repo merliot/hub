@@ -1,41 +1,68 @@
-{{- if not .linuxTarget }}
-				<div class="flex flex-row mb-5">
-					<label>
-						WiFi SSID:
-						<select name="ssid">
+{{- if .wantsWifi }}
+
+	<div class="flex flex-row mb-5">
+		<label>
+			WiFi SSID:
+			<select name="ssid">
 	{{- range $i, $ssid := ssids }}
 		{{- if eq $ssid ssid }}
-							<option value="{{$ssid}}" selected>{{$ssid}}</option>
+				<option value="{{$ssid}}" selected>{{$ssid}}</option>
 		{{- else }}
-							<option value="{{$ssid}}">{{$ssid}}</option>
+				<option value="{{$ssid}}">{{$ssid}}</option>
 		{{- end }}
 	{{- end }}
-						</select>
-					</label>
-				</div>
+			</select>
+		</label>
+	</div>
+
 	{{- if isMissingWifi  }}
-				 <div class="flex flex-row mb-5">
-					<span class="mx-5 my-0">&#9888;</span>
-					<a class="text-red-500" href="/doc/env-vars#WIFI_SSIDS">Missing Wifi Settings</a>
-				</div>
+	<div class="flex flex-row mb-5">
+		<span class="mx-5 my-0">&#9888;</span>
+		<a class="text-red-500" href="/doc/env-vars#WIFI_SSIDS">Missing Wifi Settings</a>
+	</div>
 	{{- end }}
+
 {{- end }}
 
-{{- if .linuxTarget }}
-				<div class="flex flex-col">
-{{- if not wantsHttpPort }}
-					<span class="text-gray-700">(optional)</span>
+{{- if not .wantsWifi }}
+
+	<div class="flex flex-col">
+	{{- if not wantsHttpPort }}
+		<span class="text-gray-700">(optional)</span>
+	{{- end }}
+		<div class="flex flex-row mb-5">
+			<label>
+				Run Local Web Server on Port:
+	{{- if wantsHttpPort }}
+				<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}" required>
+	{{ else }}
+				<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}">
+	{{- end }}
+			</label>
+		</div>
+	</div>
+
 {{- end }}
-					<div class="flex flex-row mb-5">
-						<label>
-							Run Local Web Server on Port:
-{{- if wantsHttpPort }}
-							<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}" required>
-{{ else }}
-							<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}">
-{{- end }}
-						</label>
-					</div>
-				</div>
-{{- end }}
+
+<!-- Device can supply an download.tmpl if there are device-specific settings -->
+
 {{- template "download.tmpl" .}}
+
+<!-- Buttons -->
+
+<div class="flex flex-col mt-8">
+	<div class="flex flex-row justify-end">
+{{ if eq .selectedTarget "koyeb" }}
+		<img class="h-10 my-2.5 mx-1.5" src="https://www.koyeb.com/static/images/deploy/button.svg"
+			hx-get="/device/{{id}}/deploy-koyeb/{{.sessionId}}"
+			hx-swap="none">
+{{ else }}
+		<button type="submit">Download</button>
+{{ end }}
+	</div>
+
+<!-- Error message, empty initially -->
+
+{{ template "device-download-msg-empty.tmpl" . }}
+
+</div>

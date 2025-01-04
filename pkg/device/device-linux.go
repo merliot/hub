@@ -18,34 +18,10 @@ import (
 //go:embed robots.txt blog css docs images js template
 var deviceFs embed.FS
 
-type APIs map[string]http.HandlerFunc
-
 type deviceOS struct {
 	*http.ServeMux
 	templates *template.Template
 	layeredFS
-}
-
-func (d *device) _devices(family deviceMap) {
-	d.RLock()
-	defer d.RUnlock()
-
-	family[d.Id] = devices[d.Id]
-	for _, childId := range d.Children {
-		devices[childId]._devices(family)
-	}
-}
-
-// devices returns a deviceMap with this device and all its children
-func (d *device) devices() deviceMap {
-	var family = make(deviceMap)
-
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	d._devices(family)
-
-	return family
 }
 
 func (d *device) _buildOS() error {
@@ -105,14 +81,43 @@ func devicesBuild() {
 	}
 }
 
-func (d *device) setupAPI() {
-	// All base + device APIs
+func (d *device) _devices(family deviceMap) {
+	d.RLock()
+	defer d.RUnlock()
+
+	family[d.Id] = devices[d.Id]
+	for _, childId := range d.Children {
+		devices[childId]._devices(family)
+	}
+}
+
+// devices returns a deviceMap with this device and all its children
+func (d *device) devices() deviceMap {
+	var family = make(deviceMap)
+
+	devicesMu.RLock()
+	d._devices(family)
+	devicesMu.RUnlock()
+
+	return family
+}
+
+func (d *device) _setupAPI() {
+	// Install base + device APIs
 	d.installAPIs()
-	// Install the device-specific packet handlers API
+	// Install the device-specific packet handlers APIs
 	d.packetHandlersInstall()
 }
 
+func (d *device) setupAPI() {
+	d.Lock()
+	d._setupAPI()
+	d.Unlock()
+}
+
 func devicesSetupAPI() {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	for _, d := range devices {
 		d.setupAPI()
 	}
@@ -126,7 +131,7 @@ func (d *device) isGhost() bool {
 
 func addChild(parent *device, id, model, name string) error {
 
-	var reanimate bool
+	var resurrect bool
 
 	maker, ok := Models[model]
 	if !ok {
@@ -148,8 +153,8 @@ func addChild(parent *device, id, model, name string) error {
 		if !child.isGhost() {
 			return fmt.Errorf("Child device already exists")
 		}
-		// Child exists, but it's a ghost: reanimate
-		reanimate = true
+		// Child exists, but it's a ghost: resurrect
+		resurrect = true
 	} else {
 		child = &device{Id: id, Model: model, Name: name}
 	}
@@ -157,7 +162,7 @@ func addChild(parent *device, id, model, name string) error {
 	child.Lock()
 	defer child.Unlock()
 
-	if reanimate {
+	if resurrect {
 		// Reanimate ghost child back to life
 		child.Unset(flagGhost)
 		child.DeployParams = ""
@@ -171,9 +176,9 @@ func addChild(parent *device, id, model, name string) error {
 	parent.Children = append(parent.Children, id)
 	devices[id] = child
 
-	child.setupAPI()
+	child._setupAPI()
 
-	if !reanimate {
+	if !resurrect {
 		child.deviceInstall()
 	}
 
@@ -189,26 +194,35 @@ func addChild(parent *device, id, model, name string) error {
 
 func removeChild(id string) error {
 
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-
-	if device, ok := devices[id]; ok {
-		if runningDemo {
-			device.stopDemo()
-		}
-		delete(devices, id)
-		for _, device := range devices {
-			device.Lock()
-			if index := slices.Index(device.Children, id); index != -1 {
-				device.Children = slices.Delete(device.Children, index, index+1)
-				// TODO remove everything below child
-			}
-			device.Unlock()
-		}
-		return nil
+	// Ghost all children
+	if err := ghostChildren(id); err != nil {
+		return err
 	}
 
-	return deviceNotFound(id)
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
+	d := devices[id]
+
+	if runningDemo {
+		d.stopDemo()
+	}
+
+	// Ghost device
+	d.Lock()
+	d.Set(flagGhost)
+	d.Unlock()
+
+	// Detach the device from any parent devices where it is listed as a child
+	for _, d := range devices {
+		d.Lock()
+		if index := slices.Index(d.Children, id); index != -1 {
+			d.Children = slices.Delete(d.Children, index, index+1)
+		}
+		d.Unlock()
+	}
+
+	return nil
 }
 
 func deviceNotFound(id string) error {
@@ -317,6 +331,8 @@ func _ghostChild(id string) error {
 		}
 	}
 
+	d.Children = []string{}
+
 	return nil
 }
 
@@ -358,11 +374,15 @@ func (d *device) copyDevice(from *device) {
 
 func merge(devices, newDevices deviceMap) error {
 
+	// Find the root (anchor) of the new device tree
 	anchor, err := findRoot(newDevices)
 	if err != nil {
 		return err
 	}
 
+	// Recursively ghost the children of the anchor device in the existing
+	// device tree.  The children may be resurrected while merging if they
+	// exists in the new device tree.
 	if err := ghostChildren(anchor.Id); err != nil {
 		return err
 	}
@@ -370,6 +390,7 @@ func merge(devices, newDevices deviceMap) error {
 	devicesMu.Lock()
 	defer devicesMu.Unlock()
 
+	// Switch anchor to existing tree
 	anchor = devices[anchor.Id]
 
 	anchor.Lock()
@@ -403,7 +424,7 @@ func merge(devices, newDevices deviceMap) error {
 
 		devices[newId] = device
 
-		device.setupAPI()
+		device._setupAPI()
 
 		if !exists {
 			device.deviceInstall()
@@ -607,10 +628,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	model, _ := Models[d.Model]
 
-	d.Lock()
-	d._build(model.Maker)
-	d.Unlock()
-
+	d.build(model.Maker)
 	d.setupAPI()
 	d.setup()
 	d.startDemo()

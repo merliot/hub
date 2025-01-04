@@ -33,18 +33,11 @@
 				-->
 
 			<div class="flex flex-col"
-				hx-get="/device/{{id}}/download-target"
+			     hx-get="/device/{{id}}/download-target/{{.sessionId}}"
 				hx-trigger="load, change from:#download-target"
 				hx-target="this"
 				hx-swap="innerHTML"
 				hx-vals='js:{target: document.getElementById(`download-target`).value}'>
-			</div>
-
-			<div class="flex flex-col mt-8">
-				<div class="flex flex-row justify-end">
-					<button type="submit">Download</button>
-				</div>
-{{ template "device-download-msg-empty.tmpl" . }}
 			</div>
 
 		</div>

@@ -13,8 +13,8 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-func linuxTarget(target string) bool {
-	return target == "x86-64" || target == "rpi"
+func wantsWifi(target string) bool {
+	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
 }
 
 func (d *device) classOffline() string {
@@ -81,7 +81,6 @@ func (d *device) baseFuncs() template.FuncMap {
 		"ssid":            func() string { return d.deployValues().Get("ssid") },
 		"package":         func() string { return Models[d.Model].Package },
 		"devicesJSON":     devicesJSON,
-		"isLinuxTarget":   linuxTarget,
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
 		"isRoot":          func() bool { return d == root },
 		"isProgenitive":   func() bool { return d.IsSet(FlagProgenitive) },

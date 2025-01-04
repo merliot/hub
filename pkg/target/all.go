@@ -3,6 +3,10 @@ package target
 // TODO maybe store this in a JSON file?
 
 var AllTargets = Targets{
+	"koyeb": Target{
+		FullName: "Koyeb",
+		GpioPins: GpioPins{},
+	},
 	"x86-64": Target{
 		FullName: "Linux x86-64",
 		GpioPins: GpioPins{},

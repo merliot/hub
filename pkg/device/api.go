@@ -17,6 +17,8 @@ import (
 	"strings"
 )
 
+type APIs map[string]http.HandlerFunc
+
 func (d *device) installAPIs() {
 
 	// Base APIs for all devices
@@ -57,9 +59,11 @@ func (d *device) installAPIs() {
 	d.HandleFunc("GET /save", d.saveDevices)
 	d.HandleFunc("GET /save-modal", d.showSaveModal)
 
-	d.HandleFunc("GET /download-target", d.showDownloadTarget)
+	d.HandleFunc("GET /download-target/{sessionId}", d.showDownloadTarget)
 	d.HandleFunc("GET /download-image", d.downloadImage)
 	d.HandleFunc("GET /download-image/{sessionId}", d.downloadImage)
+
+	d.HandleFunc("GET /deploy-koyeb/{sessionId}", d.deployKoyeb)
 
 	d.HandleFunc("GET /instructions", d.showInstructions)
 	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
@@ -461,9 +465,11 @@ func (d *device) selectedTarget(params url.Values) string {
 
 func (d *device) showDownloadTarget(w http.ResponseWriter, r *http.Request) {
 	selectedTarget := d.selectedTarget(r.URL.Query())
+	sessionId := r.PathValue("sessionId")
 	err := d.renderTmpl(w, "device-download-target.tmpl", map[string]any{
+		"sessionId":      sessionId,
 		"selectedTarget": selectedTarget,
-		"linuxTarget":    linuxTarget(selectedTarget),
+		"wantsWifi":      wantsWifi(selectedTarget),
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

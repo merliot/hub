@@ -13,7 +13,7 @@ var (
 	runningDemo bool // running in DEMO mode
 )
 
-// Devicer is the device model interface.  A device is a concrete Devicer.
+// Devicer is the device model interface
 type Devicer interface {
 	// GetConfig returns the device configuration
 	GetConfig() Config
@@ -89,6 +89,12 @@ func (d *device) _build(maker Maker) error {
 	return d._buildOS()
 }
 
+func (d *device) build(maker Maker) error {
+	d.Lock()
+	defer d.Unlock()
+	return d._build(maker)
+}
+
 func (d *device) handleState(pkt *Packet) {
 	pkt.Unmarshal(d.State).BroadcastUp()
 }
@@ -122,7 +128,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//	LogInfo("Proposed DeployParams:", proposedParams)
+	//LogDebug("Proposed DeployParams:", proposedParams)
 
 	// Form-decode these values into the device to configure the device
 	if err := decode(d.State, values); err != nil {

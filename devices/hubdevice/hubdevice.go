@@ -23,7 +23,7 @@ func (h *hubDevice) GetConfig() device.Config {
 		Flags:   device.FlagProgenitive | device.FlagWantsHttpPort,
 		State:   h,
 		FS:      &fs,
-		Targets: []string{"x86-64", "rpi"},
+		Targets: []string{"x86-64", "rpi", "koyeb"},
 		BgColor: "sunflower",
 		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
