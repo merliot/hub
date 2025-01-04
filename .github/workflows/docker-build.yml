@@ -12,15 +12,12 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - main
+      - dev
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
-  workflow_dispatch:
-    branches:
-      - dev
 
 jobs:
   push_to_registries:
