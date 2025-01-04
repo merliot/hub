@@ -68,9 +68,6 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	q.Set("env[LOG_LEVEL]", logLevel)
 	q.Set("env[PING_PERIOD]", pingPeriod)
 	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
-	q.Set("env[DEBUG_KEEP_BUILDS]", Getenv("DEBUG_KEEP_BUILDS", ""))
-	q.Set("env[WIFI_SSIDS]", Getenv("WIFI_SSIDS", ""))
-	q.Set("env[WIFI_PASSPHRASES]", Getenv("WIFI_PASSPHRASES", ""))
 	q.Set("env[DEVICES]", string(devs))
 
 	u.RawQuery = q.Encode()
