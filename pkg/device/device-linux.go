@@ -390,20 +390,28 @@ func merge(devices, newDevices deviceMap) error {
 	devicesMu.Lock()
 	defer devicesMu.Unlock()
 
-	// Switch anchor to existing tree
+	// Swing anchor to existing tree
 	anchor = devices[anchor.Id]
 
 	anchor.Lock()
 	defer anchor.Unlock()
 
+	// Now merge in the new devices, setting up each device as we go
 	for newId, newDevice := range newDevices {
+
 		if newId == anchor.Id {
 			anchor.Children = newDevice.Children
+			// All we want for the anchor is the new anchor child list
 			continue
 		}
 
 		device, exists := devices[newId]
-		if !exists {
+		if exists {
+			// Better be a ghost
+			if !device.IsSet(flagGhost) {
+				return fmt.Errorf("Device %s already exists, aborting merge", device)
+			}
+		} else {
 			device = newDevice
 		}
 
@@ -421,6 +429,8 @@ func merge(devices, newDevices deviceMap) error {
 			device.Unlock()
 			return err
 		}
+
+		device.Set(flagLocked)
 
 		devices[newId] = device
 
@@ -600,21 +610,24 @@ func devicesSave() error {
 	return nil
 }
 
-func devicesSendState(l linker) {
-	LogInfo("Sending /state to all devices")
+func devicesOnline(l linker) {
 	devicesMu.RLock()
+	defer devicesMu.RUnlock()
 	for id, d := range devices {
 		var pkt = &Packet{
 			Dst:  id,
-			Path: "/state",
+			Path: "/online",
 		}
 		d.RLock()
+		if !d.IsSet(flagOnline) {
+			d.RUnlock()
+			continue
+		}
 		pkt.Marshal(d.State)
 		d.RUnlock()
 		LogInfo("Sending", "pkt", pkt)
 		l.Send(pkt)
 	}
-	devicesMu.RUnlock()
 }
 
 func (d *device) demoReboot(pkt *Packet) {

@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "")
+	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
 )
 
 func setContentMd5(w http.ResponseWriter, fileName string) error {
@@ -249,7 +249,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if keepBuilds != "" {
+	if keepBuilds {
 		LogDebug("Temporary build", "dir", dir)
 	} else {
 		defer os.RemoveAll(dir)

@@ -30,7 +30,7 @@ type PacketHandlers map[string]packetHandler
 func (d *device) handle(pkt *Packet) {
 	d.Lock()
 	defer d.Unlock()
-	if d.IsSet(flagOnline) {
+	if d.IsSet(flagOnline) || pkt.Path == "/online" {
 		if handler, ok := d.PacketHandlers[pkt.Path]; ok {
 			LogDebug("Handling", "pkt", pkt)
 			handler.cb(pkt)

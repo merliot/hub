@@ -68,6 +68,8 @@ func (d *device) _build(maker Maker) error {
 
 	// Special handlers
 	d.PacketHandlers["/state"] = &PacketHandler[any]{d.handleState}
+	d.PacketHandlers["/online"] = &PacketHandler[any]{d.handleOnline}
+	d.PacketHandlers["/offline"] = &PacketHandler[any]{d.handleOffline}
 	d.PacketHandlers["/reboot"] = &PacketHandler[NoMsg]{d.handleReboot}
 	d.PacketHandlers["/get-uptime"] = &PacketHandler[NoMsg]{d.handleGetUptime}
 	d.PacketHandlers["/uptime"] = &PacketHandler[msgUptime]{d.handleUptime}
@@ -97,6 +99,16 @@ func (d *device) build(maker Maker) error {
 
 func (d *device) handleState(pkt *Packet) {
 	pkt.Unmarshal(d.State).BroadcastUp()
+}
+
+func (d *device) handleOnline(pkt *Packet) {
+	d.Set(flagOnline)
+	pkt.Unmarshal(d.State).BroadcastUp()
+}
+
+func (d *device) handleOffline(pkt *Packet) {
+	d.Unset(flagOnline)
+	pkt.BroadcastUp()
 }
 
 type msgUptime struct {

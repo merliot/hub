@@ -10,10 +10,10 @@ type APIs struct{}
 
 func (d *device) _buildOS() error { return nil }
 
-func devicesSendState(l linker) {
+func devicesOnline(l linker) {
 	var pkt = &Packet{
 		Dst:  root.Id,
-		Path: "/state",
+		Path: "/online",
 	}
 	root.RLock()
 	pkt.Marshal(root.State)

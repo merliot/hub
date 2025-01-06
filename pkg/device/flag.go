@@ -7,7 +7,7 @@ const (
 	FlagWantsHttpPort                   // HTTP port not optional
 	flagOnline                          // Device is online
 	flagDirty                           // Has unsaved changes
-	flagLocked                          // Administratively locked
+	flagLocked                          // Device is locked
 	flagDemo                            // Running in DEMO mode
 	flagMetal                           // Device is running on real hardware
 	flagGhost                           // Device is dead but still around

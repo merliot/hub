@@ -22,7 +22,7 @@ func (d *device) generateUf2(dir, target string) error {
 		return err
 	}
 
-	if keepBuilds != "" {
+	if keepBuilds {
 		LogInfo("Temporary build", "dir", temp)
 	} else {
 		defer os.RemoveAll(temp)

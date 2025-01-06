@@ -94,8 +94,8 @@ func wsClient(conn *websocket.Conn) {
 	LogInfo("Adding Uplink")
 	uplinksAdd(link)
 
-	// Send /state packets to all devices
-	devicesSendState(link)
+	// Send /online packet to all online devices
+	devicesOnline(link)
 
 	// Route incoming packets down to the destination device.  Stop and
 	// disconnect on EOF.
