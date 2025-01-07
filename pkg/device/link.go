@@ -43,10 +43,10 @@ func downlinksRemove(id string) {
 	delete(downlinks, id)
 }
 
-func downlinkRoute(pkt *Packet) {
+func downlinkRoute(id string, pkt *Packet) {
 	downlinksMu.RLock()
 	defer downlinksMu.RUnlock()
-	if dl, ok := downlinks[pkt.Dst]; ok {
+	if dl, ok := downlinks[id]; ok {
 		dl.Send(pkt)
 	}
 }

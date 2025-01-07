@@ -229,7 +229,7 @@ func deviceNotFound(id string) error {
 	return fmt.Errorf("Device '%s' not found", id)
 }
 
-func (d *device) routeDown(pkt *Packet) {
+func (d *device) routeDown(id string, pkt *Packet) {
 
 	// If device is running on 'metal', this is the packet's final
 	// destination.
@@ -239,14 +239,14 @@ func (d *device) routeDown(pkt *Packet) {
 	}
 
 	// Otherwise, route the packet down
-	downlinkRoute(pkt)
+	downlinkRoute(id, pkt)
 }
 
 func deviceRouteDown(id string, pkt *Packet) {
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 	if d, ok := devices[id]; ok {
-		d.routeDown(pkt)
+		d.routeDown(id, pkt)
 	}
 }
 

@@ -108,7 +108,7 @@ func wsClient(conn *websocket.Conn) {
 			break
 		}
 		LogDebug("Route packet DOWN", "pkt", pkt)
-		deviceRouteDown(pkt.Dst, pkt)
+		downlinksRoute(pkt)
 	}
 
 	LogInfo("Removing Uplink")
