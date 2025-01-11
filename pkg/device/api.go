@@ -82,8 +82,8 @@ func (d *device) installAPIs() {
 	// Device-specific APIs, if any
 
 	if d.APIs != nil {
-		for path, fun := range d.APIs {
-			d.HandleFunc(path, fun)
+		for path, fn := range d.APIs {
+			d.HandleFunc(path, fn)
 		}
 	}
 }
@@ -110,7 +110,7 @@ func modelsInstall() {
 
 func (d *device) deviceHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if d.isGhost() {
+		if d.isSet(flagGhost) {
 			// Ignore API request for ghost devices
 			http.Error(w, "Device is a Ghost", http.StatusGone)
 			return
@@ -119,19 +119,25 @@ func (d *device) deviceHandler(next http.Handler) http.Handler {
 	})
 }
 
-// install installs /device/{id} pattern for device in default ServeMux
-func (d *device) deviceInstall() {
+// _deviceInstall installs /device/{id} pattern for device in default ServeMux
+func (d *device) _deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := d.deviceHandler(basicAuthHandler(http.StripPrefix(prefix, d)))
 	http.Handle(prefix+"/", handler)
 	LogInfo("Device installed", "prefix", prefix, "device", d)
 }
 
+func (d *device) deviceInstall() {
+	d.RLock()
+	defer d.RUnlock()
+	d._deviceInstall()
+}
+
 func devicesInstall() {
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
-	for _, device := range devices {
-		device.deviceInstall()
+	for _, d := range devices {
+		d.deviceInstall()
 	}
 }
 
@@ -166,7 +172,7 @@ func (d *device) renderSession(w io.Writer, template, sessionId string, level in
 	return d._renderSession(w, template, sessionId, level, map[string]any{})
 }
 
-func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error {
+func (d *device) _renderChildren(w io.Writer, s *session, level int) error {
 
 	if len(d.Children) == 0 {
 		return nil
@@ -190,14 +196,13 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 	// Render the child devices in sorted order
 	for _, child := range children {
 
-		view, _, err := sessionLastView(sessionId, child.Id)
+		view, _, err := s._lastView(child.Id)
 		if err != nil {
 			// If there was no view saved, default to overview
 			view = "overview"
 		}
 
-		if err := child.render(w, sessionId, "/device",
-			view, level, map[string]any{}); err != nil {
+		if err := child.render(w, s, "/device", view, level, map[string]any{}); err != nil {
 			return err
 		}
 	}
@@ -205,32 +210,33 @@ func (d *device) _renderChildren(w io.Writer, sessionId string, level int) error
 	return nil
 }
 
-func (d *device) _render(w io.Writer, sessionId, path, view string,
+func (d *device) _render(w io.Writer, s *session, path, view string,
 	level int, data map[string]any) error {
 
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//LogDebug("_render", "id", d.Id, "session-id", sessionId,
+	//LogDebug("_render", "id", d.Id, "session-id", s.Id,
 	//	"path", path, "level", level, "template", template)
-	if err := d._renderSession(w, template, sessionId, level, data); err != nil {
+	if err := d._renderSession(w, template, s.sessionId, level, data); err != nil {
 		return err
 	}
 
-	sessionSave(sessionId, d.Id, view, level)
+	s._save(d.Id, view, level)
+
 	return nil
 }
 
-func (d *device) render(w io.Writer, sessionId, path, view string,
+func (d *device) render(w io.Writer, s *session, path, view string,
 	level int, data map[string]any) error {
 	d.RLock()
 	defer d.RUnlock()
-	return d._render(w, sessionId, path, view, level, data)
+	return d._render(w, s, path, view, level, data)
 }
 
-func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
+func (d *device) _renderPkt(w io.Writer, s *session, pkt *Packet) error {
 
-	view, level, err := sessionLastView(sessionId, d.Id)
+	view, level, err := s._lastView(d.Id)
 	if err != nil {
 		return err
 	}
@@ -239,7 +245,13 @@ func (d *device) _renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	json.Unmarshal(pkt.Msg, &data)
 
 	//LogDebug("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
-	return d._render(w, sessionId, pkt.Path, view, level, data)
+	return d._render(w, s, pkt.Path, view, level, data)
+}
+
+func (d *device) renderPkt(w io.Writer, s *session, pkt *Packet) error {
+	d.RLock()
+	defer d.RUnlock()
+	return d._renderPkt(w, s, pkt)
 }
 
 func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
@@ -264,15 +276,26 @@ func RenderTemplate(w io.Writer, id, name string, data any) error {
 func (d *device) renderView(sessionId, path, view string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
 
-	// We're going to walk children in render, so hold devices lock
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
+	s, ok := sessions[sessionId]
+	if !ok {
+		return template.HTML(""), fmt.Errorf("Unknown session %s", sessionId)
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// We're going to walk children, so hold devices lock
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
-	if err := d.render(&buf, sessionId, path, view, level, map[string]any{}); err != nil {
+	if err := d.render(&buf, s, path, view, level, map[string]any{}); err != nil {
 		return template.HTML(""), err
 	}
 
-	sessionSave(sessionId, d.Id, view, level)
+	s._save(d.Id, view, level)
 
 	return template.HTML(buf.String()), nil
 }
@@ -280,10 +303,22 @@ func (d *device) renderView(sessionId, path, view string, level int) (template.H
 func (d *device) renderChildren(sessionId string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
 
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
+	s, ok := sessions[sessionId]
+	if !ok {
+		return template.HTML(""), fmt.Errorf("Unknown session %s", sessionId)
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// We're going to walk children, so hold devices lock
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
-	if err := d._renderChildren(&buf, sessionId, level); err != nil {
+	if err := d._renderChildren(&buf, s, level); err != nil {
 		return template.HTML(""), err
 	}
 
@@ -383,25 +418,32 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 	view := r.URL.Query().Get("view")
 
 	sessionId := r.Header.Get("session-id")
-	if !sessionUpdate(sessionId) {
+
+	sessionsMu.RLock()
+	defer sessionsMu.RUnlock()
+
+	s, ok := sessions[sessionId]
+	if !ok || !s.connected() {
 		// Session expired, force full page refresh to start new session
 		w.Header().Set("HX-Refresh", "true")
 		return
 	}
 
-	_, level, err := sessionLastView(sessionId, d.Id)
+	s.Lock()
+	defer s.Unlock()
+
+	_, level, err := s._lastView(d.Id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := d.render(w, sessionId, "/device",
-		view, level, map[string]any{}); err != nil {
+	if err := d.render(w, s, "/device", view, level, map[string]any{}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	sessionSave(sessionId, d.Id, view, level)
+	s._save(d.Id, view, level)
 }
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {
@@ -512,7 +554,9 @@ func (d *device) rename(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if msg.NewName != "" {
+		d.Lock()
 		d.Name = msg.NewName
+		d.Unlock()
 		deviceDirty(root.Id)
 		downlinkClose(d.Id)
 	}
@@ -550,7 +594,7 @@ type MsgCreated struct {
 func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	var msg MsgCreated
 
-	if d.IsSet(flagLocked) {
+	if d.isSet(flagLocked) {
 		http.Error(w, "Create child aborted; device is locked",
 			http.StatusBadRequest)
 		return

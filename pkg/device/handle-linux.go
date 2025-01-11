@@ -20,7 +20,12 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		sessionId := r.Header.Get("session-id")
-		if !sessionUpdate(sessionId) {
+
+		sessionsMu.RLock()
+		defer sessionsMu.RUnlock()
+
+		s, ok := sessions[sessionId]
+		if !ok || !s.connected() {
 			// Session expired, force full page refresh to start new session
 			w.Header().Set("HX-Refresh", "true")
 			return
@@ -34,7 +39,7 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 		}
 		pkt.SetDst(d.Id)
 
-		if d.IsSet(flagMetal) {
+		if d.isSet(flagMetal) {
 			d.handle(pkt)
 		} else {
 			pkt.RouteDown()

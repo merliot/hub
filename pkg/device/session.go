@@ -83,25 +83,6 @@ func sessionExpired(sessionId string) bool {
 	return !ok
 }
 
-func sessionUpdate(sessionId string) bool {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
-		s.Lock()
-		defer s.Unlock()
-		if s.connected() {
-			s.lastUpdate = time.Now()
-			return true
-		}
-		return false
-	}
-
-	// Session expired
-	return false
-}
-
 func sessionKeepAlive(sessionId string) {
 
 	sessionsMu.RLock()
@@ -114,68 +95,64 @@ func sessionKeepAlive(sessionId string) {
 	}
 }
 
-func sessionSave(sessionId, deviceId, view string, level int) {
+var errSessionNotConnected = errors.New("Session not connected")
 
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
-		s.Lock()
-		s.lastUpdate = time.Now()
-		lastView := s.lastViews[deviceId]
-		lastView.view = view
-		lastView.level = level
-		s.lastViews[deviceId] = lastView
-		s.Unlock()
-	}
+func (s *session) _save(deviceId, view string, level int) {
+	s.lastUpdate = time.Now()
+	lastView := s.lastViews[deviceId]
+	lastView.view = view
+	lastView.level = level
+	s.lastViews[deviceId] = lastView
 }
 
-func sessionLastView(sessionId, deviceId string) (view string, level int, err error) {
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	s, ok := sessions[sessionId]
-	if !ok {
-		return "", 0, fmt.Errorf("Invalid session %s", sessionId)
-	}
-
-	s.RLock()
-	defer s.RUnlock()
-
+func (s *session) _lastView(deviceId string) (view string, level int, err error) {
 	v, ok := s.lastViews[deviceId]
 	if !ok {
-		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", sessionId, deviceId)
+		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", s.sessionId, deviceId)
 	}
 	return v.view, v.level, nil
 }
 
-var errSessionNotConnected = errors.New("Session not connected")
-
-func (s *session) connected() bool {
+func (s *session) _connected() bool {
 	return s.conn != nil
 }
 
-func (s *session) send(data []byte) error {
-	s.Lock()
-	defer s.Unlock()
-	if s.connected() {
+func (s *session) connected() bool {
+	s.RLock()
+	defer s.RUnlock()
+	return s._connected()
+}
+
+// _send wants s.Lock to serialize writes on socket
+func (s *session) _send(data []byte) error {
+	if s._connected() {
 		return s.conn.WriteMessage(websocket.TextMessage, data)
 	}
 	return errSessionNotConnected
 }
 
+func (s *session) send(data []byte) error {
+	s.Lock()
+	defer s.Unlock()
+	return s._send(data)
+}
+
 func (s *session) renderPkt(pkt *Packet) error {
-	s.RLock()
-	if !s.connected() {
-		s.RUnlock()
+
+	// Using Lock rather than RLock because _send needs Lock
+	s.Lock()
+	defer s.Unlock()
+
+	if !s._connected() {
 		return errSessionNotConnected
 	}
-	s.RUnlock()
+
 	var buf bytes.Buffer
-	if err := deviceRenderPkt(&buf, s.sessionId, pkt); err != nil {
+	if err := deviceRenderPkt(&buf, s, pkt); err != nil {
 		return err
 	}
-	return s.send(buf.Bytes())
+
+	return s._send(buf.Bytes())
 }
 
 func sessionsRoute(pkt *Packet) {
@@ -241,7 +218,8 @@ func sessionHijack() string {
 
 func gcSessions() {
 	minute := 1 * time.Minute
-	ticker := time.NewTicker(minute)
+	//ticker := time.NewTicker(minute)
+	ticker := time.NewTicker(200 * time.Microsecond)
 	defer ticker.Stop()
 	for range ticker.C {
 		sessionsMu.Lock()

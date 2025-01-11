@@ -6,14 +6,13 @@ var routes map[string]string // key: dst id, value: nexthop id
 var routesMu rwMutex
 
 func _routesBuild(parent, base *device) {
-	parent.RLock()
-	defer parent.RUnlock()
-
 	for _, childId := range parent.Children {
 		// children point to base
 		routes[childId] = base.Id
 		child := devices[childId]
+		child.RLock()
 		_routesBuild(child, base)
+		child.RUnlock()
 	}
 }
 

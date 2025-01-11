@@ -37,11 +37,11 @@ type device struct {
 	DeployParams template.HTML
 	Config       `json:"-"`
 	Devicer      `json:"-"`
+	stopChan     chan struct{}
+	startup      time.Time
 	flags
 	rwMutex
 	deviceOS
-	stopChan chan struct{}
-	startup  time.Time
 }
 
 func (d *device) String() string {
@@ -60,10 +60,10 @@ func (d *device) _build(maker Maker) error {
 	}
 
 	if runningSite {
-		d.Set(flagLocked)
+		d._set(flagLocked)
 	}
 	if runningDemo {
-		d.Set(flagDemo | flagOnline | flagMetal)
+		d._set(flagDemo | flagOnline | flagMetal)
 	}
 
 	// Special handlers
@@ -102,12 +102,12 @@ func (d *device) handleState(pkt *Packet) {
 }
 
 func (d *device) handleOnline(pkt *Packet) {
-	d.Set(flagOnline)
+	d._set(flagOnline)
 	pkt.Unmarshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleOffline(pkt *Packet) {
-	d.Unset(flagOnline)
+	d._unSet(flagOnline)
 	pkt.BroadcastUp()
 }
 

@@ -16,7 +16,7 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	d.downloadMsgClear(sessionId)
 
-	if d.IsSet(flagLocked) {
+	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to deploy: device is locked")
 		d.downloadMsgError(sessionId, err)
 		w.WriteHeader(http.StatusNoContent)

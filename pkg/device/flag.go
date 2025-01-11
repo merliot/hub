@@ -13,14 +13,32 @@ const (
 	flagGhost                           // Device is dead but still around
 )
 
-func (f *flags) Set(flags flags) {
+func (f *flags) _set(flags flags) {
 	*f = *f | flags
 }
 
-func (f *flags) Unset(flags flags) {
+func (d *device) set(flags flags) {
+	d.Lock()
+	defer d.Unlock()
+	d._set(flags)
+}
+
+func (f *flags) _unSet(flags flags) {
 	*f = *f & ^flags
 }
 
-func (f flags) IsSet(flags flags) bool {
+func (d *device) unSet(flags flags) {
+	d.Lock()
+	defer d.Unlock()
+	d._unSet(flags)
+}
+
+func (f flags) _isSet(flags flags) bool {
 	return f&flags == flags
+}
+
+func (d *device) isSet(flags flags) bool {
+	d.RLock()
+	defer d.RUnlock()
+	return d._isSet(flags)
 }

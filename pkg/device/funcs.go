@@ -18,7 +18,7 @@ func wantsWifi(target string) bool {
 }
 
 func (d *device) classOffline() string {
-	if d.IsSet(flagOnline) {
+	if d._isSet(flagOnline) {
 		return ""
 	} else {
 		return "offline" // enables CSS class .offline
@@ -35,7 +35,7 @@ func aliveDevices() (alive deviceMap) {
 	defer devicesMu.RUnlock()
 	alive = make(deviceMap)
 	for id, d := range devices {
-		if !d.IsSet(flagGhost) {
+		if !d.isSet(flagGhost) {
 			alive[id] = d
 		}
 	}
@@ -83,12 +83,12 @@ func (d *device) baseFuncs() template.FuncMap {
 		"devicesJSON":     devicesJSON,
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
 		"isRoot":          func() bool { return d == root },
-		"isProgenitive":   func() bool { return d.IsSet(FlagProgenitive) },
-		"wantsHttpPort":   func() bool { return d.IsSet(FlagWantsHttpPort) },
-		"isOnline":        func() bool { return d.IsSet(flagOnline) },
-		"isDemo":          func() bool { return d.IsSet(flagDemo) },
-		"isDirty":         func() bool { return d.IsSet(flagDirty) },
-		"isLocked":        func() bool { return d.IsSet(flagLocked) },
+		"isProgenitive":   func() bool { return d._isSet(FlagProgenitive) },
+		"wantsHttpPort":   func() bool { return d._isSet(FlagWantsHttpPort) },
+		"isOnline":        func() bool { return d._isSet(flagOnline) },
+		"isDemo":          func() bool { return d._isSet(flagDemo) },
+		"isDirty":         func() bool { return d._isSet(flagDirty) },
+		"isLocked":        func() bool { return d._isSet(flagLocked) },
 		"saveToClipboard": func() bool { return loadedFromDEVICES },
 		"bgColor":         d.bgColor,
 		"textColor":       d.textColor,

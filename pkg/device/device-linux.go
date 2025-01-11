@@ -96,8 +96,9 @@ func (d *device) devices() deviceMap {
 	var family = make(deviceMap)
 
 	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
 	d._devices(family)
-	devicesMu.RUnlock()
 
 	return family
 }
@@ -123,12 +124,6 @@ func devicesSetupAPI() {
 	}
 }
 
-func (d *device) isGhost() bool {
-	d.RLock()
-	defer d.RUnlock()
-	return d.IsSet(flagGhost)
-}
-
 func addChild(parent *device, id, model, name string) error {
 
 	var resurrect bool
@@ -150,7 +145,7 @@ func addChild(parent *device, id, model, name string) error {
 
 	child, ok := devices[id]
 	if ok {
-		if !child.isGhost() {
+		if !child.isSet(flagGhost) {
 			return fmt.Errorf("Child device already exists")
 		}
 		// Child exists, but it's a ghost: resurrect
@@ -163,8 +158,8 @@ func addChild(parent *device, id, model, name string) error {
 	defer child.Unlock()
 
 	if resurrect {
-		// Reanimate ghost child back to life
-		child.Unset(flagGhost)
+		// Ressurect ghost child back to life
+		child._unSet(flagGhost)
 		child.DeployParams = ""
 		child.Children = []string{}
 	}
@@ -183,10 +178,10 @@ func addChild(parent *device, id, model, name string) error {
 	}
 
 	if runningDemo {
-		if err := child.setup(); err != nil {
+		if err := child._setup(); err != nil {
 			return err
 		}
-		child.startDemo()
+		child._startDemo()
 	}
 
 	return nil
@@ -209,9 +204,7 @@ func removeChild(id string) error {
 	}
 
 	// Ghost device
-	d.Lock()
-	d.Set(flagGhost)
-	d.Unlock()
+	d.set(flagGhost)
 
 	// Detach the device from any parent devices where it is listed as a child
 	for _, d := range devices {
@@ -229,24 +222,27 @@ func deviceNotFound(id string) error {
 	return fmt.Errorf("Device '%s' not found", id)
 }
 
-func (d *device) routeDown(id string, pkt *Packet) {
+func (d *device) routeDown(pkt *Packet) {
+
+	d.Lock()
+	defer d.Unlock()
 
 	// If device is running on 'metal', this is the packet's final
 	// destination.
-	if d.IsSet(flagMetal) {
-		d.handle(pkt)
+	if d._isSet(flagMetal) {
+		d._handle(pkt)
 		return
 	}
 
 	// Otherwise, route the packet down
-	downlinkRoute(id, pkt)
+	downlinkRoute(d.Id, pkt)
 }
 
 func deviceRouteDown(id string, pkt *Packet) {
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 	if d, ok := devices[id]; ok {
-		d.routeDown(id, pkt)
+		d.routeDown(pkt)
 	}
 }
 
@@ -258,12 +254,12 @@ func deviceRouteUp(id string, pkt *Packet) {
 	}
 }
 
-func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
-	//LogInfo("deviceRenderPkt", "pkt", pkt)
+func deviceRenderPkt(w io.Writer, s *session, pkt *Packet) error {
+	//LogDebug("deviceRenderPkt", "sessionId", s.Id, "pkt", pkt)
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 	if d, ok := devices[pkt.Dst]; ok {
-		return d._renderPkt(w, sessionId, pkt)
+		return d.renderPkt(w, s, pkt)
 	}
 	return deviceNotFound(pkt.Dst)
 }
@@ -275,9 +271,9 @@ func findRoot(devices deviceMap) (*device, error) {
 	childSet := make(map[string]bool)
 
 	// Populate the childSet with the Ids of all children
-	for i, device := range devices {
+	for i, d := range devices {
 		var validChildren []string
-		for _, child := range device.Children {
+		for _, child := range d.Children {
 			if _, ok := devices[child]; !ok {
 				fmt.Printf("Warning: Child Id %s not found in devices\n", child)
 				continue
@@ -300,7 +296,7 @@ func findRoot(devices deviceMap) (*device, error) {
 	switch {
 	case len(roots) == 1:
 		root := roots[0]
-		root.Set(flagOnline | flagMetal)
+		root.set(flagOnline | flagMetal)
 		return root, nil
 	case len(roots) > 1:
 		return nil, fmt.Errorf("More than one tree found in devices, aborting")
@@ -323,7 +319,7 @@ func _ghostChild(id string) error {
 	d.Lock()
 	defer d.Unlock()
 
-	d.Set(flagGhost)
+	d._set(flagGhost)
 
 	for _, childId := range d.Children {
 		if err := _ghostChild(childId); err != nil {
@@ -363,7 +359,7 @@ func ghostChildren(id string) error {
 	return _ghostChildren(id)
 }
 
-func (d *device) copyDevice(from *device) {
+func (d *device) _copyDevice(from *device) {
 	d.Model = from.Model
 	d.Name = from.Name
 	d.Children = from.Children
@@ -408,7 +404,7 @@ func merge(devices, newDevices deviceMap) error {
 		device, exists := devices[newId]
 		if exists {
 			// Better be a ghost
-			if !device.IsSet(flagGhost) {
+			if !device._isSet(flagGhost) {
 				return fmt.Errorf("Device %s already exists, aborting merge", device)
 			}
 		} else {
@@ -417,7 +413,7 @@ func merge(devices, newDevices deviceMap) error {
 
 		device.Lock()
 
-		device.copyDevice(newDevice)
+		device._copyDevice(newDevice)
 
 		maker, ok := Models[device.Model]
 		if !ok {
@@ -430,28 +426,28 @@ func merge(devices, newDevices deviceMap) error {
 			return err
 		}
 
-		device.Set(flagLocked)
+		device._set(flagLocked)
 
 		devices[newId] = device
 
 		device._setupAPI()
 
 		if !exists {
-			device.deviceInstall()
+			device._deviceInstall()
 		}
 
 		if runningDemo {
-			if err := device.setup(); err != nil {
+			if err := device._setup(); err != nil {
 				device.Unlock()
 				return err
 			}
-			device.startDemo()
+			device._startDemo()
 		}
 
 		device.Unlock()
 	}
 
-	anchor.Set(flagOnline)
+	anchor._set(flagOnline)
 
 	return nil
 }
@@ -464,6 +460,9 @@ func validate(a *device) error {
 	if !ok {
 		return deviceNotFound(a.Id)
 	}
+
+	d.RLock()
+	defer d.RUnlock()
 
 	if d.Model != a.Model {
 		return fmt.Errorf("Device model wrong.  Want %s; got %s",
@@ -488,16 +487,11 @@ func deviceOffline(id string) {
 	defer devicesMu.RUnlock()
 
 	d, ok := devices[id]
-	if !ok {
-		return
+	if ok {
+		d.unSet(flagOnline)
+		pkt := &Packet{Dst: id, Path: "/offline"}
+		pkt.BroadcastUp()
 	}
-
-	d.Lock()
-	d.Unset(flagOnline)
-	d.Unlock()
-
-	pkt := &Packet{Dst: id, Path: "/offline"}
-	pkt.BroadcastUp()
 }
 
 func updateDirty(id string, dirty bool) {
@@ -509,13 +503,11 @@ func updateDirty(id string, dirty bool) {
 		return
 	}
 
-	d.Lock()
 	if dirty {
-		d.Set(flagDirty)
+		d.set(flagDirty)
 	} else {
-		d.Unset(flagDirty)
+		d.unSet(flagDirty)
 	}
-	d.Unlock()
 
 	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
 	pkt.BroadcastUp()
@@ -532,10 +524,13 @@ func deviceClean(id string) {
 func deviceParent(id string) string {
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
-	for _, device := range devices {
-		if slices.Contains(device.Children, id) {
-			return device.Id
+	for _, d := range devices {
+		d.RLock()
+		if slices.Contains(d.Children, id) {
+			d.RUnlock()
+			return d.Id
 		}
+		d.RUnlock()
 	}
 	return ""
 }
@@ -611,15 +606,17 @@ func devicesSave() error {
 }
 
 func devicesOnline(l linker) {
+
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
+
 	for id, d := range devices {
 		var pkt = &Packet{
 			Dst:  id,
 			Path: "/online",
 		}
 		d.RLock()
-		if !d.IsSet(flagOnline) {
+		if !d._isSet(flagOnline) {
 			d.RUnlock()
 			continue
 		}
@@ -635,7 +632,7 @@ func (d *device) demoReboot(pkt *Packet) {
 	d.stopDemo()
 
 	// Go offline for 3 seconds
-	d.Unset(flagOnline)
+	d.unSet(flagOnline)
 	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
 	time.Sleep(3 * time.Second)
 
@@ -651,7 +648,7 @@ func (d *device) demoReboot(pkt *Packet) {
 }
 
 func (d *device) handleReboot(pkt *Packet) {
-	if d.IsSet(flagDemo) {
+	if d.isSet(flagDemo) {
 		d.demoReboot(pkt)
 	} else {
 		// Exit the app, stopping the device.  A systemd script will
@@ -685,7 +682,7 @@ func devicesStatus() []deviceStatus {
 		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
 			d.Id, d.Model, d.Name, len(d.Children))
 		color := "gold"
-		if d.IsSet(flagGhost) {
+		if d._isSet(flagGhost) {
 			color = "gray"
 		}
 		statuses = append(statuses, deviceStatus{

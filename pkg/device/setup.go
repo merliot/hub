@@ -16,9 +16,15 @@ func (d *device) demoSetup() error {
 	return nil
 }
 
-func (d *device) setup() error {
+func (d *device) _setup() error {
 	if runningDemo {
 		return d.demoSetup()
 	}
 	return d.Setup()
+}
+
+func (d *device) setup() error {
+	d.Lock()
+	defer d.Unlock()
+	return d._setup()
 }

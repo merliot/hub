@@ -26,13 +26,25 @@ func (d *device) runDemo() {
 	}
 }
 
-func (d *device) startDemo() {
+func (d *device) _startDemo() {
 	d.stopChan = make(chan struct{})
 	go d.runDemo()
 }
 
-func (d *device) stopDemo() {
+func (d *device) startDemo() {
+	d.Lock()
+	defer d.Unlock()
+	d._startDemo()
+}
+
+func (d *device) _stopDemo() {
 	close(d.stopChan)
+}
+
+func (d *device) stopDemo() {
+	d.Lock()
+	defer d.Unlock()
+	d._stopDemo()
 }
 
 // In demo mode, start a go func for each child device
