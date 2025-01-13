@@ -187,7 +187,7 @@ func addChild(parent *device, id, model, name string) error {
 	child._setupAPI()
 
 	if !resurrect {
-		child.deviceInstall()
+		child._deviceInstall()
 	}
 
 	if runningDemo {
@@ -237,8 +237,8 @@ func deviceNotFound(id string) error {
 
 func (d *device) routeDown(pkt *Packet) {
 
-	d.Lock()
-	defer d.Unlock()
+	d.RLock()
+	defer d.RUnlock()
 
 	// If device is running on 'metal', this is the packet's final
 	// destination.

@@ -28,16 +28,18 @@ func (h *PacketHandler[T]) cb(pkt *Packet) {
 type PacketHandlers map[string]packetHandler
 
 func (d *device) _handle(pkt *Packet) {
-	if d.isSet(flagOnline) || pkt.Path == "/online" {
+	if d._isSet(flagOnline) || pkt.Path == "/online" {
 		if handler, ok := d.PacketHandlers[pkt.Path]; ok {
 			LogDebug("Handling", "pkt", pkt)
+			d.stateMu.Lock()
 			handler.cb(pkt)
+			d.stateMu.Unlock()
 		}
 	}
 }
 
 func (d *device) handle(pkt *Packet) {
-	d.stateMu.Lock()
-	defer d.stateMu.Unlock()
+	d.RLock()
+	defer d.RUnlock()
 	d._handle(pkt)
 }
