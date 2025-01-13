@@ -21,12 +21,9 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 
 		sessionId := r.Header.Get("session-id")
 
-		sessionsMu.RLock()
-		defer sessionsMu.RUnlock()
-
-		s, ok := sessions[sessionId]
-		if !ok || !s.connected() {
-			// Session expired, force full page refresh to start new session
+		if sessionExpired(sessionId) {
+			// Force full page refresh to start new session
+			LogDebug("Session expired, refreshing", "id", sessionId)
 			w.Header().Set("HX-Refresh", "true")
 			return
 		}

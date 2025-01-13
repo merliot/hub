@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,16 +15,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type lastView struct {
-	view  string
-	level int
-}
-
 type session struct {
-	sessionId  string
+	id         string
 	conn       *websocket.Conn
 	lastUpdate time.Time
-	lastViews  map[string]lastView // key: device Id
 	rwMutex
 }
 
@@ -38,15 +31,6 @@ func init() {
 	go gcSessions()
 }
 
-func _newSession(sessionId string, conn *websocket.Conn) *session {
-	return &session{
-		sessionId:  sessionId,
-		conn:       conn,
-		lastUpdate: time.Now(),
-		lastViews:  make(map[string]lastView),
-	}
-}
-
 func newSession() (string, bool) {
 
 	sessionsMu.Lock()
@@ -57,7 +41,7 @@ func newSession() (string, bool) {
 	}
 
 	sessionId := uuid.New().String()
-	sessions[sessionId] = _newSession(sessionId, nil)
+	sessions[sessionId] = &session{id: sessionId, lastUpdate: time.Now()}
 	sessionCount++
 
 	return sessionId, true
@@ -79,8 +63,8 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 func sessionExpired(sessionId string) bool {
 	sessionsMu.RLock()
 	defer sessionsMu.RUnlock()
-	_, ok := sessions[sessionId]
-	return !ok
+	_, exists := sessions[sessionId]
+	return !exists
 }
 
 func sessionKeepAlive(sessionId string) {
@@ -96,22 +80,6 @@ func sessionKeepAlive(sessionId string) {
 }
 
 var errSessionNotConnected = errors.New("Session not connected")
-
-func (s *session) _save(deviceId, view string, level int) {
-	s.lastUpdate = time.Now()
-	lastView := s.lastViews[deviceId]
-	lastView.view = view
-	lastView.level = level
-	s.lastViews[deviceId] = lastView
-}
-
-func (s *session) _lastView(deviceId string) (view string, level int, err error) {
-	v, ok := s.lastViews[deviceId]
-	if !ok {
-		return "", 0, fmt.Errorf("Session %s: invalid device Id %s", s.sessionId, deviceId)
-	}
-	return v.view, v.level, nil
-}
 
 func (s *session) _connected() bool {
 	return s.conn != nil
@@ -148,7 +116,7 @@ func (s *session) renderPkt(pkt *Packet) error {
 	}
 
 	var buf bytes.Buffer
-	if err := deviceRenderPkt(&buf, s, pkt); err != nil {
+	if err := deviceRenderPkt(&buf, s.id, pkt); err != nil {
 		return err
 	}
 
@@ -161,8 +129,8 @@ func sessionsRoute(pkt *Packet) {
 	defer sessionsMu.RUnlock()
 
 	for _, s := range sessions {
-		if pkt.SessionId == "" || pkt.SessionId == s.sessionId {
-			LogDebug("sessionsRoute", "pkt", pkt)
+		if pkt.SessionId == "" || pkt.SessionId == s.id {
+			//LogDebug("sessionsRoute", "pkt", pkt)
 			if err := s.renderPkt(pkt); err != nil {
 				if err != errSessionNotConnected {
 					LogError("sessionsRoute", "err", err)
@@ -178,7 +146,7 @@ func sessionRoute(sessionId string, pkt *Packet) {
 	defer sessionsMu.RUnlock()
 
 	if s, ok := sessions[sessionId]; ok {
-		// LogDebug("sessionRoute", "pkt", pkt)
+		//LogDebug("sessionRoute", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
 				LogError("sessionRoute", "err", err)
@@ -208,7 +176,7 @@ func sessionHijack() string {
 		s.RLock()
 		if s.conn != nil {
 			s.RUnlock()
-			return s.sessionId
+			return s.id
 		}
 		s.RUnlock()
 	}
@@ -218,8 +186,7 @@ func sessionHijack() string {
 
 func gcSessions() {
 	minute := 1 * time.Minute
-	//ticker := time.NewTicker(minute)
-	ticker := time.NewTicker(200 * time.Microsecond)
+	ticker := time.NewTicker(minute)
 	defer ticker.Stop()
 	for range ticker.C {
 		sessionsMu.Lock()
@@ -227,6 +194,7 @@ func gcSessions() {
 			s.RLock()
 			if time.Since(s.lastUpdate) > minute {
 				delete(sessions, sessionId)
+				gcViews(sessionId)
 				sessionCount--
 			}
 			s.RUnlock()
@@ -246,18 +214,6 @@ func sessionsSortedAge() []string {
 		return sessions[keys[i]].lastUpdate.After(sessions[keys[j]].lastUpdate)
 	})
 
-	return keys
-}
-
-func (s session) sortedViewIds() []string {
-	s.RLock()
-	defer s.RUnlock()
-
-	keys := make([]string, 0, len(s.lastViews))
-	for id := range s.lastViews {
-		keys = append(keys, id)
-	}
-	sort.Strings(keys)
 	return keys
 }
 
@@ -283,19 +239,14 @@ func sessionsStatus() []sessionStatus {
 	}
 
 	status := func(s *session) string {
-		segs := strings.Split(s.sessionId, "-")
+		segs := strings.Split(s.id, "-")
 		id := strings.ToUpper(segs[len(segs)-1])
 		age := int(time.Since(s.lastUpdate).Truncate(time.Second).Seconds())
 		connected := "C"
 		if s.conn == nil {
 			connected = " "
 		}
-		views := ""
-		for _, id := range s.sortedViewIds() {
-			view := s.lastViews[id]
-			views = views + " " + strings.ToUpper(string(view.view[0])) + strconv.Itoa(view.level)
-		}
-		return fmt.Sprintf("%s %3d %s %s", id, age, connected, views)
+		return fmt.Sprintf("%s %3d %s", id, age, connected)
 	}
 
 	var statuses = make([]sessionStatus, 0, len(sessions))

@@ -2,6 +2,6 @@
 {{ template "page-tabs.tmpl" . }}
 	<div>
 {{ $tmpl := joinStrings "device-status-" .page ".tmpl" }}
-{{ renderTemplate $tmpl . }}
+{{ _renderTemplate $tmpl . }}
 	</div>
 </div>

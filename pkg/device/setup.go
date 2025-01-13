@@ -20,6 +20,8 @@ func (d *device) _setup() error {
 	if runningDemo {
 		return d.demoSetup()
 	}
+	d.stateMu.Lock()
+	defer d.stateMu.Unlock()
 	return d.Setup()
 }
 

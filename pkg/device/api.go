@@ -166,13 +166,88 @@ func (d *device) _renderSession(w io.Writer, template, sessionId string,
 	return d._renderTmpl(w, template, data)
 }
 
-func (d *device) renderSession(w io.Writer, template, sessionId string, level int) error {
-	d.RLock()
-	defer d.RUnlock()
-	return d._renderSession(w, template, sessionId, level, map[string]any{})
+func (d *device) _render(w io.Writer, sessionId, path, view string,
+	level int, data map[string]any) error {
+
+	path = strings.TrimPrefix(path, "/")
+	template := path + "-" + view + ".tmpl"
+
+	//LogDebug("_render", "id", d.Id, "session-id", sessionId,
+	//	"path", path, "level", level, "template", template)
+	if err := d._renderSession(w, template, sessionId, level, data); err != nil {
+		return err
+	}
+
+	d.saveView(sessionId, view, level)
+
+	return nil
 }
 
-func (d *device) _renderChildren(w io.Writer, s *session, level int) error {
+func (d *device) _renderWalk(w io.Writer, sessionId, path, view string,
+	level int, data map[string]any) error {
+
+	// We're going to walk children, so hold devices lock
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+
+	return d._render(w, sessionId, path, view, level, data)
+}
+
+func (d *device) render(w io.Writer, sessionId, path, view string,
+	level int, data map[string]any) error {
+
+	d.RLock()
+	defer d.RUnlock()
+
+	return d._renderWalk(w, sessionId, path, view, level, data)
+}
+
+func (d *device) renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
+	var data map[string]any
+
+	view, level := d.lastView(sessionId)
+	json.Unmarshal(pkt.Msg, &data)
+
+	if data == nil {
+		data = make(map[string]any)
+	}
+
+	d.RLock()
+	defer d.RUnlock()
+
+	//LogDebug("renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
+	return d._render(w, sessionId, pkt.Path, view, level, data)
+}
+
+func (d *device) _renderTemplate(name string, data any) (template.HTML, error) {
+	var buf bytes.Buffer
+	if err := d._renderTmpl(&buf, name, data); err != nil {
+		return template.HTML(""), err
+	}
+	return template.HTML(buf.String()), nil
+}
+
+func RenderTemplate(w io.Writer, id, name string, data any) error {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+	if d, ok := devices[id]; ok {
+		return d.renderTmpl(w, name, data)
+	}
+	return fmt.Errorf("RenderTemplate unknown device id %s", id)
+}
+
+func (d *device) _renderView(sessionId, path, view string, level int) (template.HTML, error) {
+	var buf bytes.Buffer
+
+	if err := d._renderWalk(&buf, sessionId, path, view, level,
+		map[string]any{}); err != nil {
+		return template.HTML(""), err
+	}
+
+	return template.HTML(buf.String()), nil
+}
+
+func (d *device) _renderChildrenWrite(w io.Writer, sessionId string, level int) error {
 
 	if len(d.Children) == 0 {
 		return nil
@@ -195,134 +270,23 @@ func (d *device) _renderChildren(w io.Writer, s *session, level int) error {
 
 	// Render the child devices in sorted order
 	for _, child := range children {
-
-		view, _, err := s._lastView(child.Id)
-		if err != nil {
-			// If there was no view saved, default to overview
-			view = "overview"
-		}
-
-		if err := child.render(w, s, "/device", view, level, map[string]any{}); err != nil {
+		view, _ := child.lastView(sessionId)
+		child.RLock()
+		if err := child._render(w, sessionId, "/device", view, level,
+			map[string]any{}); err != nil {
+			child.RUnlock()
 			return err
 		}
+		child.RUnlock()
 	}
 
 	return nil
 }
 
-func (d *device) _render(w io.Writer, s *session, path, view string,
-	level int, data map[string]any) error {
-
-	path = strings.TrimPrefix(path, "/")
-	template := path + "-" + view + ".tmpl"
-
-	//LogDebug("_render", "id", d.Id, "session-id", s.Id,
-	//	"path", path, "level", level, "template", template)
-	if err := d._renderSession(w, template, s.sessionId, level, data); err != nil {
-		return err
-	}
-
-	s._save(d.Id, view, level)
-
-	return nil
-}
-
-func (d *device) render(w io.Writer, s *session, path, view string,
-	level int, data map[string]any) error {
-	d.RLock()
-	defer d.RUnlock()
-	return d._render(w, s, path, view, level, data)
-}
-
-func (d *device) _renderPkt(w io.Writer, s *session, pkt *Packet) error {
-
-	view, level, err := s._lastView(d.Id)
-	if err != nil {
-		return err
-	}
-
-	var data = make(map[string]any)
-	json.Unmarshal(pkt.Msg, &data)
-
-	//LogDebug("_renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
-	return d._render(w, s, pkt.Path, view, level, data)
-}
-
-func (d *device) renderPkt(w io.Writer, s *session, pkt *Packet) error {
-	d.RLock()
-	defer d.RUnlock()
-	return d._renderPkt(w, s, pkt)
-}
-
-func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
+func (d *device) _renderChildren(sessionId string, level int) (template.HTML, error) {
 	var buf bytes.Buffer
-
-	if err := d.renderTmpl(&buf, name, data); err != nil {
-		return template.HTML(""), err
-	}
-
-	return template.HTML(buf.String()), nil
-}
-
-func RenderTemplate(w io.Writer, id, name string, data any) error {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	if d, ok := devices[id]; ok {
-		return d.renderTmpl(w, name, data)
-	}
-	return fmt.Errorf("RenderTemplate unknown device id %s", id)
-}
-
-func (d *device) renderView(sessionId, path, view string, level int) (template.HTML, error) {
-	var buf bytes.Buffer
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	s, ok := sessions[sessionId]
-	if !ok {
-		return template.HTML(""), fmt.Errorf("Unknown session %s", sessionId)
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	// We're going to walk children, so hold devices lock
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	if err := d.render(&buf, s, path, view, level, map[string]any{}); err != nil {
-		return template.HTML(""), err
-	}
-
-	s._save(d.Id, view, level)
-
-	return template.HTML(buf.String()), nil
-}
-
-func (d *device) renderChildren(sessionId string, level int) (template.HTML, error) {
-	var buf bytes.Buffer
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	s, ok := sessions[sessionId]
-	if !ok {
-		return template.HTML(""), fmt.Errorf("Unknown session %s", sessionId)
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	// We're going to walk children, so hold devices lock
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	if err := d._renderChildren(&buf, s, level); err != nil {
-		return template.HTML(""), err
-	}
-
-	return template.HTML(buf.String()), nil
+	err := d._renderChildrenWrite(&buf, sessionId, level)
+	return template.HTML(buf.String()), err
 }
 
 func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
@@ -416,34 +380,11 @@ func (d *device) showModelDocs(w http.ResponseWriter, r *http.Request) {
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 	view := r.URL.Query().Get("view")
-
 	sessionId := r.Header.Get("session-id")
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	s, ok := sessions[sessionId]
-	if !ok || !s.connected() {
-		// Session expired, force full page refresh to start new session
-		w.Header().Set("HX-Refresh", "true")
-		return
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	_, level, err := s._lastView(d.Id)
-	if err != nil {
+	_, level := d.lastView(sessionId)
+	if err := d.render(w, sessionId, "/device", view, level, map[string]any{}); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
 	}
-
-	if err := d.render(w, s, "/device", view, level, map[string]any{}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	s._save(d.Id, view, level)
 }
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {

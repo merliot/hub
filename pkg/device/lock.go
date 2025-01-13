@@ -4,7 +4,9 @@ package device
 
 //import "sync"
 
-import "github.com/ietxaniz/delock"
+import (
+	"github.com/ietxaniz/delock"
+)
 
 /*
 type mutex struct {

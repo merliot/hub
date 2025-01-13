@@ -22,12 +22,15 @@ type deviceOS struct {
 	*http.ServeMux
 	templates *template.Template
 	layeredFS
+	views
+	viewsMu rwMutex
 }
 
 func (d *device) _buildOS() error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
+	d.views = make(views)
 
 	// Build device's layered FS.  fs is stacked on top of
 	// deviceFs, so fs:foo.tmpl will override deviceFs:foo.tmpl,
@@ -254,12 +257,12 @@ func deviceRouteUp(id string, pkt *Packet) {
 	}
 }
 
-func deviceRenderPkt(w io.Writer, s *session, pkt *Packet) error {
-	//LogDebug("deviceRenderPkt", "sessionId", s.Id, "pkt", pkt)
+func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
+	//LogDebug("deviceRenderPkt", "sessionId", sessionId, "pkt", pkt)
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 	if d, ok := devices[pkt.Dst]; ok {
-		return d.renderPkt(w, s, pkt)
+		return d.renderPkt(w, sessionId, pkt)
 	}
 	return deviceNotFound(pkt.Dst)
 }

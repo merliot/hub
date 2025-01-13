@@ -13,14 +13,14 @@
 		<script src="/js/htmx.min.js.gz"></script>
 	</head >
 
-	<script>
+	<!-- script>
 		htmx.logAll();
-	</script>
+	</script -->
 
 	<body class="{{bodyColors}} m-4">
 {{ template "site-header.tmpl" . }}
 {{ $tmpl := joinStrings "site-" .section ".tmpl" }}
-{{ renderTemplate $tmpl . }}
+{{ _renderTemplate $tmpl . }}
 {{ template "site-footer.tmpl" . }}
 	</body>
 </html>

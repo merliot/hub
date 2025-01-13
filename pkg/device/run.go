@@ -7,9 +7,9 @@ import "time"
 func (d *device) runDemo() {
 
 	// Poll right away, once, and then on ticker
-	d.Lock()
+	d.stateMu.Lock()
 	d.DemoPoll(&Packet{Dst: d.Id})
-	d.Unlock()
+	d.stateMu.Unlock()
 
 	ticker := time.NewTicker(d.PollPeriod)
 	defer ticker.Stop()
@@ -17,9 +17,9 @@ func (d *device) runDemo() {
 	for {
 		select {
 		case <-ticker.C:
-			d.Lock()
+			d.stateMu.Lock()
 			d.DemoPoll(&Packet{Dst: d.Id})
-			d.Unlock()
+			d.stateMu.Unlock()
 		case <-d.stopChan:
 			return
 		}

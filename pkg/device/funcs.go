@@ -95,8 +95,8 @@ func (d *device) baseFuncs() template.FuncMap {
 		"borderColor":     d.borderColor,
 		"bodyColors":      bodyColors,
 		"classOffline":    d.classOffline,
-		"renderTemplate":  d.renderTemplate,
-		"renderView":      d.renderView,
-		"renderChildren":  d.renderChildren,
+		"_renderTemplate": d._renderTemplate,
+		"_renderView":     d._renderView,
+		"_renderChildren": d._renderChildren,
 	}
 }

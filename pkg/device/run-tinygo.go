@@ -53,9 +53,9 @@ func Run(maker Maker) {
 	dialParents(params.DialURLs, params.User, params.Passwd)
 
 	// Poll right away and then on ticker
-	root.Lock()
+	root.stateMu.Lock()
 	root.Poll(&Packet{Dst: root.Id})
-	root.Unlock()
+	root.stateMu.Unlock()
 
 	ticker := time.NewTicker(root.PollPeriod)
 	defer ticker.Stop()
@@ -63,9 +63,9 @@ func Run(maker Maker) {
 	for {
 		select {
 		case <-ticker.C:
-			root.Lock()
+			root.stateMu.Lock()
 			root.Poll(&Packet{Dst: root.Id})
-			root.Unlock()
+			root.stateMu.Unlock()
 		}
 	}
 }
