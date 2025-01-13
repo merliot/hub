@@ -70,7 +70,6 @@ func (d *device) installAPIs() {
 
 	d.HandleFunc("GET /edit-name", d.editName)
 	d.HandleFunc("GET /rename", d.rename)
-	d.HandleFunc("GET /get-uptime", d.apiRouteDown)
 
 	d.HandleFunc("GET /model", d.showModel)
 

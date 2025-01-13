@@ -26,6 +26,16 @@ type deviceOS struct {
 	viewsMu rwMutex
 }
 
+func (d *device) Handle(pattern string, handler http.Handler) {
+	//LogDebug("Handle", "pattern", pattern)
+	d.ServeMux.Handle(pattern, handler)
+}
+
+func (d *device) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	//LogDebug("HandleFunc", "pattern", pattern)
+	d.ServeMux.HandleFunc(pattern, handler)
+}
+
 func (d *device) _buildOS() error {
 	var err error
 
