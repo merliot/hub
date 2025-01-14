@@ -29,6 +29,8 @@ func Run(maker Maker) {
 		panic("UF2 magic incorrect")
 	}
 
+	logLevel = params.LogLevel
+
 	tinynet.NetConnect(params.Ssid, params.Passphrase)
 
 	root = &device{

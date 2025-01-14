@@ -17,6 +17,7 @@ type uf2Params struct {
 	User         string
 	Passwd       string
 	DialURLs     string
+	LogLevel     string
 }
 
 type uf2ParamsBlock struct {

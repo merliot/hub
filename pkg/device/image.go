@@ -121,6 +121,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 		"user":     Getenv("USER", ""),
 		"passwd":   Getenv("PASSWD", ""),
 		"dialurls": dialurls,
+		"logLevel": logLevel,
 	}); err != nil {
 		return err
 	}
@@ -226,6 +227,7 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 			User:         Getenv("USER", ""),
 			Passwd:       Getenv("PASSWD", ""),
 			DialURLs:     dialurls,
+			LogLevel:     logLevel,
 		},
 		MagicEnd: uf2Magic,
 	}
