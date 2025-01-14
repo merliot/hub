@@ -31,7 +31,7 @@
 <p>Plug the Arduino into a computer USB port to mount the Arduino as a USB drive.  The USB drive is named "RPI-RP2".</p>
 
 <div class="note">
-	<span class="note-icon">📝</span>
+	<span class="note-icon">📝 NOTE</span>
 	Sometimes the Arduino is not detected as a USB drive even when it is connected to your computer. This can be solved through the following steps:
 
 	<p>1. Connect the Arduino to your computer via USB cable.</p>
@@ -45,16 +45,25 @@
 
 <p>Copy the UF2 firmware image to the "RPI-RP2" drive.  The firmware is installed on the device and the device restarts.</p>
 
+<p>That's it!</p>
+
 <center>
 	<img src="/device/{{id}}/images/rpi-rp2-install.png" width="100%">
 </center>
 
 <div class="note">
-	<span class="note-icon">📝</span>
+	<span class="note-icon">📝 NOTE</span>
 	The UF2 firmware image file has embedded secrets so it's a good idea to delete the file after device install.
 </div>
 
-<p>That's it!</p>
+<div class="note">
+	<span class="note-icon">📝 NOTE</span>
+	<p>On Linux, you can manually install the uf2 using dd:</p>
+	<pre class="cmd-line text-wrap">
+$ sudo dd if=./{{model}}-{{id}}-installer.uf2 of=/dev/sdb bs=4M status=progress conv=fsync
+	</pre>
+	<p>Where /dev/sdb is the Arduino mount point.  (Verify your /dev/sdX mount point using lsblk).</p>
+</div>
 
 <p>The device will automatically connect to this hub.  To troubleshoot connectivity issues, use minicom to view device log:</p>
 

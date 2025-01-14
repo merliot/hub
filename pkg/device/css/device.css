@@ -876,6 +876,10 @@ textarea {
   line-height: 1;
 }
 
+.text-wrap {
+  text-wrap: wrap;
+}
+
 .text-black {
   color: #000000
 }
@@ -1343,6 +1347,15 @@ button {
   color: #33cc99;
   border: 1px dotted #33cc9940;
   padding: 1rem;
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  border-style: dashed;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 20 0;
 }
 
 a {

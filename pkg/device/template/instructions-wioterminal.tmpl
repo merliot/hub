@@ -32,7 +32,7 @@
 <p>Plug the Wio Terminal into a computer USB port to mount the Wio Terminal as a USB drive.  The USB drive is named "Arduino".</p>
 
 <div class="note">
-	<span class="note-icon">📝</span>
+	<span class="note-icon">📝 NOTE</span>
 	Make sure the Wio Terminal has entered the Bootloader mode so it will mount as a USB drive.  See this <a target="_blank" href="https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/#enter-bootloader">guide</a> for more information.
 </div>
 
@@ -40,16 +40,25 @@
 
 <p>Copy the UF2 firmware image to the "Arduino" USB drive.  The firmware is installed on the device and the device restarts automatically.</p>
 
+<p>That's it!</p>
+
 <center>
 	<img src="/device/{{id}}/images/arduino-install.png" width="100%">
 </center>
 
 <div class="note">
-	<span class="note-icon">📝</span>
+	<span class="note-icon">📝 NOTE</span>
 	The UF2 firmware image file has embedded secrets so it's a good idea to delete the file after device install.
 </div>
 
-<p>That's it!</p>
+<div class="note">
+	<span class="note-icon">📝 NOTE</span>
+	<p>On Linux, you can manually install the uf2 using dd:</p>
+	<pre class="cmd-line text-wrap">
+$ sudo dd if=./{{model}}-{{id}}-installer.uf2 of=/dev/sdb bs=4M status=progress conv=fsync
+	</pre>
+	<p>Where /dev/sdb is the Wio Terminal mount point.  (Verify your /dev/sdX mount point using lsblk).</p>
+</div>
 
 <p>The device will connect to this hub.  To troubleshoot connectivity issues, use minicom to view device log:</p>
 
