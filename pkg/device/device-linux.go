@@ -40,7 +40,11 @@ func (d *device) _buildOS() error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
-	d.views = make(views)
+
+	// Preserve views in case of device reboot
+	if d.views == nil {
+		d.views = make(views)
+	}
 
 	// Build device's layered FS.  fs is stacked on top of
 	// deviceFs, so fs:foo.tmpl will override deviceFs:foo.tmpl,
@@ -237,13 +241,10 @@ func deviceNotFound(id string) error {
 
 func (d *device) routeDown(pkt *Packet) {
 
-	d.RLock()
-	defer d.RUnlock()
-
 	// If device is running on 'metal', this is the packet's final
 	// destination.
-	if d._isSet(flagMetal) {
-		d._handle(pkt)
+	if d.isSet(flagMetal) {
+		d.handle(pkt)
 		return
 	}
 
@@ -646,18 +647,17 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	// Go offline for 3 seconds
 	d.unSet(flagOnline)
-	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
+	pkt.SetPath("/offline").BroadcastUp()
 	time.Sleep(3 * time.Second)
 
 	model, _ := Models[d.Model]
 
 	d.build(model.Maker)
-	d.setupAPI()
 	d.setup()
 	d.startDemo()
 
 	// Come back online
-	pkt.SetPath("/state").Marshal(d.State).BroadcastUp()
+	pkt.SetPath("/online").Marshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleReboot(pkt *Packet) {

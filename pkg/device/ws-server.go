@@ -82,7 +82,7 @@ func wsServer(conn *websocket.Conn) {
 
 	// Add as active download link
 
-	LogInfo("Adding Downlink", "id", id)
+	LogDebug("Adding Downlink", "id", id)
 	downlinksAdd(id, link)
 
 	// Route incoming packets up to the destination device.  Stop and
@@ -98,7 +98,7 @@ func wsServer(conn *websocket.Conn) {
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 
-	LogInfo("Removing Downlink", "id", id)
+	LogDebug("Removing Downlink", "id", id)
 	downlinksRemove(id)
 
 	deviceOffline(id)

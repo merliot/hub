@@ -41,7 +41,7 @@ func routesBuild(root *device) {
 		child.RUnlock()
 	}
 
-	LogInfo("Routes", "map[dst]nexthop", routes)
+	LogDebug("Routes", "map[dst]nexthop", routes)
 }
 
 func downlinksRoute(p *Packet) {

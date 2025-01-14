@@ -116,15 +116,15 @@ func Run() {
 
 func logBuildInfo() {
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		LogInfo("Build Info:")
-		LogInfo("Go Version:", "version", buildInfo.GoVersion)
-		LogInfo("Path", "path", buildInfo.Path)
+		LogDebug("Build Info:")
+		LogDebug("Go Version:", "version", buildInfo.GoVersion)
+		LogDebug("Path", "path", buildInfo.Path)
 		for _, setting := range buildInfo.Settings {
-			LogInfo("Setting", setting.Key, setting.Value)
+			LogDebug("Setting", setting.Key, setting.Value)
 		}
 		for _, dep := range buildInfo.Deps {
-			LogInfo("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
+			LogDebug("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
 		}
 	}
-	LogInfo("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
+	LogDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
 }

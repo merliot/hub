@@ -141,7 +141,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//LogDebug("Proposed DeployParams:", proposedParams)
+	//LogError("Proposed", "DeployParams", proposedParams, "values", values)
 
 	// Form-decode these values into the device to configure the device
 	if err := decode(d.State, values); err != nil {

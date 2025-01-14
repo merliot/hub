@@ -27,8 +27,8 @@ func (h *PacketHandler[T]) cb(pkt *Packet) {
 // PacketHandlers is a map of Handlers, keyed by path.
 type PacketHandlers map[string]packetHandler
 
-func (d *device) _handle(pkt *Packet) {
-	if d._isSet(flagOnline) || pkt.Path == "/online" {
+func (d *device) handle(pkt *Packet) {
+	if d.isSet(flagOnline) || pkt.Path == "/online" {
 		if handler, ok := d.PacketHandlers[pkt.Path]; ok {
 			LogDebug("Handling", "pkt", pkt)
 			d.stateMu.Lock()
@@ -36,10 +36,4 @@ func (d *device) _handle(pkt *Packet) {
 			d.stateMu.Unlock()
 		}
 	}
-}
-
-func (d *device) handle(pkt *Packet) {
-	d.RLock()
-	defer d.RUnlock()
-	d._handle(pkt)
 }
