@@ -2,4 +2,6 @@
 
 package device
 
-func downlinksRoute(p *Packet) { /* DOWNLINKS ROUTE NOT IMPLEMENTED */ }
+func downlinksRoute(pkt *Packet) {
+	root.handle(pkt)
+}
