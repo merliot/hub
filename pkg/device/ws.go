@@ -12,7 +12,7 @@ import (
 
 type wsLink struct {
 	conn *websocket.Conn
-	sync.Mutex
+	sync.RWMutex
 	lastRecv time.Time
 	lastSend time.Time
 }
@@ -42,7 +42,11 @@ func (l *wsLink) receive() (*Packet, error) {
 	if err := websocket.Message.Receive(l.conn, &data); err != nil {
 		return nil, err
 	}
+
+	l.Lock()
 	l.lastRecv = time.Now()
+	l.Unlock()
+
 	if err := json.Unmarshal(data, &pkt); err != nil {
 		LogError("Unmarshal Error", "data", string(data))
 		return nil, fmt.Errorf("Unmarshalling error: %w", err)
@@ -60,9 +64,21 @@ func (l *wsLink) receiveTimeout(timeout time.Duration) (*Packet, error) {
 var pingDuration = 4 * time.Second
 var pingTimeout = 2*pingDuration + time.Second
 
+func (l *wsLink) timeToPing() bool {
+	l.RLock()
+	defer l.RUnlock()
+	return time.Since(l.lastSend) >= pingDuration
+}
+
+func (l *wsLink) timedOut() bool {
+	l.RLock()
+	defer l.RUnlock()
+	return time.Since(l.lastRecv) > pingTimeout
+}
+
 func (l *wsLink) receivePoll() (*Packet, error) {
 	for {
-		if time.Since(l.lastSend) >= pingDuration {
+		if l.timeToPing() {
 			if err := l.Send(&Packet{Path: "/ping"}); err != nil {
 				return nil, err
 			}
@@ -75,7 +91,7 @@ func (l *wsLink) receivePoll() (*Packet, error) {
 			return pkt, nil
 		}
 		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
-			if time.Since(l.lastRecv) > pingTimeout {
+			if l.timedOut() {
 				return nil, err
 			}
 			continue
