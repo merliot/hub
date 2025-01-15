@@ -134,8 +134,8 @@ func (d *device) setupAPI() {
 }
 
 func devicesSetupAPI() {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 	for _, d := range devices {
 		d.setupAPI()
 	}
@@ -191,7 +191,7 @@ func addChild(parent *device, id, model, name string) error {
 	child._setupAPI()
 
 	if !resurrect {
-		child._deviceInstall()
+		child.deviceInstall()
 	}
 
 	if runningDemo {
@@ -211,8 +211,8 @@ func removeChild(id string) error {
 		return err
 	}
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 
 	d := devices[id]
 
@@ -235,10 +235,6 @@ func removeChild(id string) error {
 	return nil
 }
 
-func deviceNotFound(id string) error {
-	return fmt.Errorf("Device '%s' not found", id)
-}
-
 func (d *device) routeDown(pkt *Packet) {
 
 	// If device is running on 'metal', this is the packet's final
@@ -253,29 +249,24 @@ func (d *device) routeDown(pkt *Packet) {
 }
 
 func deviceRouteDown(id string, pkt *Packet) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	if d, ok := devices[id]; ok {
+	if d, err := getDevice(id); err == nil {
 		d.routeDown(pkt)
 	}
 }
 
 func deviceRouteUp(id string, pkt *Packet) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	if d, ok := devices[id]; ok {
+	if d, err := getDevice(id); err == nil {
 		d.handle(pkt)
 	}
 }
 
 func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	//LogDebug("deviceRenderPkt", "sessionId", sessionId, "pkt", pkt)
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	if d, ok := devices[pkt.Dst]; ok {
-		return d.renderPkt(w, sessionId, pkt)
+	d, err := getDevice(pkt.Dst)
+	if err != nil {
+		return err
 	}
-	return deviceNotFound(pkt.Dst)
+	return d.renderPkt(w, sessionId, pkt)
 }
 
 // findRoot returns the root *device of the device map
@@ -368,8 +359,8 @@ func _ghostChildren(id string) error {
 }
 
 func ghostChildren(id string) error {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	devicesMu.Lock()
+	defer devicesMu.Unlock()
 	return _ghostChildren(id)
 }
 
@@ -418,7 +409,7 @@ func merge(devices, newDevices deviceMap) error {
 		device, exists := devices[newId]
 		if exists {
 			// Better be a ghost
-			if !device._isSet(flagGhost) {
+			if !device.isSet(flagGhost) {
 				return fmt.Errorf("Device %s already exists, aborting merge", device)
 			}
 		} else {
@@ -447,7 +438,7 @@ func merge(devices, newDevices deviceMap) error {
 		device._setupAPI()
 
 		if !exists {
-			device._deviceInstall()
+			device.deviceInstall()
 		}
 
 		if runningDemo {
@@ -467,12 +458,10 @@ func merge(devices, newDevices deviceMap) error {
 }
 
 func validate(a *device) error {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
 
-	d, ok := devices[a.Id]
-	if !ok {
-		return deviceNotFound(a.Id)
+	d, err := getDevice(a.Id)
+	if err != nil {
+		return err
 	}
 
 	d.RLock()
@@ -497,11 +486,7 @@ func validate(a *device) error {
 }
 
 func deviceOffline(id string) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	d, ok := devices[id]
-	if ok {
+	if d, err := getDevice(id); err == nil {
 		d.unSet(flagOnline)
 		pkt := &Packet{Dst: id, Path: "/offline"}
 		pkt.BroadcastUp()
@@ -509,22 +494,15 @@ func deviceOffline(id string) {
 }
 
 func updateDirty(id string, dirty bool) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	d, ok := devices[id]
-	if !ok {
-		return
+	if d, err := getDevice(id); err == nil {
+		if dirty {
+			d.set(flagDirty)
+		} else {
+			d.unSet(flagDirty)
+		}
+		pkt := &Packet{Dst: d.Id, Path: "/dirty"}
+		pkt.BroadcastUp()
 	}
-
-	if dirty {
-		d.set(flagDirty)
-	} else {
-		d.unSet(flagDirty)
-	}
-
-	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
-	pkt.BroadcastUp()
 }
 
 func deviceDirty(id string) {

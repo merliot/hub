@@ -19,7 +19,7 @@ func (g *gps) DemoPoll(pkt *device.Packet) {
 	if dist >= g.Radius {
 		var up = updateMsg{lat, long}
 		g.Lat, g.Long = lat, long
-		pkt.SetPath("/update").Marshal(&up).RouteUp()
+		pkt.SetPath("/update").Marshal(&up).BroadcastUp()
 	}
 }
 

@@ -118,18 +118,12 @@ func (d *device) deviceHandler(next http.Handler) http.Handler {
 	})
 }
 
-// _deviceInstall installs /device/{id} pattern for device in default ServeMux
-func (d *device) _deviceInstall() {
+// deviceInstall installs /device/{id} pattern for device in default ServeMux
+func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
 	handler := d.deviceHandler(basicAuthHandler(http.StripPrefix(prefix, d)))
 	http.Handle(prefix+"/", handler)
 	LogInfo("Device installed", "prefix", prefix, "device", d)
-}
-
-func (d *device) deviceInstall() {
-	d.RLock()
-	defer d.RUnlock()
-	d._deviceInstall()
 }
 
 func devicesInstall() {
@@ -227,12 +221,11 @@ func (d *device) _renderTemplate(name string, data any) (template.HTML, error) {
 }
 
 func RenderTemplate(w io.Writer, id, name string, data any) error {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	if d, ok := devices[id]; ok {
-		return d.renderTmpl(w, name, data)
+	d, err := getDevice(id)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("RenderTemplate unknown device id %s", id)
+	return d.renderTmpl(w, name, data)
 }
 
 func (d *device) _renderView(sessionId, path, view string, level int) (template.HTML, error) {

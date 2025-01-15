@@ -103,12 +103,12 @@ func (d *device) handleState(pkt *Packet) {
 }
 
 func (d *device) handleOnline(pkt *Packet) {
-	d._set(flagOnline)
+	d.set(flagOnline)
 	pkt.Unmarshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleOffline(pkt *Packet) {
-	d._unSet(flagOnline)
+	d.unSet(flagOnline)
 	pkt.BroadcastUp()
 }
 
