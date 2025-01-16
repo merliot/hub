@@ -51,6 +51,10 @@ func (d *device) uptime() string {
 	return formatDuration(time.Since(d.startup).Truncate(time.Second))
 }
 
+func tinygoTarget(target string) bool {
+	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
+}
+
 // funcs are device functions passed to templates.
 //
 // IMPORTANT!
@@ -77,6 +81,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"targets":         func() target.Targets { return target.MakeTargets(d.Targets) },
 		"ssids":           func() []string { return maps.Keys(wifiAuths()) },
 		"target":          func() string { return d.deployValues().Get("target") },
+		"tinygoTarget":    tinygoTarget,
 		"port":            func() string { return d.deployValues().Get("port") },
 		"ssid":            func() string { return d.deployValues().Get("ssid") },
 		"package":         func() string { return Models[d.Model].Package },
