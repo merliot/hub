@@ -39,7 +39,6 @@ type device struct {
 	Devicer      `json:"-"`
 	stopChan     chan struct{}
 	startup      time.Time
-	stateMu      mutex
 	flags
 	rwMutex
 	deviceOS
