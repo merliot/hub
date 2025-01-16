@@ -13,6 +13,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	tpkg "github.com/merliot/hub/pkg/target"
 )
 
 var (
@@ -102,7 +104,7 @@ func createSFX(dir, sfxFile, tarFile, installerFile string) error {
 	return nil
 }
 
-func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir string) error {
+func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
 
 	referer := r.Referer()
 	if isLocalhost(referer) {
@@ -172,17 +174,37 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir str
 		return err
 	}
 
-	// TODO only tar up bin/ files that are needed for the target device
+	// Figure out which binaries to include in installer such that this
+	// device can reproduce any child model device
+
+	var binFiles []string
+	childModels := d.childModels()
+	if len(childModels) == 0 {
+		// Sterile device only needs the bin/device-<target> binary
+		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
+	} else {
+		// Copy over the binaries needed to produce children devices
+		binFiles = append(binFiles, "-C", ".", "./bin/device-rpi")
+		binFiles = append(binFiles, "-C", ".", "./bin/device-x86-64")
+		for name, model := range childModels {
+			// Copy the UF2 files for the model (all targets)
+			for _, t := range tpkg.TinyGoTargets(model.Config.Targets) {
+				binFiles = append(binFiles, "-C", ".", "./bin/"+name+"-"+t+".uf2")
+			}
+		}
+	}
 
 	// Create a gzipped tar ball with everything inside need to
 	// install/uninstall the device
+
 	tarFile := service + ".tar.gz"
 	tarFilePath := filepath.Join(dir, tarFile)
-	cmd := exec.Command("tar",
-		"--exclude", tarFile,
-		"-czf", tarFilePath,
-		"-C", ".", "bin/",
-		"-C", dir, ".")
+
+	args := []string{"--exclude", tarFile, "-czf", tarFilePath}
+	args = append(args, binFiles...)
+	args = append(args, "-C", dir, ".")
+
+	cmd := exec.Command("tar", args...)
 	LogDebug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
@@ -261,7 +283,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 
 	switch target {
 	case "x86-64", "rpi":
-		return d.buildLinuxImage(w, r, dir)
+		return d.buildLinuxImage(w, r, dir, target)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return d.buildTinyGoImage(w, r, dir, target)
 	default:
