@@ -19,3 +19,15 @@ func getDevice(id string) (*device, error) {
 	}
 	return nil, deviceNotFound(id)
 }
+
+func aliveDevices() (alive deviceMap) {
+	devicesMu.RLock()
+	defer devicesMu.RUnlock()
+	alive = make(deviceMap)
+	for id, d := range devices {
+		if !d.isSet(flagGhost) {
+			alive[id] = d
+		}
+	}
+	return
+}

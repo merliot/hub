@@ -467,6 +467,23 @@ func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
+	view := r.URL.Query().Get("view")
+	template := "model-" + view + ".tmpl"
+	if err := d.renderTmpl(w, template, d.Config); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {
+	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
+		"models": d.childModels(),
+		"newid":  generateRandomId(),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
 func (d *device) editName(w http.ResponseWriter, r *http.Request) {
 	if err := d.renderTmpl(w, "edit-name.tmpl", d.Name); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -510,18 +527,25 @@ func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
 	pkt.SetDst(d.Id).RouteDown()
 }
 
-func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
-	view := r.URL.Query().Get("view")
-	template := "model-" + view + ".tmpl"
-	if err := d.renderTmpl(w, template, d.Config); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
 type MsgCreated struct {
 	Id    string
 	Model string
 	Name  string
+}
+
+func (d *device) handleCreated(pkt *Packet) {
+	var msg MsgCreated
+
+	pkt.Unmarshal(&msg)
+
+	if err := addChild(d, msg.Id, msg.Model, msg.Name, flagLocked); err != nil {
+		LogError("Adding child failed", "device", d, "msg", msg)
+		return
+	}
+
+	routesBuild(root)
+
+	pkt.BroadcastUp()
 }
 
 func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
@@ -541,7 +565,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 
 	// TODO validate msg.Id, msg.Model, msg.Name
 
-	if err := addChild(d, msg.Id, msg.Model, msg.Name); err != nil {
+	if err := addChild(d, msg.Id, msg.Model, msg.Name, 0); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -552,12 +576,27 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// Route /created msg down
-	pkt.SetDst(d.Id).SetPath("/created").RouteDown()
+	// Route /created msg up
+	pkt.SetDst(d.Id).SetPath("/created").RouteUp()
 }
 
 type MsgDestroyed struct {
 	ChildId string
+}
+
+func (d *device) handleDestroyed(pkt *Packet) {
+	var msg MsgDestroyed
+
+	pkt.Unmarshal(&msg)
+
+	if err := removeChild(msg.ChildId); err != nil {
+		LogError("Removing child failed", "device", d, "msg", msg)
+		return
+	}
+
+	routesBuild(root)
+
+	pkt.BroadcastUp()
 }
 
 func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
@@ -582,16 +621,6 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 	// Mark root dirty
 	deviceDirty(root.Id)
 
-	// Route /destroyed msg down
-	pkt.SetDst(parentId).SetPath("/destroyed").RouteDown()
-}
-
-func (d *device) showNewModal(w http.ResponseWriter, r *http.Request) {
-	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
-		"models": d.childModels(),
-		"newid":  generateRandomId(),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	// Route /destroyed msg up
+	pkt.SetDst(parentId).SetPath("/destroyed").RouteUp()
 }

@@ -32,7 +32,7 @@ func wsServer(conn *websocket.Conn) {
 		LogError("Expected announcement, got", "path", pkt.Path)
 		return
 	}
-	LogDebug("Announcement", "pkt", pkt)
+	LogDebug("-> Announcement", "pkt", pkt)
 
 	var annDevices = make(deviceMap)
 	pkt.Unmarshal(&annDevices)
@@ -77,7 +77,7 @@ func wsServer(conn *websocket.Conn) {
 	// Announcement is good, reply with /welcome packet
 
 	pkt.ClearMsg().SetPath("/welcome")
-	LogDebug("Sending welcome", "pkt", pkt)
+	LogDebug("<- Sending welcome", "pkt", pkt)
 	link.Send(pkt)
 
 	// Add as active download link
@@ -94,7 +94,7 @@ func wsServer(conn *websocket.Conn) {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogDebug("Route packet UP", "pkt", pkt)
+		LogDebug("-> Route packet UP", "pkt", pkt)
 		deviceRouteUp(pkt.Dst, pkt)
 	}
 

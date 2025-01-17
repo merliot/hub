@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"net/url"
@@ -313,6 +314,17 @@ func (d *device) downloadMsgError(sessionId string, downloadErr error) {
 	sessionSend(sessionId, string(buf.Bytes()))
 }
 
+type MsgDownloaded struct {
+	DeployParams template.HTML
+}
+
+func (d *device) handleDownloaded(pkt *Packet) {
+	var msg MsgDownloaded
+	pkt.Unmarshal(&msg)
+	d.formConfig(string(msg.DeployParams))
+	pkt.BroadcastUp()
+}
+
 func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	var sessionId = r.PathValue("sessionId")
@@ -356,4 +368,10 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 		deviceDirty(root.Id)
 		downlinkClose(d.Id)
 	}
+
+	// Send a /downloaded msg up so uplinks can update their DeployParams
+
+	msg := MsgDownloaded{d.DeployParams}
+	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
+	pkt.Marshal(&msg).RouteUp()
 }

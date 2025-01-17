@@ -67,7 +67,7 @@ func wsClient(conn *websocket.Conn) {
 	}
 
 	devicesMu.RLock()
-	pkt.Marshal(&devices)
+	pkt.Marshal(aliveDevices())
 	devicesMu.RUnlock()
 
 	// Send announcement
@@ -107,7 +107,7 @@ func wsClient(conn *websocket.Conn) {
 			LogError("Receiving packet", "err", err)
 			break
 		}
-		LogDebug("Route packet DOWN", "pkt", pkt)
+		LogDebug("-> Route packet DOWN", "pkt", pkt)
 		downlinksRoute(pkt)
 	}
 

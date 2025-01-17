@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+const maxLength = 100 // Max length of packet string
+
 // NoMsg is an empty message type for PacketHandle's
 type NoMsg struct{}
 
@@ -50,7 +52,6 @@ func (p *Packet) String() string {
 
 	// Convert msg to string and truncate if needed
 	msgStr := fmt.Sprintf("%v", msg)
-	const maxLength = 100
 	if len(msgStr) > maxLength {
 		msgStr = msgStr[:maxLength] + "..."
 	}
@@ -152,8 +153,8 @@ func (p *Packet) RouteDown() {
 //     the websocket, and JSON-decoded by the receiving uplink device.
 func (p *Packet) RouteUp() {
 	LogDebug("RouteUp", "pkt", p)
-	sessionsRoute(p)
 	uplinksRoute(p)
+	sessionsRoute(p)
 }
 
 // RouteUp is a device packet handler that routes the packet up

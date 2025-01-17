@@ -65,6 +65,11 @@ func (d *device) _buildOS() error {
 	// Build the device templates using combined funcs
 	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.FuncMap)
 
+	// Default handlers for Linux devices
+	d.PacketHandlers["/created"] = &PacketHandler[MsgCreated]{d.handleCreated}
+	d.PacketHandlers["/destroyed"] = &PacketHandler[MsgDestroyed]{d.handleDestroyed}
+	d.PacketHandlers["/downloaded"] = &PacketHandler[MsgDownloaded]{d.handleDownloaded}
+
 	return err
 }
 
@@ -141,7 +146,7 @@ func devicesSetupAPI() {
 	}
 }
 
-func addChild(parent *device, id, model, name string) error {
+func addChild(parent *device, id, model, name string, flags flags) error {
 
 	var resurrect bool
 
@@ -184,6 +189,8 @@ func addChild(parent *device, id, model, name string) error {
 	if err := child._build(maker.Maker); err != nil {
 		return err
 	}
+
+	child._set(flags)
 
 	parent.Children = append(parent.Children, id)
 	devices[id] = child

@@ -66,7 +66,7 @@ func (d *device) _build(maker Maker) error {
 		d._set(flagDemo | flagOnline | flagMetal)
 	}
 
-	// Special handlers
+	// Default handlers for all devices
 	d.PacketHandlers["/state"] = &PacketHandler[any]{d.handleState}
 	d.PacketHandlers["/online"] = &PacketHandler[any]{d.handleOnline}
 	d.PacketHandlers["/offline"] = &PacketHandler[any]{d.handleOffline}

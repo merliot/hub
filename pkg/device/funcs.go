@@ -30,18 +30,6 @@ func (d *device) stateJSON() (string, error) {
 	return string(bytes), err
 }
 
-func aliveDevices() (alive deviceMap) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	alive = make(deviceMap)
-	for id, d := range devices {
-		if !d.isSet(flagGhost) {
-			alive[id] = d
-		}
-	}
-	return
-}
-
 func devicesJSON() (string, error) {
 	bytes, err := json.MarshalIndent(aliveDevices(), "", "\t")
 	return string(bytes), err
