@@ -352,6 +352,8 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	// Built it!
 
+	println("FOOOOOOOOOO")
+
 	if err := d.buildImage(w, r); err != nil {
 		d.downloadMsgError(sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
@@ -364,12 +366,16 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	// updated (with the image we created above) the downlink device
 	// will connect.
 
+	println("FOOOOOOOOOO")
+
 	if changed {
 		deviceDirty(root.Id)
 		downlinkClose(d.Id)
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams
+
+	println("FOOOOOOOOOO")
 
 	msg := MsgDownloaded{d.DeployParams}
 	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
