@@ -54,22 +54,32 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	u, _ := url.Parse("https://app.koyeb.com/deploy")
 
 	q := u.Query()
+
+	// See https://www.koyeb.com/docs/build-and-deploy/deploy-to-koyeb-button
+
 	q.Set("type", "docker")
 	q.Set("name", d.Model+"-"+d.Id)
 	q.Set("instance_type", "eco-micro")
 	q.Set("ports", "8000;http;/")
 	q.Set("image", "merliot/hub")
-	q.Set("env[USER]", "")
-	q.Set("env[PASSWD]", "")
+
 	q.Set("env[DIAL_URLS]", dialurls)
 	q.Set("env[LOG_LEVEL]", logLevel)
 	q.Set("env[PING_PERIOD]", pingPeriod)
 	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
-	q.Set("env[WIFI_SSIDS]", "")
-	q.Set("env[WIFI_PASSPHRASES]", "")
 	q.Set("env[DEVICES]", string(devs))
 
+	// These are left blank intentionally to not give away any secrets.
+	// The user must edit the Koyeb service settings to update the vars.
+
+	q.Set("env[USER]", "")
+	q.Set("env[PASSWD]", "")
+	q.Set("env[WIFI_SSIDS]", "")
+	q.Set("env[WIFI_PASSPHRASES]", "")
+
 	u.RawQuery = q.Encode()
+
+	// TODO figure out how to make this go to a new tab target="_blank"
 
 	w.Header().Set("HX-Redirect", u.String())
 }

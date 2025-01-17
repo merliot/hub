@@ -48,7 +48,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
 	w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(fileName))
 	w.Header().Set("Content-Type", "application/octet-stream")
 
-	LogInfo("Serving download file", "name", fileName)
+	LogInfo("Serving download file", "name", filepath.Base(fileName))
 	http.ServeFile(w, r, fileName)
 
 	return nil
