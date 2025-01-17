@@ -46,6 +46,12 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 		downlinkClose(d.Id)
 	}
 
+	// Send a /downloaded msg up so uplinks can update their DeployParams
+
+	msg := MsgDownloaded{d.DeployParams}
+	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
+	pkt.Marshal(&msg).RouteUp()
+
 	// Redirect the browser to Koyeb to build the device
 
 	devs, _ := json.Marshal(d.devices())
