@@ -69,6 +69,7 @@ func (d *device) _buildOS() error {
 	d.PacketHandlers["/created"] = &PacketHandler[MsgCreated]{d.handleCreated}
 	d.PacketHandlers["/destroyed"] = &PacketHandler[MsgDestroyed]{d.handleDestroyed}
 	d.PacketHandlers["/downloaded"] = &PacketHandler[MsgDownloaded]{d.handleDownloaded}
+	d.PacketHandlers["/announced"] = &PacketHandler[MsgDownloaded]{d.handleAnnounced}
 
 	return err
 }

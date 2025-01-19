@@ -71,7 +71,7 @@ func wsClient(conn *websocket.Conn) {
 	devicesMu.RUnlock()
 
 	// Send announcement
-	LogInfo("Sending announcement", "pkt", pkt)
+	LogInfo("<- Sending", "pkt", pkt)
 	err := link.Send(pkt)
 	if err != nil {
 		LogError("Sending", "err", err)
@@ -85,7 +85,7 @@ func wsClient(conn *websocket.Conn) {
 		return
 	}
 
-	LogInfo("Reply from announcement", "pkt", pkt)
+	LogInfo("-> Reply", "pkt", pkt)
 	if pkt.Path != "/welcome" {
 		LogError("Not welcomed, got", "path", pkt.Path)
 		return

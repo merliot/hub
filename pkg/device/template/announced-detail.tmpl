@@ -1,0 +1,30 @@
+<div class="model-{{model}} {{classOffline}}" id="{{uniq `device`}}"
+	hx-target="this"
+	hx-swap="outerHTML">
+
+	<div class="flex flex-row ml-{{mult .level 10}}">
+
+		<div class="panel flex flex-col m-1 p-2 min-w-80
+			{{bgColor}} {{textColor}} {{borderColor}}
+			border-solid border-2 rounded-3xl">
+
+			<div class="flex flex-row mb-5 items-center justify-between">
+				<span class="text-lg font-bold ml-2.5 w-full cursor-pointer"
+					hx-get="/device/{{id}}/show-view?view=overview">{{name}}</span>
+				<div class="flex flex-row">
+{{ template "button-save.tmpl" . }}
+{{ template "button-trashcan.tmpl" . }}
+{{ template "button-settings.tmpl" . }}
+{{ template "button-info.tmpl" . }}
+{{ template "button-locked.tmpl" . }}
+				</div>
+			</div>
+{{ if eq deployParams "" }}
+	{{ template "undefined-detail.tmpl" .}}
+{{ else }}
+	{{ template "body-detail.tmpl" .}}
+{{ end }}
+		</div>
+	</div>
+{{ _renderChildren .sessionId (add .level 1) }}
+</div>

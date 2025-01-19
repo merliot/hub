@@ -3,6 +3,7 @@
 package device
 
 import (
+	"fmt"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -12,6 +13,58 @@ import (
 func wsHandle(w http.ResponseWriter, r *http.Request) {
 	serv := websocket.Server{Handler: websocket.Handler(wsServer)}
 	serv.ServeHTTP(w, r)
+}
+
+func (d *device) handleAnnounced(pkt *Packet) {
+	if _, err := handleAnnounce(pkt); err != nil {
+		LogDebug("Error handling announcement", "err", err)
+	}
+}
+
+func handleAnnounce(pkt *Packet) (id string, err error) {
+
+	var annDevices = make(deviceMap)
+
+	pkt.Unmarshal(&annDevices)
+
+	// Find root device in announcement
+
+	annRoot, err := findRoot(annDevices)
+	if err != nil {
+		return "", fmt.Errorf("Cannot find root: %s", err)
+	}
+	id = annRoot.Id
+
+	if id != pkt.Dst {
+		return "", fmt.Errorf("Id mismatch announcement-id: %s pkt-id: %s", id, pkt.Dst)
+	}
+
+	if id == root.Id {
+		return "", fmt.Errorf("Cannot dial into root (self)")
+	}
+
+	// Make sure announcement root device exists in existing devices and
+	// matches existing device
+
+	if err := validate(annRoot); err != nil {
+		return "", fmt.Errorf("Announcement mismatch id: %s err: %s", id, err)
+	}
+
+	// Merge in annoucement devices
+
+	if err := merge(devices, annDevices); err != nil {
+		return "", fmt.Errorf("Cannot merge device id: %s err: %s", id, err)
+	}
+
+	// Rebuild routing table
+	routesBuild(root)
+
+	// Send /announced packet up so parents can update their trees
+	pkt.SetPath("/announced")
+	LogDebug("<- Sending", "pkt", pkt)
+	pkt.RouteUp()
+
+	return id, nil
 }
 
 func wsServer(conn *websocket.Conn) {
@@ -29,55 +82,21 @@ func wsServer(conn *websocket.Conn) {
 	}
 
 	if pkt.Path != "/announce" {
-		LogError("Expected announcement, got", "path", pkt.Path)
+		LogError("Expected /announce, got", "path", pkt.Path)
 		return
 	}
 	LogDebug("-> Announcement", "pkt", pkt)
 
-	var annDevices = make(deviceMap)
-	pkt.Unmarshal(&annDevices)
-
-	// Find root device in announcement
-
-	annRoot, err := findRoot(annDevices)
+	id, err := handleAnnounce(pkt)
 	if err != nil {
-		LogDebug("Cannot find root", "err", err)
-		return
-	}
-	id := annRoot.Id
-
-	if id != pkt.Dst {
-		LogDebug("Id mismatch", "announcement-id", id, "pkt-id", pkt.Dst)
+		LogError("Bad announcement", "err", err)
 		return
 	}
 
-	if id == root.Id {
-		LogDebug("Cannot dial into root (self)", "id", id)
-		return
-	}
-
-	// Make sure announcement root device exists in existing devices and
-	// matches existing device
-
-	if err := validate(annRoot); err != nil {
-		LogDebug("Announcement mismatch", "id", id, "err", err)
-		return
-	}
-
-	// Merge in annoucement devices
-
-	if err := merge(devices, annDevices); err != nil {
-		LogDebug("Cannot merge device", "id", id, "err", err)
-		return
-	}
-
-	// Rebuild routing table
-	routesBuild(root)
-
-	// Announcement is good, reply with /welcome packet
+	// Announcement is good, send /welcome packet down to device
 
 	pkt.ClearMsg().SetPath("/welcome")
-	LogDebug("<- Sending welcome", "pkt", pkt)
+	LogDebug("<- Sending", "pkt", pkt)
 	link.Send(pkt)
 
 	// Add as active download link
