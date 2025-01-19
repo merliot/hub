@@ -13,10 +13,6 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-func wantsWifi(target string) bool {
-	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
-}
-
 func (d *device) classOffline() string {
 	if d._isSet(flagOnline) {
 		return ""
@@ -77,7 +73,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
 		"isRoot":          func() bool { return d == root },
 		"isProgenitive":   func() bool { return d._isSet(FlagProgenitive) },
-		"wantsHttpPort":   func() bool { return d._isSet(FlagWantsHttpPort) },
+		"isHttpPortMust":  func() bool { return d._isSet(FlagHttpPortMust) },
 		"isOnline":        func() bool { return d._isSet(flagOnline) },
 		"isDemo":          func() bool { return d._isSet(flagDemo) },
 		"isDirty":         func() bool { return d._isSet(flagDirty) },

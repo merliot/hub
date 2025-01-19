@@ -438,6 +438,14 @@ func (d *device) selectedTarget(params url.Values) string {
 	return target
 }
 
+func wantsWifi(target string) bool {
+	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
+}
+
+func wantsHttpPort(target string) bool {
+	return target == "x86-64" || target == "rpi"
+}
+
 func (d *device) showDownloadTarget(w http.ResponseWriter, r *http.Request) {
 	selectedTarget := d.selectedTarget(r.URL.Query())
 	sessionId := r.PathValue("sessionId")
@@ -445,6 +453,7 @@ func (d *device) showDownloadTarget(w http.ResponseWriter, r *http.Request) {
 		"sessionId":      sessionId,
 		"selectedTarget": selectedTarget,
 		"wantsWifi":      wantsWifi(selectedTarget),
+		"wantsHttpPort":  wantsHttpPort(selectedTarget),
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

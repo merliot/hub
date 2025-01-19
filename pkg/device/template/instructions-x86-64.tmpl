@@ -18,7 +18,7 @@
 
 {{template "instructions-x86-64-step1.tmpl" .}}
 
-{{- if wantsHttpPort }}
+{{- if isHttpPortMust }}
 <p>The {{model}} device runs as a local web server.  Specify a port to listen on.  The device's address is http://addr:port, where addr is the local IP (or hostname).</p>
 {{- else }}
 <p>(Optional) The {{model}} device can run as a local web server.  To enable, specify a port to listen on.  The device's address is http://addr:port, where addr is the local IP (or hostname).  This is useful, for example, when the hub is not accessible, and you want to check in on the device.</p>

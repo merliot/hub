@@ -24,16 +24,16 @@
 
 {{- end }}
 
-{{- if not .wantsWifi }}
+{{- if .wantsHttpPort }}
 
 	<div class="flex flex-col">
-	{{- if not wantsHttpPort }}
-		<span class="text-gray-700">(optional)</span>
+	{{- if not isHttpPortMust }}
+		<span>(optional)</span>
 	{{- end }}
 		<div class="flex flex-row mb-5">
 			<label>
 				Run Local Web Server on Port:
-	{{- if wantsHttpPort }}
+	{{- if isHttpPortMust }}
 				<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}" required>
 	{{ else }}
 				<input class="w-16" type="number" min="1024" max="49151" name="port" value="{{port}}">

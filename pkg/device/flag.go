@@ -3,14 +3,14 @@ package device
 type flags uint32
 
 const (
-	FlagProgenitive   flags = 1 << iota // May have children
-	FlagWantsHttpPort                   // HTTP port not optional
-	flagOnline                          // Device is online
-	flagDirty                           // Has unsaved changes
-	flagLocked                          // Device is locked
-	flagDemo                            // Running in DEMO mode
-	flagMetal                           // Device is running on real hardware
-	flagGhost                           // Device is dead but still around
+	FlagProgenitive  flags = 1 << iota // May have children
+	FlagHttpPortMust                   // Device must have an HTTP port
+	flagOnline                         // Device is online
+	flagDirty                          // Has unsaved changes
+	flagLocked                         // Device is locked
+	flagDemo                           // Running in DEMO mode
+	flagMetal                          // Device is running on real hardware
+	flagGhost                          // Device is dead but may be resurrected later
 )
 
 func (f *flags) _set(flags flags) {

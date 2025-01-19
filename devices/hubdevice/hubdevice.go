@@ -20,7 +20,7 @@ func (h *hubDevice) GetConfig() device.Config {
 	return device.Config{
 		Model:   "hub",
 		Parents: []string{"hub"},
-		Flags:   device.FlagProgenitive | device.FlagWantsHttpPort,
+		Flags:   device.FlagProgenitive | device.FlagHttpPortMust,
 		State:   h,
 		FS:      &fs,
 		Targets: []string{"x86-64", "rpi", "koyeb"},
