@@ -51,7 +51,7 @@
 <!-- Buttons -->
 
 <div class="flex flex-col mt-8">
-	<div class="flex flex-row justify-end">
+	<div class="flex flex-row justify-center">
 {{ if eq .selectedTarget "koyeb" }}
 		<img class="h-10 my-2.5 mx-1.5" src="https://www.koyeb.com/static/images/deploy/button.svg"
 			hx-get="/device/{{id}}/deploy-koyeb/{{.sessionId}}"
@@ -61,7 +61,7 @@
 {{ end }}
 	</div>
 
-<!-- Error message, empty initially -->
+<!-- Error message, if any -->
 
 {{ template "device-download-msg-empty.tmpl" . }}
 
