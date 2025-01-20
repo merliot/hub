@@ -181,7 +181,7 @@ func addChild(parent *device, id, model, name string, flags flags) error {
 	defer child.Unlock()
 
 	if resurrect {
-		// Ressurect ghost child back to life
+		// Resurrect ghost child back to life
 		child._unSet(flagGhost)
 		child.DeployParams = ""
 		child.Children = []string{}
