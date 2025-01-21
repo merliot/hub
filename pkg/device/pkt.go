@@ -11,7 +11,7 @@ const maxLength = 100 // Max length of packet string
 // NoMsg is an empty message type for PacketHandle's
 type NoMsg struct{}
 
-// Packet is the basic container for messages sent between devices.
+// Packet is the basic container for messages sent inner and between devices.
 type Packet struct {
 	// SessionId is the originating session id.  Empty means packet isn't
 	// pinned to any session.

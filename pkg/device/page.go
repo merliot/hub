@@ -34,6 +34,7 @@ var docPages = []page{
 	{"", "GUIDES", ""},
 	{"quick-start", "QUICK START", "/doc/quick-start"},
 	{"install", "INSTALL GUIDE", "/doc/install"},
+	{"devices", "DEVICES", "/doc/devices"},
 	{"env-vars", "ENV VARS", "/doc/env-vars"},
 	{"faq", "FAQ", "/doc/faq"},
 

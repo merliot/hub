@@ -8,7 +8,10 @@ the hub on the cloud or to run on local hardware.</p>
 <p>If you have your own server, you can install your hub locally.  This is the
 more private choice.  The server doesn't have to be a huge system; a raspberry
 Pi is sufficient, as well as a laptop.  If you want to access the hub remotely,
-over the Internet, use <a target="_blank" href="https://tailscale.com">Tailscale</a>.</p>
+over the Internet, use <a target="_blank"
+href="https://tailscale.com">Tailscale</a>.  With Tailscale, your hub and
+devices are local, but you can access them from any device that's in the
+Tailnet, including your phone.</p>
 
 <p>If you don't have a server, you can "rent" one in the cloud to host your
 hub.  This is a less private choice because a third party is now hosting your
@@ -38,6 +41,13 @@ directory to /app:</p>
 $ sudo docker run -p 8000:8000 -v ./:/app merliot/hub
 </pre>
 
+<p>Add environment <a href="/doc/env-vars">variables</a> using -e option.  For
+example, to set a user/password on the hub:</p>
+
+<pre class="cmd-line text-wrap">
+$ sudo docker run -p 8000:8000 -v ./:/app -e USER=xxx -e PASSWD=yyy merliot/hub
+</pre>
+
 <h3>TAILSCALE</h3>
 
 <p>Use <a target="_blank" href="https://tailscale.com">Tailscale</a> to create
@@ -61,13 +71,14 @@ minimum VM requirements are: 512MB RAM and 2GB disk.</p>
 FREE using Koyeb's Free Forever offer.  You have to create an account on Koyeb.
 Click the one-click button below to create a hub instance on Koyeb.</p>
 
-<a href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/">
+<a href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/&env[LOG_LEVEL]=INFO&env[PING_PERIOD]=2&env[BACKGROUND]=&env[DEVICES]=&env[USER]=&env[PASSWD]=&env[WIFI_SSIDS]=&env[WIFI_PASSPHRASES]=">
 	<img class="m-8" src="https://www.koyeb.com/static/images/deploy/button.svg">
 </a>
 
-<p>Follow the prompts to install the hub.  You can add enviroment <a
-	href="/doc/env-vars">variables</a> to configure the hub.  The hub
-address will be something like:</p>
+<p>Follow the prompts to install the hub.  Adjust the enviroment
+<a href="/doc/env-vars">variables</a> as needed.</p>
+
+<p>The hub address will be something like:</p>
 
 <pre class="cmd-line">https://asquare-eloise-merliot-67e2796c.koyeb.app/</pre>
 
@@ -78,13 +89,15 @@ address will be something like:</p>
 <p>Run Merliot Hub on <a href="https://www.digitalocean.com/">Digital Ocean</a>.  It cost $5/month to run the hub.</p>
 
 <ol>
-  <li>Click the "Deploy to web app" button on the project page.</li>
-  <li>Under Service Provider, select "Docker Hub".</li>
-  <li>Repository is "merliot/hub". No tag. No credentials.</li>
+  <li>Click the "Deploy to web app" button on the project page</li>
+  <li>Under Create App, select "Container Image" tab and select "Docker Hub"</li>
+  <li>Enter "merliot/hub" for Repository</li>
+  <li>Enter "latest" for image tag
   <li>Edit the Service Resources:
     <ul>
-      <li>Resource Size and select the $5 VM with 512MB RAM.</li>
-      <li>Edit the Port to 8000.</li>
+      <li>Resource Size and select the $5 VM with 512MB RAM</li>
+      <li>Edit the Port to 8000</li>
+      <li>Edit the environment <a href="/doc/env-vars">variables</a></li>
     </ul>
   </li>
   <li>Create the Resource.</li>

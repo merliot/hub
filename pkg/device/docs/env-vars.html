@@ -1,6 +1,7 @@
 <h2>ENVIRONMENT VARIABLES</h2>
 
-<p>Use environment variables to set hub settings.</p>
+<p>When the hub starts, it will read run-time settings from the environment
+variables listed below.</p>
 
 <p>If running from Docker, use --env or -e:
 
@@ -10,27 +11,17 @@
 
 <pre class="cmd-line">$ DEMO=true go run ./cmd/</pre>
 
-<div class="">
+<div>
 	<h3 id="PORT">PORT</h3>
 	<p>Port on which the hub web server runs. Defaults to 8000.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="DEVICES">DEVICES</h3>
 
-	<p>JSON-encoded map of devices in the device tree.  The key is the device ID.  A device is the structure:</p>
-
-	<pre class="code-snippet">
-type device struct {
-	Id           string
-	Model        string
-	Name         string
-	Children     []string  // child Ids
-	DeployParams template.HTML
-}
-	</pre>
-
-	<h4>Example</h4>
+	<p>DEVICES can be set to a JSON-encoded map of
+	<a href="/doc/devices">devices</a> in the device tree.  Here's an
+	example of a hub with two devices:</p>
 
 	<pre class="code-snippet">
 {
@@ -63,27 +54,29 @@ type device struct {
 
 </div>
 
-<div class="">
-	<h3 id="DEVICES_FILES">DEVICES_FILE</h3>
-	<p>File path for JSON-encoded devices file, defaults to devices.json.
-	See DEVICES above for format of file.  If DEVICES is also given, then
-	DEVICES takes presedence over DEVICES_FILE.</p>
+<div>
+	<h3 id="DEVICES_FILE">DEVICES_FILE</h3>
+	<p>DEVICES_FILE is set to a file path for JSON-encoded <a href="/doc/devices">devices</a> file.
+	If DEVICES is also given, then DEVICES takes presedence over
+	DEVICES_FILE.  If neither DEVICES nor DEVICES_FILE are given, the
+	hub defaults to reading 'devices.json'.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="USER">USER</h3>
-	<p>Username for authentication.  If non-blank, a new client
-	session will prompt for the user/passwd.  In addition, devices
-	will also use same user/passwd to authenticate to the hub.  The
-	authentication is done using HTTP Basic Authentication.</p>
+	<p>Username for authentication.  If non-blank, a new client session
+	will prompt for the user/passwd.  In addition, devices created from the
+	hub will also use same user/passwd to authenticate when they dial back
+	to the hub.  The authentication is done using
+	<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication">HTTP Basic Authentication.</a></p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="PASSWD">PASSWD</h3>
 	<p>Password for authentication.  Only valid if USER is non-blank</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="WIFI_SSIDS">WIFI_SSIDS</h3>
 
 	<p>Comma-separated list of WiFi SSIDs.  Each SSID in the list has a
@@ -103,33 +96,45 @@ WIFI_PASSPHRASES="xxx,yyy"
 	passphrases are not visible).</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="WIFI_PASSPHRASES">WIFI_PASSPHRASES</h3>
 	<p>Comma-separated list of WiFi passphrases.  This list pairs
 	the passphrases with the SSIDs set in WIFI_SSIDS.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="DIAL_URLS">DIAL_URLS</h3>
-	<p>Comma-separated URLs for dialing parent hub(s). (TODO not working at
-	the moment).</p>
+	<p>Comma-separated URLs for dialing parent hub(s).  These URLs will be
+	websocket connections in the format:</p>
+
+	<pre class="cmd-line text-wrap">
+ws://&lt;host&gt;:&lt;port&gt;/ws
+	</pre>
+
+	<p>or if using https:</p>
+
+	<pre class="cmd-line text-wrap">
+wss://&lt;host&gt;:&lt;port&gt;/ws
+	</pre>
+
+	<p>where host:port is the address of the parent hub.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="PING_PERIOD">PING_PERIOD</h3>
 	<p>Client ping period, in seconds.  To keep the websocket connection
 	alive, the client (browser) uses htmx's ws-send to send a ping packet
 	back to the server (hub).  The default is 2.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="BACKGROUND">BACKGROUND</h3>
 	<p>Background color: LIGHT or DARK.  Default is DARK.</p>
 </div>
 
 <h2>DEBUG ENVIRONMENT VARIABLES</h2>
 
-<div class="">
+<div>
 	<h3 id="LOG_LEVEL">LOG_LEVEL</h3>
 	<p>Set the hub logging level.  The options are "DEBUG", "INFO", "WARN",
 	and "ERROR", in that order.  The default is "INFO", meaning only
@@ -137,7 +142,7 @@ WIFI_PASSPHRASES="xxx,yyy"
 	additional debug info.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="DEMO">DEMO</h3>
 	<p>Runs the hub in demo mode if set to "true".  In demo mode, all the
 	devices on the hub will run locally on the hub, simulating the devices.
@@ -145,13 +150,13 @@ WIFI_PASSPHRASES="xxx,yyy"
 	testing.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="SITE">SITE</h3>
 	<p>Runs the hub in site mode if set to "true".  Implies demo mode.
 	The hub and devices are locked (read-only) in site mode.</p>
 </div>
 
-<div class="">
+<div>
 	<h3 id="DEBUG_KEEP_BUILDS">DEBUG_KEEP_BUILDS</h3>
 	<p>If set to "true", keeps build artifacts for debugging.</p>
 </div>

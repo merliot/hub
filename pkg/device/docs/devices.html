@@ -1,0 +1,44 @@
+<h2>DEVICES</h2>
+
+<p>JSON-encoded map of devices in the device tree.  The key is the device ID.  A device is the structure:</p>
+
+<pre class="code-snippet">
+type device struct {
+	Id           string
+	Model        string
+	Name         string
+	Children     []string  // child Ids
+	DeployParams template.HTML
+}
+</pre>
+
+<h4>Example</h4>
+
+<pre class="code-snippet">
+{
+	"qrcode1": {
+		"Id": "qrcode1",
+		"Model": "qrcode",
+		"Name": "QR Code",
+		"Children": null,
+		"DeployParams": "target=wioterminal"
+	},
+	"gps1": {
+		"Id": "gps1",
+		"Model": "gps",
+		"Name": "GPS",
+		"Children": null,
+		"DeployParams": "target=nano-rp2040"
+	},
+	"hub": {
+		"Id": "hub",
+		"Model": "hub",
+		"Name": "Hub",
+		"Children": [
+			"gps1",
+			"qrcode1",
+		],
+		"DeployParams": "target=x86-64\u0026port=8000"
+	}
+}
+</pre>
