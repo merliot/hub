@@ -1,18 +1,8 @@
 <h2>DEVICES</h2>
 
-<p>JSON-encoded map of devices in the device tree.  The key is the device ID.  A device is the structure:</p>
-
-<pre class="code-snippet">
-type device struct {
-	Id           string
-	Model        string
-	Name         string
-	Children     []string  // child Ids
-	DeployParams template.HTML
-}
-</pre>
-
-<h4>Example</h4>
+<p>When a hub starts, it reads a definition of the hub's devices from a
+'devices.json' file.  The file is a JSON-encoded map of devices in the device
+tree.  An example devices.json file for a hub with two devices is:</p>
 
 <pre class="code-snippet">
 {
@@ -42,3 +32,61 @@ type device struct {
 	}
 }
 </pre>
+
+<p>Note that the hub is included.  The hub is also a device!  The devices are keyed by device ID, and duplicate device IDs are not allowed.</p>
+
+<style>
+table {
+  width: 100%; /* Makes the table take up full width */
+  border-collapse: collapse; /* Prevents double borders */
+}
+
+th, td {
+  border: 1px solid;
+  padding: 8px; /* Adds padding inside cells */
+  text-align: left; /* Left-aligns text in cells */
+}
+
+th {
+    text-align: left; /*left justifies the headings*/
+}
+</style>
+
+<p>Each device has five fields:</p>
+
+<table>
+	<thead>
+		<tr>
+			<th>Field</th>
+			<th>Description</th>
+			<th>Example (from JSON)</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>Id</code></td>
+			<td>A unique identifier for the device.  Non-blank, alpha-numeric, with '-' and '_' chars allowed.</td>
+			<td><code>"qrcode1"</code>, <code>"gps1"</code>, <code>"hub"</code></td>
+		</tr>
+		<tr>
+			<td><code>Model</code></td>
+			<td>The model of the device.  Non-blank, alpha-numeric, with '-' and '_' chars allowed.</td>
+			<td><code>"qrcode"</code>, <code>"gps"</code>, <code>"hub"</code></td>
+		</tr>
+		<tr>
+			<td><code>Name</code></td>
+			<td>A human-readable name for the device.  Non-blank.</td>
+			<td><code>"QR Code"</code>, <code>"GPS"</code>, <code>"Hub"</code></td>
+		</tr>
+		<tr>
+			<td><code>Children</code></td>
+			<td>An array of child device IDs (if the device is a parent/container).</td>
+			<td><code>["gps1", "qrcode1"]</code></td>
+		</tr>
+		<tr>
+			<td><code>DeployParams</code></td>
+			<td>Parameters used for device deployment, specifying a target and other options.</td>
+			<td><code>"target=wioterminal"</code>, <code>"target=nano-rp2040"</code>, <code>"target=x86-64&amp;port=8000"</code></td>
+		</tr>
+	</tbody>
+</table>
