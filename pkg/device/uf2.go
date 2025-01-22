@@ -13,7 +13,7 @@ type uf2Params struct {
 	Id           string
 	Model        string
 	Name         string
-	DeployParams template.HTML
+	DeployParams template.URL
 	User         string
 	Passwd       string
 	DialURLs     string

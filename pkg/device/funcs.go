@@ -53,7 +53,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"model":           func() string { return d.Model },
 		"name":            func() string { return d.Name },
 		"uniq":            func(s string) string { return d.Model + "-" + d.Id + "-" + s },
-		"deployParams":    func() template.HTML { return d.DeployParams },
+		"deployParams":    func() template.URL { return d.DeployParams },
 		"state":           func() any { return d.State },
 		"stateJSON":       d.stateJSON,
 		"uptime":          d.uptime,

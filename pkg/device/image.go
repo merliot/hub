@@ -315,7 +315,7 @@ func (d *device) downloadMsgError(sessionId string, downloadErr error) {
 }
 
 type MsgDownloaded struct {
-	DeployParams template.HTML
+	DeployParams template.URL
 }
 
 func (d *device) handleDownloaded(pkt *Packet) {

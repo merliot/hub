@@ -34,7 +34,7 @@ type device struct {
 	Model        string
 	Name         string
 	Children     []string
-	DeployParams template.HTML
+	DeployParams template.URL
 	Config       `json:"-"`
 	Devicer      `json:"-"`
 	stopChan     chan struct{}
@@ -153,7 +153,7 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 	}
 
 	// Save changes.  Store DeployParams unescaped.
-	d.DeployParams = template.HTML(proposedParams)
+	d.DeployParams = template.URL(proposedParams)
 	return true, nil
 }
 
