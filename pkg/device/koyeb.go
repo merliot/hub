@@ -42,7 +42,7 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	// will connect.
 
 	if changed {
-		deviceDirty(root.Id)
+		root.save()
 		downlinkClose(d.Id)
 	}
 

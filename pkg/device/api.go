@@ -404,7 +404,7 @@ func (d *device) saveDevices(w http.ResponseWriter, r *http.Request) {
 	if err := devicesSave(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	deviceClean(d.Id)
+	d.clean()
 }
 
 func (d *device) showSaveModal(w http.ResponseWriter, r *http.Request) {
@@ -516,7 +516,7 @@ func (d *device) rename(w http.ResponseWriter, r *http.Request) {
 		d.Lock()
 		d.Name = msg.NewName
 		d.Unlock()
-		deviceDirty(root.Id)
+		root.save()
 		downlinkClose(d.Id)
 	}
 
@@ -582,8 +582,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 	// Rebuild routing table
 	routesBuild(root)
 
-	// Mark root dirty
-	deviceDirty(root.Id)
+	root.save()
 
 	// Route /created msg up
 	pkt.SetDst(d.Id).SetPath("/created").RouteUp()
@@ -627,8 +626,7 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 	// Rebuild routing table
 	routesBuild(root)
 
-	// Mark root dirty
-	deviceDirty(root.Id)
+	root.save()
 
 	// Route /destroyed msg up
 	pkt.SetDst(parentId).SetPath("/destroyed").RouteUp()

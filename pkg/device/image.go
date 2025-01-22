@@ -120,11 +120,14 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, ta
 	// Generate environment variable file.  The service will load env vars
 	// from this file.
 	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
-		"port":     r.URL.Query().Get("port"),
-		"user":     Getenv("USER", ""),
-		"passwd":   Getenv("PASSWD", ""),
-		"dialurls": dialurls,
-		"logLevel": logLevel,
+		"port":       r.URL.Query().Get("port"),
+		"user":       Getenv("USER", ""),
+		"passwd":     Getenv("PASSWD", ""),
+		"dialurls":   dialurls,
+		"logLevel":   logLevel,
+		"pingPeriod": Getenv("PING_PERIOD", ""),
+		"background": Getenv("BACKGROUND", ""),
+		"autoSave":   Getenv("AUTO_SAVE", "true"),
 	}); err != nil {
 		return err
 	}
@@ -228,9 +231,9 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 
 	var referer = r.Referer()
 	if isLocalhost(referer) {
-		return fmt.Errorf("Cannot use localhost for hub.  Use the hub " +
-			"hostname or IP address; something that is addressable so the " +
-			"device can dial into the hub.")
+		return fmt.Errorf("Cannot use localhost address %s for hub.  Use the hub "+
+			"hostname or IP address; something that is addressable so the "+
+			"device can dial into the hub.", referer)
 	}
 
 	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
@@ -352,8 +355,6 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	// Built it!
 
-	println("FOOOOOOOOOO")
-
 	if err := d.buildImage(w, r); err != nil {
 		d.downloadMsgError(sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
@@ -366,16 +367,12 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	// updated (with the image we created above) the downlink device
 	// will connect.
 
-	println("FOOOOOOOOOO")
-
 	if changed {
-		deviceDirty(root.Id)
+		root.save()
 		downlinkClose(d.Id)
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams
-
-	println("FOOOOOOOOOO")
 
 	msg := MsgDownloaded{d.DeployParams}
 	pkt := Packet{Dst: d.Id, Path: "/downloaded"}

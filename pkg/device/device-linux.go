@@ -501,24 +501,16 @@ func deviceOffline(id string) {
 	}
 }
 
-func updateDirty(id string, dirty bool) {
-	if d, err := getDevice(id); err == nil {
-		if dirty {
-			d.set(flagDirty)
-		} else {
-			d.unSet(flagDirty)
-		}
-		pkt := &Packet{Dst: d.Id, Path: "/dirty"}
-		pkt.BroadcastUp()
-	}
+func (d *device) dirty() {
+	d.set(flagDirty)
+	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
+	pkt.BroadcastUp()
 }
 
-func deviceDirty(id string) {
-	updateDirty(id, true)
-}
-
-func deviceClean(id string) {
-	updateDirty(id, false)
+func (d *device) clean() {
+	d.unSet(flagDirty)
+	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
+	pkt.BroadcastUp()
 }
 
 func deviceParent(id string) string {
@@ -584,6 +576,19 @@ func devicesLoad() error {
 	return json.Unmarshal([]byte(devicesJSON), &devices)
 }
 
+func (d *device) save() error {
+	var autoSave = Getenv("AUTO_SAVE", "") == "true"
+
+	if autoSave {
+		return devicesSave()
+	}
+
+	// Mark device dirty so user can manually save
+	d.dirty()
+
+	return nil
+}
+
 func devicesSave() error {
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
@@ -591,12 +596,12 @@ func devicesSave() error {
 	var noFile bool = (devicesFile == "")
 
 	if noJSON && noFile {
-		LogInfo("Saving to devices.json")
+		//LogDebug("Saving to devices.json")
 		return fileWriteJSON("devices.json", aliveDevices())
 	}
 
 	if noJSON && !noFile {
-		LogInfo("Saving to", "DEVICES_FILE", devicesFile)
+		//LogDebug("Saving to", "DEVICES_FILE", devicesFile)
 		return fileWriteJSON(devicesFile, aliveDevices())
 	}
 
