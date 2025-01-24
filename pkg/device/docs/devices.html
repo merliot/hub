@@ -90,3 +90,31 @@ th {
 		</tr>
 	</tbody>
 </table>
+
+<h3>DEVICE TREES</h3>
+
+<p>The devices file must contain a single device tree with a single root
+device, typically the hub device.  A file with mutliple trees will not load.</p>
+
+<p>The device tree may be multiple levels deep, with hubs containing hubs, etc.</p>
+
+<h3>LOADING DEVICES</h3>
+
+<p>By default, the hub will load devices from the 'devices.json' file. If the
+environment <a href="/doc/env-vars">variable</a>
+DEVICES_FILE is set to a file path, the devices will be loaded from that
+file.</p>
+
+<p>If the DEVICES environment variable is set, devices will be loaded directly
+from DEVICES, ignoring DEVICES_FILE. Using DEVICES is primarily for cloud
+environments where there is no file storage.</p>
+
+<h3>SAVING DEVICES</h3>
+
+<p>If devices were loaded from a file, then any changes are saved back to the
+same file. If the environment variable AUTO_SAVE is "true", then changes are
+saved automatically. If AUTO_SAVE is not set, then the user must manually save
+changes.</p>
+
+<p>If devices were loaded from DEVICES, then changes must be saved manually by
+updating the DEVICES environment variable.</p>
