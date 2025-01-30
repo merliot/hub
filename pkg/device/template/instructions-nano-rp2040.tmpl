@@ -59,8 +59,10 @@
 <div class="note">
 	<span class="note-icon">📝 NOTE</span>
 	<p>On Linux, you can manually install the uf2 using dd:</p>
-	<pre class="cmd-line text-wrap">
+	<pre class="text-wrap">
+	<code>
 $ sudo dd if=./{{model}}-{{id}}-installer.uf2 of=/dev/sdb bs=4M status=progress conv=fsync
+	</code>
 	</pre>
 	<p>Where /dev/sdb is the Arduino mount point.  (Verify your /dev/sdX mount point using lsblk).</p>
 </div>
