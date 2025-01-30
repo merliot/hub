@@ -1361,3 +1361,7 @@ button {
 a {
   color: #ffaa00;
 }
+
+h4 {
+  text-decoration: underline;
+}
