@@ -576,7 +576,7 @@ func devicesLoad() error {
 }
 
 func (d *device) save() error {
-	var autoSave = Getenv("AUTO_SAVE", "") == "true"
+	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
 
 	if autoSave {
 		return devicesSave()
