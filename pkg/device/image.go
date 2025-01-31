@@ -107,13 +107,7 @@ func createSFX(dir, sfxFile, tarFile, installerFile string) error {
 
 func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
 
-	referer := r.Referer()
-	if isLocalhost(referer) {
-		return fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
-			"using the hostname or IP address of the host; something that " +
-			"is addressable on the network so the device can dial into the hub.")
-	}
-
+	var referer = r.Referer()
 	var service = d.Model + "-" + d.Id
 	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 
@@ -330,12 +324,22 @@ func (d *device) handleDownloaded(pkt *Packet) {
 
 func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
+	var referer = r.Referer()
 	var sessionId = r.PathValue("sessionId")
 
 	d.downloadMsgClear(sessionId)
 
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to download: device is locked")
+		d.downloadMsgError(sessionId, err)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	if isLocalhost(referer) {
+		err := fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
+			"using the hostname or IP address of the host; something that " +
+			"is addressable on the network so the device can dial into the hub.")
 		d.downloadMsgError(sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
 		return
