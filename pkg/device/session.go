@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,8 +23,7 @@ type session struct {
 	rwMutex
 }
 
-var sessions = make(map[string]*session) // key: sessionId
-var sessionsMu rwMutex
+var sessions sync.Map // key: sessionId
 var sessionCount int32
 var sessionCountMax = int32(1000)
 
@@ -33,26 +33,21 @@ func init() {
 
 func newSession() (string, bool) {
 
-	sessionsMu.Lock()
-	defer sessionsMu.Unlock()
-
 	if sessionCount >= sessionCountMax {
 		return "", false
 	}
 
 	sessionId := uuid.New().String()
-	sessions[sessionId] = &session{id: sessionId, lastUpdate: time.Now()}
+	s := &session{id: sessionId, lastUpdate: time.Now()}
+	sessions.Store(sessionId, s)
 	sessionCount++
 
 	return sessionId, true
 }
 
 func sessionConn(sessionId string, conn *websocket.Conn) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
+	if v, ok := sessions.Load(sessionId); ok {
+		s := v.(*session)
 		s.Lock()
 		s.conn = conn
 		s.lastUpdate = time.Now()
@@ -61,18 +56,13 @@ func sessionConn(sessionId string, conn *websocket.Conn) {
 }
 
 func sessionExpired(sessionId string) bool {
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-	_, exists := sessions[sessionId]
+	_, exists := sessions.Load(sessionId)
 	return !exists
 }
 
 func sessionKeepAlive(sessionId string) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
+	if v, ok := sessions.Load(sessionId); ok {
+		s := v.(*session)
 		s.Lock()
 		s.lastUpdate = time.Now()
 		s.Unlock()
@@ -124,11 +114,8 @@ func (s *session) renderPkt(pkt *Packet) error {
 }
 
 func sessionsRoute(pkt *Packet) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	for _, s := range sessions {
+	sessions.Range(func(_, value any) bool {
+		s := value.(*session)
 		if pkt.SessionId == "" || pkt.SessionId == s.id {
 			//LogDebug("sessionsRoute", "pkt", pkt)
 			if err := s.renderPkt(pkt); err != nil {
@@ -137,15 +124,13 @@ func sessionsRoute(pkt *Packet) {
 				}
 			}
 		}
-	}
+		return true
+	})
 }
 
 func sessionRoute(sessionId string, pkt *Packet) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
+	if v, ok := sessions.Load(sessionId); ok {
+		s := v.(*session)
 		//LogDebug("sessionRoute", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
@@ -156,11 +141,8 @@ func sessionRoute(sessionId string, pkt *Packet) {
 }
 
 func sessionSend(sessionId, htmlSnippet string) {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	if s, ok := sessions[sessionId]; ok {
+	if v, ok := sessions.Load(sessionId); ok {
+		s := v.(*session)
 		if err := s.send([]byte(htmlSnippet)); err != nil {
 			LogError("sessionSend", "err", err)
 		}
@@ -168,19 +150,21 @@ func sessionSend(sessionId, htmlSnippet string) {
 }
 
 func sessionHijack() string {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
-
-	for _, s := range sessions {
+	var hijackID string
+	sessions.Range(func(_, value interface{}) bool {
+		s := value.(*session)
 		s.RLock()
 		if s.conn != nil {
+			hijackID = s.id
 			s.RUnlock()
-			return s.id
+			return false // Stop iteration after finding one connected session
 		}
 		s.RUnlock()
+		return true // Continue iteration
+	})
+	if hijackID != "" {
+		return hijackID
 	}
-
 	return "none-to-hijack"
 }
 
@@ -189,32 +173,37 @@ func gcSessions() {
 	ticker := time.NewTicker(minute)
 	defer ticker.Stop()
 	for range ticker.C {
-		sessionsMu.Lock()
-		for sessionId, s := range sessions {
-			s.RLock()
+		sessions.Range(func(key, value interface{}) bool {
+			sessionId := key.(string)
+			s := value.(*session)
+			s.mu.RLock()
 			if time.Since(s.lastUpdate) > minute {
-				delete(sessions, sessionId)
+				sessions.Delete(sessionId)
 				gcViews(sessionId)
 				sessionCount--
 			}
 			s.RUnlock()
-		}
-		sessionsMu.Unlock()
+			return true
+		})
 	}
 }
 
 func sessionsSortedAge() []string {
-	keys := make([]string, 0, len(sessions))
-	for key := range sessions {
-		keys = append(keys, key)
-	}
+	keys := make([]string, 0)
+	sessions.Range(func(key, value interface{}) bool {
+		keys = append(keys, key.(string))
+		return true
+	})
 
 	// Sort keys based on lastUpdate, newest first
 	sort.Slice(keys, func(i, j int) bool {
-		return sessions[keys[i]].lastUpdate.After(sessions[keys[j]].lastUpdate)
+		s1, _ := sessions.Load(keys[i])
+		s2, _ := sessions.Load(keys[j])
+		return s1.(*session).lastUpdate.After(s2.(*session).lastUpdate)
 	})
 
 	return keys
+
 }
 
 type sessionStatus struct {
@@ -223,9 +212,6 @@ type sessionStatus struct {
 }
 
 func sessionsStatus() []sessionStatus {
-
-	sessionsMu.RLock()
-	defer sessionsMu.RUnlock()
 
 	color := func(s *session) string {
 		elapsed := time.Since(s.lastUpdate)
@@ -249,13 +235,16 @@ func sessionsStatus() []sessionStatus {
 		return fmt.Sprintf("%s %3d %s", id, age, connected)
 	}
 
-	var statuses = make([]sessionStatus, 0, len(sessions))
+	var statuses = make([]sessionStatus, 0)
 	for _, id := range sessionsSortedAge() {
-		s := sessions[id]
+		v, _ := sessions.Load(id)
+		s := v.(*session)
+		s.RLock()
 		statuses = append(statuses, sessionStatus{
 			Color:  color(s),
 			Status: status(s),
 		})
+		s.RUnlock()
 	}
 
 	return statuses
