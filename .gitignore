@@ -27,3 +27,4 @@ devices.json*
 bin/*
 cmd/uf2/*/
 camera-images
+.DS_Store

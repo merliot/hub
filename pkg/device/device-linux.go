@@ -552,7 +552,6 @@ func devicesLoad() error {
 
 	if noJSON && noFile && noDefault {
 		LogInfo("Loading with empty hub")
-		loadedFromDEVICES = true
 		return json.Unmarshal([]byte(emptyHub), &devices)
 	}
 
@@ -572,7 +571,7 @@ func devicesLoad() error {
 }
 
 func (d *device) save() error {
-	var autoSave = Getenv("AUTO_SAVE", "") == "true"
+	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
 
 	if autoSave {
 		return devicesSave()

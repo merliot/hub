@@ -74,6 +74,7 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	q.Set("env[PING_PERIOD]", pingPeriod)
 	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
 	q.Set("env[DEVICES]", string(devs))
+	q.Set("env[AUTO_SAVE]", "false")
 
 	// These are left blank intentionally to not give away any secrets.
 	// The user must edit the Koyeb service settings to update the vars.
