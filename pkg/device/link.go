@@ -1,60 +1,48 @@
 package device
 
+import "sync"
+
 type linker interface {
 	Send(pkt *Packet) error
 	Close()
 }
 
-var uplinks = make(map[linker]bool) // keyed by linker
-var uplinksMu rwMutex
+var uplinks sync.Map // keyed by linker
 
 func uplinksAdd(l linker) {
-	uplinksMu.Lock()
-	defer uplinksMu.Unlock()
-	uplinks[l] = true
+	uplinks.Store(l, true)
 }
 
 func uplinksRemove(l linker) {
-	uplinksMu.Lock()
-	defer uplinksMu.Unlock()
-	delete(uplinks, l)
+	uplinks.Delete(l)
 }
 
 func uplinksRoute(pkt *Packet) {
-	uplinksMu.RLock()
-	defer uplinksMu.RUnlock()
-	for ul := range uplinks {
+	uplinks.Range(func(key, value interface{}) bool {
+		ul := key.(linker)
 		ul.Send(pkt)
-	}
+		return true
+	})
 }
 
-var downlinks = make(map[string]linker) // keyed by device id
-var downlinksMu rwMutex
+var downlinks sync.Map // keyed by device id
 
 func downlinksAdd(id string, l linker) {
-	downlinksMu.Lock()
-	defer downlinksMu.Unlock()
-	downlinks[id] = l
+	downlinks.Store(id, l)
 }
 
 func downlinksRemove(id string) {
-	downlinksMu.Lock()
-	defer downlinksMu.Unlock()
-	delete(downlinks, id)
+	downlinks.Delete(id)
 }
 
 func downlinkRoute(id string, pkt *Packet) {
-	downlinksMu.RLock()
-	defer downlinksMu.RUnlock()
-	if dl, ok := downlinks[id]; ok {
-		dl.Send(pkt)
+	if dl, ok := downlinks.Load(id); ok {
+		dl.(linker).Send(pkt)
 	}
 }
 
 func downlinkClose(id string) {
-	downlinksMu.RLock()
-	defer downlinksMu.RUnlock()
-	if dl, ok := downlinks[id]; ok {
-		dl.Close()
+	if dl, ok := downlinks.Load(id); ok {
+		dl.(linker).Close()
 	}
 }

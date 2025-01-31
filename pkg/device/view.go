@@ -12,33 +12,22 @@ type view struct {
 	lastUpdate time.Time
 }
 
-type views map[string]*view // key: sessionId
+func (d *device) lastView(sessionId string) (string, int) {
 
-func (d *device) lastView(sessionId string) (view string, level int) {
-
-	d.viewsMu.RLock()
-	defer d.viewsMu.RUnlock()
-
-	if v, exists := d.views[sessionId]; exists {
-		return v.last, v.level
+	if v, exists := d.views.Load(sessionId); exists {
+		view := v.(*view)
+		return view.last, view.level
 	}
 
 	return "overview", 0
 }
 
 func (d *device) saveView(sessionId, last string, level int) {
-
-	d.viewsMu.Lock()
-	defer d.viewsMu.Unlock()
-
-	v, exists := d.views[sessionId]
-	if !exists {
-		v = &view{}
-		d.views[sessionId] = v
-	}
-	v.last = last
-	v.level = level
-	v.lastUpdate = time.Now()
+	v, _ := d.views.LoadOrStore(sessionId, &view{})
+	view := v.(*view)
+	view.last = last
+	view.level = level
+	view.lastUpdate = time.Now()
 }
 
 func gcViews(sessionId string) {
@@ -47,10 +36,6 @@ func gcViews(sessionId string) {
 	defer devicesMu.RUnlock()
 
 	for _, d := range devices {
-		d.viewsMu.Lock()
-		if _, exists := d.views[sessionId]; exists {
-			delete(d.views, sessionId)
-		}
-		d.viewsMu.Unlock()
+		d.views.Delete(sessionId)
 	}
 }

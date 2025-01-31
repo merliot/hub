@@ -2,13 +2,14 @@
 
 package device
 
-var routes map[string]string // key: dst id, value: nexthop id
-var routesMu rwMutex
+import "sync"
+
+var routes sync.Map // key: dst id, value: nexthop id
 
 func _routesBuild(parent, base *device) {
 	for _, childId := range parent.Children {
 		// children point to base
-		routes[childId] = base.Id
+		routes.Store(childId, base.Id)
 		child := devices[childId]
 		child.RLock()
 		_routesBuild(child, base)
@@ -18,11 +19,6 @@ func _routesBuild(parent, base *device) {
 
 func routesBuild(root *device) {
 
-	routesMu.Lock()
-	defer routesMu.Unlock()
-
-	routes = make(map[string]string)
-
 	devicesMu.RLock()
 	defer devicesMu.RUnlock()
 
@@ -30,23 +26,28 @@ func routesBuild(root *device) {
 	defer root.RUnlock()
 
 	// root points to self
-	routes[root.Id] = root.Id
+	routes.Store(root.Id, root.Id)
 
 	for _, childId := range root.Children {
 		// children of root point to self
-		routes[childId] = childId
+		routes.Store(childId, childId)
 		child := devices[childId]
 		child.RLock()
 		_routesBuild(child, child)
 		child.RUnlock()
 	}
 
-	LogDebug("Routes", "map[dst]nexthop", routes)
+	// Convert sync.Map to regular map for logging
+	routeMap := make(map[string]string)
+	routes.Range(func(key, value interface{}) bool {
+		routeMap[key.(string)] = value.(string)
+		return true
+	})
+	LogDebug("Routes", "map[dst]nexthop", routeMap)
 }
 
 func downlinksRoute(p *Packet) {
-	routesMu.RLock()
-	nexthop := routes[p.Dst]
-	routesMu.RUnlock()
-	deviceRouteDown(nexthop, p)
+	if nexthop, ok := routes.Load(p.Dst); ok {
+		deviceRouteDown(nexthop.(string), p)
+	}
 }

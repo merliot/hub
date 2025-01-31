@@ -12,6 +12,7 @@ import (
 	"os"
 	"slices"
 	"sort"
+	"sync"
 	"time"
 )
 
@@ -22,8 +23,7 @@ type deviceOS struct {
 	*http.ServeMux
 	templates *template.Template
 	layeredFS
-	views
-	viewsMu rwMutex
+	views sync.Map
 }
 
 func (d *device) Handle(pattern string, handler http.Handler) {
@@ -40,11 +40,6 @@ func (d *device) _buildOS() error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
-
-	// Preserve views in case of device reboot
-	if d.views == nil {
-		d.views = make(views)
-	}
 
 	// Build device's layered FS.  fs is stacked on top of
 	// deviceFs, so fs:foo.tmpl will override deviceFs:foo.tmpl,
