@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"runtime/debug"
 	"time"
+
+	"github.com/merliot/hub/pkg/ratelimit"
 )
 
 var root *device
@@ -75,21 +77,32 @@ func Run() {
 	devicesInstall()
 
 	// Install / to point to root device
-	http.Handle("/", basicAuthHandler(root))
+	http.Handle("/", root)
 
 	// Install /ws websocket listener, but only if not in demo mode.  In
 	// demo mode, we want to ignore any devices dialing in.
 	if !runningDemo {
-		http.HandleFunc("/ws", basicAuthHandlerFunc(wsHandle))
+		http.HandleFunc("/ws", wsHandle)
 	}
 
 	// Install /wsx websocket listener (wsx is for htmx ws)
-	http.HandleFunc("/wsx", basicAuthHandlerFunc(wsxHandle))
+	http.HandleFunc("/wsx", wsxHandle)
+
+	// Use client IP rate limiter
+	rl := ratelimit.New(ratelimit.Config{
+		RateLimitWindow: 100 * time.Millisecond,
+		MaxRequests:     30,
+		BurstSize:       30,
+		CleanupInterval: 1 * time.Minute,
+	})
 
 	addr := ":" + port
-	server := &http.Server{Addr: addr}
+	server := &http.Server{
+		Addr:    addr,
+		Handler: rl.RateLimit(basicAuth(http.DefaultServeMux)),
+	}
 
-	http.HandleFunc("/devices", basicAuthHandlerFunc(showDevices))
+	http.HandleFunc("/devices", showDevices)
 
 	// Run http server in go routine to be shutdown later
 	go func() {

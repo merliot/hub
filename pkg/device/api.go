@@ -90,7 +90,7 @@ func (d *device) installAPIs() {
 // modelInstall installs /model/{model} pattern for device in default ServeMux
 func (d *device) modelInstall() {
 	prefix := "/model/" + d.Model
-	handler := basicAuthHandler(http.StripPrefix(prefix, d))
+	handler := http.StripPrefix(prefix, d)
 	http.Handle(prefix+"/", handler)
 	LogInfo("Model installed", "prefix", prefix)
 }
@@ -121,7 +121,7 @@ func (d *device) deviceHandler(next http.Handler) http.Handler {
 // deviceInstall installs /device/{id} pattern for device in default ServeMux
 func (d *device) deviceInstall() {
 	prefix := "/device/" + d.Id
-	handler := d.deviceHandler(basicAuthHandler(http.StripPrefix(prefix, d)))
+	handler := d.deviceHandler(http.StripPrefix(prefix, d))
 	http.Handle(prefix+"/", handler)
 	LogInfo("Device installed", "prefix", prefix, "device", d)
 }

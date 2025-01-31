@@ -9,7 +9,7 @@ import (
 )
 
 // HTTP Basic Authentication middleware
-func basicAuth(w http.ResponseWriter, r *http.Request) bool {
+func _basicAuth(w http.ResponseWriter, r *http.Request) bool {
 	var user = Getenv("USER", "")
 	var passwd = Getenv("PASSWD", "")
 
@@ -41,24 +41,13 @@ func basicAuth(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-// basicAuthHandler middleware function for http.Handler
-func basicAuthHandler(next http.Handler) http.Handler {
+// basicAuth middleware function for http.Handler
+func basicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !basicAuth(w, r) {
+		if !_basicAuth(w, r) {
 			return
 		}
 		// Call the next handler if the credentials are valid
 		next.ServeHTTP(w, r)
 	})
-}
-
-// basicAuthHandlerFunc middleware function for http.HandlerFunc
-func basicAuthHandlerFunc(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if !basicAuth(w, r) {
-			return
-		}
-		// Call the next handler if the credentials are valid
-		next(w, r)
-	}
 }
