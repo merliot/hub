@@ -24,8 +24,15 @@ $ curl -X DELETE "http://localhost:8000/destroy?Id=foo"
 
 <p>Example:</p>
 
-<pre class="cmd-line text-wrap">
-$ curl -X GET -o foo-installer "http://localhost:8000/device/foo/download-image?target=x86-64"
+<pre class="cmd-line">
+$ curl -X GET -H "Referer: http://&lt;host&gt;:8000/" \
+  -o foo-installer \
+  "http://&lt;host&gt;:8000/device/foo/download-image? \
+  target=x86-64"
 </pre>
+
+<p>Where &lt;host&gt; is the host running the hub. The -H option is setting the
+dial-home address for the device. Consequently, this address cannot be local,
+so no http://localhost, etc.</p>
 
 <p>The response header "Content-Md5" has the file's MD5 checksum.</p>
