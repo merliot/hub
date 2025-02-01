@@ -19,7 +19,26 @@ hub, and you'll have to create an account.</p>
 
 <h3>DOCKER</h3>
 
-<p>Run the latest version of Merliot hub using <a target="_blank" href="https://www.docker.com/">Docker</a>.</p>
+<p>Run the latest version of Merliot hub using <a target="_blank"
+	href="https://www.docker.com/">Docker</a> from Docker Desktop or the
+command line.</p>
+
+<h4>Docker Desktop</h4>
+
+<p>Docker Desktop makes it easy to run Merliot Hub on you local PC, running either MacOS, Windows, or Linux.  There is nothing else to install beside Docker Desktop.</p>
+
+<p><a href="https://www.docker.com/">Install</a> Docker Desktop and pull and
+run the <code>merliot/hub</code> docker image.  Watch the video to see a hub
+installed and an example device (relay) deployed.</p>
+
+<video controls playsinline muted width="500">
+	<source src="https://media.merliot.io/videos/hub-install-docker.mp4" type="video/mp4">
+	Your browser does not support the MP4 video format.
+</video>
+
+<h4>Docker Command Line</h4>
+
+<p>Install docker command line (CLI) per your OS/distrubution and then run the <code>merliot/hub</code> image.</p>
 
 <pre class="cmd-line">
 $ sudo docker run -p 8000:8000 merliot/hub
@@ -83,6 +102,13 @@ Click the one-click button below to create a hub instance on Koyeb.</p>
 <pre class="cmd-line">https://asquare-eloise-merliot-67e2796c.koyeb.app/</pre>
 
 <p>If you have a domain name registered, you can assign it to the hub.</p>
+
+<p>Watch the video to see a hub installed and an example device (relay) deployed.</p>
+
+<video controls playsinline muted width="500">
+	<source src="https://media.merliot.io/videos/hub-install-koyeb.mp4" type="video/mp4">
+	Your browser does not support the MP4 video format.
+</video>
 
 <h4>Digital Ocean ($5/month)</h4>
 
