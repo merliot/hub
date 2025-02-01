@@ -532,9 +532,10 @@ var emptyHub = `{
 	}
 }`
 
-var loadedFromDEVICES bool
+var saveToClipboard bool
 
 func devicesLoad() error {
+	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
 	var noJSON bool = (devicesJSON == "")
@@ -552,6 +553,7 @@ func devicesLoad() error {
 
 	if noJSON && noFile && noDefault {
 		LogInfo("Loading with empty hub")
+		saveToClipboard = !autoSave
 		return json.Unmarshal([]byte(emptyHub), &devices)
 	}
 
@@ -566,7 +568,7 @@ func devicesLoad() error {
 	}
 
 	LogInfo("Loading from DEVICES")
-	loadedFromDEVICES = true
+	saveToClipboard = true
 	return json.Unmarshal([]byte(devicesJSON), &devices)
 }
 

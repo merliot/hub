@@ -78,7 +78,7 @@ func (d *device) baseFuncs() template.FuncMap {
 		"isDemo":          func() bool { return d._isSet(flagDemo) },
 		"isDirty":         func() bool { return d._isSet(flagDirty) },
 		"isLocked":        func() bool { return d._isSet(flagLocked) },
-		"saveToClipboard": func() bool { return loadedFromDEVICES },
+		"saveToClipboard": func() bool { return saveToClipboard },
 		"bgColor":         d.bgColor,
 		"textColor":       d.textColor,
 		"borderColor":     d.borderColor,
