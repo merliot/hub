@@ -36,3 +36,11 @@ dial-home address for the device. Consequently, this address cannot be local,
 so no http://localhost, etc.</p>
 
 <p>The response header "Content-Md5" has the file's MD5 checksum.</p>
+
+<pre class="code-snippet">GET /devices</pre>
+
+<p>Returns the JSON-encoded devices.json file:</p>
+
+<pre class="cmd-line">
+$ curl -X GET "http://nuc:8000/devices"
+</pre>
