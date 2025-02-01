@@ -588,7 +588,7 @@ func (d *device) createChild(w http.ResponseWriter, r *http.Request) {
 }
 
 type MsgDestroyed struct {
-	ChildId string
+	Id string
 }
 
 func (d *device) handleDestroyed(pkt *Packet) {
@@ -596,7 +596,7 @@ func (d *device) handleDestroyed(pkt *Packet) {
 
 	pkt.Unmarshal(&msg)
 
-	if err := removeChild(msg.ChildId); err != nil {
+	if err := removeChild(msg.Id); err != nil {
 		LogError("Removing child failed", "device", d, "msg", msg)
 		return
 	}
@@ -615,9 +615,9 @@ func (d *device) destroyChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentId := deviceParent(msg.ChildId)
+	parentId := deviceParent(msg.Id)
 
-	if err := removeChild(msg.ChildId); err != nil {
+	if err := removeChild(msg.Id); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
