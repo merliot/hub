@@ -1,6 +1,7 @@
 <h2>API</h2>
 
-<p>These APIs are available for the hub at <code>/</code>, and for each hub device at <code>/device/{{id}}/</code>.</p>
+<p>These APIs are available for the hub at <code>/</code>, and for each hub
+device at <code>/device/{{id}}/</code>.</p>
 
 <pre class="code-snippet">POST /create?Id=xxx&Model=yyy&Name=zzz</pre>
 
@@ -20,7 +21,8 @@ $ curl -X DELETE "http://localhost:8000/destroy?Id=foo"
 
 <pre class="code-snippet">GET /download-image?target=xxx&port=yyy&[more...]</pre>
 
-<p>Download a device image for the given target.  Device-specific parameters follow port=yyy.</p>
+<p>Download a device image for the given target.  Device-specific parameters
+follow port=yyy.</p>
 
 <p>Example:</p>
 
@@ -43,4 +45,30 @@ so no http://localhost, etc.</p>
 
 <pre class="cmd-line">
 $ curl -X GET "http://nuc:8000/devices"
+</pre>
+
+<h3>CUSTOM API</h3>
+
+<p>A device model may add device-spcific APIs using the
+<code>Config.APIs</code>.  An example:</p>
+
+<pre class="code-snippet">
+func (q *qrcode) GetConfig() device.Config {
+        return device.Config{
+                Model:   "qrcode",
+		...
+                APIs: device.APIs{
+                        "POST /generate":    q.gen,
+                        "GET /edit-content": q.edit,
+                },
+        }
+}
+
+func (q *qrcode) gen(w http.ResponseWriter, r *http.Request) {
+	// Handle /gen API
+}
+
+func (q *qrcode) edit(w http.ResponseWriter, r *http.Request) {
+	// Handle /edit API
+}
 </pre>
