@@ -326,7 +326,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to download: device is locked")
 		d.downloadMsgError(sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -335,7 +335,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 			"using the hostname or IP address of the host; something that " +
 			"is addressable on the network so the device can dial into the hub.")
 		d.downloadMsgError(sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -347,7 +347,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
 		d.downloadMsgError(sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -355,7 +355,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	if err := d.buildImage(w, r); err != nil {
 		d.downloadMsgError(sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
