@@ -1,22 +1,39 @@
 <h2>SERVICES</h2>
 
+<p>Devices installed on Linux targets (x86-64, rpi) are installed as a systemd
+service, which will automatically restart on system reboot (and in the event of
+a service crash, hopefully unlikely).  Systemd services are managed with
+<code>systemctl</code>.  The Merliot Hub devices are installed under the
+merliot.target systemd unit.</p>
+
+<p>To see currently installed device services:</p>
+
 <pre class="cmd-line">
 $ systemctl list-dependencies merliot.target
 merliot.target
-● ├─gadget-bb06fac6-3c5f0495.service
+● ├─gadget-bb06fac6.service
 ● └─gadget-g1.service
+</pre>
 
+<p>To stop/start/restart a device service:</p>
 
-sfeldma@penguin:~$ systemctl list-dependencies merliot.target
-merliot.target
-○ ├─gadget-bb06fac6-3c5f0495.service
-○ └─gadget-g1.service
-sfeldma@penguin:~$ sudo systemctl start merliot.target
-sfeldma@penguin:~$ systemctl list-dependencies merliot.target
-merliot.target
-● ├─gadget-bb06fac6-3c5f0495.service
-● └─gadget-g1.service
+<pre class="cmd-line">
+$ sudo systemctl stop &lt;service&gt;
+$ sudo systemctl start &lt;service&gt;
+$ sudo systemctl restart &lt;service&gt;
+</pre>
 
+<p>Where &lt;service&gt; is device service name.  For example, to stop gadget-g1 device:</p>
 
+<pre class="cmd-line">
+$ sudo systemctl stop gadget-g1
+</pre>
+
+<p>To pass in environment variables to device (useful for debugging), stop the
+service, set the variables, and start the service:</p>
+
+<pre class="cmd-line">
+$ sudo systemctl stop gadget-g1
 $ sudo systemctl set-environment DEBUG_KEEP_BUILDS=true LOG_LEVEL=DEBUG
+$ sudo systemctl start gadget-g1
 </pre>
