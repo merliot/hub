@@ -8,14 +8,9 @@
 	hx-boost="true">
 	<div class="flex flex-col">
 {{ template "page-tabs.tmpl" . }}
-{{ template "model-tabs.tmpl" . }}
 	</div>
 	<div class="max-w-lg">
-{{ if eq .model "" }}
 		<div hx-get="/docs/{{.page}}.html"
-{{ else }}
-		<div hx-get="/model/{{.model}}/docs/doc.html"
-{{ end }}
 			hx-trigger="load"
 			hx-swap="outerHTML"
 			hx-target="this">

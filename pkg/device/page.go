@@ -49,6 +49,4 @@ var docPages = []page{
 	{"device-views", "DEVICE VIEWS", "/doc/device-views"},
 	{"template-funcs", "TEMPLATE FUNCS", "/doc/template-funcs"},
 	{"template-map", "TEMPLATE MAP", "/doc/template-map"},
-
-	{"", "DEVICE MODELS", ""},
 }

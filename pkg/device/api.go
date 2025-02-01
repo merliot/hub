@@ -34,7 +34,6 @@ func (d *device) installAPIs() {
 		d.HandleFunc("GET /status/{page}/refresh", d.showSiteStatus)
 		d.HandleFunc("GET /doc", d.showSiteDocs)
 		d.HandleFunc("GET /doc/{page}", d.showSiteDocs)
-		d.HandleFunc("GET /doc/model/{model}", d.showSiteModelDocs)
 		d.HandleFunc("GET /blog", d.showSiteBlog)
 		d.HandleFunc("GET /blog/{page}", d.showSiteBlog)
 	} else {

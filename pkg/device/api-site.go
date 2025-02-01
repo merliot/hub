@@ -76,18 +76,7 @@ func (d *device) showSiteStatus(w http.ResponseWriter, r *http.Request) {
 
 func (d *device) showSiteDocs(w http.ResponseWriter, r *http.Request) {
 	d.showSection(w, r, "site.tmpl", "docs", "quick-start", docPages, map[string]any{
-		"tabs":   tabsDocs,
-		"models": Models,
-		"model":  "",
-	})
-}
-
-func (d *device) showSiteModelDocs(w http.ResponseWriter, r *http.Request) {
-	model := r.PathValue("model")
-	d.showSection(w, r, "site.tmpl", "docs", "none", docPages, map[string]any{
-		"tabs":   tabsDocs,
-		"models": Models,
-		"model":  model,
+		"tabs": tabsDocs,
 	})
 }
 
