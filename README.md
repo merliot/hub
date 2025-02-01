@@ -3,14 +3,18 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
 [![Issues](https://img.shields.io/github/issues/merliot/hub)](https://github.com/merliot/hub/issues)
 
-# Merliot
-Private Device Hub
+# MERLIOT
+PRIVATE DEVICE HUB
+
+<a href="https://merliot.io">Merliot</a> Hub is your private device hub, allowing you to monitor and control your devices over the Internet, privately.  Deploy your hub on the cloud or on your local PC. View your hub and devices from any web browser, even on your phone. There is no app to install.
 
 <a href="https://merliot.io/demo">
 	<img src="pkg/device/docs/images/demo.svg" width="500px">
 </a>
 
-## Run from Docker
+## Quick Install
+
+### Install with Docker
 
 <pre>
 $ sudo docker run -p 8000:8000 merliot/hub
@@ -20,7 +24,7 @@ Browse to `http://localhost:8000` to view hub.
 
 See other [install](https://merliot.io/doc/install) methods.
 
-## Run on Cloud
+### Install on Cloud
 
 Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use the one-click button to get started:
 
@@ -30,7 +34,7 @@ Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use t
 
 See other cloud [install](https://merliot.io/doc/install) methods.
 
-## Run from Source
+### Run from Source
 
 <pre>
 $ git clone https://github.com/merliot/hub.git
