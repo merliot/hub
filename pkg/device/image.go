@@ -224,12 +224,6 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, ta
 func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
 
 	var referer = r.Referer()
-	if isLocalhost(referer) {
-		return fmt.Errorf("Cannot use localhost address %s for hub.  Use the hub "+
-			"hostname or IP address; something that is addressable so the "+
-			"device can dial into the hub.", referer)
-	}
-
 	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 	var ssid = r.URL.Query().Get("ssid")
 	var wifiAuths = wifiAuths()
