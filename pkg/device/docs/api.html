@@ -2,16 +2,30 @@
 
 <p>These APIs are available for the hub at <code>/</code>, and for each hub device at <code>/device/{{id}}/</code>.</p>
 
-<pre class="code-snippet">POST /create?id=xxx&model=yyy&name=zzz</pre>
+<pre class="code-snippet">POST /create?Id=xxx&Model=yyy&Name=zzz</pre>
 
-<p>Create a new device model instance with id, name.</p>
+<p>Create a new device model instance with id, name.  For example, to create a new relays device:</p>
 
-<pre class="code-snippet">DELETE /destroy?id=xxx</pre>
+<pre class="cmd-line">
+$ curl -X POST "http://localhost:8000/create?Id=foo&Model=relays&Name=Foo"
+</pre>
 
-<p>Destroy a device.</p>
+<pre class="code-snippet">DELETE /destroy?Id=xxx</pre>
+
+<p>Destroy a device, for example:</p>
+
+<pre class="cmd-line">
+$ curl -X DELETE "http://localhost:8000/destroy?Id=foo"
+</pre>
 
 <pre class="code-snippet">GET /download-image?target=xxx&port=yyy&[more...]</pre>
 
 <p>Download a device image for the given target.  Device-specific parameters follow port=yyy.</p>
+
+<p>Example:</p>
+
+<pre class="cmd-line text-wrap">
+$ curl -X GET -o foo-installer "http://localhost:8000/device/foo/download-image?target=x86-64"
+</pre>
 
 <p>The response header "Content-Md5" has the file's MD5 checksum.</p>
