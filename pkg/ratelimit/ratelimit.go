@@ -28,20 +28,20 @@ type Config struct {
 	CleanupInterval time.Duration
 }
 
-type ipRateLimiter struct {
-	limiter  *ratelimit.Bucket
+type client struct {
+	bucket   *ratelimit.Bucket
 	lastSeen time.Time
 }
 
 type RateLimiter struct {
-	config         Config
-	ipRateLimiters sync.Map
+	Config
+	sync.Map // key: client IP address, value: *client
 }
 
 // New creates a new RateLimiter instance.
 func New(config Config) *RateLimiter {
 	rl := &RateLimiter{
-		config: config,
+		Config: config,
 	}
 	go rl.cleanupRateLimiters()
 	return rl
@@ -52,37 +52,49 @@ func (rl *RateLimiter) RateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := getIPAddress(r)
 
-		limiter, loaded := rl.ipRateLimiters.Load(ip)
-
-		if !loaded {
-			limiter = &ipRateLimiter{
-				limiter:  ratelimit.NewBucket(rl.config.RateLimitWindow, int64(rl.config.BurstSize)),
+		c, ok := rl.Load(ip)
+		if !ok {
+			c = &client{
+				bucket: ratelimit.NewBucket(rl.RateLimitWindow,
+					int64(rl.BurstSize)),
 				lastSeen: time.Now(),
 			}
-			rl.ipRateLimiters.Store(ip, limiter)
+			rl.Store(ip, c)
 		}
-		ipLimiter := limiter.(*ipRateLimiter)
+		client := c.(*client)
 
-		if ipLimiter.limiter.TakeAvailable(1) == 0 {
+		if client.bucket.TakeAvailable(1) == 0 {
 			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 			return
 		}
-		ipLimiter.lastSeen = time.Now()
+		client.lastSeen = time.Now()
 
 		next.ServeHTTP(w, r)
 	})
 }
 
+func (rl *RateLimiter) Stats() map[string]int64 {
+	stats := make(map[string]int64)
+	rl.Range(func(key, value any) bool {
+		ip := key.(string)
+		client := value.(*client)
+		stats[ip] = client.bucket.Available()
+		return true
+	})
+	return stats
+}
+
 func (rl *RateLimiter) cleanupRateLimiters() {
-	ticker := time.NewTicker(rl.config.CleanupInterval)
+
+	ticker := time.NewTicker(rl.CleanupInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		rl.ipRateLimiters.Range(func(key, value interface{}) bool {
+		rl.Range(func(key, value any) bool {
 			ip := key.(string)
-			ipLimiter := value.(*ipRateLimiter)
-			if time.Since(ipLimiter.lastSeen) > rl.config.CleanupInterval {
-				rl.ipRateLimiters.Delete(ip)
+			client := value.(*client)
+			if time.Since(client.lastSeen) > rl.CleanupInterval {
+				rl.Delete(ip)
 			}
 
 			return true
