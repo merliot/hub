@@ -413,11 +413,9 @@ func (d *device) showSaveModal(w http.ResponseWriter, r *http.Request) {
 }
 
 func showDevices(w http.ResponseWriter, r *http.Request) {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
-	state, _ := json.MarshalIndent(devices, "", "\t")
+	state, _ := json.MarshalIndent(aliveDevices(), "", "\t")
 	w.Write(state)
 }
 
