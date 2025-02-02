@@ -4,7 +4,6 @@ package device
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"runtime"
@@ -105,15 +104,9 @@ func Run() {
 
 	http.HandleFunc("/devices", showDevices)
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "localhost"
-	}
-
 	// Run http server in go routine to be shutdown later
 	go func() {
-		msg := fmt.Sprintf("ListenAndServe http://%s%s", hostname, addr)
-		LogInfo(msg)
+		LogInfo("ListenAndServe", "addr", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			LogError("HTTP server ListenAndServe", "err", err)
 			os.Exit(1)
