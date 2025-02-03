@@ -41,3 +41,5 @@ $ git clone https://github.com/merliot/hub.git
 $ cd hub
 $ go run ./cmd
 </pre>
+
+Browse to http://localhost:8000 to view hub.

@@ -1,11 +1,20 @@
-<div class="tab-list" role="tablist">
+<div class="flex flex-row mb-8 tab-list justify-evenly">
 	<button class="tab" hx-get="/docs/quick-start-1-docker.html">Docker Desktop</button>
 	<button class="tab-selected" hx-get="/docs/quick-start-2-koyeb.html">Cloud (Koyeb)</button>
 	<button class="tab" hx-get="/docs/quick-start-3-cmdline.html">Command Line</button>
 </div>
 
-<video controls playsinline muted width="500">
+<video controls playsinline muted height="280">
 	<source src="https://media.merliot.io/videos/hub-install-cloud-koyeb.mp4" type="video/mp4">
 	Your browser does not support the MP4 video format.
 </video>
 
+<p>Koyeb is a cloud platform where you can run your hub.  The hub will have an
+Internet URL address, so you can access your hub from any web browser.  Koyeb
+offers a free instance, enough to run one hub.  You do have to have a Koyeb
+account, so this is a less private option compared to running a hub on local
+resources.  It's a convenience vs. privacy tradeoff.</p>
+
+<a target="_blank" href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/&env[LOG_LEVEL]=INFO&env[PING_PERIOD]=2&env[BACKGROUND]=&env[DEVICES]=&env[USER]=&env[PASSWD]=&env[WIFI_SSIDS]=&env[WIFI_PASSPHRASES]=&env[AUTO_SAVE]=false">
+	<img class="m-8" src="https://www.koyeb.com/static/images/deploy/button.svg">
+</a>

@@ -28,3 +28,4 @@ bin/*
 cmd/uf2/*/
 camera-images
 .DS_Store
+._.DS_Store

@@ -1,11 +1,27 @@
-<div class="tab-list" role="tablist">
+<div class="flex flex-row mb-5 tab-list justify-evenly">
 	<button class="tab" hx-get="/docs/quick-start-1-docker.html">Docker Desktop</button>
 	<button class="tab" hx-get="/docs/quick-start-2-koyeb.html">Cloud (Koyeb)</button>
 	<button class="tab-selected" hx-get="/docs/quick-start-3-cmdline.html">Command Line</button>
 </div>
 
-<video controls playsinline muted width="500">
+<video controls playsinline muted height="280">
 	<source src="https://media.merliot.io/videos/hub-install-cmdline.mp4" type="video/mp4">
 	Your browser does not support the MP4 video format.
 </video>
 
+<p>Requirement: latest <a target="_blank" href="https://go.dev">Go</a> installed.</p>
+
+<pre class="cmd-line">
+$ git clone https://github.com/merliot/hub.git
+$ cd hub
+$ go run ./cmd
+</pre>
+
+<p>Browse to http://localhost:8000 to view hub.</p>
+
+<p>If you're prompted for user/passwd, use your $USER for the user.  You can
+override with environment variables:</p>
+
+<pre class="cmd-line">
+$ USER=xxx PASSWD=yyy go run ./cmd
+</pre>

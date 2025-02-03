@@ -1,8 +1,29 @@
 <h2>QUICK START</h2>
 
-<div id="tabs"
-	hx-get="/docs/quick-start-1-docker.html"
+<style>
+.round-button {
+	width: 60px;
+	height: 60px;
+	font-size: 80%;
+	background-color: #cc77ff;
+	color: #000000;
+	border-color: #cc77ff;
+	line-height: 1.2;
+}
+.round-button-selected {
+	width: 80px;
+	height: 80px;
+	background-color: #ffaa00;
+	color: #000000;
+	border-color: #ffaa00;
+	line-height: 1.2;
+	cursor: default;
+}
+</style>
+
+<div id="steps"
+	hx-get="/docs/quick-start-1.html"
 	hx-trigger="load"
-	hx-target="#tabs"
+	hx-target="#steps"
 	hx-swap="innerHTML">
 </div>
