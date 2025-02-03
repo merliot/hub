@@ -1252,6 +1252,10 @@ textarea {
   white-space: pre-wrap;
 }
 
+.tab {
+  background: #666688;
+}
+
 /*
 .icon {
 	@apply no-underline text-xl cursor-pointer px-2 text-current;
@@ -1285,14 +1289,6 @@ button {
 }
 
 /***** ONLINE/OFFLINE ****/
-
-.offline button {
-  color: #f5f6fa !important;
-  background-color: #000000 !important;
-  border-color: #f5f6fa !important;
-  border-style: dashed !important;
-  /*transition: all 2s ease-in;*/
-}
 
 .offline .panel {
   color: #f5f6fa !important;
