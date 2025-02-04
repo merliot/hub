@@ -1,20 +1,25 @@
-<div class="flex flex-row mx-2.5 my-8 justify-evenly items-center relative">
-	<div class="bar absolute h-3 w-80 z-0 bg-text"></div>
-	<button class="round-button-selected relative z-10">Install Hub</button>
-	<button class="round-button relative z-10">Create Device</button>
-	<button class="round-button relative z-10">Deploy Device</button>
-</div>
+<div id="steps">
 
-<p>Your hub is private which means you have to install and run it somewhere you
-control, either on a local resource such as laptop, PC, or Raspberry Pi, or on
-a remote resource in the "cloud".</p>
+	<div class="flex flex-row mx-2.5 my-8 justify-evenly items-center relative"
+		     hx-target="#steps"
+		     hx-swap="outerHTML">
+		<div class="bar absolute h-3 w-80 z-0 bg-text"></div>
+		<button class="round-button-selected relative z-10">Install Hub</button>
+		<button class="round-button relative z-10" hx-get="/docs/quick-start-2.html">Create Device</button>
+		<button class="round-button relative z-10" hx-get="/docs/quick-start-3.html">Deploy Device</button>
+	</div>
 
-<p>There are multiple ways to <a href="/doc/install">install a hub</a>.
-Here are a few:</p>
+	<p>Your hub is private which means you have to install and run it somewhere you
+	control, either on a local resource such as laptop, PC, or Raspberry Pi, or on
+	a remote resource in the "cloud".</p>
 
-<div class="mt-8" id="tabs"
-	hx-get="/docs/quick-start-1-docker.html"
-	hx-trigger="load"
-	hx-target="#tabs"
-	hx-swap="innerHTML">
+	<p class="mb-8">There are multiple ways to <a href="/doc/install">install a hub</a>.
+	Here are a few:</p>
+
+	<div id="tabs"
+		hx-get="/docs/quick-start-1-docker.html"
+		hx-trigger="load"
+		hx-target="#tabs"
+		hx-swap="outerHTML">
+	</div>
 </div>
