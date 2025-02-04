@@ -40,12 +40,12 @@
 				hx-vals='js:{target: document.getElementById(`download-target`).value}'>
 			</div>
 
+			<!-- Target-specific instructions embedded here.  Will be
+				updated if target drop-down selection changes.
+				-->
+
+			{{ template "instructions-collasped.tmpl" . }}
+
 		</div>
 	</form>
 </div>
-
-<!-- Target-specific instructions embedded here.  Will be
-	updated if target drop-down selection changes.
-	-->
-
-{{ template "instructions-collasped.tmpl" . }}
