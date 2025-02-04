@@ -1,6 +1,7 @@
 package device
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net"
