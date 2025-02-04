@@ -24,7 +24,7 @@ func (l *wsLink) Send(pkt *Packet) error {
 	}
 	l.Lock()
 	defer l.Unlock()
-	if err := websocket.Message.Send(l.conn, string(data)); err != nil {
+	if err := websocket.Message.Send(l.conn, data); err != nil {
 		return fmt.Errorf("Send error: %w", err)
 	}
 	l.lastSend = time.Now()
