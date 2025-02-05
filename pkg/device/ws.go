@@ -38,7 +38,7 @@ func (l *wsLink) Close() {
 
 func (l *wsLink) receive() (*Packet, error) {
 	var data []byte
-	pkt := new(Packet)
+	var pkt Packet
 
 	if err := websocket.Message.Receive(l.conn, &data); err != nil {
 		return nil, err
@@ -48,12 +48,11 @@ func (l *wsLink) receive() (*Packet, error) {
 	l.lastRecv = time.Now()
 	l.Unlock()
 
-	if err := json.Unmarshal(data, pkt); err != nil {
+	if err := json.Unmarshal(data, &pkt); err != nil {
 		LogError("Unmarshal Error", "data", string(data))
-		fmt.Println(hex.Dump(data))
 		return nil, fmt.Errorf("Unmarshalling error: %w", err)
 	}
-	return pkt, nil
+	return &pkt, nil
 }
 
 func (l *wsLink) receiveTimeout(timeout time.Duration) (*Packet, error) {
