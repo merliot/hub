@@ -5,6 +5,7 @@ package camera
 import (
 	"bytes"
 	"fmt"
+	"time"
 	"os/exec"
 )
 
@@ -39,14 +40,14 @@ func captureJpeg() ([]byte, error) {
 	var ffmpegOutput bytes.Buffer
 	ffmpegCmd.Stdout = &ffmpegOutput
 
-	// Start libcamera-still
-	if err := libcameraCmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start libcamera-still: %v", err)
-	}
-
 	// Start ffmpeg
 	if err := ffmpegCmd.Start(); err != nil {
 		return nil, fmt.Errorf("failed to start ffmpeg: %v", err)
+	}
+
+	// Start libcamera-still
+	if err := libcameraCmd.Start(); err != nil {
+		return nil, fmt.Errorf("failed to start libcamera-still: %v", err)
 	}
 
 	// Wait for libcamera-still to finish

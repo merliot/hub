@@ -19,6 +19,7 @@ var pingTimeout = 4*pingDuration + time.Second
 type wsLink struct {
 	conn *websocket.Conn
 	sync.RWMutex
+	done bool
 }
 
 func (l *wsLink) Send(pkt *Packet) error {
@@ -34,6 +35,7 @@ func (l *wsLink) Close() {
 func (l *wsLink) receive() (*Packet, error) {
 	var pkt Packet
 	if err := l.conn.ReadJSON(&pkt); err != nil {
+		l.done = true
 		return nil, fmt.Errorf("ReadJSON error: %w", err)
 	}
 	return &pkt, nil
@@ -49,16 +51,15 @@ func (l *wsLink) setPongHandler() {
 }
 
 func (l *wsLink) startPing() {
-	println("startPing")
 	go func() {
 		for {
-			l.Lock()
-			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				//LogError("Ping error:", "err", err)
-				l.Unlock()
+			if l.done {
 				return
 			}
-			//LogInfo("Ping sent")
+			l.Lock()
+			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				LogError("Ping error:", "err", err)
+			}
 			l.Unlock()
 			time.Sleep(pingDuration)
 		}

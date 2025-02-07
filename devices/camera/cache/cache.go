@@ -67,21 +67,18 @@ func (c *Cache) Preload() error {
 	}
 
 	// Filter out the files and get the indices along with their modified times
-	var fileData []struct {
+	type fileInfo struct {
 		index    uint32
 		modTime  time.Time
 		filename string
 	}
+	var fileData []fileInfo
 	for _, file := range files {
 		if filepath.Ext(file.Name()) == ".jpg" {
 			var index uint32
 			_, err := fmt.Sscanf(file.Name(), "%d.jpg", &index)
 			if err == nil {
-				fileData = append(fileData, struct {
-					index    uint32
-					modTime  time.Time
-					filename string
-				}{
+				fileData = append(fileData, fileInfo{
 					index:    index,
 					modTime:  file.ModTime(),
 					filename: fmt.Sprintf("%s/%s", fileCacheDir, file.Name()),
