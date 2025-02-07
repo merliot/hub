@@ -1,21 +1,23 @@
 package camera
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
-        "image"
-        "image/color"
-        "image/draw"
-        "image/jpeg"
-
 	"html/template"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/jpeg"
+	"log"
+	"os/exec"
 	"time"
 
 	"github.com/merliot/hub/devices/camera/cache"
 	"github.com/merliot/hub/pkg/device"
-
-        "golang.org/x/image/font"
-        "golang.org/x/image/font/basicfont"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 //go:embed *.go images template
@@ -84,9 +86,10 @@ func (c *camera) Setup() error {
 		return err
 	}
 	go c.captureSave()
+	return nil
 }
 
-func (c *capture) captureSave() {
+func (c *camera) captureSave() {
 
 	// Command to execute libcamera-still
 	cmd := exec.Command(
@@ -109,7 +112,7 @@ func (c *capture) captureSave() {
 
 	// Process the JPEG stream
 	var buffer bytes.Buffer
-	var chunk = make([]byte, 100 * 1024)
+	var chunk = make([]byte, 100*1024)
 
 	for {
 		// Read chunks from stdout
@@ -137,66 +140,57 @@ func (c *capture) captureSave() {
 			buffer.Next(eoiIndex + 2) // Remove the processed image from the buffer
 
 			// Process the JPEG image
-			img, _, err := image.Decode(bytes.NewReader(jpegData))
+			img, err := jpeg.Decode(bytes.NewReader(jpegData))
 			if err != nil {
 				log.Printf("Error decoding JPEG image: %v", err)
-				continue
+				return
 			}
 
 			// Add a timestamp watermark
-			timestampedImg := addTimestamp(img)
+			img = addTimestamp(img)
+
+			var jpegBuf bytes.Buffer
+			err = jpeg.Encode(&jpegBuf, img, &jpeg.Options{Quality: 90})
+			if err != nil {
+				log.Printf("Error encoding JPEG image: %v", err)
+				return
+			}
 
 			// Save the image to disk
-			c.Cache.SaveJpeg(timestampedImg)
+			c.Cache.SaveJpeg(jpegBuf.Bytes())
 		}
 	}
 }
 
-func addWatermark(img image.Image, text string) {
-        bounds := img.Bounds()
-        // Create a new RGBA image for drawing (important for text rendering)
-        rgba := image.NewRGBA(bounds)
-        draw.Draw(rgba, bounds, img, image.Point{0, 0}) // Copy original image
-
-        // Set font and color
-        col := color.RGBA{255, 255, 255, 255} // White color
-        // face := inconsolata.Regular // Example font (you might need to install a font)
-        face := basicfont.Face // Use basic font
-        // Calculate text position (example: bottom-right corner)
-        point := image.Pt(bounds.Max.X-200, bounds.Max.Y-20) // Adjust position as needed
-
-        // Draw the text
-        d := &font.Drawer{
-                Dst:  rgba,
-                Src:  image.NewUniform(col),
-                Face: face,
-                // ... other font drawing options
-        }
-
-        d.DrawString(text, point)
-
-        // Draw the new image with the watermark over the original
-        draw.Draw(img, bounds, rgba, image.Point{0, 0})
-}
-
-// addTimestamp adds a timestamp watermark to the image
 func addTimestamp(img image.Image) image.Image {
-	const fontSize = 24
+
+	bounds := img.Bounds()
 
 	// Create a new context with the image
-	bounds := img.Bounds()
-	dc := gg.NewContext(bounds.Dx(), bounds.Dy())
-	dc.DrawImage(img, 0, 0)
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, image.Point{0, 0}, draw.Src)
+
+	color := color.RGBA{255, 255, 255, 255}
+
+	d := &font.Drawer{
+		Dst:  rgba,
+		Src:  image.NewUniform(color),
+		Face: basicfont.Face7x13,
+	}
+
+	// Calculate text position
+	d.Dot = fixed.Point26_6{
+		X: fixed.I(bounds.Max.X - 200),
+		Y: fixed.I(bounds.Max.Y - 20),
+	}
 
 	// Add the timestamp
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	dc.SetRGB(1, 1, 1) // White text
-	dc.DrawStringAnchored(timestamp, float64(bounds.Dx())-10,
-		float64(bounds.Dy())-10, 1, 1) // Bottom-right corner
+	d.DrawString(timestamp)
 
-	return dc.Image()
+	return rgba
 }
 
-func (c *camera) Poll(pkt *device.Packet) {}
+func (c *camera) Poll(pkt *device.Packet)     {}
 func (c *camera) DemoSetup() error            { return c.Setup() }
 func (c *camera) DemoPoll(pkt *device.Packet) { c.Poll(pkt) }

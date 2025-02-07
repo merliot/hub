@@ -84,7 +84,7 @@ func devicesBuild() {
 		}
 		model, ok := Models[d.Model]
 		if !ok {
-			LogError("Device not registered, skipping device", "id", id, "model", d.Model)
+			LogError("Device model not registered, skipping device", "id", id, "model", d.Model)
 			delete(devices, id)
 			d.Unlock()
 			continue
@@ -283,7 +283,7 @@ func findRoot(devices deviceMap) (*device, error) {
 		var validChildren []string
 		for _, child := range d.Children {
 			if _, ok := devices[child]; !ok {
-				fmt.Printf("Warning: Child Id %s not found in devices\n", child)
+				LogError("Warning: Child Id not found in devices", "id", child)
 				continue
 			}
 			validChildren = append(validChildren, child)
