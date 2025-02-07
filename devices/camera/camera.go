@@ -1,13 +1,22 @@
 package camera
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"html/template"
+	"image"
+	"image/draw"
+	"image/jpeg"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/merliot/hub/devices/camera/cache"
 	"github.com/merliot/hub/pkg/device"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 //go:embed *.go images template
@@ -72,31 +81,102 @@ func (c *camera) jpeg(raw string) (template.URL, error) {
 }
 
 func (c *camera) Setup() error {
-	return c.Cache.Preload()
+	if err := c.Cache.Preload(); err != nil {
+		return err
+	}
+	go c.captureAndSave()
+	return nil
 }
 
-func (c *camera) poll() {
+func (c *camera) captureAndSave() {
 
-	// Capture the jpeg image from the webcam
-	jpeg, err := captureJpeg()
-	if err != nil {
-		fmt.Printf("Error capturing image: %v\n", err)
+	var rawSpec = "raw-%d.jpg"
+	var rawGlob = "raw-*.jpg"
+
+	// Clean up any old raw files
+	matches, err := filepath.Glob(rawGlob)
+	if err == nil {
+		for _, fileName := range matches {
+			os.Remove(fileName)
+		}
+	}
+
+	// Start the capture process in the background, continuosly capturing
+	// camera images to raw files
+	if err := startCapture(rawSpec); err != nil {
+		device.LogError("Failed to start camera capture process", "err", err)
 		return
 	}
 
-	// Save the jpeg image to the cache (and to disc)
-	err = c.Cache.SaveJpeg(jpeg)
-	if err != nil {
-		fmt.Printf("Error saving image: %v\n", err)
-		return
+	// When a captured raw file shows up, add watermark, save to cache, and
+	// delete raw file
+	for {
+		time.Sleep(time.Second)
+		matches, err := filepath.Glob(rawGlob)
+		if err != nil {
+			device.LogError("Failed to find any raw files", "err", err)
+			continue
+		}
+		time.Sleep(time.Second)
+		for _, fileName := range matches {
+			fileInfo, err := os.Stat(fileName)
+			if err == nil {
+				jpeg, err := watermark(fileName, fileInfo.ModTime())
+				if err == nil {
+					c.Cache.SaveJpeg(jpeg)
+				} else {
+					device.LogError("Failed to add watermark",
+						"fileName", fileName, "err", err)
+				}
+			}
+			os.Remove(fileName)
+		}
 	}
 }
 
-func (c *camera) Poll(pkt *device.Packet) {
-	// Run image capture/save in separate go func so device lock is not
-	// held long during Polling
-	go c.poll()
+func watermark(fileName string, modTime time.Time) ([]byte, error) {
+
+	// Open the image file
+	imgFile, err := os.Open(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("error opening image: %w", err)
+	}
+	defer imgFile.Close()
+
+	// Decode the image
+	img, err := jpeg.Decode(imgFile)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding image: %w", err)
+	}
+
+	// Create a new RGBA image for drawing
+	bounds := img.Bounds()
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, image.Point{0, 0}, draw.Src)
+
+	// Draw a timestamp watermark in the lower-right
+	d := &font.Drawer{
+		Dst:  rgba,
+		Src:  image.White,
+		Face: basicfont.Face7x13,
+	}
+	d.Dot = fixed.Point26_6{
+		X: fixed.I(bounds.Max.X - 200),
+		Y: fixed.I(bounds.Max.Y - 20),
+	}
+	timestamp := modTime.Format("2006-01-02 15:04:05")
+	d.DrawString(timestamp)
+
+	// Encode the image to JPEG bytes
+	var buf bytes.Buffer
+	err = jpeg.Encode(&buf, rgba, &jpeg.Options{Quality: 90})
+	if err != nil {
+		return nil, fmt.Errorf("error encoding image: %w", err)
+	}
+
+	return buf.Bytes(), nil
 }
 
+func (c *camera) Poll(pkt *device.Packet)     {}
 func (c *camera) DemoSetup() error            { return c.Setup() }
 func (c *camera) DemoPoll(pkt *device.Packet) { c.Poll(pkt) }

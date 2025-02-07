@@ -52,12 +52,11 @@ PORT environment variable.</p>
 <p>The hub reads devices from devices.json file, if present.  Any changes made
 to the devices are stored back to devices.json.  When running in docker, we
 need to store the devices.json file outside the container so saved changes
-persist.  Use the -v option to map a local directory to a directory inside the
-container.  Use /app for container directory.  For example, map current
-directory to /app:</p>
+persist.  Use the -v option to map a local devices.json file to a directory inside the
+container.  Use /app for container directory:</p>
 
 <pre class="cmd-line">
-$ sudo docker run -p 8000:8000 -v ./:/app merliot/hub
+$ sudo docker run -p 8000:8000 -v ./devices.json:/app/devices.json merliot/hub
 </pre>
 
 <p>Add environment <a href="/doc/env-vars">variables</a> using -e option.  For
