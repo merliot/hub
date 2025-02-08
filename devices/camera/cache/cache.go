@@ -2,6 +2,7 @@ package cache
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -44,7 +45,6 @@ func New(maxMemoryFiles, maxFiles uint32) *Cache {
 
 	c.memoryCache = make(map[uint32][]byte)
 	c.memoryCacheList = list.New()
-	c.currentIndex = 1
 
 	return &c
 }
@@ -96,7 +96,7 @@ func (c *Cache) Preload() error {
 	if len(fileData) > 0 {
 		atomic.StoreUint32(&c.currentIndex, fileData[0].index)
 	} else {
-		atomic.StoreUint32(&c.currentIndex, 1)
+		atomic.StoreUint32(&c.currentIndex, 0)
 	}
 
 	// Add files to memory cache in the correct order (newest first), but no more than c.maxMemoryFiles
@@ -130,6 +130,11 @@ func (c *Cache) GetJpeg(index uint32) ([]byte, uint32, uint32, error) {
 		next = c.calculateNextIndex(index)
 	}
 
+	// If index is still 0, we're waiting for first image
+	if index == 0 {
+		return nil, prev, next, fmt.Errorf("Waiting on first image...")
+	}
+
 	// Try to get from memory cache
 	c.memoryCacheLock.RLock()
 	if jpeg, found := c.memoryCache[index]; found {
@@ -144,7 +149,10 @@ func (c *Cache) GetJpeg(index uint32) ([]byte, uint32, uint32, error) {
 	jpeg, err := os.ReadFile(filename)
 	if err != nil {
 		c.unlockFile(index)
-		return jpeg, prev, next, err
+		if errors.Is(err, os.ErrNotExist) {
+			err = errors.New("Oops, no previous image")
+		}
+		return nil, prev, next, err
 	}
 	c.unlockFile(index)
 

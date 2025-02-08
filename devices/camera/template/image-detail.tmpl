@@ -3,21 +3,30 @@
 		hx-post="/device/{{id}}/get-image"
 		hx-swap="none"
 		hx-trigger="load delay:5s">
+	{{ if eq .Err "" }}
 		<img class="rounded-2xl" src="{{jpeg .Jpeg}}">
 		<div class="flex flex-row justify-end">
 			<button hx-post="/device/{{id}}/get-image?Index={{.Prev}}"
 				hx-swap="none">Prev</button>
-			<button class="cursor-default text-gray border-gray">Next</button>
 		</div>
+	{{ else }}
+		<p>{{.Err}}</p>
+	{{ end }}
 	</div>
 {{ else }}
 	<div class="flex flex-col m-4" id="{{uniq `image`}}">
+	{{ if eq .Err "" }}
 		<img class="rounded-2xl" src="{{jpeg .Jpeg}}">
 		<div class="flex flex-row justify-end">
+		{{ if ne .Prev 0.0 }}
 			<button hx-post="/device/{{id}}/get-image?Index={{.Prev}}"
 				hx-swap="none">Prev</button>
+		{{ end }}
 			<button hx-post="/device/{{id}}/get-image?Index={{.Next}}"
 				hx-swap="none">Next</button>
 		</div>
+	{{ else }}
+		<p>{{.Err}}</p>
+	{{ end }}
 	</div>
 {{ end }}

@@ -34,6 +34,7 @@ type msgImage struct {
 	Jpeg []byte
 	Prev uint32
 	Next uint32
+	Err  string
 }
 
 func NewModel() device.Devicer {
@@ -42,14 +43,13 @@ func NewModel() device.Devicer {
 
 func (c *camera) GetConfig() device.Config {
 	return device.Config{
-		Model:      "camera",
-		Parents:    []string{"hub"},
-		State:      c,
-		FS:         &embedFS,
-		Targets:    []string{"rpi", "x86-64"},
-		BgColor:    "blue",
-		FgColor:    "black",
-		PollPeriod: 5 * time.Second,
+		Model:   "camera",
+		Parents: []string{"hub"},
+		State:   c,
+		FS:      &embedFS,
+		Targets: []string{"rpi", "x86-64"},
+		BgColor: "blue",
+		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
 			"/get-image": &device.PacketHandler[msgGetImage]{c.getImage},
 			"/image":     &device.PacketHandler[msgImage]{device.RouteUp},
@@ -67,11 +67,10 @@ func (c *camera) getImage(pkt *device.Packet) {
 
 	pkt.Unmarshal(&msgGet)
 	msgImage.Jpeg, msgImage.Prev, msgImage.Next, err = c.Cache.GetJpeg(msgGet.Index)
-	if err == nil {
-		pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
-	} else {
-		println(err.Error())
+	if err != nil {
+		msgImage.Err = err.Error()
 	}
+	pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
 }
 
 func (c *camera) jpeg(raw string) (template.URL, error) {
