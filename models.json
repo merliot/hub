@@ -3,6 +3,34 @@
 		"Package": "github.com/merliot/hub/devices/hubdevice",
 		"Maker": "hubdevice.NewModel"
 	},
+	"gadget": {
+		"Package": "github.com/merliot/hub/devices/gadget",
+		"Maker": "gadget.NewModel"
+	},
+	"relays": {
+		"Package": "github.com/merliot/hub/devices/relays",
+		"Maker": "relays.NewModel"
+	},
+	"gps": {
+		"Package": "github.com/merliot/hub/devices/gps",
+		"Maker": "gps.NewModel"
+	},
+	"locker": {
+		"Package": "github.com/merliot/hub/devices/locker",
+		"Maker": "locker.NewModel"
+	},
+	"qrcode": {
+		"Package": "github.com/merliot/hub/devices/qrcode",
+		"Maker": "qrcode.NewModel"
+	},
+	"temp": {
+		"Package": "github.com/merliot/hub/devices/temp",
+		"Maker": "temp.NewModel"
+	},
+	"prostar": {
+		"Package": "github.com/merliot/hub/devices/prostar",
+		"Maker": "prostar.NewModel"
+	},
 	"camera": {
 		"Package": "github.com/merliot/hub/devices/camera",
 		"Maker": "camera.NewModel"
