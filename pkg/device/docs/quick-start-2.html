@@ -3,11 +3,20 @@
 	<div class="flex flex-row mx-2.5 my-8 justify-evenly items-center relative"
 		     hx-target="#steps"
 		     hx-swap="outerHTML">
-		<div class="bar absolute h-3 w-80 z-0 bg-text"></div>
+		<div class="bar absolute h-3 w-52 z-0 bg-text"></div>
 		<button class="round-button relative z-10" hx-get="/docs/quick-start-1.html">Install Hub</button>
 		<button class="round-button-selected relative z-10">Create Device</button>
-		<button class="round-button relative z-10" hx-get="/docs/quick-start-3.html">Deploy Device</button>
 	</div>
 
-	<p>Create device...adfvasdf sadf asdf asdf asdf asdf asdf asdf sa dfsa fsa fd saf safd asfd asdf sadf </p>
+	<p>Once the hub is installed, the next step is to create and deploy
+	devices on the hub.</p>
+
+	<p>Here are some example videos showing device installs:</p>
+
+	<div id="tabs"
+		hx-get="/docs/quick-start-2-relays.html"
+		hx-trigger="load"
+		hx-target="#tabs"
+		hx-swap="outerHTML">
+	</div>
 </div>
