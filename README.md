@@ -6,13 +6,13 @@
 # MERLIOT
 PRIVATE DEVICE HUB
 
-<a href="https://merliot.io">Merliot</a> Hub is your private device hub, allowing you to monitor and control your devices over the Internet, privately.  Deploy your hub on the cloud or on your local PC. View your hub and devices from any web browser, even on your phone. There is no app to install.
+<a href="https://merliot.io">Merliot</a> Hub is your private device hub, allowing you to monitor and control your devices over the Internet, privately.  Deploy your hub on the cloud or on your local server or Raspberry Pi. View your hub and devices from any web browser, even on your phone. There is no app to install.
 
 <a href="https://merliot.io/demo">
 	<img src="pkg/device/docs/images/demo.svg" width="500px">
 </a>
 
-## Quick Install
+## QUICK INSTALL
 
 ### Install with Docker
 
@@ -43,3 +43,17 @@ $ go run ./cmd
 </pre>
 
 Browse to http://localhost:8000 to view hub.
+
+## CREDITS
+
+Merliot is written in
+	<a class="no-underline" href="https://go.dev/">Go</a>,
+	<a class="no-underline" href="https://tinygo.org/">TinyGo</a>, and
+	<a class="no-underline" href="https://htmx.org/">htmx.</a>
+	Thank you to those who built and maintain these fine tools.
+
+<div>
+	<a href="https://go.dev"><img class="w-24 m-4" src="/docs/images/go-logo.png"></a>
+	<a href="https://tinygo.org"><img class="w-24 m-4" src="/docs/images/tinygo-logo.png"></a>
+	<a href="https://htmx.org"><img class="w-24 m-4" src="/docs/images/htmx-logo.png"></a>
+</div>
