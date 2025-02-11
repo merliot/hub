@@ -100,7 +100,7 @@ func (c *camera) captureAndSave() {
 		}
 	}
 
-	// Start the capture process in the background, continuosly capturing
+	// Start the capture process in the background, continuously capturing
 	// camera images to raw files
 	if err := startCapture(rawSpec); err != nil {
 		device.LogError("Failed to start camera capture process", "err", err)
