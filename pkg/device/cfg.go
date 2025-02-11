@@ -15,8 +15,7 @@ type Config struct {
 	// Flags see FlagXxxx
 	Flags flags
 	// The device state
-	State   any
-	stateMu mutex
+	State any
 	// The device's embedded static file system
 	FS *embed.FS
 	// Targets support by device
