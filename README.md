@@ -14,7 +14,7 @@ PRIVATE DEVICE HUB
 
 ## QUICK INSTALL
 
-### Install with Docker
+### &#x2B50; Install with Docker
 
 <pre>
 $ sudo docker run -p 8000:8000 merliot/hub
@@ -24,7 +24,7 @@ Browse to `http://localhost:8000` to view hub.
 
 See other [install](https://merliot.io/doc/install) methods.
 
-### Install on Cloud
+### &#x2B50; Install on Cloud
 
 Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use the one-click button to get started:
 
@@ -34,7 +34,7 @@ Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use t
 
 See other cloud [install](https://merliot.io/doc/install) methods.
 
-### Run from Source
+### &#x2B50; Run from Source
 
 <pre>
 $ git clone https://github.com/merliot/hub.git
