@@ -6,15 +6,15 @@
 # MERLIOT
 PRIVATE DEVICE HUB
 
-<a href="https://merliot.io">Merliot</a> Hub is your private device hub, allowing you to monitor and control your devices over the Internet, privately.  Deploy your hub on the cloud or on your local PC. View your hub and devices from any web browser, even on your phone. There is no app to install.
+<a href="https://merliot.io">Merliot</a> Hub is your private device hub, allowing you to monitor and control your devices over the Internet, privately.  Deploy your hub on the cloud or on your local server or Raspberry Pi. View your hub and devices from any web browser, even on your phone. There is no app to install.
 
 <a href="https://merliot.io/demo">
 	<img src="pkg/device/docs/images/demo.svg" width="500px">
 </a>
 
-## Quick Install
+## QUICK INSTALL
 
-### Install with Docker
+### &#x2B50; Install with Docker
 
 <pre>
 $ sudo docker run -p 8000:8000 merliot/hub
@@ -24,7 +24,7 @@ Browse to `http://localhost:8000` to view hub.
 
 See other [install](https://merliot.io/doc/install) methods.
 
-### Install on Cloud
+### &#x2B50; Install on Cloud
 
 Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use the one-click button to get started:
 
@@ -34,7 +34,7 @@ Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use t
 
 See other cloud [install](https://merliot.io/doc/install) methods.
 
-### Run from Source
+### &#x2B50; Run from Source
 
 <pre>
 $ git clone https://github.com/merliot/hub.git
@@ -43,3 +43,17 @@ $ go run ./cmd
 </pre>
 
 Browse to http://localhost:8000 to view hub.
+
+## CREDITS
+
+Merliot is written in
+	<a class="no-underline" href="https://go.dev/">Go</a>,
+	<a class="no-underline" href="https://tinygo.org/">TinyGo</a>, and
+	<a class="no-underline" href="https://htmx.org/">htmx.</a>
+	Thank you to those who built and maintain these fine tools.
+
+<div style="display: flex;">
+	<a href="https://go.dev"><img src="pkg/device/docs/images/go-logo.png"></a>
+	<a href="https://tinygo.org"><img src="pkg/device/docs/images/tinygo-logo.png"></a>
+	<a href="https://htmx.org"><img src="pkg/device/docs/images/htmx-logo.png"></a>
+</div>
