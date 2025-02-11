@@ -52,8 +52,8 @@ Merliot is written in
 	<a class="no-underline" href="https://htmx.org/">htmx.</a>
 	Thank you to those who built and maintain these fine tools.
 
-<div>
-	<a href="https://go.dev"><img class="w-24 m-4" src="/docs/images/go-logo.png"></a>
-	<a href="https://tinygo.org"><img class="w-24 m-4" src="/docs/images/tinygo-logo.png"></a>
-	<a href="https://htmx.org"><img class="w-24 m-4" src="/docs/images/htmx-logo.png"></a>
+<div style="display: flex;">
+	<a href="https://go.dev"><img src="pkg/device/docs/images/go-logo.png"></a>
+	<a href="https://tinygo.org"><img src="pkg/device/docs/images/tinygo-logo.png"></a>
+	<a href="https://htmx.org"><img src="pkg/device/docs/images/htmx-logo.png"></a>
 </div>
