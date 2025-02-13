@@ -60,8 +60,10 @@ func Run() {
 	var passwd = Getenv("PASSWD", "")
 	dialParents(urls, user, passwd)
 
-	// If no port was given, don't run as a web server
+	// Default to port :8000
 	var port = Getenv("PORT", "8000")
+
+	// If port was explicitly not set, don't run as a web server
 	if port == "" {
 		root.run()
 		LogInfo("Bye, Bye", "root", root.Name)
