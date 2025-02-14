@@ -20,10 +20,12 @@ func Run() {
 
 	var err error
 
-	logBuildInfo()
-
-	runningSite = (Getenv("SITE", "") == "true")
+	logLevel = Getenv("LOG_LEVEL", "INFO")
+	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
+	runningSite = Getenv("SITE", "") == "true"
 	runningDemo = (Getenv("DEMO", "") == "true") || runningSite
+
+	logBuildInfo()
 
 	if runningSite {
 		LogInfo("RUNNING full web site")

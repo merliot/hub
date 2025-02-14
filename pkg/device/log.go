@@ -12,7 +12,7 @@ import (
 var (
 	logBuffer   bytes.Buffer
 	logBufferMu mutex
-	logLevel    = Getenv("LOG_LEVEL", "INFO")
+	logLevel    = "INFO"
 )
 
 // Format the args into key=value pairs

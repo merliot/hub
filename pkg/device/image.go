@@ -18,9 +18,7 @@ import (
 	tpkg "github.com/merliot/hub/pkg/target"
 )
 
-var (
-	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
-)
+var keepBuilds = false
 
 func setContentMd5(w http.ResponseWriter, fileName string) error {
 
@@ -253,14 +251,13 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 		return err
 	}
 
-	LogInfo("Built Tinygo device image", "installer", installer)
 	return serveFile(w, r, installer)
 }
 
 func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 
 	// Create temp build directory
-	dir, err := os.MkdirTemp("./", d.Model+"-"+d.Id+"-")
+	dir, err := os.MkdirTemp("", d.Model+"-"+d.Id+"-")
 	if err != nil {
 		return err
 	}

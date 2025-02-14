@@ -1,12 +1,21 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	user   = "TEST"
+	passwd = "TESTTEST"
 )
 
 var devices = `{
@@ -84,33 +93,122 @@ var devices = `{
 	}
 }`
 
-func TestDeviceServer(t *testing.T) {
+func TestMain(m *testing.M) {
 
 	device.Setenv("DEVICES", devices)
-	device.Setenv("USER", "TEST")
+	device.Setenv("USER", user)
+	device.Setenv("PASSWD", passwd)
 	device.Setenv("DEMO", "true")
+	device.Setenv("LOG_LEVEL", "DEBUG")
+	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
 
 	device.Models = models.AllModels
 	go device.Run()
 
 	time.Sleep(10 * time.Second) // Give the server time to start
 
-	req, err := http.NewRequest("GET", "http://localhost:8000", nil)
+	m.Run()
+}
+
+func api(method, url string) (*http.Response, error) {
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
+		return nil, fmt.Errorf("Failed to create request: %w", err)
 	}
-
-	req.SetBasicAuth("TEST", "")
-
+	req.SetBasicAuth(user, passwd)
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	return client.Do(req)
+}
 
+func TestRoot(t *testing.T) {
+
+	resp, err := api("GET", "http://localhost:8000/")
 	if err != nil {
-		t.Fatalf("Failed to connect to server: %v", err)
+		t.Fatalf("API failed: %v", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code %d, but got %d", http.StatusOK, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestAPIDevices(t *testing.T) {
+
+	resp, err := api("GET", "http://localhost:8000/devices")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
 	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	html := string(body)
+
+	assert.Equal(t, html, devices, "Comparing devices")
+}
+
+func TestAPICreate(t *testing.T) {
+	resp, err := api("POST", "http://localhost:8000/create?Id=relaytest&Model=relays&Name=test")
+	if err != nil {
+		t.Fatalf("API call failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestAPIDownloadRpi(t *testing.T) {
+	odir, _ := os.Getwd()
+	os.Chdir("../") // Need to chdir to get access to ./bin files
+	defer os.Chdir(odir)
+
+	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=rpi")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestAPIDownloadX86(t *testing.T) {
+	odir, _ := os.Getwd()
+	os.Chdir("../") // Need to chdir to get access to ./bin files
+	defer os.Chdir(odir)
+
+	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=x86-64")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestAPIDownloadNano(t *testing.T) {
+	odir, _ := os.Getwd()
+	os.Chdir("../") // Need to chdir to get access to ./bin files
+	defer os.Chdir(odir)
+
+	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=nano-rp2040")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestAPIDestroy(t *testing.T) {
+	resp, err := api("DELETE", "http://localhost:8000/destroy?Id=relaytest")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
