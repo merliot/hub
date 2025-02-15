@@ -1,7 +1,6 @@
 package ratelimit
 
 import (
-	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -115,10 +114,7 @@ func getIPAddress(r *http.Request) string {
 	// 2. Fallback to RemoteAddr (less reliable, but often necessary)
 	ip, _, err := net.SplitHostPort(r.RemoteAddr) // net.SplitHostPort handles IPv6 correctly
 	if err != nil {
-		// Handle error (log it or return a default value)
-		// Log the error for debugging.
-		log.Printf("Error splitting RemoteAddr: %v", err)
-		return "0.0.0.0" // Or a more appropriate default
+		return "0.0.0.0"
 	}
 	return ip
 }
