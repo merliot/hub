@@ -31,5 +31,5 @@ func (h *hubDevice) GetConfig() device.Config {
 
 func (h *hubDevice) Setup() error                { return nil }
 func (h *hubDevice) Poll(pkt *device.Packet)     {}
-func (h *hubDevice) DemoSetup() error            { return nil }
-func (h *hubDevice) DemoPoll(pkt *device.Packet) {}
+func (h *hubDevice) DemoSetup() error            { return h.Setup() }
+func (h *hubDevice) DemoPoll(pkt *device.Packet) { h.Poll(pkt) }

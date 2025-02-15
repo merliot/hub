@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -105,10 +106,14 @@ func TestMain(m *testing.M) {
 	device.Models = models.AllModels
 	go device.Run()
 
-	time.Sleep(10 * time.Second) // Give the server time to start
+	time.Sleep(time.Second)
 
 	m.Run()
+
+	os.RemoveAll("camera-images")
 }
+
+var sessionId string
 
 func api(method, url string) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, nil)
@@ -116,6 +121,7 @@ func api(method, url string) (*http.Response, error) {
 		return nil, fmt.Errorf("Failed to create request: %w", err)
 	}
 	req.SetBasicAuth(user, passwd)
+	req.Header.Set("session-id", sessionId)
 	client := &http.Client{}
 	return client.Do(req)
 }
@@ -126,7 +132,10 @@ func TestRoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
+
+	sessionId = resp.Header.Get("session-id")
+	assert.NotEmpty(t, sessionId)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
@@ -151,12 +160,35 @@ func TestAPIDevices(t *testing.T) {
 	assert.Equal(t, html, devices, "Comparing devices")
 }
 
+func TestShowViews(t *testing.T) {
+	views := []string{"overview", "detail", "settings", "info", "state"}
+	devs := make(map[string]any)
+	err := json.Unmarshal([]byte(devices), &devs)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	for dev, _ := range devs {
+		for _, view := range views {
+			url := fmt.Sprintf("http://localhost:8000/device/%s/show-view?view=%s", dev, view)
+			resp, err := api("GET", url)
+			if err != nil {
+				t.Fatalf("API failed: %v", err)
+			}
+			assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+			resp.Body.Close()
+			// Sleep a bit to avoid hitting rate limiter
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+}
+
 func TestAPICreate(t *testing.T) {
 	resp, err := api("POST", "http://localhost:8000/create?Id=relaytest&Model=relays&Name=test")
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
@@ -170,7 +202,7 @@ func TestAPIDownloadRpi(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
@@ -184,7 +216,7 @@ func TestAPIDownloadX86(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
@@ -198,7 +230,7 @@ func TestAPIDownloadNano(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
 }
@@ -208,7 +240,62 @@ func TestAPIDestroy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestCamera(t *testing.T) {
+	time.Sleep(5 * time.Second)
+
+	resp, err := api("POST", "http://localhost:8000/device/camera1/get-image")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+}
+
+func TestGadget(t *testing.T) {
+	resp, err := api("POST", "http://localhost:8000/device/gadget1/takeone")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	resp.Body.Close()
+
+	time.Sleep(2 * time.Second)
+}
+
+func TestQRCode(t *testing.T) {
+	resp, err := api("POST", "http://localhost:8000/device/qrcode1/generate?Content=https://foo.com")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	resp.Body.Close()
+
+	resp, err = api("GET", "http://localhost:8000/device/qrcode1/edit-content?id=qrcode1")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	resp.Body.Close()
+}
+
+func TestRelays(t *testing.T) {
+	resp, err := api("POST", "http://localhost:8000/device/relays1/click?Relay=0")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	resp.Body.Close()
+
+	resp, err = api("POST", "http://localhost:8000/device/relays1/clicked?Relay=1&State=true")
+	if err != nil {
+		t.Fatalf("API failed: %v", err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	resp.Body.Close()
 }

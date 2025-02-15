@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 )
@@ -68,7 +69,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer outFile.Close()
 
 	// Use template to write the models.go file
 	tmpl, err := template.New("models").Funcs(template.FuncMap{
@@ -84,4 +84,9 @@ func main() {
 	if err := tmpl.Execute(outFile, models); err != nil {
 		panic(err)
 	}
+
+	outFile.Close()
+
+	// Clean it up
+	exec.Command("gofmt", "-s", "-w", outputPath).CombinedOutput()
 }
