@@ -11,6 +11,7 @@ const (
 	flagDemo                           // Running in DEMO mode
 	flagMetal                          // Device is running on real hardware
 	flagGhost                          // Device is dead but may be resurrected later
+	flagRoot                           // Device is root
 )
 
 func (f *flags) _set(flags flags) {

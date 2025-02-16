@@ -69,29 +69,29 @@ func (d *device) _buildOS() error {
 	return err
 }
 
-func devicesBuild() {
+func (s *server) devicesBuild() {
 
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
+	s.devicesMu.Lock()
+	defer s.devicesMu.Unlock()
 
-	for id, d := range devices {
+	for id, d := range s.devices {
 		d.Lock()
 		if id != d.Id {
 			LogError("Mismatching Ids, skipping device", "key-id", id, "device-id", d.Id)
-			delete(devices, id)
+			delete(s.devices, id)
 			d.Unlock()
 			continue
 		}
 		model, ok := Models[d.Model]
 		if !ok {
 			LogError("Device model not registered, skipping device", "id", id, "model", d.Model)
-			delete(devices, id)
+			delete(s.devices, id)
 			d.Unlock()
 			continue
 		}
 		if err := d._build(model.Maker); err != nil {
 			LogError("Device build failed, skipping device", "id", id, "err", err)
-			delete(devices, id)
+			delete(s.devices, id)
 			d.Unlock()
 			continue
 		}
@@ -134,10 +134,10 @@ func (d *device) setupAPI() {
 	d.Unlock()
 }
 
-func devicesSetupAPI() {
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-	for _, d := range devices {
+func (s *server) devicesSetupAPI() {
+	s.devicesMu.Lock()
+	defer s.devicesMu.Unlock()
+	for _, d := range s.devices {
 		d.setupAPI()
 	}
 }
@@ -304,7 +304,7 @@ func findRoot(devices deviceMap) (*device, error) {
 	switch {
 	case len(roots) == 1:
 		root := roots[0]
-		root.set(flagOnline | flagMetal)
+		root.set(flagRoot | flagOnline | flagMetal)
 		return root, nil
 	case len(roots) > 1:
 		return nil, fmt.Errorf("More than one tree found in devices, aborting")
@@ -532,9 +532,8 @@ var emptyHub = `{
 	}
 }`
 
-var saveToClipboard bool
+func (s *server) loadDevices() error {
 
-func devicesLoad() error {
 	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
@@ -548,28 +547,25 @@ func devicesLoad() error {
 	}
 	noDefault = (err != nil)
 
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-
 	if noJSON && noFile && noDefault {
 		LogInfo("Loading with empty hub")
-		saveToClipboard = !autoSave
-		return json.Unmarshal([]byte(emptyHub), &devices)
+		s.saveToClipboard = !autoSave
+		return json.Unmarshal([]byte(emptyHub), &s.devices)
 	}
 
 	if noJSON && noFile && !noDefault {
 		LogInfo("Loading from devices.json")
-		return fileReadJSON("devices.json", &devices)
+		return fileReadJSON("devices.json", &s.devices)
 	}
 
 	if noJSON {
 		LogInfo("Loading from", "DEVICES_FILE", devicesFile)
-		return fileReadJSON(devicesFile, &devices)
+		return fileReadJSON(devicesFile, &s.devices)
 	}
 
 	LogInfo("Loading from DEVICES")
-	saveToClipboard = true
-	return json.Unmarshal([]byte(devicesJSON), &devices)
+	s.saveToClipboard = true
+	return json.Unmarshal([]byte(devicesJSON), &s.devices)
 }
 
 func (d *device) save() error {
@@ -585,7 +581,7 @@ func (d *device) save() error {
 	return nil
 }
 
-func devicesSave() error {
+func (s *server) devicesSave() error {
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
 	var noJSON bool = (devicesJSON == "")
@@ -593,12 +589,12 @@ func devicesSave() error {
 
 	if noJSON && noFile {
 		//LogDebug("Saving to devices.json")
-		return fileWriteJSON("devices.json", aliveDevices())
+		return fileWriteJSON("devices.json", s.aliveDevices())
 	}
 
 	if noJSON && !noFile {
 		//LogDebug("Saving to", "DEVICES_FILE", devicesFile)
-		return fileWriteJSON(devicesFile, aliveDevices())
+		return fileWriteJSON(devicesFile, s.aliveDevices())
 	}
 
 	// Save to clipboard
@@ -606,12 +602,12 @@ func devicesSave() error {
 	return nil
 }
 
-func devicesOnline(l linker) {
+func (s *server) devicesOnline(l linker) {
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	s.devicesMu.RLock()
+	defer s.devicesMu.RUnlock()
 
-	for id, d := range devices {
+	for id, d := range s.devices {
 		var pkt = &Packet{
 			Dst:  id,
 			Path: "/online",

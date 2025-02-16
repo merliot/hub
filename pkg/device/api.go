@@ -23,7 +23,7 @@ func (d *device) installAPIs() {
 
 	// Base APIs for all devices
 
-	if runningSite && d == root {
+	if runningSite && d.isSet(flagRoot) {
 		d.HandleFunc("GET /{$}", d.showSiteHome)
 		d.HandleFunc("GET /home", d.showSiteHome)
 		d.HandleFunc("GET /home/{page}", d.showSiteHome)
@@ -94,15 +94,15 @@ func (d *device) modelInstall() {
 	LogInfo("Model installed", "prefix", prefix)
 }
 
-func modelsInstall() {
-	for name := range Models {
-		model := Models[name]
+func (s *server) modelsInstall() {
+	for name := range s.models {
+		model := s.models[name]
 		proto := &device{Model: name}
 		proto._build(model.Maker)
 		proto.setupAPI()
 		proto.modelInstall()
 		model.Config = proto.GetConfig()
-		Models[name] = model
+		s.models[name] = model
 	}
 }
 
@@ -125,10 +125,10 @@ func (d *device) deviceInstall() {
 	LogInfo("Device installed", "prefix", prefix, "device", d)
 }
 
-func devicesInstall() {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	for _, d := range devices {
+func (s *server) devicesInstall() {
+	s.devicesMu.RLock()
+	defer s.devicesMu.RUnlock()
+	for _, d := range s.devices {
 		d.deviceInstall()
 	}
 }
@@ -397,7 +397,7 @@ func (d *device) showCode(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *device) saveDevices(w http.ResponseWriter, r *http.Request) {
-	if d != root {
+	if !d.isSet(flagRoot) {
 		http.Error(w, fmt.Sprintf("Only root device can save"), http.StatusBadRequest)
 		return
 	}

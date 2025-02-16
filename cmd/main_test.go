@@ -96,14 +96,22 @@ var devices = `{
 
 func TestMain(m *testing.M) {
 
+	device.Models = models.AllModels
+
 	device.Setenv("DEVICES", devices)
 	device.Setenv("USER", user)
 	device.Setenv("PASSWD", passwd)
-	device.Setenv("DEMO", "true")
 	device.Setenv("LOG_LEVEL", "DEBUG")
 	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
 
-	device.Models = models.AllModels
+	// Run hub on :8000 in demo mode
+	device.Setenv("PORT", "8000")
+	device.Setenv("DEMO", "true")
+	go device.Run()
+
+	// Run site on :8001
+	device.Setenv("PORT", "8001")
+	device.Setenv("SITE", "true")
 	go device.Run()
 
 	time.Sleep(time.Second)

@@ -2,10 +2,6 @@
 
 package device
 
-import "sync"
-
-var routes sync.Map // key: dst id, value: nexthop id
-
 func _routesBuild(parent, base *device) {
 	for _, childId := range parent.Children {
 		// children point to base
@@ -17,21 +13,21 @@ func _routesBuild(parent, base *device) {
 	}
 }
 
-func routesBuild(root *device) {
+func (s *server) routesBuild() {
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
+	s.devicesMu.RLock()
+	defer s.devicesMu.RUnlock()
 
-	root.RLock()
-	defer root.RUnlock()
+	s.root.RLock()
+	defer s.root.RUnlock()
 
 	// root points to self
-	routes.Store(root.Id, root.Id)
+	s.routes.Store(s.root.Id, s.root.Id)
 
-	for _, childId := range root.Children {
+	for _, childId := range s.root.Children {
 		// children of root point to self
-		routes.Store(childId, childId)
-		child := devices[childId]
+		s.routes.Store(childId, childId)
+		child := s.devices[childId]
 		child.RLock()
 		_routesBuild(child, child)
 		child.RUnlock()
@@ -39,7 +35,7 @@ func routesBuild(root *device) {
 
 	// Convert sync.Map to regular map for logging
 	routeMap := make(map[string]string)
-	routes.Range(func(key, value interface{}) bool {
+	s.routes.Range(func(key, value interface{}) bool {
 		routeMap[key.(string)] = value.(string)
 		return true
 	})

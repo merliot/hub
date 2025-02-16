@@ -37,6 +37,8 @@ type device struct {
 	DeployParams template.URL
 	Config       `json:"-"`
 	Devicer      `json:"-"`
+	children     deviceMap
+	parent       *device
 	stopChan     chan struct{}
 	startup      time.Time
 	stateMu      mutex

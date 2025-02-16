@@ -8,15 +8,44 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/merliot/hub/pkg/ratelimit"
 )
 
-var root *device
+type server struct {
+	root            *device
+	devices         deviceMap
+	models          ModelMap // key: model name
+	routes          sync.Map // key: dst id, value: nexthop id
+	mux             *http.ServeMux
+	server          *http.Server
+	saveToClipboard bool
+}
 
-// Run the device
-func Run() {
+var rlConfig = ratelimit.Config{
+	RateLimitWindow: 100 * time.Millisecond,
+	MaxRequests:     30,
+	BurstSize:       30,
+	CleanupInterval: 1 * time.Minute,
+}
+
+// NewServer returns a device server listening on addr
+func NewServer(addr string) *server {
+	s := server{
+		devices: make(deviceMap),
+		models:  make(ModelMap),
+		mux:     http.NewServeMux(),
+		server:  &http.Server{Addr: addr},
+	}
+	rl := ratelimit.New(rlConfig)
+	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
+	return &s
+}
+
+// Run device server
+func (s *server) Run() {
 
 	var err error
 
@@ -33,28 +62,27 @@ func Run() {
 		LogInfo("RUNNING in DEMO mode")
 	}
 
-	if err := devicesLoad(); err != nil {
+	if err := s.loadDevices(); err != nil {
 		LogError("Loading devices", "err", err)
 		return
 	}
 
-	devicesBuild()
+	s.devicesBuild()
 
-	root, err = findRoot(devices)
+	s.root, err = findRoot(s.devices)
 	if err != nil {
 		LogError("Finding root device", "err", err)
 		return
 	}
 
-	devicesSetupAPI()
+	s.devicesSetupAPI()
 
-	if err := root.setup(); err != nil {
+	if err := s.root.setup(); err != nil {
 		LogError("Setting up root device", "err", err)
 		return
 	}
 
-	// Build route table from root's perpective
-	routesBuild(root)
+	s.routesBuild()
 
 	// Dial parents
 	var urls = Getenv("DIAL_URLS", "")
@@ -67,51 +95,39 @@ func Run() {
 
 	// If port was explicitly not set, don't run as a web server
 	if port == "" {
-		root.run()
-		LogInfo("Bye, Bye", "root", root.Name)
+		s.root.run()
+		LogInfo("Bye, Bye", "root", s.root.Name)
 		return
 	}
 
 	// Running as a web server...
 
 	// Install /model/{model} patterns for makers
-	modelsInstall()
+	s.modelsInstall()
 
 	// Install the /device/{id} pattern for devices
-	devicesInstall()
+	s.devicesInstall()
 
 	// Install / to point to root device
-	http.Handle("/", root)
+	s.mux.Handle("/", s.root)
 
 	// Install /ws websocket listener, but only if not in demo mode.  In
 	// demo mode, we want to ignore any devices dialing in.
 	if !runningDemo {
-		http.HandleFunc("/ws", wsHandle)
+		s.mux.HandleFunc("/ws", wsHandle)
 	}
 
 	// Install /wsx websocket listener (wsx is for htmx ws)
-	http.HandleFunc("/wsx", wsxHandle)
+	s.mux.HandleFunc("/wsx", wsxHandle)
 
-	// Use client IP rate limiter
-	rl := ratelimit.New(ratelimit.Config{
-		RateLimitWindow: 100 * time.Millisecond,
-		MaxRequests:     30,
-		BurstSize:       30,
-		CleanupInterval: 1 * time.Minute,
-	})
+	s.mux.HandleFunc("/devices", showDevices)
 
 	addr := ":" + port
-	server := &http.Server{
-		Addr:    addr,
-		Handler: rl.RateLimit(basicAuth(http.DefaultServeMux)),
-	}
-
-	http.HandleFunc("/devices", showDevices)
 
 	// Run http server in go routine to be shutdown later
 	go func() {
-		LogInfo("ListenAndServe", "addr", addr)
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		LogInfo("ListenAndServe", "addr", s.server.Addr)
+		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			LogError("HTTP server ListenAndServe", "err", err)
 			os.Exit(1)
 		}
@@ -119,16 +135,16 @@ func Run() {
 	}()
 
 	// Ok, here we go...should run until interrupted
-	root.run()
+	s.root.run()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
+	if err := s.server.Shutdown(ctx); err != nil {
 		LogError("HTTP server Shutdown", "err", err)
 		os.Exit(1)
 	}
 
-	LogInfo("Bye, Bye", "root", root.Name)
+	LogInfo("Bye, Bye", "root", s.root.Name)
 }
 
 func logBuildInfo() {
