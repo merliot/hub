@@ -85,13 +85,13 @@ func (d *device) build(maker Maker) error {
 	}
 
 	// Configure the device using DeployParams
-	_, err := d._formConfig(string(d.DeployParams))
+	_, err := d.formConfig(string(d.DeployParams))
 	if err != nil {
 		LogError("Configuring device using DeployParams",
 			"device", d, "err", err)
 	}
 
-	return d._buildOS()
+	return d.buildOS()
 }
 
 func (d *device) handleState(pkt *Packet) {
@@ -125,7 +125,7 @@ func (d *device) handleUptime(pkt *Packet) {
 	pkt.RouteUp()
 }
 
-func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
+func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 
 	// rawQuery is the proposed new DeployParams
 	proposedParams, err := url.QueryUnescape(rawQuery)
@@ -152,10 +152,4 @@ func (d *device) _formConfig(rawQuery string) (changed bool, err error) {
 	// Save changes.  Store DeployParams unescaped.
 	d.DeployParams = template.URL(proposedParams)
 	return true, nil
-}
-
-func (d *device) formConfig(rawQuery string) (changed bool, err error) {
-	d.Lock()
-	defer d.Unlock()
-	return d._formConfig(rawQuery)
 }

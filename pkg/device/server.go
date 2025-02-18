@@ -64,15 +64,6 @@ func (s *server) Run() {
 		return
 	}
 
-	s.hydrateDevices()
-	s.buildFamilyTree()
-
-	s.root, err = s.findRoot()
-	if err != nil {
-		LogError("Finding root device", "err", err)
-		return
-	}
-
 	s.setupAPI()
 
 	if err := s.root.setup(); err != nil {

@@ -36,7 +36,7 @@ func (d *device) HandleFunc(pattern string, handler func(http.ResponseWriter, *h
 	d.ServeMux.HandleFunc(pattern, handler)
 }
 
-func (d *device) _buildOS() error {
+func (d *device) buildOS() error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
@@ -498,8 +498,7 @@ func (s *server) loadDevices() error {
 		}
 	}
 
-	s.storeJSON(devs)
-	return nil
+	return s.loadJSON(devs)
 }
 
 func (d *device) save() error {
