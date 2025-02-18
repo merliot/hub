@@ -2,6 +2,26 @@
 
 package device
 
+import "sync"
+
+type routesJSON map[string]string
+
+type routeMap struct {
+	m sync.Map // key: dst device id, value: nexthop device id
+}
+
+func (rm *routeMap) store(dst, nexthop string) {
+	rm.m.Store(dst, nexthop)
+}
+
+func (rm *routeMap) load(dst string) (string, bool) {
+	value, ok := rm.m.Load(dst)
+	if !ok {
+		return nil, false
+	}
+	return value.(string), true
+}
+
 func _routesBuild(parent, base *device) {
 	for _, childId := range parent.Children {
 		// children point to base
@@ -13,10 +33,7 @@ func _routesBuild(parent, base *device) {
 	}
 }
 
-func (s *server) routesBuild() {
-
-	s.devicesMu.RLock()
-	defer s.devicesMu.RUnlock()
+func (rm *routeMap) routesBuild() {
 
 	s.root.RLock()
 	defer s.root.RUnlock()

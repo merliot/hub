@@ -1,45 +1,43 @@
 package device
 
-type flags uint32
+import "sync/atomic"
+
+type flags struct {
+	atomic.Uint32
+}
 
 const (
-	FlagProgenitive  flags = 1 << iota // May have children
-	FlagHttpPortMust                   // Device must have an HTTP port
-	flagOnline                         // Device is online
-	flagDirty                          // Has unsaved changes
-	flagLocked                         // Device is locked
-	flagDemo                           // Running in DEMO mode
-	flagMetal                          // Device is running on real hardware
-	flagGhost                          // Device is dead but may be resurrected later
-	flagRoot                           // Device is root
+	FlagProgenitive  uint32 = 1 << iota // May have children
+	FlagHttpPortMust                    // Device must have an HTTP port
+	flagOnline                          // Device is online
+	flagDirty                           // Has unsaved changes
+	flagLocked                          // Device is locked
+	flagDemo                            // Running in DEMO mode
+	flagMetal                           // Device is running on real hardware
+	flagGhost                           // Device is dead but may be resurrected later
+	flagRoot                            // Device is root
 )
 
-func (f *flags) _set(flags flags) {
-	*f = *f | flags
+func (f *flags) set(flags uint32) {
+	for {
+		orig := f.Load()
+		updated := orig | flags
+		if f.CompareAndSwap(orig, updated) {
+			return
+		}
+	}
 }
 
-func (d *device) set(flags flags) {
-	d.Lock()
-	defer d.Unlock()
-	d._set(flags)
+func (f *flags) unSet(flags uint32) {
+	for {
+		orig := f.Load()
+		updated := orig &^ flags
+		if f.CompareAndSwap(orig, updated) {
+			return
+		}
+	}
 }
 
-func (f *flags) _unSet(flags flags) {
-	*f = *f & ^flags
-}
-
-func (d *device) unSet(flags flags) {
-	d.Lock()
-	defer d.Unlock()
-	d._unSet(flags)
-}
-
-func (f flags) _isSet(flags flags) bool {
-	return f&flags == flags
-}
-
-func (d *device) isSet(flags flags) bool {
-	d.RLock()
-	defer d.RUnlock()
-	return d._isSet(flags)
+func (f flags) isSet(flags uint32) bool {
+	return (f.Load() & flags) == flags
 }

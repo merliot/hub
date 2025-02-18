@@ -69,36 +69,6 @@ func (d *device) _buildOS() error {
 	return err
 }
 
-func (s *server) devicesBuild() {
-
-	s.devicesMu.Lock()
-	defer s.devicesMu.Unlock()
-
-	for id, d := range s.devices {
-		d.Lock()
-		if id != d.Id {
-			LogError("Mismatching Ids, skipping device", "key-id", id, "device-id", d.Id)
-			delete(s.devices, id)
-			d.Unlock()
-			continue
-		}
-		model, ok := Models[d.Model]
-		if !ok {
-			LogError("Device model not registered, skipping device", "id", id, "model", d.Model)
-			delete(s.devices, id)
-			d.Unlock()
-			continue
-		}
-		if err := d._build(model.Maker); err != nil {
-			LogError("Device build failed, skipping device", "id", id, "err", err)
-			delete(s.devices, id)
-			d.Unlock()
-			continue
-		}
-		d.Unlock()
-	}
-}
-
 func (d *device) _devices(family deviceMap) {
 	d.RLock()
 	defer d.RUnlock()
@@ -132,14 +102,6 @@ func (d *device) setupAPI() {
 	d.Lock()
 	d._setupAPI()
 	d.Unlock()
-}
-
-func (s *server) devicesSetupAPI() {
-	s.devicesMu.Lock()
-	defer s.devicesMu.Unlock()
-	for _, d := range s.devices {
-		d.setupAPI()
-	}
 }
 
 func addChild(parent *device, id, model, name string, flags flags) error {
@@ -270,47 +232,6 @@ func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		return err
 	}
 	return d.renderPkt(w, sessionId, pkt)
-}
-
-// findRoot returns the root *device of the device map
-func findRoot(devices deviceMap) (*device, error) {
-
-	// Create a map to track all devices that are children
-	childSet := make(map[string]bool)
-
-	// Populate the childSet with the Ids of all children
-	for i, d := range devices {
-		var validChildren []string
-		for _, child := range d.Children {
-			if _, ok := devices[child]; !ok {
-				LogError("Warning: Child Id not found in devices", "id", child)
-				continue
-			}
-			validChildren = append(validChildren, child)
-			childSet[child] = true
-		}
-		devices[i].Children = validChildren
-	}
-
-	// Find all root devices
-	var roots []*device
-	for id, device := range devices {
-		if _, isChild := childSet[id]; !isChild {
-			roots = append(roots, device)
-		}
-	}
-
-	// Return the root if there is exactly one tree
-	switch {
-	case len(roots) == 1:
-		root := roots[0]
-		root.set(flagRoot | flagOnline | flagMetal)
-		return root, nil
-	case len(roots) > 1:
-		return nil, fmt.Errorf("More than one tree found in devices, aborting")
-	}
-
-	return nil, fmt.Errorf("No tree found in devices")
 }
 
 func _ghostChild(id string) error {
@@ -534,10 +455,11 @@ var emptyHub = `{
 
 func (s *server) loadDevices() error {
 
+	var devs = make(devicesJSON)
 	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
-	var devicesJSON = Getenv("DEVICES", "")
+	var devicesEnv = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
-	var noJSON bool = (devicesJSON == "")
+	var noEnv bool = (devicesEnv == "")
 	var noFile bool = (devicesFile == "")
 	var noDefault bool
 
@@ -547,25 +469,37 @@ func (s *server) loadDevices() error {
 	}
 	noDefault = (err != nil)
 
-	if noJSON && noFile && noDefault {
+	switch {
+
+	case noEnv && noFile && noDefault:
 		LogInfo("Loading with empty hub")
 		s.saveToClipboard = !autoSave
-		return json.Unmarshal([]byte(emptyHub), &s.devices)
-	}
+		if err := json.Unmarshal([]byte(emptyHub), &devs); err != nil {
+			return err
+		}
 
-	if noJSON && noFile && !noDefault {
+	case noEnv && noFile && !noDefault:
 		LogInfo("Loading from devices.json")
-		return fileReadJSON("devices.json", &s.devices)
-	}
+		if err := fileReadJSON("devices.json", &devs); err != nil {
+			return err
+		}
 
-	if noJSON {
+	case noEnv:
 		LogInfo("Loading from", "DEVICES_FILE", devicesFile)
-		return fileReadJSON(devicesFile, &s.devices)
+		if err := fileReadJSON(devicesFile, &devs); err != nil {
+			return err
+		}
+
+	default:
+		LogInfo("Loading from DEVICES env var")
+		s.saveToClipboard = true
+		if err := json.Unmarshal([]byte(devicesEnv), &devs); err != nil {
+			return err
+		}
 	}
 
-	LogInfo("Loading from DEVICES")
-	s.saveToClipboard = true
-	return json.Unmarshal([]byte(devicesJSON), &s.devices)
+	s.storeJSON(devs)
+	return nil
 }
 
 func (d *device) save() error {

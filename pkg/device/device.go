@@ -39,10 +39,10 @@ type device struct {
 	Devicer      `json:"-"`
 	children     deviceMap
 	parent       *device
+	nexthop      *device
 	stopChan     chan struct{}
 	startup      time.Time
 	stateMu      mutex
-	rwMutex
 	flags
 	deviceOS
 }
@@ -51,7 +51,7 @@ func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
-func (d *device) _build(maker Maker) error {
+func (d *device) build(maker Maker) error {
 
 	d.startup = time.Now()
 	d.Devicer = maker()
@@ -63,10 +63,10 @@ func (d *device) _build(maker Maker) error {
 	}
 
 	if runningSite {
-		d._set(flagLocked)
+		d.set(flagLocked)
 	}
 	if runningDemo {
-		d._set(flagDemo | flagOnline | flagMetal)
+		d.set(flagDemo | flagOnline | flagMetal)
 	}
 
 	// Default handlers for all devices
@@ -92,12 +92,6 @@ func (d *device) _build(maker Maker) error {
 	}
 
 	return d._buildOS()
-}
-
-func (d *device) build(maker Maker) error {
-	d.Lock()
-	defer d.Unlock()
-	return d._build(maker)
 }
 
 func (d *device) handleState(pkt *Packet) {

@@ -8,20 +8,18 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
-	"sync"
 	"time"
 
 	"github.com/merliot/hub/pkg/ratelimit"
 )
 
 type server struct {
-	root            *device
-	devices         deviceMap
-	models          ModelMap // key: model name
-	routes          sync.Map // key: dst id, value: nexthop id
+	devices         deviceMap // key: device id, value: *device
+	models          ModelMap  // key: model name
 	mux             *http.ServeMux
 	server          *http.Server
 	saveToClipboard bool
+	rwMutex
 }
 
 var rlConfig = ratelimit.Config{
@@ -34,10 +32,9 @@ var rlConfig = ratelimit.Config{
 // NewServer returns a device server listening on addr
 func NewServer(addr string) *server {
 	s := server{
-		devices: make(deviceMap),
-		models:  make(ModelMap),
-		mux:     http.NewServeMux(),
-		server:  &http.Server{Addr: addr},
+		models: make(ModelMap),
+		mux:    http.NewServeMux(),
+		server: &http.Server{Addr: addr},
 	}
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
@@ -67,15 +64,16 @@ func (s *server) Run() {
 		return
 	}
 
-	s.devicesBuild()
+	s.hydrateDevices()
+	s.buildFamilyTree()
 
-	s.root, err = findRoot(s.devices)
+	s.root, err = s.findRoot()
 	if err != nil {
 		LogError("Finding root device", "err", err)
 		return
 	}
 
-	s.devicesSetupAPI()
+	s.setupAPI()
 
 	if err := s.root.setup(); err != nil {
 		LogError("Setting up root device", "err", err)
