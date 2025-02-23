@@ -9,7 +9,6 @@ type devicesJSON map[string]*device
 
 type deviceMap struct {
 	sync.Map // key: device id, value: *device
-	root     *device
 }
 
 func (dm *deviceMap) drange(f func(string, *device) bool) {
@@ -18,6 +17,61 @@ func (dm *deviceMap) drange(f func(string, *device) bool) {
 		d := value.(*device)
 		return f(id, d)
 	})
+}
+
+func (dm *deviceMap) setupAPI() {
+	dm.drange(func(id string, d *device) bool {
+		d.setupAPI()
+		return true
+	})
+}
+
+func (s *server) loadJSON(devs devicesJSON) error {
+
+	s.devices.Clear()
+	s.devices.root = nil
+
+skip:
+	for id, d := range devs {
+
+		// Hydrate device
+		if err := s.buildDevice(id, d); err != nil {
+			LogError("Skipping device", "id", id, "err", err)
+			delete(devs, id)
+			continue
+		}
+
+		// Build family tree
+		for _, childId := range d.Children {
+			child, ok := devs[childId]
+			if !ok {
+				LogError("Unknown child id, skipping device",
+					"device-id", id, "child-id", childId)
+				delete(devs, id)
+				continue skip
+			}
+			child.parent = d
+			d.children.store(childId, child)
+		}
+		s.devices.Store(id, d)
+	}
+
+	s.root, err := s.devices.findRoot()
+	if err != nil {
+		return err
+	}
+
+	s.devices.setupAPI()
+
+	return nil
+}
+
+func (dm *deviceMap) load(id string) (*device, bool) {
+	value, ok := dm.Load(id)
+	if !ok {
+		return nil, false
+	}
+	return value.(*device), true
 }
 
 func (dm *deviceMap) findRoot() (root *device, err error) {
@@ -43,52 +97,41 @@ func (dm *deviceMap) findRoot() (root *device, err error) {
 	}
 }
 
-func (s *server) buildDevice(id string, d *device) error {
-	if id != d.Id {
-		return fmt.Errorf("Mismatching Ids")
-	}
-	model, ok := s.models[d.Model]
-	if !ok {
-		return fmt.Errorf("Model '%s' not registered", d.Model)
-	}
-	return d.build(model.Maker)
-}
+func (dm *deviceMap) buildTree() (root *device, err error) {
 
-func (s *server) loadJSON(devs devicesJSON) error {
-	s.Lock()
-	defer s.Unlock()
-
-	s.devices.Clear()
-	s.devices.root = nil
-
-skip:
-	for id, d := range devs {
-
-		// Hydrate devices
-		if err := s.buildDevice(id, d); err != nil {
-			LogError("Skipping device", "id", id, "err", err)
-			delete(devs, id)
-			continue
-		}
-
-		// Build family tree
+	// Build family tree
+	dm.drange(func(id string, d *device) bool {
+		d.children.Clear()
 		for _, childId := range d.Children {
-			child, ok := devs[childId]
+			child, ok := dm.load[childId]
 			if !ok {
 				LogError("Unknown child id, skipping device",
 					"device-id", id, "child-id", childId)
-				delete(devs, id)
-				continue skip
+				dm.Delete(id)
+				break
 			}
 			child.parent = d
-			d.children.store(childId, child)
+			d.children.Store(childId, child)
 		}
-		s.devices.Store(id, d)
+		return true
+	})
+
+	// Find root of family tree
+	root, err = dm.findRoot()
+	if err != nil {
+		return
 	}
 
-	s.devices.root, err := s.devices.findRoot()
+	// Install nexthop routes
 
-	return err
+	return
+}
+
+func (dm *deviceMap) loadJSON(devs devicesJSON) {
+	dm.Clear()
+	for id, d := range devs {
+		dm.Store(id, d)
+	}
 }
 
 func (dm *deviceMap) saveJSON() devicesJSON {
@@ -98,13 +141,6 @@ func (dm *deviceMap) saveJSON() devicesJSON {
 		return true
 	})
 	return devs
-}
-
-func (dm *deviceMap) setupAPI() {
-	dm.drange(func(id string, d *device) bool {
-		d.setupAPI()
-		return true
-	})
 }
 
 func (dm *deviceMap) _mapRoutes(parent *device, baseId string) {

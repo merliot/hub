@@ -91,17 +91,11 @@ func (d *device) devices() deviceMap {
 	return family
 }
 
-func (d *device) _setupAPI() {
+func (d *device) setupAPI() {
 	// Install base + device APIs
 	d.installAPIs()
 	// Install the device-specific packet handlers APIs
 	d.packetHandlersInstall()
-}
-
-func (d *device) setupAPI() {
-	d.Lock()
-	d._setupAPI()
-	d.Unlock()
 }
 
 func addChild(parent *device, id, model, name string, flags flags) error {
@@ -498,7 +492,8 @@ func (s *server) loadDevices() error {
 		}
 	}
 
-	return s.loadJSON(devs)
+	s.devices.loadJSON(devs)
+	return nil
 }
 
 func (d *device) save() error {

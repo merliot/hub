@@ -4,6 +4,7 @@ package device
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"runtime"
@@ -15,11 +16,11 @@ import (
 
 type server struct {
 	devices         deviceMap // key: device id, value: *device
-	models          ModelMap  // key: model name
+	root            *device
+	models          ModelMap // key: model name
 	mux             *http.ServeMux
 	server          *http.Server
 	saveToClipboard bool
-	rwMutex
 }
 
 var rlConfig = ratelimit.Config{
@@ -39,6 +40,32 @@ func NewServer(addr string) *server {
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
 	return &s
+}
+
+func (s *server) buildDevice(id string, d *device) error {
+	if id != d.Id {
+		return fmt.Errorf("Mismatching Ids")
+	}
+	model, ok := s.models[d.Model]
+	if !ok {
+		return fmt.Errorf("Model '%s' not registered", d.Model)
+	}
+	return d.build(model.Maker)
+}
+
+func (s *server) buildDevices() error {
+	s.devices.drange(func(id string, d *device) bool {
+		if err := s.buildDevice(id, d); err != nil {
+			LogError("Skipping device", "id", id, "err", err)
+			s.devices.Delete(id)
+		}
+		return true
+	})
+}
+
+func (s *server) buildTree() (err error) {
+	s.root, err = s.devices.buildTree()
+	return
 }
 
 // Run device server
@@ -64,7 +91,15 @@ func (s *server) Run() {
 		return
 	}
 
-	s.setupAPI()
+	if err := s.buildDevices(); err != nil {
+		LogError("Building devices", "err", err)
+		return
+	}
+
+	if err := s.buildTree(); err != nil {
+		LogError("Building tree", "err", err)
+		return
+	}
 
 	if err := s.root.setup(); err != nil {
 		LogError("Setting up root device", "err", err)
