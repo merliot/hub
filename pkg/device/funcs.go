@@ -26,11 +26,6 @@ func (d *device) stateJSON() (string, error) {
 	return string(bytes), err
 }
 
-func devicesJSON() (string, error) {
-	bytes, err := json.MarshalIndent(aliveDevices(), "", "\t")
-	return string(bytes), err
-}
-
 func (d *device) uptime() string {
 	return formatDuration(time.Since(d.startup).Truncate(time.Second))
 }
@@ -69,7 +64,6 @@ func (d *device) baseFuncs() template.FuncMap {
 		"port":            func() string { return d.deployValues().Get("port") },
 		"ssid":            func() string { return d.deployValues().Get("ssid") },
 		"package":         func() string { return Models[d.Model].Package },
-		"devicesJSON":     devicesJSON,
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
 		"isRoot":          func() bool { return d == root },
 		"isProgenitive":   func() bool { return d._isSet(FlagProgenitive) },

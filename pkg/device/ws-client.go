@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func wsDial(wsURL *url.URL, user, passwd string) {
+func (s *server) wsDial(wsURL *url.URL, user, passwd string) {
 
 	var hdr = http.Header{}
 
@@ -30,7 +30,7 @@ func wsDial(wsURL *url.URL, user, passwd string) {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), hdr)
 		if err == nil {
 			// Service the client websocket
-			wsClient(conn)
+			s.wsClient(conn)
 		} else {
 			LogError("Dialing", "url", wsURL, "err", err)
 		}
@@ -40,21 +40,18 @@ func wsDial(wsURL *url.URL, user, passwd string) {
 	}
 }
 
-func wsClient(conn *websocket.Conn) {
+func (s *server) wsClient(conn *websocket.Conn) {
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
 	var pkt = &Packet{
-		Dst:  root.Id,
 		Path: "/announce",
 	}
 
 	link.setPongHandler()
 	link.startPing()
 
-	devicesMu.RLock()
-	pkt.Marshal(aliveDevices())
-	devicesMu.RUnlock()
+	pkt.Marshal(s.devices.getJSON())
 
 	// Send announcement
 	LogInfo("<- Sending", "pkt", pkt)
@@ -78,7 +75,7 @@ func wsClient(conn *websocket.Conn) {
 	}
 
 	LogInfo("Adding Uplink")
-	uplinksAdd(link)
+	s.uplinks.add(link)
 
 	// Send /online packet to all online devices
 	devicesOnline(link)
@@ -92,9 +89,9 @@ func wsClient(conn *websocket.Conn) {
 			break
 		}
 		LogDebug("-> Route packet DOWN", "pkt", pkt)
-		downlinksRoute(pkt)
+		s.routeDown(pkt)
 	}
 
 	LogInfo("Removing Uplink")
-	uplinksRemove(link)
+	s.uplinks.remove(link)
 }

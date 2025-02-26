@@ -29,8 +29,8 @@ type blog struct {
 	Date  string
 }
 
-func (d *device) blogs() []blog {
-	dirs, _ := fs.ReadDir(d.layeredFS, "blog")
+func (s *server) blogs() []blog {
+	dirs, _ := fs.ReadDir(s.root.layeredFS, "blog")
 
 	// Sort dirs in reverse order
 	sort.Slice(dirs, func(i, j int) bool {
@@ -40,7 +40,7 @@ func (d *device) blogs() []blog {
 	blogs := make([]blog, 0, len(dirs))
 	for _, dir := range dirs {
 		var b = blog{Dir: dir.Name()}
-		bytes, err := d.layeredFS.readFile("blog/" + dir.Name() + "/blog.json")
+		bytes, err := s.root.layeredFS.readFile("blog/" + dir.Name() + "/blog.json")
 		if err != nil {
 			panic(err.Error())
 		}

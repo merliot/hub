@@ -27,62 +27,96 @@ var (
 	tabsBlog   = siteTabs{tabBlog, tabHome, tabDemo, tabStatus, tabDocs}
 )
 
-func (d *device) showSiteHome(w http.ResponseWriter, r *http.Request) {
-	d.showSection(w, r, "site.tmpl", "home", "intro", homePages, map[string]any{
+func (d *device) setupSiteAPI() {
+	d.installSiteAPIs()
+	d.packetHandlersInstall()
+}
+
+func (d *device) installSiteAPIs() {
+
+	d.HandleFunc("GET /", d.serveStaticFile)
+
+	d.HandleFunc("GET /show-view", d.showView)
+
+	d.HandleFunc("GET /state", d.showState)
+	d.HandleFunc("GET /code", d.showCode)
+
+	d.HandleFunc("GET /download-target/{sessionId}", d.showDownloadTarget)
+	d.HandleFunc("GET /download-image", d.downloadImage)
+	d.HandleFunc("GET /download-image/{sessionId}", d.downloadImage)
+
+	d.HandleFunc("GET /deploy-koyeb/{sessionId}", d.deployKoyeb)
+
+	d.HandleFunc("GET /instructions", d.showInstructions)
+	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
+
+	d.HandleFunc("GET /edit-name", d.editName)
+
+	d.HandleFunc("GET /model", d.showModel)
+
+	d.HandleFunc("GET /new-modal", d.showNewModal)
+
+	// Device-specific APIs, if any
+
+	if d.APIs != nil {
+		for path, fn := range d.APIs {
+			d.HandleFunc(path, fn)
+		}
+	}
+}
+
+func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {
+	s.root.showSection(w, r, "site.tmpl", "home", "intro", homePages, map[string]any{
 		"tabs": tabsHome,
 	})
 }
 
-var (
-	pingPeriod = Getenv("PING_PERIOD", "2")
-)
-
-func (d *device) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
-	sessionId, ok := newSession()
+func (s *server) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
+	sessionId, ok := s.sessions.newSession()
 	if !ok {
-		d.noSessions(w, r)
+		s.sessions.noSessions(w, r)
 		return
 	}
-	d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
+	s.root.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
 		"tabs":       tabsDemo,
 		"sessionId":  sessionId,
-		"pingPeriod": pingPeriod,
+		"pingPeriod": s.wsxPingPeriod,
 	})
 }
 
-func (d *device) showSiteDemo(w http.ResponseWriter, r *http.Request) {
+func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 	page := r.PathValue("page")
 	if page == "" || page == "devices" {
-		d.showSiteDemoSession(w, r)
+		s.showSiteDemoSession(w, r)
 	} else {
-		d.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
+		s.root.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
 			"tabs": tabsDemo,
 		})
 	}
 }
 
-func (d *device) showSiteStatus(w http.ResponseWriter, r *http.Request) {
+func (s *server) showSiteStatus(w http.ResponseWriter, r *http.Request) {
 	refresh := path.Base(r.URL.Path)
 	if refresh == "refresh" {
-		d.showStatusRefresh(w, r)
+		s.showStatusRefresh(w, r)
 		return
 	}
-	d.showSection(w, r, "site.tmpl", "status", "sessions", statusPages, map[string]any{
+	s.root.showSection(w, r, "site.tmpl", "status", "sessions", statusPages, map[string]any{
 		"tabs":     tabsStatus,
-		"sessions": sessionsStatus(),
-		"devices":  devicesStatus(),
+		"sessions": s.sessions.status(),
+		"devices":  s.devices.status(),
 	})
 }
 
-func (d *device) showSiteDocs(w http.ResponseWriter, r *http.Request) {
-	d.showSection(w, r, "site.tmpl", "docs", "quick-start", docPages, map[string]any{
+func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {
+	s.root.showSection(w, r, "site.tmpl", "docs", "quick-start", docPages, map[string]any{
 		"tabs": tabsDocs,
 	})
 }
 
-func (d *device) showSiteBlog(w http.ResponseWriter, r *http.Request) {
-	blogs := d.blogs()
-	d.showSection(w, r, "site.tmpl", "blog", blogs[0].Dir, nil, map[string]any{
+func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
+	blogs := s.blogs()
+	s.root.showSection(w, r, "site.tmpl", "blog", blogs[0].Dir, nil, map[string]any{
 		"tabs":  tabsBlog,
 		"blogs": blogs,
 	})

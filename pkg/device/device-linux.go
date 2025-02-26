@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"slices"
-	"sort"
 	"sync"
 	"time"
 )
@@ -60,65 +59,24 @@ func (d *device) buildOS() error {
 	// Build the device templates using combined funcs
 	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.FuncMap)
 
-	// Default handlers for Linux devices
-	d.PacketHandlers["/created"] = &PacketHandler[MsgCreated]{d.handleCreated}
-	d.PacketHandlers["/destroyed"] = &PacketHandler[MsgDestroyed]{d.handleDestroyed}
-	d.PacketHandlers["/downloaded"] = &PacketHandler[MsgDownloaded]{d.handleDownloaded}
-	d.PacketHandlers["/announced"] = &PacketHandler[MsgDownloaded]{d.handleAnnounced}
-
 	return err
 }
 
-func (d *device) _devices(family deviceMap) {
-	d.RLock()
-	defer d.RUnlock()
-
-	family[d.Id] = devices[d.Id]
-	for _, childId := range d.Children {
-		devices[childId]._devices(family)
-	}
-}
-
-// devices returns a deviceMap with this device and all its children
-func (d *device) devices() deviceMap {
-	var family = make(deviceMap)
-
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	d._devices(family)
-
-	return family
-}
-
-func (d *device) setupAPI() {
-	// Install base + device APIs
-	d.installAPIs()
-	// Install the device-specific packet handlers APIs
-	d.packetHandlersInstall()
-}
-
-func addChild(parent *device, id, model, name string, flags flags) error {
+func (s *server) addChild(parent *device, id, model, name string, flags flags) error {
 
 	var resurrect bool
 
-	maker, ok := Models[model]
+	maker, ok := s.models[model]
 	if !ok {
 		return fmt.Errorf("Unknown model")
 	}
 
-	parent.Lock()
-	defer parent.Unlock()
-
-	if slices.Contains(parent.Children, id) {
+	if _, exists := parent.children.load(id); exists {
 		return fmt.Errorf("Device's children already includes child")
 	}
 
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-
-	child, ok := devices[id]
-	if ok {
+	child, exists := s.devices.load(id)
+	if exists {
 		if !child.isSet(flagGhost) {
 			return fmt.Errorf("Child device already exists")
 		}
@@ -128,95 +86,77 @@ func addChild(parent *device, id, model, name string, flags flags) error {
 		child = &device{Id: id, Model: model, Name: name}
 	}
 
-	child.Lock()
-	defer child.Unlock()
-
 	if resurrect {
 		// Resurrect ghost child back to life
-		child._unSet(flagGhost)
-		child.DeployParams = ""
-		child.Children = []string{}
+		child.unSet(flagGhost)
 	}
 
-	if err := child._build(maker.Maker); err != nil {
+	if err := child.build(maker.Maker); err != nil {
 		return err
 	}
 
-	child._set(flags)
-
+	child.set(flags)
+	child.parent = parent
 	parent.Children = append(parent.Children, id)
-	devices[id] = child
+	parent.children.Store(id, child)
+	s.devices.Store(id, child)
 
-	child._setupAPI()
+	child.setupAPI()
 
 	if !resurrect {
-		child.deviceInstall()
+		// Only install /device/{id} pattern if not previously ghosted
+		child.install()
 	}
 
-	if runningDemo {
-		if err := child._setup(); err != nil {
+	if s.runningDemo {
+		if err := child.setup(); err != nil {
 			return err
 		}
-		child._startDemo()
+		child.startDemo()
 	}
 
 	return nil
 }
 
-func removeChild(id string) error {
+// ghost child and all children, recursively
+func (child *device) ghost() {
+	child.children.drange(func(id string, d *device) bool {
+		d.ghost()
+		return true
+	})
+	child.set(flagGhost)
+	child.parent = nil
+	child.nexthop = nil
+	child.DeployParams = ""
+	child.Children = []string{}
+	child.children.Clear()
+}
 
-	// Ghost all children
-	if err := ghostChildren(id); err != nil {
-		return err
-	}
-
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-
-	d := devices[id]
-
-	if runningDemo {
-		d.stopDemo()
-	}
-
-	// Ghost device
-	d.set(flagGhost)
-
-	// Detach the device from any parent devices where it is listed as a child
-	for _, d := range devices {
-		d.Lock()
-		if index := slices.Index(d.Children, id); index != -1 {
-			d.Children = slices.Delete(d.Children, index, index+1)
+// orphan detaches child from its parent
+func (child *device) orphan() {
+	parent := child.parent
+	if parent != nil {
+		parent.children.Delete(child.Id)
+		if index := slices.Index(parent.Children, child.Id); index != -1 {
+			parent.Children = slices.Delete(parent.Children, index, index+1)
 		}
-		d.Unlock()
-	}
-
-	return nil
-}
-
-func (d *device) routeDown(pkt *Packet) {
-
-	// If device is running on 'metal', this is the packet's final
-	// destination.
-	if d.isSet(flagMetal) {
-		d.handle(pkt)
-		return
-	}
-
-	// Otherwise, route the packet down
-	downlinkRoute(d.Id, pkt)
-}
-
-func deviceRouteDown(id string, pkt *Packet) {
-	if d, err := getDevice(id); err == nil {
-		d.routeDown(pkt)
 	}
 }
 
-func deviceRouteUp(id string, pkt *Packet) {
-	if d, err := getDevice(id); err == nil {
-		d.handle(pkt)
+func (s *server) removeChild(child *device) {
+
+	if s.runningDemo {
+		child.stopDemo()
 	}
+
+	// Remove child from parent
+	child.orphan()
+
+	// We don't remove the child completely because /device/{childId} is
+	// already installed to point to this child.  So mark the child (and all
+	// of its descendents) as ghosts.  Later, if the child is added back,
+	// we'll resurrect it.
+	child.ghost()
 }
 
 func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
@@ -226,60 +166,6 @@ func deviceRenderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		return err
 	}
 	return d.renderPkt(w, sessionId, pkt)
-}
-
-func _ghostChild(id string) error {
-
-	d, ok := devices[id]
-	if !ok {
-		return deviceNotFound(id)
-	}
-
-	if runningDemo {
-		d.stopDemo()
-	}
-
-	d.Lock()
-	defer d.Unlock()
-
-	d._set(flagGhost)
-
-	for _, childId := range d.Children {
-		if err := _ghostChild(childId); err != nil {
-			return err
-		}
-	}
-
-	d.Children = []string{}
-
-	return nil
-}
-
-func _ghostChildren(id string) error {
-
-	d, ok := devices[id]
-	if !ok {
-		return deviceNotFound(id)
-	}
-
-	d.Lock()
-	defer d.Unlock()
-
-	for _, childId := range d.Children {
-		if err := _ghostChild(childId); err != nil {
-			return err
-		}
-	}
-
-	d.Children = []string{}
-
-	return nil
-}
-
-func ghostChildren(id string) error {
-	devicesMu.Lock()
-	defer devicesMu.Unlock()
-	return _ghostChildren(id)
 }
 
 func (d *device) _copyDevice(from *device) {
@@ -423,20 +309,6 @@ func (d *device) clean() {
 	pkt.BroadcastUp()
 }
 
-func deviceParent(id string) string {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-	for _, d := range devices {
-		d.RLock()
-		if slices.Contains(d.Children, id) {
-			d.RUnlock()
-			return d.Id
-		}
-		d.RUnlock()
-	}
-	return ""
-}
-
 var emptyHub = `{
 	"hub": {
 		"Id": "hub",
@@ -496,19 +368,6 @@ func (s *server) loadDevices() error {
 	return nil
 }
 
-func (d *device) save() error {
-	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
-
-	if autoSave {
-		return devicesSave()
-	}
-
-	// Mark device dirty so user can manually save
-	d.dirty()
-
-	return nil
-}
-
 func (s *server) devicesSave() error {
 	var devicesJSON = Getenv("DEVICES", "")
 	var devicesFile = Getenv("DEVICES_FILE", "")
@@ -517,12 +376,12 @@ func (s *server) devicesSave() error {
 
 	if noJSON && noFile {
 		//LogDebug("Saving to devices.json")
-		return fileWriteJSON("devices.json", s.aliveDevices())
+		return fileWriteJSON("devices.json", s.devices.getJSON())
 	}
 
 	if noJSON && !noFile {
 		//LogDebug("Saving to", "DEVICES_FILE", devicesFile)
-		return fileWriteJSON(devicesFile, s.aliveDevices())
+		return fileWriteJSON(devicesFile, s.devices.getJSON())
 	}
 
 	// Save to clipboard
@@ -580,43 +439,6 @@ func (d *device) handleReboot(pkt *Packet) {
 		// restart the device.
 		os.Exit(0)
 	}
-}
-
-func devicesSortedId() []string {
-	keys := make([]string, 0, len(devices))
-	for id := range devices {
-		keys = append(keys, id)
-	}
-	sort.Strings(keys)
-	return keys
-}
-
-type deviceStatus struct {
-	Color  string
-	Status string
-}
-
-func devicesStatus() []deviceStatus {
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	var statuses = make([]deviceStatus, len(devices))
-	for _, id := range devicesSortedId() {
-		d := devices[id]
-		d.RLock()
-		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
-			d.Id, d.Model, d.Name, len(d.Children))
-		color := "gold"
-		if d._isSet(flagGhost) {
-			color = "gray"
-		}
-		statuses = append(statuses, deviceStatus{
-			Color:  color,
-			Status: status,
-		})
-		d.RUnlock()
-	}
-	return statuses
 }
 
 /*

@@ -37,3 +37,23 @@ func (d *device) handle(pkt *Packet) {
 		}
 	}
 }
+
+func (s *server) handle(pkt *Packet) error {
+	if pkt.Dst == "" {
+		// Run server handler
+		if handler, ok := s.packetHandlers[pkt.Path]; ok {
+			LogDebug("Handling", "pkt", pkt)
+			handler.cb(pkt)
+		}
+		return nil
+	}
+
+	d, ok := s.devices.load(pkt.Dst)
+	if !ok {
+		return deviceNotFound(pkt.Dst)
+	}
+
+	// Run device handler
+	d.handle(pkt)
+	return nil
+}

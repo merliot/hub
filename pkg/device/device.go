@@ -1,16 +1,13 @@
 package device
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"math"
 	"net/url"
 	"time"
-)
-
-var (
-	runningSite bool // running as full web-site
-	runningDemo bool // running in DEMO mode
+	"unicode"
 )
 
 // Devicer is the device model interface
@@ -152,4 +149,77 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 	// Save changes.  Store DeployParams unescaped.
 	d.DeployParams = template.URL(proposedParams)
 	return true, nil
+}
+
+// validateId validates an ID string for use in URLs.
+// It ensures the ID is not empty, starts with a letter or number,
+// and contains only letters, numbers, dashes, or underscores (no spaces).
+func validateId(id string) error {
+	if len(id) == 0 {
+		return errors.New("Id cannot be empty")
+	}
+
+	runes := []rune(id)
+
+	// Check first character
+	if !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
+		return errors.New("Id must start with a letter or number")
+	}
+
+	// Check remaining characters
+	for i, r := range runes {
+		if i == 0 {
+			continue
+		}
+		if !unicode.IsLetter(r) &&
+			!unicode.IsDigit(r) &&
+			r != '-' &&
+			r != '_' {
+			return errors.New("Id can only contain letters, numbers, dashes, or underscores")
+		}
+	}
+
+	return nil
+}
+
+// validateName ensures the name is not empty, starts with a letter or number,
+// and contains only letters, numbers, dashes, underscores, or spaces.
+func validateName(name string) error {
+	if len(name) == 0 {
+		return errors.New("Name cannot be empty")
+	}
+
+	runes := []rune(name)
+
+	// Check first character
+	if !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
+		return errors.New("Name must start with a letter or number")
+	}
+
+	// Check remaining characters
+	for i, r := range runes {
+		if i == 0 {
+			continue
+		}
+		if !unicode.IsLetter(r) &&
+			!unicode.IsDigit(r) &&
+			r != ' ' &&
+			r != '.' &&
+			r != '-' &&
+			r != '_' {
+			return errors.New("Name can only contain letters, numbers, spaces, dots, dashes, or underscores")
+		}
+	}
+
+	return nil
+}
+
+func validateIds(id, name string) error {
+	if err := validateId(id); err != nil {
+		return err
+	}
+	if err := validateName(name); err != nil {
+		return err
+	}
+	return nil
 }

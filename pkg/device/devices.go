@@ -2,6 +2,7 @@ package device
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 )
 
@@ -12,56 +13,31 @@ type deviceMap struct {
 }
 
 func (dm *deviceMap) drange(f func(string, *device) bool) {
-	dm.m.Range(func(key, value interface{}) bool {
+	dm.Range(func(key, value any) bool {
 		id := key.(string)
 		d := value.(*device)
 		return f(id, d)
 	})
 }
 
-func (dm *deviceMap) setupAPI() {
+func (dm *deviceMap) sortedByName(f func(string, *device) error) error {
+
+	var devs []*device
+
 	dm.drange(func(id string, d *device) bool {
-		d.setupAPI()
+		devs = append(devs, d)
 		return true
 	})
-}
 
-func (s *server) loadJSON(devs devicesJSON) error {
+	sort.Slice(devs, func(i, j int) bool {
+		return devs[i].Name < devs[j].Name
+	})
 
-	s.devices.Clear()
-	s.devices.root = nil
-
-skip:
-	for id, d := range devs {
-
-		// Hydrate device
-		if err := s.buildDevice(id, d); err != nil {
-			LogError("Skipping device", "id", id, "err", err)
-			delete(devs, id)
-			continue
+	for _, d := range devs {
+		if err := f(d.Id, d); err != nil {
+			return err
 		}
-
-		// Build family tree
-		for _, childId := range d.Children {
-			child, ok := devs[childId]
-			if !ok {
-				LogError("Unknown child id, skipping device",
-					"device-id", id, "child-id", childId)
-				delete(devs, id)
-				continue skip
-			}
-			child.parent = d
-			d.children.store(childId, child)
-		}
-		s.devices.Store(id, d)
 	}
-
-	s.root, err := s.devices.findRoot()
-	if err != nil {
-		return err
-	}
-
-	s.devices.setupAPI()
 
 	return nil
 }
@@ -123,6 +99,7 @@ func (dm *deviceMap) buildTree() (root *device, err error) {
 	}
 
 	// Install nexthop routes
+	root.mapRoutes()
 
 	return
 }
@@ -134,58 +111,60 @@ func (dm *deviceMap) loadJSON(devs devicesJSON) {
 	}
 }
 
-func (dm *deviceMap) saveJSON() devicesJSON {
+func (dm *deviceMap) getJSON() devicesJSON {
 	devs := make(devicesJSON)
 	dm.drange(func(id string, d *device) bool {
-		devs[id] = d
+		// Only get alive devices
+		if !d.isSet(flagGhost) {
+			devs[id] = d
+		}
 		return true
 	})
 	return devs
 }
 
-func (dm *deviceMap) _mapRoutes(parent *device, baseId string) {
-	parent.children.drange(func(childId string, child *device) {
-		// Children point to base
-		dm.routes.store(childId, baseId)
-		dm._mapRoutes(child, baseId)
+func (dm *deviceMap) getRoutes() routesJSON {
+	routes := make(routesJSON)
+	dm.drange(func(id string, d *device) bool {
+		routes[id] = d.nexthop.Id
+		return true
 	})
-}
-
-func (dm *deviceMap) mapRoutes() {
-
-	dm.routes.Clear()
-
-	// Root points to self
-	dm.routes.store(dm.root.Id, dm.root.Id)
-
-	dm.root.children.drange(func(childId string, child *device) bool {
-		// Children of root point to self
-		dm.routes.store(childId, childId)
-		dm._mapRoutes(child, childId)
-	})
+	return routes
 }
 
 func deviceNotFound(id string) error {
 	return fmt.Errorf("Device '%s' not found", id)
 }
 
-func (s *server) getDevice(id string) (*device, error) {
-	s.devicesMu.RLock()
-	defer s.devicesMu.RUnlock()
-	if d, ok := s.devices[id]; ok {
-		return d, nil
-	}
-	return nil, deviceNotFound(id)
+func (dm *deviceMap) sortedId() []string {
+	keys := make([]string, 0, len(devices))
+	dm.drange(func(id string, _ *device) bool {
+		keys = append(keys, id)
+		return true
+	})
+	sort.Strings(keys)
+	return keys
 }
 
-func (s *server) aliveDevices() (alive deviceMap) {
-	s.devicesMu.RLock()
-	defer s.devicesMu.RUnlock()
-	alive = make(deviceMap)
-	for id, d := range s.devices {
-		if !d.isSet(flagGhost) {
-			alive[id] = d
+type deviceStatus struct {
+	Color  string
+	Status string
+}
+
+func (dm *deviceMap) status() []deviceStatus {
+	var statuses = make([]deviceStatus)
+	for _, id := range dm.sortedId() {
+		d, _ := dm.load(id)
+		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
+			d.Id, d.Model, d.Name, len(d.Children))
+		color := "gold"
+		if d.isSet(flagGhost) {
+			color = "gray"
 		}
+		statuses = append(statuses, deviceStatus{
+			Color:  color,
+			Status: status,
+		})
 	}
-	return
+	return statuses
 }

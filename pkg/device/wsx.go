@@ -10,7 +10,7 @@ import (
 )
 
 // wsxHandle handles /wsx requests on an htmx WebSocket
-func wsxHandle(w http.ResponseWriter, r *http.Request) {
+func (s *server) wsxHandle(w http.ResponseWriter, r *http.Request) {
 
 	upgrader := websocket.Upgrader{}
 
@@ -21,29 +21,29 @@ func wsxHandle(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	wsxServe(ws, r)
+	s.wsxServe(ws, r)
 }
 
 // wsxServe handles htmx WebSocket connections
-func wsxServe(ws *websocket.Conn, r *http.Request) {
+func (s *server) wsxServe(ws *websocket.Conn, r *http.Request) {
 
 	sessionId := r.URL.Query().Get("session-id")
 
 	if sessionId == "hijack" {
-		sessionId = sessionHijack()
-	} else if sessionExpired(sessionId) {
+		//sessionId = sessionHijack()
+	} else if s.sessions.expired(sessionId) {
 		// Force full page refresh to start new session
 		LogDebug("Session expired, refreshing", "id", sessionId)
 		ws.WriteMessage(websocket.TextMessage, []byte("refresh"))
 		return
 	}
 
-	sessionConn(sessionId, ws)
+	s.sessions.setConn(sessionId, ws)
 
 	// Force a refresh of root full view on successful ws connection, in
 	// case anything has changed since last connect
 	pkt := Packet{Dst: root.Id, Path: "/device"}
-	sessionRoute(sessionId, &pkt)
+	s.sessions.route(sessionId, &pkt)
 
 	for {
 		_, message, err := ws.ReadMessage()
@@ -71,11 +71,11 @@ func wsxServe(ws *websocket.Conn, r *http.Request) {
 		if err := json.Unmarshal(message, &hdrs); err == nil {
 			if hdr, ok := hdrs["HEADERS"]; ok {
 				if sessionId, ok := hdr["session-id"]; ok {
-					sessionKeepAlive(sessionId)
+					s.sessions.keepAlive(sessionId)
 				}
 			}
 		}
 	}
 
-	sessionConn(sessionId, nil)
+	s.sessions.setConn(sessionId, nil)
 }

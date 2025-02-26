@@ -7,42 +7,46 @@ type linker interface {
 	Close()
 }
 
-var uplinks sync.Map // keyed by linker
-
-func uplinksAdd(l linker) {
-	uplinks.Store(l, true)
+type uplinkMap struct {
+	sync.Map // key: linker
 }
 
-func uplinksRemove(l linker) {
-	uplinks.Delete(l)
+func (ul *uplinkMap) add(l linker) {
+	ul.Store(l, true)
 }
 
-func uplinksRoute(pkt *Packet) {
-	uplinks.Range(func(key, value interface{}) bool {
-		ul := key.(linker)
-		ul.Send(pkt)
+func (ul *uplinkMap) remove(l linker) {
+	ul.Delete(l)
+}
+
+func (ul *uplinkMap) route(pkt *Packet) {
+	ul.Range(func(key, value any) bool {
+		l := key.(linker)
+		l.Send(pkt)
 		return true
 	})
 }
 
-var downlinks sync.Map // keyed by device id
-
-func downlinksAdd(id string, l linker) {
-	downlinks.Store(id, l)
+type downlinkMap struct {
+	sync.Map // key: device id, value: linker
 }
 
-func downlinksRemove(id string) {
-	downlinks.Delete(id)
+func (dl *downlinkMap) add(id string, l linker) {
+	dl.Store(id, l)
 }
 
-func downlinkRoute(id string, pkt *Packet) {
-	if dl, ok := downlinks.Load(id); ok {
-		dl.(linker).Send(pkt)
+func (dl *downlinkMap) remove(id string) {
+	dl.Delete(id)
+}
+
+func (dl *downlinkMap) route(id string, pkt *Packet) {
+	if l, ok := dl.Load(id); ok {
+		l.(linker).Send(pkt)
 	}
 }
 
-func downlinkClose(id string) {
-	if dl, ok := downlinks.Load(id); ok {
-		dl.(linker).Close()
+func (dl *downlinkMap) linkClose(id string) {
+	if l, ok := dl.Load(id); ok {
+		l.(linker).Close()
 	}
 }

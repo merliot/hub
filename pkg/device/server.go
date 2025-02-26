@@ -9,18 +9,26 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strconv"
 	"time"
 
 	"github.com/merliot/hub/pkg/ratelimit"
 )
 
 type server struct {
-	devices         deviceMap // key: device id, value: *device
+	devices         deviceMap      // key: device id, value: *device
+	sessions        sessionMap     // key: session id, value: *session
+	uplinks         uplinkMap      // key: linker
+	downlinks       downlinkMap    // key: device id, value: linker
+	models          ModelMap       // key: model name
+	packetHandlers  PacketHandlers // key: path, value: handler
 	root            *device
-	models          ModelMap // key: model name
 	mux             *http.ServeMux
 	server          *http.Server
 	saveToClipboard bool
+	runningSite     bool // running as full web-site
+	runningDemo     bool // running in DEMO mode
+	wsxPingPeriod   int
 }
 
 var rlConfig = ratelimit.Config{
@@ -31,20 +39,37 @@ var rlConfig = ratelimit.Config{
 }
 
 // NewServer returns a device server listening on addr
-func NewServer(addr string) *server {
+func NewServer(addr string, models ModelMap) *server {
 	s := server{
-		models: make(ModelMap),
-		mux:    http.NewServeMux(),
-		server: &http.Server{Addr: addr},
+		sessions:       newSessions(),
+		models:         models,
+		packetHandlers: make(PacketHandlers),
+		mux:            http.NewServeMux(),
+		server:         &http.Server{Addr: addr},
 	}
+
+	s.wsxPingPeriod, _ = strconv.Atoi(Getenv("PING_PERIOD", "2"))
+	if s.wsxPingPeriod < 2 {
+		s.wsxPingPeriod = 2
+	}
+
+	s.PacketHandlers["/created"] = &PacketHandler[msgCreated]{s.handleCreated}
+	s.PacketHandlers["/destroyed"] = &PacketHandler[msgDestroy]{s.handleDestroyed}
+	s.PacketHandlers["/downloaded"] = &PacketHandler[MsgDownloaded]{s.handleDownloaded}
+	s.PacketHandlers["/announced"] = &PacketHandler[MsgDownloaded]{s.handleAnnounced}
+
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
+
 	return &s
 }
 
 func (s *server) buildDevice(id string, d *device) error {
 	if id != d.Id {
 		return fmt.Errorf("Mismatching Ids")
+	}
+	if err := validateId(id); err != nil {
+		return err
 	}
 	model, ok := s.models[d.Model]
 	if !ok {
@@ -75,14 +100,14 @@ func (s *server) Run() {
 
 	logLevel = Getenv("LOG_LEVEL", "INFO")
 	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
-	runningSite = Getenv("SITE", "") == "true"
-	runningDemo = (Getenv("DEMO", "") == "true") || runningSite
+	s.runningSite = Getenv("SITE", "") == "true"
+	runningDemo = (Getenv("DEMO", "") == "true") || s.runningSite
 
 	logBuildInfo()
 
-	if runningSite {
+	if s.runningSite {
 		LogInfo("RUNNING full web site")
-	} else if runningDemo {
+	} else if s.runningDemo {
 		LogInfo("RUNNING in DEMO mode")
 	}
 
@@ -106,47 +131,21 @@ func (s *server) Run() {
 		return
 	}
 
-	s.routesBuild()
-
 	// Dial parents
 	var urls = Getenv("DIAL_URLS", "")
 	var user = Getenv("USER", "")
 	var passwd = Getenv("PASSWD", "")
 	dialParents(urls, user, passwd)
 
-	// Default to port :8000
-	var port = Getenv("PORT", "8000")
-
-	// If port was explicitly not set, don't run as a web server
-	if port == "" {
+	// If Server.Addr empty, don't run as a web server
+	if s.server.Addr == "" {
 		s.root.run()
 		LogInfo("Bye, Bye", "root", s.root.Name)
 		return
 	}
 
 	// Running as a web server...
-
-	// Install /model/{model} patterns for makers
-	s.modelsInstall()
-
-	// Install the /device/{id} pattern for devices
-	s.devicesInstall()
-
-	// Install / to point to root device
-	s.mux.Handle("/", s.root)
-
-	// Install /ws websocket listener, but only if not in demo mode.  In
-	// demo mode, we want to ignore any devices dialing in.
-	if !runningDemo {
-		s.mux.HandleFunc("/ws", wsHandle)
-	}
-
-	// Install /wsx websocket listener (wsx is for htmx ws)
-	s.mux.HandleFunc("/wsx", wsxHandle)
-
-	s.mux.HandleFunc("/devices", showDevices)
-
-	addr := ":" + port
+	s.setupAPI()
 
 	// Run http server in go routine to be shutdown later
 	go func() {

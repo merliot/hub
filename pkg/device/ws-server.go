@@ -16,13 +16,13 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func wsHandle(w http.ResponseWriter, r *http.Request) {
+func (s *server) wsHandle(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		LogError("Upgrading WebSocket", "err", err)
 		return
 	}
-	wsServer(conn)
+	s.wsServer(conn)
 }
 
 func (d *device) handleAnnounced(pkt *Packet) {
@@ -77,7 +77,7 @@ func handleAnnounce(pkt *Packet) (id string, err error) {
 	return id, nil
 }
 
-func wsServer(conn *websocket.Conn) {
+func (s *server) wsServer(conn *websocket.Conn) {
 
 	defer conn.Close()
 
@@ -109,7 +109,7 @@ func wsServer(conn *websocket.Conn) {
 
 	// Add as active downlink
 	LogDebug("Adding Downlink", "id", id)
-	downlinksAdd(id, link)
+	s.downlinks.add(id, link)
 
 	// Start ping/pong
 	link.setPongHandler()
@@ -130,12 +130,14 @@ func wsServer(conn *websocket.Conn) {
 			continue
 		}
 
-		LogDebug("-> Route packet UP", "pkt", pkt)
-		deviceRouteUp(pkt.Dst, pkt)
+		LogDebug("-> Received", "pkt", pkt)
+		if err := s.handle(pkt); err != nil {
+			LogError("Handling packet", "err", err)
+		}
 	}
 
 	LogDebug("Removing Downlink", "id", id)
-	downlinksRemove(id)
+	s.downlinks.remove(id)
 
-	deviceOffline(id)
+	s.deviceOffline(id)
 }
