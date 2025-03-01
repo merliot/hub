@@ -19,7 +19,7 @@ func (ul *uplinkMap) remove(l linker) {
 	ul.Delete(l)
 }
 
-func (ul *uplinkMap) route(pkt *Packet) {
+func (ul *uplinkMap) routeAll(pkt *Packet) {
 	ul.Range(func(key, value any) bool {
 		l := key.(linker)
 		l.Send(pkt)

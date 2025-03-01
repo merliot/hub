@@ -56,7 +56,7 @@ func NewServer(addr string, models ModelMap) *server {
 	s.PacketHandlers["/created"] = &PacketHandler[msgCreated]{s.handleCreated}
 	s.PacketHandlers["/destroyed"] = &PacketHandler[msgDestroy]{s.handleDestroyed}
 	s.PacketHandlers["/downloaded"] = &PacketHandler[MsgDownloaded]{s.handleDownloaded}
-	s.PacketHandlers["/announced"] = &PacketHandler[MsgDownloaded]{s.handleAnnounced}
+	s.PacketHandlers["/announced"] = &PacketHandler[deviceMap]{s.handleAnnounced}
 
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
@@ -75,7 +75,7 @@ func (s *server) buildDevice(id string, d *device) error {
 	if !ok {
 		return fmt.Errorf("Model '%s' not registered", d.Model)
 	}
-	return d.build(model.Maker)
+	return d.build(model.Maker, s.flags())
 }
 
 func (s *server) buildDevices() error {

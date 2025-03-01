@@ -25,3 +25,14 @@ func (f *flags) unSet(flags flags) {
 func (f flags) isSet(flags flags) bool {
 	return f&flags == flags
 }
+
+func (s *server) flags() flags {
+	var flags flags
+	if s.runningSite {
+		flags = flagLocked
+	}
+	if s.runningDemo {
+		flags = flagDemo | flagOnline | flagMetal
+	}
+	return flags
+}

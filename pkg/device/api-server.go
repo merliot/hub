@@ -106,8 +106,11 @@ func (d *device) install() {
 func (s *server) installModels() {
 	for name := range s.models {
 		model := s.models[name]
-		proto := &device{Model: name}
-		proto.build(model.Maker)
+		proto := &device{
+			Model: name,
+			model: model,
+		}
+		proto.build(s.flags())
 		proto.setupAPI()
 		proto.modelInstall()
 		model.Config = proto.GetConfig()
@@ -185,7 +188,7 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 
 	pkt.Unmarshal(&msg)
 
-	parent, ok := s.devices.load(msg.ParentId)
+	parent, ok := s.devices.get(msg.ParentId)
 	if !ok {
 		return deviceNotFound(msg.ParentId)
 	}
@@ -212,7 +215,7 @@ func (s *server) handleCreated(pkt *Packet) {
 func (s *server) createChild(w http.ResponseWriter, r *http.Request) {
 	var msg msgCreated
 
-	pkt, err := newPacketFromRequest(r, &msg)
+	pkt, err := s.newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -241,7 +244,7 @@ func (s *server) handleDestroy(pkt *Packet) error {
 
 	pkt.Unmarshal(&msg)
 
-	child, ok := s.devices.load(msg.Id)
+	child, ok := s.devices.get(msg.Id)
 	if !ok {
 		return deviceNotFound(msg.Id)
 	}
@@ -269,7 +272,7 @@ func (s *server) handleDestroyed(pkt *Packet) {
 func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 	var msg msgDestroy
 
-	pkt, err := newPacketFromRequest(r, &msg)
+	pkt, err := s.newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -297,13 +300,13 @@ type msgRename struct {
 func (s *server) rename(w http.ResponseWriter, r *http.Request) {
 	var msg msgRename
 
-	pkt, err := newPacketFromRequest(r, &msg)
+	pkt, err := s.newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	d, ok := s.devices.load(msg.Id)
+	d, ok := s.devices.get(msg.Id)
 	if !ok {
 		http.Error(w, deviceNotFound(msg.Id).Error(), http.StatusBadRequest)
 		return

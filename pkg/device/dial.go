@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func dialParents(urls string, user, passwd string) {
+func (s *server) dialParents(urls string, user, passwd string) {
 	for _, u := range strings.Split(urls, ",") {
 		if u == "" {
 			continue
@@ -17,7 +17,7 @@ func dialParents(urls string, user, passwd string) {
 		}
 		switch url.Scheme {
 		case "ws", "wss":
-			go wsDial(url, user, passwd)
+			go s.wsDial(url, user, passwd)
 		default:
 			LogError("Scheme must be ws or wss", "got", u)
 		}

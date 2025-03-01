@@ -35,7 +35,6 @@ func (l *wsLink) Close() {
 }
 
 func (l *wsLink) receive() (*Packet, error) {
-	var pkt Packet
 	if err := l.conn.ReadJSON(&pkt); err != nil {
 		l.done = true
 		return nil, fmt.Errorf("Websocket read error: %w", err)
@@ -66,4 +65,12 @@ func (l *wsLink) startPing() {
 			time.Sleep(pingDuration)
 		}
 	}()
+}
+
+func (s *server) wsRecvPkt(link *wsLink) (pkt *Packet, err error) {
+	pkt, err = link.receive()
+	if err == nil {
+		pkt.server = s
+	}
+	return
 }

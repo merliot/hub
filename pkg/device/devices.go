@@ -42,7 +42,7 @@ func (dm *deviceMap) sortedByName(f func(string, *device) error) error {
 	return nil
 }
 
-func (dm *deviceMap) load(id string) (*device, bool) {
+func (dm *deviceMap) get(id string) (*device, bool) {
 	value, ok := dm.Load(id)
 	if !ok {
 		return nil, false
@@ -73,13 +73,35 @@ func (dm *deviceMap) findRoot() (root *device, err error) {
 	}
 }
 
+func (d *device) _mapRoutes(parent, base *device) {
+	parent.children.drange(func(_ string, child *device) bool {
+		// Children point to base
+		child.nexthop = base
+		d._mapRoutes(child, base)
+		return true
+	})
+}
+
+func (d *device) mapRoutes() {
+
+	// Root points to self
+	d.nexthop = d
+
+	d.children.drange(func(_ string, child *device) bool {
+		// Children of root point to self
+		child.nexthop = child
+		d._mapRoutes(child, child)
+		return true
+	})
+}
+
 func (dm *deviceMap) buildTree() (root *device, err error) {
 
 	// Build family tree
 	dm.drange(func(id string, d *device) bool {
 		d.children.Clear()
 		for _, childId := range d.Children {
-			child, ok := dm.load[childId]
+			child, ok := dm.get(childId)
 			if !ok {
 				LogError("Unknown child id, skipping device",
 					"device-id", id, "child-id", childId)
@@ -98,10 +120,89 @@ func (dm *deviceMap) buildTree() (root *device, err error) {
 		return
 	}
 
-	// Install nexthop routes
+	// Install routes
 	root.mapRoutes()
 
 	return
+}
+
+func (d *device) copyDevice(from *device) {
+	d.Model = from.Model
+	d.Name = from.Name
+	d.Children = from.Children
+	d.DeployParams = from.DeployParams
+	d.Config = from.Config
+	d.flags = from.flags
+}
+
+func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
+
+	if id == anchor.Id {
+		anchor.Children = newDevice.Children
+		// All we want for the anchor is the new anchor child list
+		return nil
+	}
+
+	device, exists := s.devices.get(id)
+	if exists {
+		// Better be a ghost
+		if !device.isSet(flagGhost) {
+			return fmt.Errorf("Device %s already exists, aborting merge", device)
+		}
+	} else {
+		device = newDevice
+	}
+
+	device.copyDevice(newDevice)
+
+	if err := s.buildDevice(id, device); err != nil {
+		return err
+	}
+
+	device.set(flagLocked)
+	device.setupAPI()
+
+	if !exists {
+		device.install()
+	}
+
+	if s.runningDemo {
+		if err := device.setup(); err != nil {
+			return err
+		}
+		device.startDemo()
+	}
+
+	return nil
+}
+
+func (s *server) merge(id string, newDevices deviceMap) error {
+
+	// Swing anchor to existing tree
+	anchor, ok := s.devices.get(id)
+	if !ok {
+		return fmt.Errorf("Anchor device does not exists")
+	}
+
+	// Recursively ghost the children of the anchor device in the existing
+	// device tree.  The children may be resurrected while merging if they
+	// exists in the new device tree.
+	anchor.children.drange(func(_ string, child *device) bool {
+		child.ghost()
+		return true
+	})
+
+	// Now merge in the new devices, setting up each device as we go
+	newDevices.drange(func(id string, newDevice *device) bool {
+		if err := s.mergeDevice(id, anchor, newDevice); err != nil {
+			return false
+		}
+		return true
+	})
+
+	anchor.set(flagOnline)
+
+	return nil
 }
 
 func (dm *deviceMap) loadJSON(devs devicesJSON) {
@@ -137,7 +238,7 @@ func deviceNotFound(id string) error {
 }
 
 func (dm *deviceMap) sortedId() []string {
-	keys := make([]string, 0, len(devices))
+	keys := make([]string, 0)
 	dm.drange(func(id string, _ *device) bool {
 		keys = append(keys, id)
 		return true
@@ -152,9 +253,9 @@ type deviceStatus struct {
 }
 
 func (dm *deviceMap) status() []deviceStatus {
-	var statuses = make([]deviceStatus)
+	var statuses = make([]deviceStatus, 0)
 	for _, id := range dm.sortedId() {
-		d, _ := dm.load(id)
+		d, _ := dm.get(id)
 		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
 			d.Id, d.Model, d.Name, len(d.Children))
 		color := "gold"

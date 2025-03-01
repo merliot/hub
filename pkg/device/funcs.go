@@ -14,7 +14,7 @@ import (
 )
 
 func (d *device) classOffline() string {
-	if d._isSet(flagOnline) {
+	if d.isSet(flagOnline) {
 		return ""
 	} else {
 		return "offline" // enables CSS class .offline
@@ -63,15 +63,15 @@ func (d *device) baseFuncs() template.FuncMap {
 		"tinygoTarget":    tinygoTarget,
 		"port":            func() string { return d.deployValues().Get("port") },
 		"ssid":            func() string { return d.deployValues().Get("ssid") },
-		"package":         func() string { return Models[d.Model].Package },
+		"package":         func() string { return d.model.Package },
 		"isMissingWifi":   func() bool { return len(wifiAuths()) == 0 },
-		"isRoot":          func() bool { return d == root },
-		"isProgenitive":   func() bool { return d._isSet(FlagProgenitive) },
-		"isHttpPortMust":  func() bool { return d._isSet(FlagHttpPortMust) },
-		"isOnline":        func() bool { return d._isSet(flagOnline) },
-		"isDemo":          func() bool { return d._isSet(flagDemo) },
-		"isDirty":         func() bool { return d._isSet(flagDirty) },
-		"isLocked":        func() bool { return d._isSet(flagLocked) },
+		"isRoot":          func() bool { return d.isSet(flagRoot) },
+		"isProgenitive":   func() bool { return d.isSet(FlagProgenitive) },
+		"isHttpPortMust":  func() bool { return d.isSet(FlagHttpPortMust) },
+		"isOnline":        func() bool { return d.isSet(flagOnline) },
+		"isDemo":          func() bool { return d.isSet(flagDemo) },
+		"isDirty":         func() bool { return d.isSet(flagDirty) },
+		"isLocked":        func() bool { return d.isSet(flagLocked) },
 		"saveToClipboard": func() bool { return saveToClipboard },
 		"bgColor":         d.bgColor,
 		"textColor":       d.textColor,

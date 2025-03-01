@@ -25,13 +25,38 @@ func (s *server) wsHandle(w http.ResponseWriter, r *http.Request) {
 	s.wsServer(conn)
 }
 
-func (d *device) handleAnnounced(pkt *Packet) {
-	if _, err := handleAnnounce(pkt); err != nil {
+func (s *server) handleAnnounced(pkt *Packet) {
+	if _, err := s.handleAnnounce(pkt); err != nil {
 		LogDebug("Error handling announcement", "err", err)
 	}
 }
 
-func handleAnnounce(pkt *Packet) (id string, err error) {
+func (s *server) match(a *device) error {
+
+	d, err := s.devices.get(a.Id)
+	if err != nil {
+		return err
+	}
+
+	if d.Model != a.Model {
+		return fmt.Errorf("Device model wrong.  Want %s; got %s",
+			d.Model, a.Model)
+	}
+
+	if d.Name != a.Name {
+		return fmt.Errorf("Device name wrong.  Want %s; got %s",
+			d.Name, a.Name)
+	}
+
+	if d.DeployParams != a.DeployParams {
+		return fmt.Errorf("Device DeployParams wrong.\nWant: %s\nGot: %s",
+			d.DeployParams, a.DeployParams)
+	}
+
+	return nil
+}
+
+func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 
 	var annDevices = make(deviceMap)
 
@@ -39,11 +64,11 @@ func handleAnnounce(pkt *Packet) (id string, err error) {
 
 	// Find root device in announcement
 
-	annRoot, err := findRoot(annDevices)
+	anchor, err := s.findRoot(annDevices)
 	if err != nil {
 		return "", fmt.Errorf("Cannot find root: %s", err)
 	}
-	id = annRoot.Id
+	id = anchor.Id
 
 	if id != pkt.Dst {
 		return "", fmt.Errorf("Id mismatch announcement-id: %s pkt-id: %s", id, pkt.Dst)
@@ -56,18 +81,15 @@ func handleAnnounce(pkt *Packet) (id string, err error) {
 	// Make sure announcement root device exists in existing devices and
 	// matches existing device
 
-	if err := validate(annRoot); err != nil {
+	if err := s.match(anchor); err != nil {
 		return "", fmt.Errorf("Announcement mismatch id: %s err: %s", id, err)
 	}
 
 	// Merge in annoucement devices
 
-	if err := merge(devices, annDevices); err != nil {
+	if err := s.merge(id, annDevices); err != nil {
 		return "", fmt.Errorf("Cannot merge device id: %s err: %s", id, err)
 	}
-
-	// Rebuild routing table
-	routesBuild(root)
 
 	// Send /announced packet up so parents can update their trees
 	pkt.SetPath("/announced")
@@ -84,7 +106,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	var link = &wsLink{conn: conn}
 
 	// First receive should be an /announce packet
-	pkt, err := link.receive()
+	pkt, err := s.wsRecvPkt(link)
 	if err != nil {
 		LogError("Receiving first packet", "err", err)
 		return
@@ -117,7 +139,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 	// Route incoming packets up to the destination device
 	for {
-		pkt, err := link.receive()
+		pkt, err := s.wsRecvPkt(link)
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
@@ -131,7 +153,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 		}
 
 		LogDebug("-> Received", "pkt", pkt)
-		if err := s.handle(pkt); err != nil {
+		if err := pkt.handle(); err != nil {
 			LogError("Handling packet", "err", err)
 		}
 	}

@@ -105,7 +105,7 @@ func (d *device) renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		data = make(map[string]any)
 	}
 
-	//LogDebug("renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
+	//LogDebug("device.renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
 	return d.render(w, sessionId, pkt.Path, view, level, data)
 }
 
@@ -309,16 +309,4 @@ func (d *device) editName(w http.ResponseWriter, r *http.Request) {
 	if err := d.renderTmpl(w, "edit-name.tmpl", d.Name); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-}
-
-func (d *device) apiRouteDown(w http.ResponseWriter, r *http.Request) {
-	var msg any
-
-	pkt, err := newPacketFromRequest(r, &msg)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	pkt.SetDst(d.Id).RouteDown()
 }

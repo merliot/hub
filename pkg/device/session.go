@@ -100,13 +100,13 @@ func (sm *sessionMap) keepAlive(id string) {
 	}
 }
 
-func (sm *sessionMap) routeAll(pkt *Packet) {
+func (sm *sessionMap) routeAll(pkt *Packet) error {
 	sm.drange(func(id string, s *session) bool {
 		if pkt.SessionId == "" || pkt.SessionId == id {
-			//LogDebug("sessionsRoute", "pkt", pkt)
+			//LogDebug("routeAll", "pkt", pkt)
 			if err := s.renderPkt(pkt); err != nil {
 				if err != errSessionNotConnected {
-					LogError("sessionsRoute", "err", err)
+					return err
 				}
 			}
 		}
@@ -114,12 +114,12 @@ func (sm *sessionMap) routeAll(pkt *Packet) {
 	})
 }
 
-func (sm *sessionMap) route(id string, pkt *Packet) {
+func (sm *sessionMap) route(id string, pkt *Packet) error {
 	if s, ok := sm.load(id); ok {
-		//LogDebug("sessionRoute", "pkt", pkt)
+		//LogDebug("route", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
-				LogError("sessionRoute", "err", err)
+				return err
 			}
 		}
 	}
@@ -168,50 +168,6 @@ func (sm *sessionMap) gcSessions() {
 			return true
 		})
 	}
-}
-
-var errSessionNotConnected = errors.New("Session not connected")
-
-func (s *session) _connected() bool {
-	return s.conn != nil
-}
-
-func (s *session) connected() bool {
-	s.RLock()
-	defer s.RUnlock()
-	return s._connected()
-}
-
-// _send wants s.Lock to serialize writes on socket
-func (s *session) _send(data []byte) error {
-	if s._connected() {
-		return s.conn.WriteMessage(websocket.TextMessage, data)
-	}
-	return errSessionNotConnected
-}
-
-func (s *session) send(data []byte) error {
-	s.Lock()
-	defer s.Unlock()
-	return s._send(data)
-}
-
-func (s *session) renderPkt(pkt *Packet) error {
-
-	// Using Lock rather than RLock because _send needs Lock
-	s.Lock()
-	defer s.Unlock()
-
-	if !s._connected() {
-		return errSessionNotConnected
-	}
-
-	var buf bytes.Buffer
-	if err := deviceRenderPkt(&buf, s.id, pkt); err != nil {
-		return err
-	}
-
-	return s._send(buf.Bytes())
 }
 
 func (sm *sessionMap) sortedAge() []string {
@@ -274,4 +230,48 @@ func (sm *sessionMap) status() []sessionStatus {
 	}
 
 	return statuses
+}
+
+var errSessionNotConnected = errors.New("Session not connected")
+
+func (s *session) _connected() bool {
+	return s.conn != nil
+}
+
+func (s *session) connected() bool {
+	s.RLock()
+	defer s.RUnlock()
+	return s._connected()
+}
+
+// _send wants s.Lock to serialize writes on socket
+func (s *session) _send(data []byte) error {
+	if s._connected() {
+		return s.conn.WriteMessage(websocket.TextMessage, data)
+	}
+	return errSessionNotConnected
+}
+
+func (s *session) send(data []byte) error {
+	s.Lock()
+	defer s.Unlock()
+	return s._send(data)
+}
+
+func (s *session) renderPkt(pkt *Packet) error {
+
+	// Using Lock rather than RLock because _send needs Lock
+	s.Lock()
+	defer s.Unlock()
+
+	if !s._connected() {
+		return errSessionNotConnected
+	}
+
+	var buf bytes.Buffer
+	if err := pkt.render(&buf, s.id); err != nil {
+		return err
+	}
+
+	return s._send(buf.Bytes())
 }

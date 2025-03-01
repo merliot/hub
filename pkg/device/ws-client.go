@@ -40,18 +40,34 @@ func (s *server) wsDial(wsURL *url.URL, user, passwd string) {
 	}
 }
 
+func (s *server) devicesOnline(l linker) {
+
+	s.devices.drange(func(id string, d *device) bool {
+
+		if !d.isSet(flagOnline) {
+			return true
+		}
+
+		pkt := s.newPacket()
+		pkt.SetDst(id).SetPath("/online").Marshal(d.State)
+
+		LogInfo("Sending", "pkt", pkt)
+		l.Send(pkt)
+
+		return true
+	})
+}
+
 func (s *server) wsClient(conn *websocket.Conn) {
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
-	var pkt = &Packet{
-		Path: "/announce",
-	}
+	var pkt = s.newPacket()
 
 	link.setPongHandler()
 	link.startPing()
 
-	pkt.Marshal(s.devices.getJSON())
+	pkt.SetPath("/announce").Marshal(s.devices)
 
 	// Send announcement
 	LogInfo("<- Sending", "pkt", pkt)
@@ -62,7 +78,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	}
 
 	// Receive welcome
-	pkt, err = link.receive()
+	pkt, err = s.wsRecvPkt(link)
 	if err != nil {
 		LogError("Receiving", "err", err)
 		return
@@ -83,13 +99,16 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device
 	LogInfo("Receiving packets")
 	for {
-		pkt, err := link.receive()
+		pkt, err := s.wsRecvPkt(link)
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
 		}
 		LogDebug("-> Route packet DOWN", "pkt", pkt)
-		s.routeDown(pkt)
+		if err := pkt.routeDown(); err != nil {
+			LogError("Routing packet DOWN", "err", err)
+			break
+		}
 	}
 
 	LogInfo("Removing Uplink")

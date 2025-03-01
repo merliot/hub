@@ -3,6 +3,7 @@ package device
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -23,12 +24,19 @@ type Packet struct {
 	Path string
 	// Msg is the packet payload.  Use NoMsg for no message.
 	Msg json.RawMessage
+	// Stash server pointer
+	*server
 }
 
-func newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
+func (s *server) newPacket() *Packet {
+	return &Packet{server: s}
+}
+
+func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 	var pkt = &Packet{
 		Path:      r.URL.Path,
 		SessionId: r.Header.Get("session-id"),
+		server:    s,
 	}
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
@@ -107,17 +115,64 @@ func (p *Packet) ClearMsg() *Packet {
 	return p
 }
 
-// RouteDown routes the packet down to a downlink.  Which downlink is
+// routeDown routes the packet down to a downlink.  Which downlink is
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
-func (p *Packet) RouteDown() {
-	LogDebug("RouteDown", "pkt", p)
-	downlinksRoute(p)
+func (p *Packet) routeDown() error {
+	LogDebug("routeDown", "pkt", p)
+
+	s := p.server
+	if s == nil {
+		return fmt.Errorf("Packet.server not set")
+	}
+
+	d, ok := s.devices.get(p.Dst)
+	if !ok {
+		return deviceNotFound(p.Dst)
+	}
+
+	nexthop := d.nexthop
+	if nexthop.isSet(flagMetal) {
+		nexthop.handle(pkt)
+	} else {
+		s.downlinks.route(nexthop.Id, pkt)
+	}
+
+	return nil
+}
+
+func (p *Packet) handle() error {
+	s := p.server
+	if s == nil {
+		return fmt.Errorf("Packet.server not set")
+	}
+
+	if pkt.Dst == "" {
+		// Run server handler
+		if handler, ok := s.packetHandlers[pkt.Path]; ok {
+			LogDebug("Handling", "pkt", pkt)
+			handler.cb(pkt)
+		}
+		return nil
+	}
+
+	d, ok := s.devices.get(pkt.Dst)
+	if !ok {
+		return deviceNotFound(pkt.Dst)
+	}
+
+	// Run device handler
+	d.handle(pkt)
+	return nil
 }
 
 // RouteUp routes the packet up to:
 //
-//  1. Sessions, where a session is an http(s) client (browser, etc) that has
+//  1. Each active uplink the device is dialed into.  Each uplink is a
+//     websocket connected on /ws.  The packet is JSON-encoded before sending on
+//     the websocket, and JSON-decoded by the receiving uplink device.
+//
+//  2. Sessions, where a session is an http(s) client (browser, etc) that has
 //     also opened, and is listening on, a websocket at /wsx.
 //
 //     If SessionId is set on packet, the packet is routed to the session.  If
@@ -147,14 +202,22 @@ func (p *Packet) RouteDown() {
 //     <div id="{{uniq `relay`}}">
 //     ...
 //     </div>
-//
-//  2. Each active uplink the device is dialed into.  Each uplink is a
-//     websocket connected on /ws.  The packet is JSON-encoded before sending on
-//     the websocket, and JSON-decoded by the receiving uplink device.
-func (p *Packet) RouteUp() {
+func (p *Packet) RouteUp() error {
 	LogDebug("RouteUp", "pkt", p)
-	uplinksRoute(p)
-	sessionsRoute(p)
+
+	s := p.server
+	if s == nil {
+		return fmt.Errorf("Packet.server not set")
+	}
+
+	s.uplinks.routeAll(p)
+
+	err := s.sessions.routeAll(p)
+	if err != nil {
+		LogError("RouteUp", "err", err)
+	}
+
+	return err
 }
 
 // RouteUp is a device packet handler that routes the packet up
@@ -169,4 +232,20 @@ func (p *Packet) BroadcastUp() {
 
 func BroadcastUp(p *Packet) {
 	p.BroadcastUp()
+}
+
+func (p *Packet) render(w io.Writer, sessionId string) error {
+	//LogDebug("Packet.render", "sessionId", sessionId, "pkt", p)
+
+	s := p.server
+	if s == nil {
+		return fmt.Errorf("Packet.server not set")
+	}
+
+	d, err := s.devices.get(p.Dst)
+	if err != nil {
+		return err
+	}
+
+	return d.renderPkt(w, sessionId, pkt)
 }

@@ -34,6 +34,7 @@ type device struct {
 	DeployParams template.URL
 	Config       `json:"-"`
 	Devicer      `json:"-"`
+	model        Model
 	children     deviceMap
 	parent       *device
 	nexthop      *device
@@ -48,22 +49,16 @@ func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
-func (d *device) build(maker Maker) error {
+func (d *device) build(additionalFlags flags) error {
 
 	d.startup = time.Now()
-	d.Devicer = maker()
+	d.Devicer = d.model.Maker()
 	d.Config = d.GetConfig()
 	d.flags = d.Config.Flags
+	d.set(additionalFlags)
 
 	if d.PacketHandlers == nil {
 		d.PacketHandlers = PacketHandlers{}
-	}
-
-	if runningSite {
-		d.set(flagLocked)
-	}
-	if runningDemo {
-		d.set(flagDemo | flagOnline | flagMetal)
 	}
 
 	// Default handlers for all devices
