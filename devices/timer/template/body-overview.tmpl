@@ -1,0 +1,10 @@
+<div class="flex flex-row items-center justify-evenly" id="{{uniq `timer`}}">
+	<img class="icon" src="/model/{{model}}/images/lightbulb.svg">
+	<div
+		hx-get="/device/{{id}}/update"
+		hx-trigger="every 1s"
+		hx-target="this"
+		hx-swap="innerHTML">
+		<span>{{update}}</span>
+	</div>
+</div>
