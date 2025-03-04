@@ -18,7 +18,7 @@ func (l *locker) GetConfig() device.Config {
 		Parents: []string{"hub"},
 		State:   l,
 		FS:      &fs,
-		Targets: []string{"x86-64", "rpi", "nano-rp2040", "wioterminal", "pyportal"},
+		Targets: []string{"x86-64", "rpi", "nano-rp2040", "pyportal"},
 		BgColor: "mars",
 		FgColor: "black",
 	}

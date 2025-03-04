@@ -26,7 +26,7 @@ func (q *qrcode) GetConfig() device.Config {
 		Parents: []string{"hub"},
 		State:   q,
 		FS:      &fs,
-		Targets: []string{"wioterminal", "pyportal"},
+		Targets: []string{"pyportal"},
 		BgColor: "magenta",
 		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
