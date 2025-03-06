@@ -55,20 +55,17 @@ func getCurrentTime(conn net.Conn) (time.Time, error) {
 
 func SetSystemTime() error {
 
-	println("dialing", ntpHost)
 	conn, err := net.Dial("udp", ntpHost)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
 
-	println("getting current time")
 	now, err := getCurrentTime(conn)
 	if err != nil {
 		return err
 	}
 
-	println("setting system time", now.String())
 	runtime.AdjustTimeOffset(-1 * int64(time.Since(now)))
 
 	return nil

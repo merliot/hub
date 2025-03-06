@@ -29,15 +29,14 @@ func NewModel() device.Devicer {
 	return t
 }
 
+func dayTime(t time.Time) time.Time {
+	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+}
+
 func (t *timer) timeBetween() bool {
 
-	// Get current time
-	currentTime := time.Now()
-	currentTime = time.Date(0, 1, 1,
-		currentTime.Hour(),
-		currentTime.Minute(),
-		currentTime.Second(), 0,
-		time.UTC)
+	// Get current time of day
+	currentTime := dayTime(time.Now())
 
 	// Check if current time is between start and stop times
 	if t.startTime.After(t.stopTime) {
@@ -45,8 +44,6 @@ func (t *timer) timeBetween() bool {
 	} else {
 		return currentTime.After(t.startTime) && currentTime.Before(t.stopTime)
 	}
-
-	return false
 }
 
 type msgUpdate struct {
@@ -63,7 +60,6 @@ func (t *timer) on(pkt *device.Packet) {
 		t.gpio.On()
 		var msg = msgUpdate{true}
 		pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
-		ntp.SetSystemTime()
 	}
 }
 
@@ -73,12 +69,10 @@ func (t *timer) off(pkt *device.Packet) {
 		t.gpio.Off()
 		var msg = msgUpdate{false}
 		pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
-		ntp.SetSystemTime()
 	}
 }
 
-func (t *timer) Setup() (err error) {
-
+func (t *timer) parseStartStop(inUTC bool) (err error) {
 	tzOffset, ok := tzMap[t.TZ]
 	if !ok {
 		return fmt.Errorf("Time zone '%s' not found", t.TZ)
@@ -89,23 +83,52 @@ func (t *timer) Setup() (err error) {
 	if err != nil {
 		return err
 	}
+	if inUTC {
+		t.startTime = dayTime(t.startTime.UTC())
+	} else {
+		t.startTime = dayTime(t.startTime)
+	}
+
 	t.stopTime, err = time.Parse("15:04 -0700", t.StopHHMM+" "+tzOffset)
 	if err != nil {
 		return err
 	}
+	if inUTC {
+		t.stopTime = dayTime(t.stopTime.UTC())
+	} else {
+		t.stopTime = dayTime(t.stopTime)
+	}
 
-	// Set system time using NTP protocol
-	if err = ntp.SetSystemTime(); err != nil {
+	return nil
+}
+
+func (t *timer) Setup() error {
+
+	if err := t.parseStartStop(true); err != nil {
 		return err
 	}
 
-	if err = t.gpio.Setup(t.Gpio); err != nil {
+	// Set system time using NTP protocol
+	if err := ntp.SetSystemTime(); err != nil {
+		return err
+	}
+
+	if err := t.gpio.Setup(t.Gpio); err != nil {
 		return err
 	}
 	if t.timeBetween() {
 		t.On = true
 		t.gpio.On()
 	}
+
+	// Periodically reset system time using NTP
+	// (These microcontrollers don't keep time very well)
+	go func() {
+		for {
+			time.Sleep(30 * time.Minute)
+			ntp.SetSystemTime()
+		}
+	}()
 
 	return nil
 }

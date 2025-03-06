@@ -38,10 +38,28 @@ func (t *timer) GetConfig() device.Config {
 }
 
 func (t *timer) makeStatus() string {
-	if t.On {
-		return "Turning Off in " + time.Until(t.stopTime).String()
+
+	t.parseStartStop(false)
+
+	// Get current time
+	currentTime := dayTime(time.Now())
+
+	if t.startTime.After(t.stopTime) {
+		if currentTime.After(t.startTime) {
+			return "Turning Off in " + t.startTime.Sub(currentTime).String()
+		} else if currentTime.Before(t.stopTime) {
+			return "Turning Off in " + t.stopTime.Sub(currentTime).String()
+		} else {
+			return "Turning On in " + t.startTime.Sub(currentTime).String()
+		}
 	} else {
-		return "Turning On in " + time.Since(t.startTime).String()
+		if currentTime.Before(t.startTime) {
+			return "Turning On in " + t.startTime.Sub(currentTime).String()
+		} else if currentTime.After(t.stopTime) {
+			return "Turning On in " + t.startTime.Add(24*time.Hour).Sub(currentTime).String()
+		} else {
+			return "Turning Off in " + t.stopTime.Sub(currentTime).String()
+		}
 	}
 }
 
