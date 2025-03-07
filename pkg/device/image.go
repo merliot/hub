@@ -103,7 +103,7 @@ func createSFX(dir, sfxFile, tarFile, installerFile string) error {
 	return nil
 }
 
-func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
+func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
 
 	var referer = r.Referer()
 	var service = d.Model + "-" + d.Id
@@ -166,7 +166,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, ta
 	}
 
 	// Make a devices.json file
-	if err := fileWriteJSON(filepath.Join(dir, "devices.json"), d.devices()); err != nil {
+	if err := fileWriteJSON(filepath.Join(dir, "devices.json"), d.familyTree()); err != nil {
 		return err
 	}
 
@@ -174,7 +174,7 @@ func (d *device) buildLinuxImage(w http.ResponseWriter, r *http.Request, dir, ta
 	// device can reproduce any child model device
 
 	var binFiles []string
-	childModels := d.childModels()
+	childModels := s.childModels(d)
 	if len(childModels) == 0 {
 		// Sterile device only needs the bin/device-<target> binary
 		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
@@ -254,7 +254,7 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 	return serveFile(w, r, installer)
 }
 
-func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
+func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) error {
 
 	// Create temp build directory
 	dir, err := os.MkdirTemp("", d.Model+"-"+d.Id+"-")
@@ -272,7 +272,7 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 
 	switch target {
 	case "x86-64", "rpi":
-		return d.buildLinuxImage(w, r, dir, target)
+		return s.buildLinuxImage(d, w, r, dir, target)
 	case "nano-rp2040", "wioterminal", "pyportal":
 		return d.buildTinyGoImage(w, r, dir, target)
 	default:
@@ -282,16 +282,16 @@ func (d *device) buildImage(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (d *device) downloadMsgClear(sessionId string) {
+func (s *server) downloadMsgClear(d *device, sessionId string) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
 		LogError("Rendering template", "err", err)
 		return
 	}
-	sessionSend(sessionId, string(buf.Bytes()))
+	s.sessions.send(sessionId, string(buf.Bytes()))
 }
 
-func (d *device) downloadMsgError(sessionId string, downloadErr error) {
+func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
 		"err": "Download error: " + downloadErr.Error(),
@@ -299,30 +299,38 @@ func (d *device) downloadMsgError(sessionId string, downloadErr error) {
 		LogError("Rendering template", "err", err)
 		return
 	}
-	sessionSend(sessionId, string(buf.Bytes()))
+	s.sessions.send(sessionId, string(buf.Bytes()))
 }
 
-type MsgDownloaded struct {
+type msgDownloaded struct {
 	DeployParams template.URL
 }
 
 func (d *device) handleDownloaded(pkt *Packet) {
-	var msg MsgDownloaded
+	var msg msgDownloaded
 	pkt.Unmarshal(&msg)
 	d.formConfig(string(msg.DeployParams))
 	pkt.BroadcastUp()
 }
 
-func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
+func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	var referer = r.Referer()
+	var id = r.PathValue("id")
 	var sessionId = r.PathValue("sessionId")
 
-	d.downloadMsgClear(sessionId)
+	d, exists := s.devices.get(id)
+	if !exists {
+		err := fmt.Errorf("Can't download image: unknown device id '%s'", id)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	s.downloadMsgClear(d, sessionId)
 
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to download: device is locked")
-		d.downloadMsgError(sessionId, err)
+		s.downloadMsgError(d, sessionId, err)
 		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
@@ -331,7 +339,7 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 		err := fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
 			"using the hostname or IP address of the host; something that " +
 			"is addressable on the network so the device can dial into the hub.")
-		d.downloadMsgError(sessionId, err)
+		s.downloadMsgError(d, sessionId, err)
 		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
@@ -343,15 +351,15 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
-		d.downloadMsgError(sessionId, err)
+		s.downloadMsgError(d, sessionId, err)
 		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
 	// Built it!
 
-	if err := d.buildImage(w, r); err != nil {
-		d.downloadMsgError(sessionId, err)
+	if err := s.buildImage(d, w, r); err != nil {
+		s.downloadMsgError(d, sessionId, err)
 		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
@@ -363,13 +371,13 @@ func (d *device) downloadImage(w http.ResponseWriter, r *http.Request) {
 	// will connect.
 
 	if changed {
-		root.save()
-		downlinkClose(d.Id)
+		s.save()
+		s.downlinks.linkClose(d.Id)
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams
 
-	msg := MsgDownloaded{d.DeployParams}
+	msg := msgDownloaded{d.DeployParams}
 	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
 	pkt.Marshal(&msg).RouteUp()
 }

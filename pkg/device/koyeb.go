@@ -10,15 +10,23 @@ import (
 	"strings"
 )
 
-func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
+func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
+	var id = r.PathValue("sd")
 	var sessionId = r.PathValue("sessionId")
 
-	d.downloadMsgClear(sessionId)
+	d, exists := s.devices.get(id)
+	if !exists {
+		err := fmt.Errorf("Refusing to deploy: unknown device id '%s'", id)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	s.downloadMsgClear(d, sessionId)
 
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to deploy: device is locked")
-		d.downloadMsgError(sessionId, err)
+		s.downloadMsgError(d, sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -30,7 +38,7 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
-		d.downloadMsgError(sessionId, err)
+		s.downloadMsgError(d, sessionId, err)
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -38,23 +46,22 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	// If the device config has changed, kick the downlink device offline.
 	// It will try to reconnect, but fail, because the DeployParams now
 	// don't match this (uplink) device.  Once the downlink device is
-	// updated (with the image we created above) the downlink device
-	// will connect.
+	// redeployed, the downlink device will connect.
 
 	if changed {
-		root.save()
-		downlinkClose(d.Id)
+		s.save()
+		s.downlinks.linkClose(d.Id)
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams
 
-	msg := MsgDownloaded{d.DeployParams}
+	msg := msgDownloaded{d.DeployParams}
 	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
 	pkt.Marshal(&msg).RouteUp()
 
-	// Redirect the browser to Koyeb to build the device
+	// Redirect the browser to Koyeb to deploy the device
 
-	devs, _ := json.Marshal(d.devices())
+	devs, _ := json.Marshal(d.familyTree())
 	dialurls := strings.Replace(r.Referer(), "http", "ws", 1) + "ws"
 
 	u, _ := url.Parse("https://app.koyeb.com/deploy")
@@ -71,7 +78,7 @@ func (d *device) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	q.Set("env[DIAL_URLS]", dialurls)
 	q.Set("env[LOG_LEVEL]", logLevel)
-	q.Set("env[PING_PERIOD]", pingPeriod)
+	q.Set("env[PING_PERIOD]", Getenv("PING_PERIOD", ""))
 	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
 	q.Set("env[DEVICES]", string(devs))
 	q.Set("env[AUTO_SAVE]", "false")

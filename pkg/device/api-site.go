@@ -27,42 +27,24 @@ var (
 	tabsBlog   = siteTabs{tabBlog, tabHome, tabDemo, tabStatus, tabDocs}
 )
 
-func (d *device) setupSiteAPI() {
-	d.installSiteAPIs()
-	d.packetHandlersInstall()
+func (d *device) showPage(w http.ResponseWriter, r *http.Request,
+	template, defaultPage string, pages []page, data map[string]any) {
+
+	data["pages"] = pages
+	data["page"] = r.PathValue("page")
+	if data["page"] == "" {
+		data["page"] = defaultPage
+	}
+
+	if err := d.renderTmpl(w, template, data); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
-func (d *device) installSiteAPIs() {
-
-	d.HandleFunc("GET /", d.serveStaticFile)
-
-	d.HandleFunc("GET /show-view", d.showView)
-
-	d.HandleFunc("GET /state", d.showState)
-	d.HandleFunc("GET /code", d.showCode)
-
-	d.HandleFunc("GET /download-target/{sessionId}", d.showDownloadTarget)
-	d.HandleFunc("GET /download-image", d.downloadImage)
-	d.HandleFunc("GET /download-image/{sessionId}", d.downloadImage)
-
-	d.HandleFunc("GET /deploy-koyeb/{sessionId}", d.deployKoyeb)
-
-	d.HandleFunc("GET /instructions", d.showInstructions)
-	d.HandleFunc("GET /instructions-target", d.showInstructionsTarget)
-
-	d.HandleFunc("GET /edit-name", d.editName)
-
-	d.HandleFunc("GET /model", d.showModel)
-
-	d.HandleFunc("GET /new-modal", d.showNewModal)
-
-	// Device-specific APIs, if any
-
-	if d.APIs != nil {
-		for path, fn := range d.APIs {
-			d.HandleFunc(path, fn)
-		}
-	}
+func (d *device) showSection(w http.ResponseWriter, r *http.Request,
+	template, section, defaultPage string, pages []page, data map[string]any) {
+	data["section"] = section
+	d.showPage(w, r, template, defaultPage, pages, data)
 }
 
 func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {

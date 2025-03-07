@@ -57,6 +57,10 @@ func (d *device) build(additionalFlags flags) error {
 	d.flags = d.Config.Flags
 	d.set(additionalFlags)
 
+	if d.APIs == nil {
+		d.APIs = APIs{}
+	}
+
 	if d.PacketHandlers == nil {
 		d.PacketHandlers = PacketHandlers{}
 	}

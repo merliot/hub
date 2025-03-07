@@ -106,11 +106,12 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	var link = &wsLink{conn: conn}
 
 	// First receive should be an /announce packet
-	pkt, err := s.wsRecvPkt(link)
+	pkt, err := link.receive()
 	if err != nil {
 		LogError("Receiving first packet", "err", err)
 		return
 	}
+	pkt.server = s
 
 	if pkt.Path != "/announce" {
 		LogError("Expected /announce, got", "path", pkt.Path)
@@ -139,11 +140,12 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 	// Route incoming packets up to the destination device
 	for {
-		pkt, err := s.wsRecvPkt(link)
+		pkt, err := link.receive()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
 		}
+		pkt.server = s
 
 		// Special handling for non-gorilla clients
 		// TODO: delete this when clients are converted to gorilla websocket

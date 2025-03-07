@@ -11,20 +11,18 @@ import (
 
 func (s *server) setupAPI() {
 
-	// Each device is a ServeMux, routed thru /device/{id}.
-	// Add device-specific APIs to the device.
+	// Each device is a ServeMux, routed thru /device/{id}
 	s.devices.drange(func(id string, d *device) bool {
-		if s.runningSite && d.isSet(flagRoot) {
-			d.setupSiteAPI()
-		} else {
-			d.setupAPI()
-		}
-		return true
-	})
 
-	// Install the /device/{id} pattern for device APIs
-	s.devices.drange(func(id string, d *device) bool {
+		// Install the /device/{id} pattern to point to this device
 		d.install()
+
+		// Add device APIs
+		d.installAPI()
+
+		// Install the device packet handlers APIs
+		s.packetHandlersInstall(d)
+
 		return true
 	})
 
@@ -43,14 +41,6 @@ func (s *server) setupAPI() {
 	// Install /wsx websocket listener (wsx is for htmx ws)
 	s.mux.HandleFunc("/wsx", s.wsxHandle)
 
-	s.mux.HandleFunc("GET /devices", s.showDevices)
-	s.mux.HandleFunc("PUT /nop", func(w http.ResponseWriter, r *http.Request) {})
-	s.mux.HandleFunc("GET /save", s.saveDevices)
-	s.mux.HandleFunc("GET /save-modal", s.showSaveModal)
-	s.mux.HandleFunc("POST /create", s.createChild)
-	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
-	s.mux.HandleFunc("GET /rename", s.rename)
-
 	if s.runningSite {
 		s.mux.HandleFunc("GET /{$}", s.showSiteHome)
 		s.mux.HandleFunc("GET /home", s.showSiteHome)
@@ -68,12 +58,19 @@ func (s *server) setupAPI() {
 	} else {
 		s.mux.HandleFunc("GET /{$}", s.showHome)
 		s.mux.HandleFunc("GET /home", s.showHome)
-		s.mux.HandleFunc("GET /status", s.showStatus)
-		s.mux.HandleFunc("GET /status/{page}", s.showStatus)
-		s.mux.HandleFunc("GET /status/{page}/refresh", s.showStatus)
-		s.mux.HandleFunc("GET /doc", s.showDocs)
-		s.mux.HandleFunc("GET /doc/{page}", s.showDocs)
 	}
+
+	s.mux.HandleFunc("GET /devices", s.showDevices)
+	s.mux.HandleFunc("PUT /nop", func(w http.ResponseWriter, r *http.Request) {})
+	s.mux.HandleFunc("GET /save", s.saveDevices)
+	s.mux.HandleFunc("GET /save-modal", s.showSaveModal)
+	s.mux.HandleFunc("POST /create", s.createChild)
+	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
+	s.mux.HandleFunc("GET /download-image/{id}", s.downloadImage)
+	s.mux.HandleFunc("GET /download-image/{sessionId}", s.downloadImage)
+	s.mux.HandleFunc("GET /deploy-koyeb/{id}/{sessionId}", s.deployKoyeb)
+	s.mux.HandleFunc("GET /rename", s.rename)
+	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 }
 
 // modelInstall installs /model/{model} pattern for device model
@@ -111,11 +108,24 @@ func (s *server) installModels() {
 			model: model,
 		}
 		proto.build(s.flags())
-		proto.setupAPI()
+		proto.installAPI()
 		proto.modelInstall()
 		model.Config = proto.GetConfig()
 		s.models[name] = model
 	}
+}
+
+func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
+	sessionId, ok := s.sessions.newSession()
+	if !ok {
+		s.sessions.noSessions(w, r)
+		return
+	}
+	w.Header().Set("session-id", sessionId)
+	s.root.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
+		"sessionId":  sessionId,
+		"pingPeriod": s.wsxPingPeriod,
+	})
 }
 
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {
@@ -298,6 +308,7 @@ type msgRename struct {
 }
 
 func (s *server) rename(w http.ResponseWriter, r *http.Request) {
+
 	var msg msgRename
 
 	pkt, err := s.newPacketFromRequest(r, &msg)
@@ -331,4 +342,24 @@ func (s *server) rename(w http.ResponseWriter, r *http.Request) {
 
 	// Broadcast /rename msg up
 	pkt.SetDst(d.Id).BroadcastUp()
+}
+
+func (s *server) showNewModal(w http.ResponseWriter, r *http.Request) {
+
+	var id = r.PathValue("id")
+
+	d, exists := s.devices.get(id)
+	if !exists {
+		err := fmt.Errorf("Can't show new modal dialog: unknown device id '%s'", id)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
+		"models": s.childModels(d),
+		"newid":  generateRandomId(),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }

@@ -6,22 +6,22 @@ import (
 	"net/http"
 )
 
-func (d *device) packetHandlersInstall() {
+func (s *server) packetHandlersInstall(d *device) {
 	for path, handler := range d.PacketHandlers {
 		if len(path) > 0 && path[0] != '/' {
 			LogError("Packet handler missing leading '/'", "path", path, "device", d)
 			continue
 		}
-		d.Handle("POST "+path, d.newPacketRoute(handler))
+		d.Handle("POST "+path, s.newPacketRoute(handler, d))
 	}
 }
 
-func (d *device) newPacketRoute(h packetHandler) http.Handler {
+func (s *server) newPacketRoute(h packetHandler, d *device) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		sessionId := r.Header.Get("session-id")
 
-		if sessionExpired(sessionId) {
+		if s.sessions.expired(sessionId) {
 			// Force full page refresh to start new session
 			LogDebug("Session expired, refreshing", "id", sessionId)
 			w.Header().Set("HX-Refresh", "true")
@@ -29,7 +29,7 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 		}
 
 		msg := h.gen()
-		pkt, err := newPacketFromRequest(r, msg)
+		pkt, err := s.newPacketFromRequest(r, msg)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -39,7 +39,10 @@ func (d *device) newPacketRoute(h packetHandler) http.Handler {
 		if d.isSet(flagMetal) {
 			d.handle(pkt)
 		} else {
-			pkt.RouteDown()
+			if err := s.routeDown(pkt); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 		}
 	})
 }

@@ -118,17 +118,12 @@ func (p *Packet) ClearMsg() *Packet {
 // routeDown routes the packet down to a downlink.  Which downlink is
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
-func (p *Packet) routeDown() error {
-	LogDebug("routeDown", "pkt", p)
+func (s *server) routeDown(pkt *Packet) error {
+	LogDebug("routeDown", "pkt", pkt)
 
-	s := p.server
-	if s == nil {
-		return fmt.Errorf("Packet.server not set")
-	}
-
-	d, ok := s.devices.get(p.Dst)
+	d, ok := s.devices.get(pkt.Dst)
 	if !ok {
-		return deviceNotFound(p.Dst)
+		return deviceNotFound(pkt.Dst)
 	}
 
 	nexthop := d.nexthop
@@ -147,22 +142,22 @@ func (p *Packet) handle() error {
 		return fmt.Errorf("Packet.server not set")
 	}
 
-	if pkt.Dst == "" {
+	if p.Dst == "" {
 		// Run server handler
-		if handler, ok := s.packetHandlers[pkt.Path]; ok {
-			LogDebug("Handling", "pkt", pkt)
-			handler.cb(pkt)
+		if handler, ok := s.packetHandlers[p.Path]; ok {
+			LogDebug("Handling", "pkt", p)
+			handler.cb(p)
 		}
 		return nil
 	}
 
-	d, ok := s.devices.get(pkt.Dst)
+	d, ok := s.devices.get(p.Dst)
 	if !ok {
-		return deviceNotFound(pkt.Dst)
+		return deviceNotFound(p.Dst)
 	}
 
 	// Run device handler
-	d.handle(pkt)
+	d.handle(p)
 	return nil
 }
 
@@ -242,10 +237,10 @@ func (p *Packet) render(w io.Writer, sessionId string) error {
 		return fmt.Errorf("Packet.server not set")
 	}
 
-	d, err := s.devices.get(p.Dst)
-	if err != nil {
-		return err
+	d, exists := s.devices.get(p.Dst)
+	if !exists {
+		return fmt.Errorf("Invalid destination device id '%s'", p.Dst)
 	}
 
-	return d.renderPkt(w, sessionId, pkt)
+	return d.renderPkt(w, sessionId, p)
 }

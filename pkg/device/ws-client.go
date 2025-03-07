@@ -78,7 +78,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	}
 
 	// Receive welcome
-	pkt, err = s.wsRecvPkt(link)
+	pkt, err = link.receive()
 	if err != nil {
 		LogError("Receiving", "err", err)
 		return
@@ -99,13 +99,13 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device
 	LogInfo("Receiving packets")
 	for {
-		pkt, err := s.wsRecvPkt(link)
+		pkt, err := link.receive()
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break
 		}
 		LogDebug("-> Route packet DOWN", "pkt", pkt)
-		if err := pkt.routeDown(); err != nil {
+		if err := s.routeDown(pkt); err != nil {
 			LogError("Routing packet DOWN", "err", err)
 			break
 		}

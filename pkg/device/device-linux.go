@@ -100,7 +100,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 	parent.children.Store(id, child)
 	s.devices.Store(id, child)
 
-	child.setupAPI()
+	child.installAPI()
 
 	if !resurrect {
 		// Only install /device/{id} pattern if not previously ghosted
@@ -156,6 +156,22 @@ func (s *server) removeChild(child *device) {
 	// of its descendents) as ghosts.  Later, if the child is added back,
 	// we'll resurrect it.
 	child.ghost()
+}
+
+func (d *device) _familyTree(devs devicesJSON) {
+	if !d.isSet(flagGhost) {
+		devs[d.Id] = d
+		d.children.drange(func(_ string, child *device) bool {
+			child._familyTree(devs)
+			return true
+		})
+	}
+}
+
+func (d *device) familyTree() devicesJSON {
+	devs := make(devicesJSON)
+	d._familyTree(devs)
+	return devs
 }
 
 func (s *server) deviceOffline(id string) {
@@ -268,7 +284,7 @@ func (d *device) demoReboot(pkt *Packet) {
 	time.Sleep(3 * time.Second)
 
 	pkt.server.buildDevice(d.Id, d)
-	d.setupAPI()
+	d.installAPI()
 	d.setup()
 	d.startDemo()
 

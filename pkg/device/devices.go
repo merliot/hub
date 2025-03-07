@@ -160,7 +160,7 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	}
 
 	device.set(flagLocked)
-	device.setupAPI()
+	device.installAPI()
 
 	if !exists {
 		device.install()

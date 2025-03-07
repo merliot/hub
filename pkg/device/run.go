@@ -26,46 +26,34 @@ func (d *device) runDemo() {
 	}
 }
 
-func (d *device) _startDemo() {
+// In demo mode, start a go func for each child device
+func (d *device) startDemo() {
 	d.stopChan = make(chan struct{})
 	go d.runDemo()
 }
 
-func (d *device) startDemo() {
-	d.Lock()
-	defer d.Unlock()
-	d._startDemo()
-}
-
-func (d *device) _stopDemo() {
+func (d *device) stopDemo() {
 	close(d.stopChan)
 }
 
-func (d *device) stopDemo() {
-	d.Lock()
-	defer d.Unlock()
-	d._stopDemo()
-}
-
-// In demo mode, start a go func for each child device
 func (d *device) startDemoChildren() {
-	for _, childId := range d.Children {
-		child := devices[childId]
+	d.children.drange(func(_ string, child *device) bool {
 		child.startDemo()
 		child.startDemoChildren()
-	}
+		return true
+	})
 }
 
 func (d *device) stopDemoChildren() {
-	for _, childId := range d.Children {
-		child := devices[childId]
+	d.children.drange(func(_ string, child *device) bool {
 		child.stopDemo()
 		child.stopDemoChildren()
-	}
+		return true
+	})
 }
 
 func (d *device) run() {
-	if runningDemo {
+	if d.isSet(flagDemo) {
 		d.startDemoChildren()
 		d.runPolling(d.DemoPoll)
 		d.stopDemoChildren()

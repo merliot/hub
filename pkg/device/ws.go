@@ -66,11 +66,3 @@ func (l *wsLink) startPing() {
 		}
 	}()
 }
-
-func (s *server) wsRecvPkt(link *wsLink) (pkt *Packet, err error) {
-	pkt, err = link.receive()
-	if err == nil {
-		pkt.server = s
-	}
-	return
-}
