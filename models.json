@@ -3,6 +3,10 @@
 		"Package": "github.com/merliot/hub/devices/hubdevice",
 		"Maker": "hubdevice.NewModel"
 	},
+	"timer": {
+		"Package": "github.com/merliot/hub/devices/timer",
+		"Maker": "timer.NewModel"
+	},
 	"gadget": {
 		"Package": "github.com/merliot/hub/devices/gadget",
 		"Maker": "gadget.NewModel"

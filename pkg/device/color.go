@@ -3,7 +3,7 @@
 package device
 
 func bodyColors() string {
-	if Getenv("BACKGROUND", "") == "LIGHT" {
+	if Getenv("BACKGROUND", "") == "GOOD" {
 		return "bg-space-white text"
 	}
 	return "bg-black text"

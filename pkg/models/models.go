@@ -12,6 +12,7 @@ import (
 	"github.com/merliot/hub/devices/qrcode"
 	"github.com/merliot/hub/devices/relays"
 	"github.com/merliot/hub/devices/temp"
+	"github.com/merliot/hub/devices/timer"
 	"github.com/merliot/hub/pkg/device"
 )
 
@@ -25,6 +26,7 @@ var AllModels = device.ModelMap{
 	"qrcode":  Qrcode,
 	"relays":  Relays,
 	"temp":    Temp,
+	"timer":   Timer,
 }
 var Camera = device.Model{
 	Package: "github.com/merliot/hub/devices/camera",
@@ -61,4 +63,8 @@ var Relays = device.Model{
 var Temp = device.Model{
 	Package: "github.com/merliot/hub/devices/temp",
 	Maker:   temp.NewModel,
+}
+var Timer = device.Model{
+	Package: "github.com/merliot/hub/devices/timer",
+	Maker:   timer.NewModel,
 }
