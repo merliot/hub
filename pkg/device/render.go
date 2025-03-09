@@ -36,7 +36,7 @@ func (d *device) render(w io.Writer, sessionId, path, view string,
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//LogDebug("_render", "id", d.Id, "session-id", sessionId,
+	//LogDebug("render", "id", d.Id, "session-id", sessionId,
 	//	"path", path, "level", level, "template", template)
 	if err := d.renderSession(w, template, sessionId, level, data); err != nil {
 		return err
@@ -68,16 +68,6 @@ func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
 	}
 	return template.HTML(buf.String()), nil
 }
-
-/*
-func RenderTemplate(w io.Writer, id, name string, data any) error {
-	d, err := getDevice(id)
-	if err != nil {
-		return err
-	}
-	return d.renderTmpl(w, name, data)
-}
-*/
 
 func (d *device) renderView(sessionId, path, view string, level int) (template.HTML, error) {
 	var buf bytes.Buffer

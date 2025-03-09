@@ -23,7 +23,7 @@
 	<body class="{{bodyColors}} m-4">
 {{ template "site-header.tmpl" . }}
 {{ $tmpl := joinStrings "site-" .section ".tmpl" }}
-{{ _renderTemplate $tmpl . }}
+{{ renderTemplate $tmpl . }}
 {{ template "site-footer.tmpl" . }}
 	</body>
 </html>

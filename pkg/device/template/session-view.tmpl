@@ -2,5 +2,5 @@
 	hx-headers='{"session-id": "{{.sessionId}}"}'
 	hx-trigger="every {{.pingPeriod}}s" ws-send
 	hx-ext="ws" ws-connect="/wsx?session-id={{.sessionId}}">
-{{ _renderView .sessionId "/device" "detail" 0 }}
+{{ renderView .sessionId "/device" "detail" 0 }}
 </div>

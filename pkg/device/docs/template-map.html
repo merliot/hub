@@ -10,7 +10,7 @@
 session.tmpl
 	session-header.tmpl
 	session-view.tmpl
-		_renderView device-xxx.tmpl (xxx = detail, overview, ...)
+		renderView device-xxx.tmpl (xxx = detail, overview, ...)
 			device-detail.tmpl
 				<span class="text-red-500">body-detail.tmpl</span>
 			device-overview.tmpl
@@ -49,7 +49,7 @@ session.tmpl
 <pre class="text-sm">
 	device.tmpl
 		device-header.tmpl
-			device-status.tmpl   (_renderTemplate device-status-xxx.tmpl)
+			device-status.tmpl   (renderTemplate device-status-xxx.tmpl)
 				device-status-sessions.tmpl
 				device-status-models.tmpl
 				device-status-devices.tmpl

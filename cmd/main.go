@@ -18,8 +18,8 @@ import (
 )
 
 func main() {
-	port := devices.Getenv("PORT", "8000")
-	addr := port + ":"
+	port := device.Getenv("PORT", "8000")
+	addr := ":" + port
 	server := device.NewServer(addr, models.AllModels)
 	server.Run()
 }

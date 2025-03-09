@@ -167,7 +167,7 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	}
 
 	if s.runningDemo {
-		if err := device.setup(); err != nil {
+		if err := device.demoSetup(); err != nil {
 			return err
 		}
 		device.startDemo()

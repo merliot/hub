@@ -63,7 +63,7 @@ func (d *device) buildOS() error {
 
 func (s *server) addChild(parent *device, id, model, name string, flags flags) error {
 
-	var resurrect, ok bool
+	var resurrect bool
 
 	if _, exists := parent.children.get(id); exists {
 		return fmt.Errorf("Device's children already includes child")
@@ -85,12 +85,12 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 		child.unSet(flagGhost)
 	}
 
-	child.model, ok = s.models[model]
+	m, ok := s.models[model]
 	if !ok {
 		return fmt.Errorf("Unknown model")
 	}
 
-	if err := child.build(s.flags()); err != nil {
+	if err := child.build(m, s.flags()); err != nil {
 		return err
 	}
 
@@ -108,7 +108,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 	}
 
 	if s.runningDemo {
-		if err := child.setup(); err != nil {
+		if err := child.demoSetup(); err != nil {
 			return err
 		}
 		child.startDemo()
@@ -285,7 +285,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	pkt.server.buildDevice(d.Id, d)
 	d.installAPI()
-	d.setup()
+	d.demoSetup()
 	d.startDemo()
 
 	// Come back online

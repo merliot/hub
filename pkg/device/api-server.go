@@ -67,17 +67,17 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("POST /create", s.createChild)
 	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
 	s.mux.HandleFunc("GET /download-image/{id}", s.downloadImage)
-	s.mux.HandleFunc("GET /download-image/{sessionId}", s.downloadImage)
+	s.mux.HandleFunc("GET /download-image/{id}/{sessionId}", s.downloadImage)
 	s.mux.HandleFunc("GET /deploy-koyeb/{id}/{sessionId}", s.deployKoyeb)
 	s.mux.HandleFunc("GET /rename", s.rename)
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 }
 
 // modelInstall installs /model/{model} pattern for device model
-func (d *device) modelInstall() {
+func (s *server) modelInstall(d *device) {
 	prefix := "/model/" + d.Model
 	handler := http.StripPrefix(prefix, d)
-	http.Handle(prefix+"/", handler)
+	s.mux.Handle(prefix+"/", handler)
 	LogInfo("Model installed", "prefix", prefix)
 }
 
@@ -107,9 +107,9 @@ func (s *server) installModels() {
 			Model: name,
 			model: model,
 		}
-		proto.build(s.flags())
+		proto.build(model, s.flags())
 		proto.installAPI()
-		proto.modelInstall()
+		s.modelInstall(proto)
 		model.Config = proto.GetConfig()
 		s.models[name] = model
 	}

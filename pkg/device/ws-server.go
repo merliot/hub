@@ -33,9 +33,9 @@ func (s *server) handleAnnounced(pkt *Packet) {
 
 func (s *server) match(a *device) error {
 
-	d, err := s.devices.get(a.Id)
-	if err != nil {
-		return err
+	d, exists := s.devices.get(a.Id)
+	if !exists {
+		return deviceNotFound(a.Id)
 	}
 
 	if d.Model != a.Model {
@@ -58,13 +58,15 @@ func (s *server) match(a *device) error {
 
 func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 
-	var annDevices = make(deviceMap)
+	var annDevicesJSON devicesJSON
+	var annDevices deviceMap
 
-	pkt.Unmarshal(&annDevices)
+	pkt.Unmarshal(&annDevicesJSON)
+	annDevices.loadJSON(annDevicesJSON)
 
 	// Find root device in announcement
 
-	anchor, err := s.findRoot(annDevices)
+	anchor, err := annDevices.findRoot()
 	if err != nil {
 		return "", fmt.Errorf("Cannot find root: %s", err)
 	}
@@ -74,7 +76,7 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 		return "", fmt.Errorf("Id mismatch announcement-id: %s pkt-id: %s", id, pkt.Dst)
 	}
 
-	if id == root.Id {
+	if id == s.root.Id {
 		return "", fmt.Errorf("Cannot dial into root (self)")
 	}
 
@@ -106,7 +108,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	var link = &wsLink{conn: conn}
 
 	// First receive should be an /announce packet
-	pkt, err := link.receive()
+	pkt, err := s.receive(link)
 	if err != nil {
 		LogError("Receiving first packet", "err", err)
 		return
@@ -119,7 +121,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	}
 	LogDebug("-> Announcement", "pkt", pkt)
 
-	id, err := handleAnnounce(pkt)
+	id, err := s.handleAnnounce(pkt)
 	if err != nil {
 		LogError("Bad announcement", "err", err)
 		return
@@ -140,7 +142,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 	// Route incoming packets up to the destination device
 	for {
-		pkt, err := link.receive()
+		pkt, err := s.receive(link)
 		if err != nil {
 			LogError("Receiving packet", "err", err)
 			break

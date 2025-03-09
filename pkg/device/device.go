@@ -49,10 +49,11 @@ func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
-func (d *device) build(additionalFlags flags) error {
+func (d *device) build(model Model, additionalFlags flags) error {
 
 	d.startup = time.Now()
-	d.Devicer = d.model.Maker()
+	d.model = model
+	d.Devicer = model.Maker()
 	d.Config = d.GetConfig()
 	d.flags = d.Config.Flags
 	d.set(additionalFlags)

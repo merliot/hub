@@ -28,7 +28,7 @@ type sessionMap struct {
 	sync.Map // key: session id, value: *session
 }
 
-var sessionsMax = int32(1000)
+var sessionsMax = 1000
 
 func newSessions() sessionMap {
 	var sm sessionMap
@@ -36,7 +36,7 @@ func newSessions() sessionMap {
 	return sm
 }
 
-func (sm *sessionMap) load(id string) (*session, bool) {
+func (sm *sessionMap) get(id string) (*session, bool) {
 	value, ok := sm.Load(id)
 	if !ok {
 		return nil, false
@@ -79,7 +79,7 @@ func (sm *sessionMap) noSessions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sm *sessionMap) setConn(id string, conn *websocket.Conn) {
-	if s, ok := sm.load(id); ok {
+	if s, ok := sm.get(id); ok {
 		s.Lock()
 		s.conn = conn
 		s.lastUpdate = time.Now()
@@ -88,34 +88,35 @@ func (sm *sessionMap) setConn(id string, conn *websocket.Conn) {
 }
 
 func (sm *sessionMap) expired(id string) bool {
-	_, exists := sm.load(id)
+	_, exists := sm.get(id)
 	return !exists
 }
 
 func (sm *sessionMap) keepAlive(id string) {
-	if s, ok := sm.load(id); ok {
+	if s, ok := sm.get(id); ok {
 		s.Lock()
 		s.lastUpdate = time.Now()
 		s.Unlock()
 	}
 }
 
-func (sm *sessionMap) routeAll(pkt *Packet) error {
+func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
 	sm.drange(func(id string, s *session) bool {
 		if pkt.SessionId == "" || pkt.SessionId == id {
 			//LogDebug("routeAll", "pkt", pkt)
-			if err := s.renderPkt(pkt); err != nil {
+			if err = s.renderPkt(pkt); err != nil {
 				if err != errSessionNotConnected {
-					return err
+					return false
 				}
 			}
 		}
 		return true
 	})
+	return
 }
 
 func (sm *sessionMap) route(id string, pkt *Packet) error {
-	if s, ok := sm.load(id); ok {
+	if s, ok := sm.get(id); ok {
 		//LogDebug("route", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
@@ -123,10 +124,11 @@ func (sm *sessionMap) route(id string, pkt *Packet) error {
 			}
 		}
 	}
+	return nil
 }
 
 func (sm *sessionMap) send(id, htmlSnippet string) {
-	if s, ok := sm.load(id); ok {
+	if s, ok := sm.get(id); ok {
 		if err := s.send([]byte(htmlSnippet)); err != nil {
 			LogError("sessionSend", "err", err)
 		}
@@ -161,8 +163,7 @@ func (sm *sessionMap) gcSessions() {
 		sm.drange(func(id string, s *session) bool {
 			s.mu.RLock()
 			if time.Since(s.lastUpdate) > minute {
-				sessions.Delete(id)
-				gcViews(id)
+				sm.Delete(id)
 			}
 			s.RUnlock()
 			return true
@@ -180,8 +181,8 @@ func (sm *sessionMap) sortedAge() []string {
 
 	// Sort keys based on lastUpdate, newest first
 	sort.Slice(keys, func(i, j int) bool {
-		s1, _ := sessions.load(keys[i])
-		s2, _ := sessions.load(keys[j])
+		s1, _ := sm.get(keys[i])
+		s2, _ := sm.get(keys[j])
 		return s1.lastUpdate.After(s2.lastUpdate)
 	})
 
@@ -220,7 +221,7 @@ func (sm *sessionMap) status() []sessionStatus {
 
 	var statuses = make([]sessionStatus, 0)
 	for _, id := range sm.sortedAge() {
-		s, _ := sm.load(id)
+		s, _ := sm.get(id)
 		s.RLock()
 		statuses = append(statuses, sessionStatus{
 			Color:  color(s),

@@ -30,7 +30,7 @@ func (d *device) generateUf2(dir, target string) error {
 
 	var runnerFile = "runner.go"
 	if err := d.genFile(temp, "device-runner-tinygo.tmpl", runnerFile, map[string]any{
-		"model": Models[d.Model],
+		"model": d.model,
 	}); err != nil {
 		return err
 	}
@@ -50,11 +50,11 @@ func (d *device) generateUf2(dir, target string) error {
 	return nil
 }
 
-func Uf2GenerateBaseImages(dir, modelName, targetName string) error {
-	for name, model := range Models {
+func (s *server) Uf2GenerateBaseImages(dir, modelName, targetName string) error {
+	for name, model := range s.models {
 		if name == modelName || modelName == "" {
 			var proto = &device{Model: name}
-			proto._build(model.Maker)
+			proto.build(model, 0)
 			for _, target := range target.TinyGoTargets(proto.Targets) {
 				if target == targetName || targetName == "" {
 					if err := proto.generateUf2(dir, target); err != nil {

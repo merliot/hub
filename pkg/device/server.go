@@ -59,7 +59,7 @@ func NewServer(addr string, models ModelMap) *server {
 	s.packetHandlers["/announced"] = &PacketHandler[deviceMap]{s.handleAnnounced}
 
 	rl := ratelimit.New(rlConfig)
-	s.server.Handler = rl.RateLimit(bassicAuth(s.mux))
+	s.server.Handler = rl.RateLimit(basicAuth(s.mux))
 
 	return &s
 }
@@ -75,13 +75,13 @@ func (s *server) buildDevice(id string, d *device) error {
 	if !ok {
 		return fmt.Errorf("Model '%s' not registered", d.Model)
 	}
-	return d.build(model.Maker, s.flags())
+	return d.build(model, s.flags())
 }
 
-func (s *server) buildDevices() error {
+func (s *server) buildDevices() {
 	s.devices.drange(func(id string, d *device) bool {
 		if err := s.buildDevice(id, d); err != nil {
-			LogError("Skipping device", "id", id, "err", err)
+			LogError("Skipping", "device", d, "err", err)
 			s.devices.Delete(id)
 		}
 		return true
@@ -96,12 +96,10 @@ func (s *server) buildTree() (err error) {
 // Run device server
 func (s *server) Run() {
 
-	var err error
-
 	logLevel = Getenv("LOG_LEVEL", "INFO")
 	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
 	s.runningSite = Getenv("SITE", "") == "true"
-	runningDemo = (Getenv("DEMO", "") == "true") || s.runningSite
+	s.runningDemo = (Getenv("DEMO", "") == "true") || s.runningSite
 
 	logBuildInfo()
 
@@ -116,26 +114,32 @@ func (s *server) Run() {
 		return
 	}
 
-	if err := s.buildDevices(); err != nil {
-		LogError("Building devices", "err", err)
-		return
-	}
+	s.buildDevices()
 
 	if err := s.buildTree(); err != nil {
 		LogError("Building tree", "err", err)
 		return
 	}
 
-	if err := s.root.setup(); err != nil {
-		LogError("Setting up root device", "err", err)
-		return
+	s.root.set(flagOnline | flagMetal)
+
+	if s.runningDemo {
+		if err := s.root.demoSetup(); err != nil {
+			LogError("Setting up root device", "err", err)
+			return
+		}
+	} else {
+		if err := s.root.setup(); err != nil {
+			LogError("Setting up root device", "err", err)
+			return
+		}
 	}
 
 	// Dial parents
 	var urls = Getenv("DIAL_URLS", "")
 	var user = Getenv("USER", "")
 	var passwd = Getenv("PASSWD", "")
-	dialParents(urls, user, passwd)
+	s.dialParents(urls, user, passwd)
 
 	// If Server.Addr empty, don't run as a web server
 	if s.server.Addr == "" {
@@ -146,6 +150,8 @@ func (s *server) Run() {
 
 	// Running as a web server...
 	s.setupAPI()
+
+	go s.gcViews()
 
 	// Run http server in go routine to be shutdown later
 	go func() {

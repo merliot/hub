@@ -80,9 +80,13 @@ func (q *qrcode) generate(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, url)
 }
 
+var tmpl = `<input class="m-4" type="text"
+	name="Content" value="%s" autofocus required
+	hx-post="/device/%s/update"
+	hx-swap="none">`
+
 func (q *qrcode) editContent(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
-	if err := device.RenderTemplate(w, id, "edit-content.tmpl", nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	html := fmt.Sprintf(tmpl, q.Content, id)
+	w.Write([]byte(html))
 }

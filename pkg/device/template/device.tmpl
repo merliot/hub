@@ -23,7 +23,7 @@
 	<body class="{{bodyColors}}">
 {{ template "device-header.tmpl" . }}
 {{ $tmpl := joinStrings "device-" .section ".tmpl" }}
-{{ _renderTemplate $tmpl . }}
+{{ renderTemplate $tmpl . }}
 {{ template "device-footer.tmpl" . }}
 	</body>
 </html>

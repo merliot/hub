@@ -30,12 +30,25 @@ func (d *device) saveView(sessionId, last string, level int) {
 	view.lastUpdate = time.Now()
 }
 
-func gcViews(sessionId string) {
+func (s *server) gcDeviceViews(d *device) {
+	d.views.Range(func(key, _ any) bool {
+		sessionId := key.(string)
+		_, exists := s.sessions.get(sessionId)
+		if !exists {
+			d.views.Delete(sessionId)
+		}
+		return true
+	})
+}
 
-	devicesMu.RLock()
-	defer devicesMu.RUnlock()
-
-	for _, d := range devices {
-		d.views.Delete(sessionId)
+func (s *server) gcViews() {
+	minute := 1 * time.Minute
+	ticker := time.NewTicker(minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		s.devices.drange(func(id string, d *device) bool {
+			s.gcDeviceViews(d)
+			return true
+		})
 	}
 }

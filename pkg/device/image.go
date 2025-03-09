@@ -306,8 +306,15 @@ type msgDownloaded struct {
 	DeployParams template.URL
 }
 
-func (d *device) handleDownloaded(pkt *Packet) {
+func (s *server) handleDownloaded(pkt *Packet) {
 	var msg msgDownloaded
+
+	d, exists := s.devices.get(pkt.Dst)
+	if !exists {
+		LogError("Handling downloaded", "err", deviceNotFound(pkt.Dst))
+		return
+	}
+
 	pkt.Unmarshal(&msg)
 	d.formConfig(string(msg.DeployParams))
 	pkt.BroadcastUp()

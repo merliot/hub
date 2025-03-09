@@ -34,11 +34,13 @@ func (l *wsLink) Close() {
 	l.conn.Close()
 }
 
-func (l *wsLink) receive() (*Packet, error) {
+func (s *server) receive(l *wsLink) (*Packet, error) {
+	var pkt Packet
 	if err := l.conn.ReadJSON(&pkt); err != nil {
 		l.done = true
 		return nil, fmt.Errorf("Websocket read error: %w", err)
 	}
+	pkt.server = s
 	return &pkt, nil
 }
 
