@@ -121,15 +121,6 @@ func (t *timer) Setup() error {
 		t.gpio.On()
 	}
 
-	// Periodically reset system time using NTP
-	// (These microcontrollers don't keep time very well)
-	go func() {
-		for {
-			time.Sleep(30 * time.Minute)
-			ntp.SetSystemTime()
-		}
-	}()
-
 	return nil
 }
 
