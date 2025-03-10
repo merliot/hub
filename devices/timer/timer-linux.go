@@ -43,6 +43,7 @@ func (t *timer) makeStatus() string {
 
 	// Get current time
 	currentTime := dayTime(time.Now())
+	println("current", currentTime.String(), "start", t.startTime.String(), "stop", t.stopTime.String())
 
 	if t.startTime.After(t.stopTime) {
 		if currentTime.After(t.startTime) {
