@@ -15,7 +15,7 @@ func (s *server) setupAPI() {
 	s.devices.drange(func(id string, d *device) bool {
 
 		// Install the /device/{id} pattern to point to this device
-		d.install()
+		s.deviceInstall(d)
 
 		// Add device APIs
 		d.installAPI()
@@ -34,14 +34,14 @@ func (s *server) setupAPI() {
 
 	// Install /ws websocket listener, but only if not in demo mode.  In
 	// demo mode, we want to ignore any devices dialing in.
-	if !s.runningDemo {
+	if !s.isSet(flagRunningDemo) {
 		s.mux.HandleFunc("/ws", s.wsHandle)
 	}
 
 	// Install /wsx websocket listener (wsx is for htmx ws)
 	s.mux.HandleFunc("/wsx", s.wsxHandle)
 
-	if s.runningSite {
+	if s.isSet(flagRunningSite) {
 		s.mux.HandleFunc("GET /{$}", s.showSiteHome)
 		s.mux.HandleFunc("GET /home", s.showSiteHome)
 		s.mux.HandleFunc("GET /home/{page}", s.showSiteHome)
@@ -73,14 +73,6 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 }
 
-// modelInstall installs /model/{model} pattern for device model
-func (s *server) modelInstall(d *device) {
-	prefix := "/model/" + d.Model
-	handler := http.StripPrefix(prefix, d)
-	s.mux.Handle(prefix+"/", handler)
-	LogInfo("Model installed", "prefix", prefix)
-}
-
 func (d *device) deviceHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if d.isSet(flagGhost) {
@@ -92,12 +84,20 @@ func (d *device) deviceHandler(next http.Handler) http.Handler {
 	})
 }
 
-// install /device/{id} pattern for device
-func (d *device) install() {
+// deviceInstall /device/{id} pattern for device
+func (s *server) deviceInstall(d *device) {
 	prefix := "/device/" + d.Id
 	handler := d.deviceHandler(http.StripPrefix(prefix, d))
-	http.Handle(prefix+"/", handler)
+	s.mux.Handle(prefix+"/", handler)
 	LogInfo("Device installed", "prefix", prefix, "device", d)
+}
+
+// modelInstall installs /model/{model} pattern for device model
+func (s *server) modelInstall(d *device) {
+	prefix := "/model/" + d.Model
+	handler := http.StripPrefix(prefix, d)
+	s.mux.Handle(prefix+"/", handler)
+	LogInfo("Model installed", "prefix", prefix)
 }
 
 func (s *server) installModels() {
@@ -107,7 +107,7 @@ func (s *server) installModels() {
 			Model: name,
 			model: model,
 		}
-		proto.build(model, s.flags())
+		proto.build(model, s.defaultDeviceFlags())
 		proto.installAPI()
 		s.modelInstall(proto)
 		model.Config = proto.GetConfig()
@@ -139,7 +139,6 @@ func (s *server) saveDevices(w http.ResponseWriter, r *http.Request) {
 	if err := s.devicesSave(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	s.root.clean()
 }
 
 func (s *server) showSaveModal(w http.ResponseWriter, r *http.Request) {
@@ -178,8 +177,7 @@ func (s *server) save() error {
 		return s.devicesSave()
 	}
 
-	// Mark root dirty so user can manually save
-	s.root.dirty()
+	s.set(flagDirty)
 
 	return nil
 }

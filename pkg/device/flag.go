@@ -2,11 +2,11 @@ package device
 
 type flags uint32
 
+// Device flags
 const (
 	FlagProgenitive  flags = 1 << iota // May have children
 	FlagHttpPortMust                   // Device must have an HTTP port
 	flagOnline                         // Device is online
-	flagDirty                          // Has unsaved changes
 	flagLocked                         // Device is locked
 	flagDemo                           // Running in DEMO mode
 	flagMetal                          // Device is running on real hardware
@@ -24,15 +24,4 @@ func (f *flags) unSet(flags flags) {
 
 func (f flags) isSet(flags flags) bool {
 	return f&flags == flags
-}
-
-func (s *server) flags() flags {
-	var flags flags
-	if s.runningSite {
-		flags = flagLocked
-	}
-	if s.runningDemo {
-		flags = flagDemo | flagOnline | flagMetal
-	}
-	return flags
 }

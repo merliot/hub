@@ -90,7 +90,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 		return fmt.Errorf("Unknown model")
 	}
 
-	if err := child.build(m, s.flags()); err != nil {
+	if err := child.build(m, s.defaultDeviceFlags()); err != nil {
 		return err
 	}
 
@@ -104,10 +104,10 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 
 	if !resurrect {
 		// Only install /device/{id} pattern if not previously ghosted
-		child.install()
+		s.deviceInstall(child)
 	}
 
-	if s.runningDemo {
+	if s.isSet(flagRunningDemo) {
 		if err := child.demoSetup(); err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func (child *device) orphan() {
 
 func (s *server) removeChild(child *device) {
 
-	if s.runningDemo {
+	if s.isSet(flagRunningDemo) {
 		child.stopDemo()
 	}
 
@@ -182,18 +182,6 @@ func (s *server) deviceOffline(id string) {
 	}
 }
 
-func (d *device) dirty() {
-	d.set(flagDirty)
-	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
-	pkt.BroadcastUp()
-}
-
-func (d *device) clean() {
-	d.unSet(flagDirty)
-	pkt := &Packet{Dst: d.Id, Path: "/dirty"}
-	pkt.BroadcastUp()
-}
-
 var emptyHub = `{
 	"hub": {
 		"Id": "hub",
@@ -224,7 +212,9 @@ func (s *server) loadDevices() error {
 
 	case noEnv && noFile && noDefault:
 		LogInfo("Loading with empty hub")
-		s.saveToClipboard = !autoSave
+		if !autoSave {
+			s.set(flagSaveToClipboard)
+		}
 		if err := json.Unmarshal([]byte(emptyHub), &devs); err != nil {
 			return err
 		}
@@ -243,7 +233,7 @@ func (s *server) loadDevices() error {
 
 	default:
 		LogInfo("Loading from DEVICES env var")
-		s.saveToClipboard = true
+		s.set(flagSaveToClipboard)
 		if err := json.Unmarshal([]byte(devicesEnv), &devs); err != nil {
 			return err
 		}

@@ -33,7 +33,6 @@ func (d *device) installAPI() {
 }
 
 func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
-	println("serveStaticFile", r.URL.Path, d.String())
 	fileExtension := filepath.Ext(r.URL.Path)
 	switch fileExtension {
 	case ".go", ".tmpl", ".css":

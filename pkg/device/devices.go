@@ -163,10 +163,10 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	device.installAPI()
 
 	if !exists {
-		device.install()
+		s.deviceInstall(device)
 	}
 
-	if s.runningDemo {
+	if s.isSet(flagRunningDemo) {
 		if err := device.demoSetup(); err != nil {
 			return err
 		}

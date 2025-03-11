@@ -36,8 +36,8 @@ func (d *device) render(w io.Writer, sessionId, path, view string,
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//LogDebug("render", "id", d.Id, "session-id", sessionId,
-	//	"path", path, "level", level, "template", template)
+	//LogDebug("render", "id", d.Id, "session-id", sessionId, "path", path,
+	//	"view", view, "level", level, "template", template)
 	if err := d.renderSession(w, template, sessionId, level, data); err != nil {
 		return err
 	}

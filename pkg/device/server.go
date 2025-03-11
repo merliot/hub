@@ -15,20 +15,26 @@ import (
 	"github.com/merliot/hub/pkg/ratelimit"
 )
 
+// Server flags
+const (
+	flagRunningDemo     flags = 1 << iota // Running in DEMO mode
+	flagRunningSite                       // Running in SITE mode
+	flagSaveToClipboard                   // Save changes to clipboard
+	flagDirty                             // Server has unsaved changes
+)
+
 type server struct {
-	devices         deviceMap      // key: device id, value: *device
-	sessions        sessionMap     // key: session id, value: *session
-	uplinks         uplinkMap      // key: linker
-	downlinks       downlinkMap    // key: device id, value: linker
-	models          ModelMap       // key: model name
-	packetHandlers  PacketHandlers // key: path, value: handler
-	root            *device
-	mux             *http.ServeMux
-	server          *http.Server
-	saveToClipboard bool
-	runningSite     bool // running as full web-site
-	runningDemo     bool // running in DEMO mode
-	wsxPingPeriod   int
+	devices        deviceMap      // key: device id, value: *device
+	sessions       sessionMap     // key: session id, value: *session
+	uplinks        uplinkMap      // key: linker
+	downlinks      downlinkMap    // key: device id, value: linker
+	models         ModelMap       // key: model name
+	packetHandlers PacketHandlers // key: path, value: handler
+	root           *device
+	mux            *http.ServeMux
+	server         *http.Server
+	flags
+	wsxPingPeriod int
 }
 
 var rlConfig = ratelimit.Config{
@@ -64,6 +70,17 @@ func NewServer(addr string, models ModelMap) *server {
 	return &s
 }
 
+func (s *server) defaultDeviceFlags() flags {
+	var flags flags
+	if s.isSet(flagRunningSite) {
+		flags = flagLocked
+	}
+	if s.isSet(flagRunningDemo) {
+		flags = flagDemo | flagOnline | flagMetal
+	}
+	return flags
+}
+
 func (s *server) buildDevice(id string, d *device) error {
 	if id != d.Id {
 		return fmt.Errorf("Mismatching Ids")
@@ -75,7 +92,7 @@ func (s *server) buildDevice(id string, d *device) error {
 	if !ok {
 		return fmt.Errorf("Model '%s' not registered", d.Model)
 	}
-	return d.build(model, s.flags())
+	return d.build(model, s.defaultDeviceFlags())
 }
 
 func (s *server) buildDevices() {
@@ -98,14 +115,20 @@ func (s *server) Run() {
 
 	logLevel = Getenv("LOG_LEVEL", "INFO")
 	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
-	s.runningSite = Getenv("SITE", "") == "true"
-	s.runningDemo = (Getenv("DEMO", "") == "true") || s.runningSite
+
+	if Getenv("SITE", "") == "true" {
+		s.set(flagRunningSite)
+	}
+
+	if (Getenv("DEMO", "") == "true") || s.isSet(flagRunningSite) {
+		s.set(flagRunningDemo)
+	}
 
 	logBuildInfo()
 
-	if s.runningSite {
+	if s.isSet(flagRunningSite) {
 		LogInfo("RUNNING full web site")
-	} else if s.runningDemo {
+	} else if s.isSet(flagRunningDemo) {
 		LogInfo("RUNNING in DEMO mode")
 	}
 
@@ -123,7 +146,7 @@ func (s *server) Run() {
 
 	s.root.set(flagOnline | flagMetal)
 
-	if s.runningDemo {
+	if s.isSet(flagRunningDemo) {
 		if err := s.root.demoSetup(); err != nil {
 			LogError("Setting up root device", "err", err)
 			return
