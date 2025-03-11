@@ -1,16 +1,9 @@
 <div class="flex flex-row items-center justify-evenly" id="{{uniq `timer`}}">
+
 {{ if state.On }}
 	<img class="icon" src="/model/{{model}}/images/lightbulb-on.svg">
 {{ else }}
 	<img class="icon" src="/model/{{model}}/images/lightbulb-off.svg">
 {{ end }}
-{{ if isOnline }}
-	<div
-		hx-get="/device/{{id}}/update"
-		hx-trigger="every 1s"
-		hx-target="this"
-		hx-swap="innerHTML">
-		<span>{{update}}</span>
-	</div>
-{{ end }}
+
 </div>

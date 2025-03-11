@@ -12,37 +12,37 @@ import (
 type timer struct {
 	StartHHMM string
 	StopHHMM  string
+	StartUTC  string
+	StopUTC   string
 	TZ        string
 	Gpio      string
 	On        bool
 	gpio      gpio.Gpio
-	startTime time.Time
-	stopTime  time.Time
+	startUTC  time.Time
+	stopUTC   time.Time
 }
 
 func NewModel() device.Devicer {
-	t := &timer{
-		StartHHMM: "10:00",
-		StopHHMM:  "14:00",
-	}
-	t.TZ, _ = time.Now().Zone()
-	return t
+	return &timer{}
 }
 
-func dayTime(t time.Time) time.Time {
-	return time.Date(0, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+func utc() time.Time {
+	now := time.Now().UTC()
+	hhmmss := fmt.Sprintf("%02d:%02d:%02d", now.Hour(), now.Minute(), now.Second())
+	t, _ := time.Parse("15:04:05", hhmmss)
+	return t
 }
 
 func (t *timer) timeBetween() bool {
 
-	// Get current time of day
-	currentTime := dayTime(time.Now())
+	// Get current time of day UTC
+	currentTime := utc()
 
 	// Check if current time is between start and stop times
-	if t.startTime.After(t.stopTime) {
-		return currentTime.After(t.startTime) || currentTime.Before(t.stopTime)
+	if t.startUTC.After(t.stopUTC) {
+		return currentTime.After(t.startUTC) || currentTime.Before(t.stopUTC)
 	} else {
-		return currentTime.After(t.startTime) && currentTime.Before(t.stopTime)
+		return currentTime.After(t.startUTC) && currentTime.Before(t.stopUTC)
 	}
 }
 
@@ -72,56 +72,33 @@ func (t *timer) off(pkt *device.Packet) {
 	}
 }
 
-func (t *timer) parseStartStop(inUTC bool) (err error) {
-	tzOffset, ok := tzMap[t.TZ]
-	if !ok {
-		return fmt.Errorf("Time zone '%s' not found", t.TZ)
-	}
+func (t *timer) Setup() (err error) {
 
-	// Parse start and stop times
-	t.startTime, err = time.Parse("15:04 -0700", t.StartHHMM+" "+tzOffset)
+	t.startUTC, err = time.Parse("15:04", t.StartUTC)
 	if err != nil {
-		return err
-	}
-	if inUTC {
-		t.startTime = dayTime(t.startTime.UTC())
-	} else {
-		t.startTime = dayTime(t.startTime)
+		return
 	}
 
-	t.stopTime, err = time.Parse("15:04 -0700", t.StopHHMM+" "+tzOffset)
+	t.stopUTC, err = time.Parse("15:04", t.StopUTC)
 	if err != nil {
-		return err
-	}
-	if inUTC {
-		t.stopTime = dayTime(t.stopTime.UTC())
-	} else {
-		t.stopTime = dayTime(t.stopTime)
-	}
-
-	return nil
-}
-
-func (t *timer) Setup() error {
-
-	if err := t.parseStartStop(true); err != nil {
-		return err
+		return
 	}
 
 	// Set system time using NTP protocol
-	if err := ntp.SetSystemTime(); err != nil {
-		return err
+	if err = ntp.SetSystemTime(); err != nil {
+		return
 	}
 
-	if err := t.gpio.Setup(t.Gpio); err != nil {
-		return err
+	if err = t.gpio.Setup(t.Gpio); err != nil {
+		return
 	}
+
 	if t.timeBetween() {
 		t.On = true
 		t.gpio.On()
 	}
 
-	return nil
+	return
 }
 
 func (t *timer) Poll(pkt *device.Packet) {

@@ -1,2 +1,9 @@
 <div class="flex flex-col" id="{{uniq `timer`}}">
+
+{{ if state.On }}
+	<img class="icon" src="/model/{{model}}/images/lightbulb-on.svg">
+{{ else }}
+	<img class="icon" src="/model/{{model}}/images/lightbulb-off.svg">
+{{ end }}
+
 </div>

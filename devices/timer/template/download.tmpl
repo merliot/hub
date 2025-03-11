@@ -15,7 +15,7 @@
 	Time Zone:
 	<select name="TZ" required>
 		<option value="">Select Time Zone</option>
-{{- range $i, $zone := timeZones }}
+{{- range $i, $zone := timezones }}
 	{{- if eq $zone state.TZ }}
 		<option selected value="{{$zone}}">{{$zone}}</option>
 	{{- else }}
