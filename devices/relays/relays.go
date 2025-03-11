@@ -52,7 +52,7 @@ func (r *relays) GetConfig() device.Config {
 		Parents: []string{"hub"},
 		State:   r,
 		FS:      &fs,
-		Targets: []string{"rpi", "nano-rp2040", "wioterminal"},
+		Targets: []string{"rpi", "nano-rp2040"},
 		BgColor: "ice",
 		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
