@@ -229,7 +229,7 @@ func (s *server) createChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.handleCreate(pkt, 0); err == nil {
+	if err := s.handleCreate(pkt, 0); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -240,7 +240,7 @@ func (s *server) createChild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Route /created msg up
-	pkt.SetPath("/created").RouteUp()
+	pkt.SetDst(msg.ParentId).SetPath("/created").RouteUp()
 }
 
 type msgDestroy struct {
@@ -286,7 +286,7 @@ func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.handleDestroy(pkt); err == nil {
+	if err := s.handleDestroy(pkt); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -297,7 +297,7 @@ func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Route /destroyed msg up
-	pkt.SetPath("/destroyed").RouteUp()
+	pkt.SetDst(s.root.Id).SetPath("/destroyed").RouteUp()
 }
 
 type msgRename struct {

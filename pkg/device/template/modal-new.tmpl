@@ -25,18 +25,20 @@
 
 		<h3>CREATE A NEW DEVICE</h3>
 
-		<form hx-post="/device/{{id}}/create" hx-target=".modal" hx-swap="delete">
+		<form hx-post="/create" hx-target=".modal" hx-swap="delete">
+
+			<input type="hidden" name="ParentId" value="{{id}}">
 
 			<div class="flex flex-col mb-5 w-40">
 				<label class="font-bold mb-2">Name the Device</label>
-				<input type="text" name="Name" placeholder="Name" maxlength="20" required>
+				<input type="text" name="Child.Name" placeholder="Name" maxlength="20" required>
 			</div>
 
 			<div class="flex flex-col mb-5">
 				<label class="font-bold mb-2">Device ID</label>
 				<div class="flex flex-row">
-					<input disabled type="text" name="Id" placeholder="ID" value="{{.newid}}">
-					<input type="hidden" name="Id" value="{{.newid}}">
+					<input disabled type="text" placeholder="ID" value="{{.newid}}">
+					<input type="hidden" name="Child.Id" value="{{.newid}}">
 					<span class="icon">&#x1F512;</span>
 				</div>
 			</div>
@@ -46,7 +48,7 @@
 				<div class="flex flex-col overflow-y-auto">
 {{- range $name, $model := .models }}
 					<label class="flex flex-row cursor-pointer radio-container">
-						<input type="radio" name="Model" value="{{$name}}" required>
+						<input type="radio" name="Child.Model" value="{{$name}}" required>
 						<div class="radio-content p-0.5 border-solid border-2 rounded-4xl">
 {{ template "model-collasped.tmpl" . }}
 						</div>

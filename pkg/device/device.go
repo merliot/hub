@@ -139,18 +139,6 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	/*
-		// Form-encode the device to the full values
-		values, err = encode(d.State)
-		if err != nil {
-			return false, err
-		}
-
-		proposedParams = values.Encode()
-
-		LogDebug("Proposed", "DeployParams", proposedParams, "values", values)
-	*/
-
 	if template.URL(proposedParams) == d.DeployParams {
 		// No change
 		return false, nil
