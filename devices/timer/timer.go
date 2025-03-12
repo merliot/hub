@@ -14,7 +14,6 @@ type timer struct {
 	StopHHMM  string
 	StartUTC  string
 	StopUTC   string
-	TZ        string
 	Gpio      string
 	On        bool
 	gpio      gpio.Gpio

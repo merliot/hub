@@ -2,28 +2,41 @@
 	<label>
 		Start Time:
 		<input class="w-24" type="time" name="StartHHMM"
-			value="{{state.StartHHMM}}" required>
+			value="{{state.StartHHMM}}" required
+			oninput="updateUTC(this, 'StartUTC')">
 	</label>
 	<label class="ml-4">
 		Stop Time:
 		<input class="w-24" type="time" name="StopHHMM"
-			value="{{state.StopHHMM}}" required>
+			value="{{state.StopHHMM}}" required
+			oninput="updateUTC(this, 'StopUTC')">
 	</label>
 </div>
 
-<label class="mb-5">
-	Time Zone:
-	<select name="TZ" required>
-		<option value="">Select Time Zone</option>
-{{- range $i, $zone := timezones }}
-	{{- if eq $zone state.TZ }}
-		<option selected value="{{$zone}}">{{$zone}}</option>
-	{{- else }}
-		<option value="{{$zone}}">{{$zone}}</option>
-	{{- end }}
-{{- end }}
-	</select>
-</label>
+<input type="hidden" name="StartUTC" value="{{state.StartUTC}}">
+<input type="hidden" name="StopUTC" value="{{state.StopUTC}}">
+
+<script>
+	function updateUTC(element, targetName) {
+		// Get the local time from the input (HH:MM format)
+		const [hours, minutes] = element.value.split(':');
+
+		// Create a Date object with today's date and the input time
+		const localDate = new Date();
+		localDate.setHours(parseInt(hours));
+		localDate.setMinutes(parseInt(minutes));
+		localDate.setSeconds(0);
+		localDate.setMilliseconds(0);
+
+		// Convert to UTC
+		const utcHours = localDate.getUTCHours().toString().padStart(2, '0');
+		const utcMinutes = localDate.getUTCMinutes().toString().padStart(2, '0');
+		const utcTime = `${utcHours}:${utcMinutes}`;
+
+		// Update the hidden UTC input
+		document.querySelector('input[name=' + targetName + ']').value = utcTime;
+	}
+</script>
 
 <div class="flex flex-row mb-5">
 	<span class="mr-4">GPIO:</span>
