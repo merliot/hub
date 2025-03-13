@@ -32,7 +32,7 @@ type device struct {
 	DeployParams template.URL
 	Config       `json:"-"`
 	Devicer      `json:"-"`
-	model        Model
+	model        *Model
 	children     deviceMap
 	parent       *device
 	nexthop      *device
@@ -47,11 +47,10 @@ func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
 
-func (d *device) build(model Model, additionalFlags flags) error {
+func (d *device) build(additionalFlags flags) error {
 
 	d.startup = time.Now()
-	d.model = model
-	d.Devicer = model.Maker()
+	d.Devicer = d.model.Maker()
 	d.Config = d.GetConfig()
 	d.flags = d.Config.Flags
 	d.set(additionalFlags)

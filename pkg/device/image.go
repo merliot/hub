@@ -175,19 +175,20 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 
 	var binFiles []string
 	childModels := s.childModels(d)
-	if len(childModels) == 0 {
+	if childModels.length() == 0 {
 		// Sterile device only needs the bin/device-<target> binary
 		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
 	} else {
 		// Copy over the binaries needed to produce children devices
 		binFiles = append(binFiles, "-C", ".", "./bin/device-rpi")
 		binFiles = append(binFiles, "-C", ".", "./bin/device-x86-64")
-		for name, model := range childModels {
+		childModels.drange(func(name string, model *Model) bool {
 			// Copy the UF2 files for the model (all targets)
 			for _, t := range tpkg.TinyGoTargets(model.Config.Targets) {
 				binFiles = append(binFiles, "-C", ".", "./bin/"+name+"-"+t+".uf2")
 			}
-		}
+			return true
+		})
 	}
 
 	// Create a gzipped tar ball with everything inside need to

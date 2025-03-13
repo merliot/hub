@@ -85,12 +85,13 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 		child.unSet(flagGhost)
 	}
 
-	m, ok := s.models[model]
-	if !ok {
+	m, exists := s.models.get(model)
+	if !exists {
 		return fmt.Errorf("Unknown model")
 	}
 
-	if err := child.build(m, s.defaultDeviceFlags()); err != nil {
+	child.model = m
+	if err := child.build(s.defaultDeviceFlags()); err != nil {
 		return err
 	}
 

@@ -101,18 +101,17 @@ func (s *server) modelInstall(d *device) {
 }
 
 func (s *server) installModels() {
-	for name := range s.models {
-		model := s.models[name]
+	s.models.drange(func(name string, model *Model) bool {
 		proto := &device{
 			Model: name,
 			model: model,
 		}
-		proto.build(model, s.defaultDeviceFlags())
+		proto.build(s.defaultDeviceFlags())
 		proto.installAPI()
 		s.modelInstall(proto)
 		model.Config = proto.GetConfig()
-		s.models[name] = model
-	}
+		return true
+	})
 }
 
 func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
@@ -354,7 +353,7 @@ func (s *server) showNewModal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
-		"models": s.childModels(d),
+		"models": s.childModels(d).unload(),
 		"newid":  generateRandomId(),
 	})
 	if err != nil {

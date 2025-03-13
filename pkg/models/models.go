@@ -16,17 +16,17 @@ import (
 	"github.com/merliot/hub/pkg/device"
 )
 
-var AllModels = device.ModelMap{
-	"camera":  Camera,
-	"gadget":  Gadget,
-	"gps":     Gps,
-	"hub":     Hub,
-	"locker":  Locker,
-	"prostar": Prostar,
-	"qrcode":  Qrcode,
-	"relays":  Relays,
-	"temp":    Temp,
-	"timer":   Timer,
+var AllModels = device.Models{
+	"camera":  &Camera,
+	"gadget":  &Gadget,
+	"gps":     &Gps,
+	"hub":     &Hub,
+	"locker":  &Locker,
+	"prostar": &Prostar,
+	"qrcode":  &Qrcode,
+	"relays":  &Relays,
+	"temp":    &Temp,
+	"timer":   &Timer,
 }
 var Camera = device.Model{
 	Package: "github.com/merliot/hub/devices/camera",

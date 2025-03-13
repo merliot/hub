@@ -28,7 +28,7 @@ type server struct {
 	sessions       sessionMap     // key: session id, value: *session
 	uplinks        uplinkMap      // key: linker
 	downlinks      downlinkMap    // key: device id, value: linker
-	models         ModelMap       // key: model name
+	models         modelMap       // key: model name, value: *model
 	packetHandlers PacketHandlers // key: path, value: handler
 	root           *device
 	mux            *http.ServeMux
@@ -45,14 +45,15 @@ var rlConfig = ratelimit.Config{
 }
 
 // NewServer returns a device server listening on addr
-func NewServer(addr string, models ModelMap) *server {
+func NewServer(addr string, models Models) *server {
 	s := server{
 		sessions:       newSessions(),
-		models:         models,
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
 		server:         &http.Server{Addr: addr},
 	}
+
+	s.models.load(models)
 
 	s.wsxPingPeriod, _ = strconv.Atoi(Getenv("PING_PERIOD", "2"))
 	if s.wsxPingPeriod < 2 {
@@ -88,11 +89,12 @@ func (s *server) buildDevice(id string, d *device) error {
 	if err := validateId(id); err != nil {
 		return err
 	}
-	model, ok := s.models[d.Model]
-	if !ok {
+	model, exists := s.models.get(d.Model)
+	if !exists {
 		return fmt.Errorf("Model '%s' not registered", d.Model)
 	}
-	return d.build(model, s.defaultDeviceFlags())
+	d.model = model
+	return d.build(s.defaultDeviceFlags())
 }
 
 func (s *server) buildDevices() {
