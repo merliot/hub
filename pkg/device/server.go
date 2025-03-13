@@ -167,7 +167,7 @@ func (s *server) Run() {
 	s.dialParents(urls, user, passwd)
 
 	// If Server.Addr empty, don't run as a web server
-	if s.server.Addr == "" {
+	if s.server.Addr == "" || s.server.Addr == ":" {
 		s.root.run()
 		LogInfo("Bye, Bye", "root", s.root.Name)
 		return

@@ -29,9 +29,9 @@ import (
 {{- end }}
 )
 
-var AllModels = device.ModelMap{
+var AllModels = device.Models{
 {{- range $key, $value := . }}
-	"{{$key}}": {{title $key}},
+	"{{$key}}": &{{title $key}},
 {{- end }}
 }
 

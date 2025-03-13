@@ -22,8 +22,6 @@ func main() {
 
 	switch os.Args[1] {
 	case "base":
-		device.Models = models.AllModels
-
 		dir := "../../bin/"
 		if len(os.Args) > 2 {
 			dir = os.Args[2]
@@ -39,7 +37,8 @@ func main() {
 			target = os.Args[4]
 		}
 
-		if err := device.Uf2GenerateBaseImages(dir, model, target); err != nil {
+		server := device.NewServer("", models.AllModels)
+		if err := server.Uf2GenerateBaseImages(dir, model, target); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
