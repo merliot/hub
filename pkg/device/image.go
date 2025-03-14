@@ -18,8 +18,6 @@ import (
 	tpkg "github.com/merliot/hub/pkg/target"
 )
 
-var keepBuilds = false
-
 func setContentMd5(w http.ResponseWriter, fileName string) error {
 
 	// Calculate MD5 checksum
@@ -263,7 +261,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 
-	if keepBuilds {
+	if s.isSet(flagDebugKeepBuilds) {
 		LogDebug("Temporary build", "dir", dir)
 	} else {
 		defer os.RemoveAll(dir)

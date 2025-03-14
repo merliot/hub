@@ -14,7 +14,7 @@ import (
 	"github.com/merliot/hub/pkg/uf2"
 )
 
-func (d *device) generateUf2(dir, target string) error {
+func (s *server) generateUf2(d *device, dir, target string) error {
 
 	// Create temp build directory
 	temp, err := os.MkdirTemp("./", d.Model+"-")
@@ -22,7 +22,7 @@ func (d *device) generateUf2(dir, target string) error {
 		return err
 	}
 
-	if keepBuilds {
+	if s.isSet(flagDebugKeepBuilds) {
 		LogInfo("Temporary build", "dir", temp)
 	} else {
 		defer os.RemoveAll(temp)
@@ -60,7 +60,7 @@ func (s *server) Uf2GenerateBaseImages(dir, modelName, targetName string) (err e
 			proto.build(0)
 			for _, target := range target.TinyGoTargets(proto.Targets) {
 				if target == targetName || targetName == "" {
-					if err = proto.generateUf2(dir, target); err != nil {
+					if err = s.generateUf2(proto, dir, target); err != nil {
 						return false
 					}
 				}

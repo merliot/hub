@@ -21,6 +21,7 @@ const (
 	flagRunningSite                       // Running in SITE mode
 	flagSaveToClipboard                   // Save changes to clipboard
 	flagDirty                             // Server has unsaved changes
+	flagDebugKeepBuilds                   // Don't delete temp build directory
 )
 
 type server struct {
@@ -66,6 +67,18 @@ func NewServer(addr string, models Models) *server {
 
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(basicAuth(s.mux))
+
+	if Getenv("DEBUG_KEEP_BUILDS", "") == "true" {
+		s.set(flagDebugKeepBuilds)
+	}
+
+	if Getenv("SITE", "") == "true" {
+		s.set(flagRunningSite)
+	}
+
+	if (Getenv("DEMO", "") == "true") || s.isSet(flagRunningSite) {
+		s.set(flagRunningDemo)
+	}
 
 	return &s
 }
@@ -115,15 +128,6 @@ func (s *server) buildTree() (err error) {
 func (s *server) Run() {
 
 	logLevel = Getenv("LOG_LEVEL", "INFO")
-	keepBuilds = Getenv("DEBUG_KEEP_BUILDS", "") == "true"
-
-	if Getenv("SITE", "") == "true" {
-		s.set(flagRunningSite)
-	}
-
-	if (Getenv("DEMO", "") == "true") || s.isSet(flagRunningSite) {
-		s.set(flagRunningDemo)
-	}
 
 	logBuildInfo()
 

@@ -67,7 +67,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	link.setPongHandler()
 	link.startPing()
 
-	pkt.SetPath("/announce").Marshal(s.devices.getJSON())
+	pkt.SetDst(s.root.Id).SetPath("/announce").Marshal(s.devices.getJSON())
 
 	// Send announcement
 	LogInfo("<- Sending", "pkt", pkt)
