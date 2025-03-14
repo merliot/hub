@@ -11,7 +11,6 @@ import (
 
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -143,9 +142,13 @@ func TestRoot(t *testing.T) {
 	resp.Body.Close()
 
 	sessionId = resp.Header.Get("session-id")
-	assert.NotEmpty(t, sessionId)
+	if sessionId == "" {
+		t.Fatalf("No session ID returned")
+	}
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestAPIDevices(t *testing.T) {
@@ -156,7 +159,9 @@ func TestAPIDevices(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -165,7 +170,9 @@ func TestAPIDevices(t *testing.T) {
 
 	html := string(body)
 
-	assert.Equal(t, html, devices, "Comparing devices")
+	if html != devices {
+		t.Fatalf("/devices response not valid")
+	}
 }
 
 func TestShowViews(t *testing.T) {
@@ -183,7 +190,9 @@ func TestShowViews(t *testing.T) {
 			if err != nil {
 				t.Fatalf("API failed: %v", err)
 			}
-			assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+			if http.StatusOK != resp.StatusCode {
+				t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+			}
 			resp.Body.Close()
 			// Sleep a bit to avoid hitting rate limiter
 			time.Sleep(100 * time.Millisecond)
@@ -198,7 +207,9 @@ func TestAPICreate(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestAPIDownloadRpi(t *testing.T) {
@@ -212,7 +223,9 @@ func TestAPIDownloadRpi(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestAPIDownloadX86(t *testing.T) {
@@ -226,7 +239,9 @@ func TestAPIDownloadX86(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestAPIDownloadNano(t *testing.T) {
@@ -240,7 +255,9 @@ func TestAPIDownloadNano(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestAPIDestroy(t *testing.T) {
@@ -250,7 +267,9 @@ func TestAPIDestroy(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestCamera(t *testing.T) {
@@ -262,7 +281,9 @@ func TestCamera(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 }
 
 func TestGadget(t *testing.T) {
@@ -270,7 +291,9 @@ func TestGadget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 	resp.Body.Close()
 
 	time.Sleep(2 * time.Second)
@@ -281,14 +304,18 @@ func TestQRCode(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 	resp.Body.Close()
 
 	resp, err = api("GET", "http://localhost:8000/device/qrcode1/edit-content?id=qrcode1")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 	resp.Body.Close()
 }
 
@@ -297,13 +324,17 @@ func TestRelays(t *testing.T) {
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 	resp.Body.Close()
 
 	resp, err = api("POST", "http://localhost:8000/device/relays1/clicked?Relay=1&State=true")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode, "HTTP Status Code")
+	if http.StatusOK != resp.StatusCode {
+		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+	}
 	resp.Body.Close()
 }

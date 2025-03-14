@@ -38,9 +38,8 @@ type server struct {
 }
 
 var rlConfig = ratelimit.Config{
-	RateLimitWindow: 100 * time.Millisecond,
-	MaxRequests:     30,
-	BurstSize:       30,
+	FillInterval:    100 * time.Millisecond,
+	Capacity:        30,
 	CleanupInterval: 1 * time.Minute,
 }
 

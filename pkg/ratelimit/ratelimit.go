@@ -6,29 +6,21 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/juju/ratelimit"
 )
 
 // Configuration
 type Config struct {
-	// The time window within which the rate limit is enforced. It's how
-	// often the "bucket" refills.
-	RateLimitWindow time.Duration
-	// The maximum number of requests allowed within the RateLimitWindow.
-	MaxRequests int
-	// This allows for a small burst of requests that exceed the average
-	// rate limit. It defines the maximum number of requests that can be
-	// made immediately even if the bucket is not full. Think of it as the
-	// bucket's capacity.
-	BurstSize int
+	// Time between adding each token to a bucket
+	FillInterval time.Duration
+	// Maximum number of tokens in a bucket
+	Capacity int64
 	// This determines how often the rate limiter cleans up expired entries
 	// (rate limiters for IP addresses that haven't been seen for a while).
 	CleanupInterval time.Duration
 }
 
 type client struct {
-	bucket   *ratelimit.Bucket
+	*bucket
 	lastSeen time.Time
 }
 
@@ -54,15 +46,14 @@ func (rl *RateLimiter) RateLimit(next http.Handler) http.Handler {
 		c, ok := rl.Load(ip)
 		if !ok {
 			c = &client{
-				bucket: ratelimit.NewBucket(rl.RateLimitWindow,
-					int64(rl.BurstSize)),
+				bucket:   newBucket(rl.FillInterval, rl.Capacity),
 				lastSeen: time.Now(),
 			}
 			rl.Store(ip, c)
 		}
 		client := c.(*client)
 
-		if client.bucket.TakeAvailable(1) == 0 {
+		if client.bucket.take(1) == 0 {
 			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 			return
 		}
@@ -77,7 +68,7 @@ func (rl *RateLimiter) Stats() map[string]int64 {
 	rl.Range(func(key, value any) bool {
 		ip := key.(string)
 		client := value.(*client)
-		stats[ip] = client.bucket.Available()
+		stats[ip] = client.bucket.avail()
 		return true
 	})
 	return stats
