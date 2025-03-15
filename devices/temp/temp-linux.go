@@ -5,7 +5,6 @@ package temp
 import (
 	"embed"
 	"fmt"
-	"html/template"
 	"strings"
 
 	"github.com/merliot/hub/pkg/device"
@@ -27,7 +26,7 @@ func (t *temp) GetConfig() device.Config {
 		PacketHandlers: device.PacketHandlers{
 			"/update": &device.PacketHandler[msgUpdate]{t.update},
 		},
-		FuncMap: template.FuncMap{
+		FuncMap: device.FuncMap{
 			"tempf":  t.tempf,
 			"humf":   t.humf,
 			"points": t.points,

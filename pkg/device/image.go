@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"net/url"
@@ -302,7 +301,7 @@ func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error
 }
 
 type msgDownloaded struct {
-	DeployParams template.URL
+	DeployParams string
 }
 
 func (s *server) handleDownloaded(pkt *Packet) {

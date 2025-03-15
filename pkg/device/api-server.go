@@ -169,6 +169,27 @@ func (s *server) showStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
+	var pkt = &Packet{
+		Path:      r.URL.Path,
+		SessionId: r.Header.Get("session-id"),
+		server:    s,
+	}
+	if _, ok := v.(*NoMsg); ok {
+		return pkt, nil
+	}
+	r.ParseForm()
+	err := decode(v, r.Form)
+	if err != nil {
+		return nil, err
+	}
+	pkt.Msg, err = json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return pkt, nil
+}
+
 func (s *server) save() error {
 	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
 

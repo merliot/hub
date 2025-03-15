@@ -2,7 +2,6 @@ package device
 
 import (
 	"embed"
-	"html/template"
 	"time"
 )
 
@@ -32,5 +31,5 @@ type Config struct {
 	// Custom device APIs
 	APIs
 	// Custom device funcs
-	template.FuncMap
+	FuncMap
 }

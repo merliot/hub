@@ -2,7 +2,6 @@ package device
 
 import (
 	"fmt"
-	"html/template"
 	"math"
 	"net/url"
 	"time"
@@ -29,7 +28,7 @@ type device struct {
 	Model        string
 	Name         string
 	Children     []string
-	DeployParams template.URL
+	DeployParams string
 	Config       `json:"-"`
 	Devicer      `json:"-"`
 	model        *Model
@@ -138,13 +137,13 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	if template.URL(proposedParams) == d.DeployParams {
+	if proposedParams == d.DeployParams {
 		// No change
 		return false, nil
 	}
 
 	// Save changes.  Store DeployParams unescaped.
-	d.DeployParams = template.URL(proposedParams)
+	d.DeployParams = proposedParams
 	return true, nil
 }
 

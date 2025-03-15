@@ -49,14 +49,15 @@ func (d *device) buildOS() error {
 
 	// Merge base funcs with device funcs to make one FuncMap
 	if d.FuncMap == nil {
-		d.FuncMap = template.FuncMap{}
+		d.FuncMap = make(FuncMap)
 	}
 	for k, v := range d.baseFuncs() {
 		d.FuncMap[k] = v
 	}
 
-	// Build the device templates using combined funcs
-	d.templates, err = d.layeredFS.parseFS("template/*.tmpl", d.FuncMap)
+	// Build the device templates
+	d.templates, err = d.layeredFS.parseFS("template/*.tmpl",
+		template.FuncMap(d.FuncMap))
 
 	return err
 }

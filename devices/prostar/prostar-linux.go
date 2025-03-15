@@ -4,7 +4,6 @@ package prostar
 
 import (
 	"embed"
-	"text/template"
 
 	"github.com/merliot/hub/pkg/device"
 )
@@ -31,7 +30,7 @@ func (p *prostar) GetConfig() device.Config {
 			"/update-array":      &device.PacketHandler[Array]{p.save},
 			"/update-daily":      &device.PacketHandler[Daily]{p.save},
 		},
-		FuncMap: template.FuncMap{
+		FuncMap: device.FuncMap{
 			"chargeState": p.chargeState,
 			"loadState":   p.loadState,
 		},

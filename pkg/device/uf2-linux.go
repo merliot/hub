@@ -30,7 +30,7 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 
 	var runnerFile = "runner.go"
 	if err := d.genFile(temp, "device-runner-tinygo.tmpl", runnerFile, map[string]any{
-		"model": d.model,
+		"package": d.model.Package,
 	}); err != nil {
 		return err
 	}

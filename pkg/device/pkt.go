@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 )
 
 const maxLength = 100 // Max length of packet string
@@ -30,27 +29,6 @@ type Packet struct {
 
 func (s *server) newPacket() *Packet {
 	return &Packet{server: s}
-}
-
-func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
-	var pkt = &Packet{
-		Path:      r.URL.Path,
-		SessionId: r.Header.Get("session-id"),
-		server:    s,
-	}
-	if _, ok := v.(*NoMsg); ok {
-		return pkt, nil
-	}
-	r.ParseForm()
-	err := decode(v, r.Form)
-	if err != nil {
-		return nil, err
-	}
-	pkt.Msg, err = json.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	return pkt, nil
 }
 
 // String returns packet as string in format "[dst id/path] msg"

@@ -1,9 +1,5 @@
 package device
 
-import (
-	"html/template"
-)
-
 // Random string to embed in UF2 we can search for later to locate params
 const uf2Magic = "Call the Doctor!  Miss you Dan."
 
@@ -13,7 +9,7 @@ type uf2Params struct {
 	Id           string
 	Model        string
 	Name         string
-	DeployParams template.URL
+	DeployParams string
 	User         string
 	Passwd       string
 	DialURLs     string
