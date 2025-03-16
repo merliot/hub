@@ -42,6 +42,10 @@ type device struct {
 	deviceOS
 }
 
+func deviceNotFound(id string) error {
+	return fmt.Errorf("Device '%s' not found", id)
+}
+
 func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
 }
@@ -145,14 +149,4 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 	// Save changes.  Store DeployParams unescaped.
 	d.DeployParams = proposedParams
 	return true, nil
-}
-
-func validateIds(id, name string) error {
-	if err := validateId(id); err != nil {
-		return err
-	}
-	if err := validateName(name); err != nil {
-		return err
-	}
-	return nil
 }

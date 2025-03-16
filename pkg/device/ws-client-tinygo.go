@@ -37,7 +37,7 @@ func newConfig(wsUrl *url.URL, user, passwd string) (*websocket.Config, error) {
 	return config, nil
 }
 
-func wsDial(url *url.URL, user, passwd string) {
+func (s *server) wsDial(url *url.URL, user, passwd string) {
 	cfg, err := newConfig(url, user, passwd)
 	if err != nil {
 		LogError("Configuring websocket", "err", err)
@@ -49,7 +49,7 @@ func wsDial(url *url.URL, user, passwd string) {
 		conn, err := websocket.DialConfig(cfg)
 		if err == nil {
 			// Service the client websocket
-			wsClient(conn)
+			s.wsClient(conn)
 		} else {
 			LogError("Dialing", "url", url, "err", err)
 		}
@@ -59,18 +59,19 @@ func wsDial(url *url.URL, user, passwd string) {
 	}
 }
 
-func wsClient(conn *websocket.Conn) {
+func (s *server) wsClient(conn *websocket.Conn) {
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
 	var pkt = &Packet{
-		Dst:  root.Id,
+		Dst:  s.root.Id,
 		Path: "/announce",
 	}
 
-	devicesMu.RLock()
-	pkt.Marshal(aliveDevices())
-	devicesMu.RUnlock()
+	devices := make(map[string]*device)
+	devices[s.root.Id] = s.root
+
+	pkt.Marshal(devices)
 
 	// Send announcement
 	LogInfo("<- Sending", "pkt", pkt)
@@ -94,10 +95,10 @@ func wsClient(conn *websocket.Conn) {
 	}
 
 	LogInfo("Adding Uplink")
-	uplinksAdd(link)
+	s.uplinks.add(link)
 
-	// Send /online packet to all online devices
-	devicesOnline(link)
+	// Send /online packet for all online devices
+	s.devicesOnline(link)
 
 	// Route incoming packets down to the destination device.  Stop and
 	// disconnect on EOF.
@@ -110,9 +111,9 @@ func wsClient(conn *websocket.Conn) {
 			break
 		}
 		LogDebug("-> Route packet DOWN", "pkt", pkt)
-		downlinksRoute(pkt)
+		s.routeDown(pkt)
 	}
 
 	LogInfo("Removing Uplink")
-	uplinksRemove(link)
+	s.uplinks.remove(link)
 }

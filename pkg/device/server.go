@@ -83,6 +83,31 @@ func NewServer(addr string, models Models) *server {
 	return &s
 }
 
+func (s *server) newPacket() *Packet {
+	return &Packet{server: s}
+}
+
+// routeDown routes the packet down to a downlink.  Which downlink is
+// determined by a lookup in the routing table for the "next-hop" downlink, the
+// downlink which is towards the destination.
+func (s *server) routeDown(pkt *Packet) error {
+	LogDebug("routeDown", "pkt", pkt)
+
+	d, ok := s.devices.get(pkt.Dst)
+	if !ok {
+		return deviceNotFound(pkt.Dst)
+	}
+
+	nexthop := d.nexthop
+	if nexthop.isSet(flagMetal) {
+		nexthop.handle(pkt)
+	} else {
+		s.downlinks.route(nexthop.Id, pkt)
+	}
+
+	return nil
+}
+
 func (s *server) defaultDeviceFlags() flags {
 	var flags flags
 	if s.isSet(flagRunningSite) {

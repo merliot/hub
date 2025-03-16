@@ -3,7 +3,6 @@ package device
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 )
 
 const maxLength = 100 // Max length of packet string
@@ -25,10 +24,6 @@ type Packet struct {
 	Msg json.RawMessage
 	// Stash server pointer
 	*server
-}
-
-func (s *server) newPacket() *Packet {
-	return &Packet{server: s}
 }
 
 // String returns packet as string in format "[dst id/path] msg"
@@ -91,27 +86,6 @@ func (p *Packet) SetPath(path string) *Packet {
 func (p *Packet) ClearMsg() *Packet {
 	p.Msg, _ = json.Marshal(map[string]interface{}{})
 	return p
-}
-
-// routeDown routes the packet down to a downlink.  Which downlink is
-// determined by a lookup in the routing table for the "next-hop" downlink, the
-// downlink which is towards the destination.
-func (s *server) routeDown(pkt *Packet) error {
-	LogDebug("routeDown", "pkt", pkt)
-
-	d, ok := s.devices.get(pkt.Dst)
-	if !ok {
-		return deviceNotFound(pkt.Dst)
-	}
-
-	nexthop := d.nexthop
-	if nexthop.isSet(flagMetal) {
-		nexthop.handle(pkt)
-	} else {
-		s.downlinks.route(nexthop.Id, pkt)
-	}
-
-	return nil
 }
 
 func (p *Packet) handle() error {
@@ -205,20 +179,4 @@ func (p *Packet) BroadcastUp() {
 
 func BroadcastUp(p *Packet) {
 	p.BroadcastUp()
-}
-
-func (p *Packet) render(w io.Writer, sessionId string) error {
-	//LogDebug("Packet.render", "sessionId", sessionId, "pkt", p)
-
-	s := p.server
-	if s == nil {
-		return fmt.Errorf("Packet.server not set")
-	}
-
-	d, exists := s.devices.get(p.Dst)
-	if !exists {
-		return fmt.Errorf("Invalid destination device id '%s'", p.Dst)
-	}
-
-	return d.renderPkt(w, sessionId, p)
 }

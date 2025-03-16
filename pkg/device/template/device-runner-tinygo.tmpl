@@ -8,5 +8,6 @@ import (
 )
 
 func main() {
-	device.Run({{model}}.NewModel)
+	server := device.NewServer({{model}}.NewModel)
+	server.Run()
 }

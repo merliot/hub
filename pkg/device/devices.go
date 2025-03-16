@@ -1,3 +1,5 @@
+//go:build !tinygo
+
 package device
 
 import (
@@ -231,10 +233,6 @@ func (dm *deviceMap) getRoutes() routesJSON {
 		return true
 	})
 	return routes
-}
-
-func deviceNotFound(id string) error {
-	return fmt.Errorf("Device '%s' not found", id)
 }
 
 func (dm *deviceMap) sortedId() []string {

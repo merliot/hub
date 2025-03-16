@@ -4,27 +4,15 @@ package device
 
 import "machine"
 
+type Maker func() Devicer
+type Model struct{ Maker }
+type APIs map[string]any
+type deviceMap struct{}
 type deviceOS struct{}
 
-type APIs struct{}
+func (d *device) buildOS() error { return nil }
 
-func (d *device) _buildOS() error { return nil }
-
-func devicesOnline(l linker) {
-	var pkt = &Packet{
-		Dst:  root.Id,
-		Path: "/online",
-	}
-	root.RLock()
-	pkt.Marshal(root.State)
-	root.RUnlock()
-	LogInfo("Sending", "pkt", pkt)
-	l.Send(pkt)
-}
-
-func deviceRouteDown(id string, pkt *Packet) {
-	root.handle(pkt)
-}
+func (dm *deviceMap) get(id string) (*device, bool) { return nil, false }
 
 func (d *device) handleReboot(pkt *Packet) {
 	machine.CPUReset()

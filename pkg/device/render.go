@@ -61,6 +61,22 @@ func (d *device) renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 	return d.render(w, sessionId, pkt.Path, view, level, data)
 }
 
+func (p *Packet) render(w io.Writer, sessionId string) error {
+	//LogDebug("Packet.render", "sessionId", sessionId, "pkt", p)
+
+	s := p.server
+	if s == nil {
+		return fmt.Errorf("Packet.server not set")
+	}
+
+	d, exists := s.devices.get(p.Dst)
+	if !exists {
+		return fmt.Errorf("Invalid destination device id '%s'", p.Dst)
+	}
+
+	return d.renderPkt(w, sessionId, p)
+}
+
 func (d *device) renderTemplate(name string, data any) (template.HTML, error) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, name, data); err != nil {

@@ -2,4 +2,10 @@
 
 package device
 
-func sessionsRoute(pkt *Packet) { /* SESSIONS ROUTE NOT IMPLEMENTED */ }
+import "errors"
+
+type sessionMap struct{}
+
+func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
+	return errors.New("Sessions.routeAll not implemented")
+}

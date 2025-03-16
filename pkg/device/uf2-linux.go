@@ -39,7 +39,7 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	uf2Name := d.Model + "-" + target + ".uf2"
 	output := filepath.Join(dir, uf2Name)
 	input := filepath.Join(temp, runnerFile)
-	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "short", input)
+	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "full", input)
 	LogInfo(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {

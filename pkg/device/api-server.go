@@ -202,6 +202,16 @@ func (s *server) save() error {
 	return nil
 }
 
+func validateIds(id, name string) error {
+	if err := validateId(id); err != nil {
+		return err
+	}
+	if err := validateName(name); err != nil {
+		return err
+	}
+	return nil
+}
+
 type msgCreated struct {
 	ParentId string
 	Child    struct {

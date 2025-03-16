@@ -10,11 +10,31 @@ import (
 	"github.com/merliot/hub/pkg/tinynet"
 )
 
+type server struct {
+	maker          Maker
+	devices        deviceMap
+	uplinks        uplinkMap
+	sessions       sessionMap
+	packetHandlers PacketHandlers
+	root           *device
+}
+
 var paramsMem = []byte("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
-var root *device
+func NewServer(maker Maker) *server {
+	return &server{maker: maker}
+}
 
-func Run(maker Maker) {
+func (s *server) devicesOnline(l linker) {
+
+	var pkt = &Packet{}
+	pkt.SetDst(s.root.Id).SetPath("/online").Marshal(s.root.State)
+
+	LogInfo("Sending", "pkt", pkt)
+	l.Send(pkt)
+}
+
+func (s *server) Run() {
 	var params uf2ParamsBlock
 
 	// wait a bit for serial
@@ -33,42 +53,47 @@ func Run(maker Maker) {
 
 	tinynet.NetConnect(params.Ssid, params.Passphrase)
 
-	root = &device{
+	s.root = &device{
 		Id:           params.Id,
 		Model:        params.Model,
 		Name:         params.Name,
 		DeployParams: params.DeployParams,
+		model:        &Model{Maker: s.maker},
 	}
 
-	if err := root._build(maker); err != nil {
+	if err := s.root.build(0); err != nil {
 		panic(err)
 	}
 
-	root.set(flagOnline | flagMetal)
+	s.root.set(flagOnline | flagMetal)
 
-	if err := root.Setup(); err != nil {
+	if err := s.root.Setup(); err != nil {
 		panic(err)
 	}
 
-	devices[root.Id] = root
-
-	dialParents(params.DialURLs, params.User, params.Passwd)
+	s.dialParents(params.DialURLs, params.User, params.Passwd)
 
 	// Poll right away and then on ticker
-	var pkt = &Packet{Dst: root.Id}
-	root.stateMu.Lock()
-	root.Poll(pkt)
-	root.stateMu.Unlock()
+	var pkt = &Packet{Dst: s.root.Id}
+	s.root.stateMu.Lock()
+	s.root.Poll(pkt)
+	s.root.stateMu.Unlock()
 
-	ticker := time.NewTicker(root.PollPeriod)
+	ticker := time.NewTicker(s.root.PollPeriod)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			root.stateMu.Lock()
-			root.Poll(pkt)
-			root.stateMu.Unlock()
+			s.root.stateMu.Lock()
+			s.root.Poll(pkt)
+			s.root.stateMu.Unlock()
 		}
 	}
+}
+
+func (s *server) routeDown(pkt *Packet) error {
+	LogDebug("routeDown", "pkt", pkt)
+	s.root.handle(pkt)
+	return nil
 }
