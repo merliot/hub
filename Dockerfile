@@ -1,13 +1,16 @@
 # syntax=docker/dockerfile:1
 
-FROM merliot/base:v0.0.6
+# Debian GNU/Linux 12 (bookworm)
+FROM golang:1.24.1
+
+RUN wget https://github.com/tinygo-org/tinygo/releases/download/v0.36.0/tinygo_0.36.0_amd64.deb
+RUN dpkg -i tinygo_0.36.0_amd64.deb
+
+RUN apt-get update
+RUN apt-get install vim tree bc ffmpeg -y
 
 WORKDIR /app
 COPY . .
-
-# Print Go and TinyGo versions
-RUN go version
-RUN tinygo version
 
 # Generate UF2 base images and build the hub
 RUN go generate ./...
