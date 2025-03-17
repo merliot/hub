@@ -13,7 +13,7 @@ type gadget struct {
 }
 
 func NewModel() device.Devicer {
-	return &gadget{}
+	return &gadget{FullCount: 99}
 }
 
 func (g *gadget) Setup() error {
