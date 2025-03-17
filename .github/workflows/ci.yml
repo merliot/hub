@@ -43,13 +43,14 @@ jobs:
         run: |
           go test -v -coverpkg=./... -coverprofile=coverage.out ./cmd
 
-      # (Optional) Display coverage
+      # Display coverage in logs
       - name: Show Coverage
         run: go tool cover -func=coverage.out
 
-      # (Optional) Upload coverage file as an artifact
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+      # Upload coverage to Codecov
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          name: coverage-report
-          path: coverage.out
+          files: ./coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true  # Fail the CI if upload fails (optional)
