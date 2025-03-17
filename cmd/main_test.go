@@ -14,8 +14,10 @@ import (
 )
 
 var (
-	user   = "TEST"
-	passwd = "TESTTEST"
+	user     = "TEST"
+	passwd   = "TESTTEST"
+	demoAddr = "localhost:8020"
+	siteAddr = "localhost:8021"
 )
 
 var devices = `{
@@ -95,23 +97,21 @@ var devices = `{
 
 func TestMain(m *testing.M) {
 
-	device.Models = models.AllModels
-
 	device.Setenv("DEVICES", devices)
 	device.Setenv("USER", user)
 	device.Setenv("PASSWD", passwd)
 	device.Setenv("LOG_LEVEL", "DEBUG")
 	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
 
-	// Run hub on :8000 in demo mode
-	device.Setenv("PORT", "8000")
+	// Run hub in demo mode
 	device.Setenv("DEMO", "true")
-	go device.Run()
+	demo := device.NewServer(demoAddr, models.AllModels)
+	go demo.Run()
 
-	// Run site on :8001
-	device.Setenv("PORT", "8001")
+	// Run hub in site mode
 	device.Setenv("SITE", "true")
-	go device.Run()
+	site := device.NewServer(siteAddr, models.AllModels)
+	go site.Run()
 
 	time.Sleep(time.Second)
 
@@ -135,7 +135,7 @@ func api(method, url string) (*http.Response, error) {
 
 func TestRoot(t *testing.T) {
 
-	resp, err := api("GET", "http://localhost:8000/")
+	resp, err := api("GET", "http://"+demoAddr+"/")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -153,7 +153,7 @@ func TestRoot(t *testing.T) {
 
 func TestAPIDevices(t *testing.T) {
 
-	resp, err := api("GET", "http://localhost:8000/devices")
+	resp, err := api("GET", "http://"+demoAddr+"/devices")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -180,12 +180,12 @@ func TestShowViews(t *testing.T) {
 	devs := make(map[string]any)
 	err := json.Unmarshal([]byte(devices), &devs)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 
 	for dev, _ := range devs {
 		for _, view := range views {
-			url := fmt.Sprintf("http://localhost:8000/device/%s/show-view?view=%s", dev, view)
+			url := fmt.Sprintf("http://%s/device/%s/show-view?view=%s", demoAddr, dev, view)
 			resp, err := api("GET", url)
 			if err != nil {
 				t.Fatalf("API failed: %v", err)
@@ -201,7 +201,7 @@ func TestShowViews(t *testing.T) {
 }
 
 func TestAPICreate(t *testing.T) {
-	resp, err := api("POST", "http://localhost:8000/create?Id=relaytest&Model=relays&Name=test")
+	resp, err := api("POST", "http://"+demoAddr+"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=test")
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -217,7 +217,7 @@ func TestAPIDownloadRpi(t *testing.T) {
 	os.Chdir("../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
 
-	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=rpi")
+	resp, err := api("GET", "http://"+demoAddr+"/download-image/relaytest?target=rpi")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -233,7 +233,7 @@ func TestAPIDownloadX86(t *testing.T) {
 	os.Chdir("../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
 
-	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=x86-64")
+	resp, err := api("GET", "http://"+demoAddr+"/download-image/relaytest?target=x86-64")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -249,7 +249,7 @@ func TestAPIDownloadNano(t *testing.T) {
 	os.Chdir("../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
 
-	resp, err := api("GET", "http://localhost:8000/device/relaytest/download-image?target=nano-rp2040")
+	resp, err := api("GET", "http://"+demoAddr+"/download-image/relaytest?target=nano-rp2040")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -261,7 +261,7 @@ func TestAPIDownloadNano(t *testing.T) {
 }
 
 func TestAPIDestroy(t *testing.T) {
-	resp, err := api("DELETE", "http://localhost:8000/destroy?Id=relaytest")
+	resp, err := api("DELETE", "http://"+demoAddr+"/destroy?Id=relaytest")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -275,7 +275,7 @@ func TestAPIDestroy(t *testing.T) {
 func TestCamera(t *testing.T) {
 	time.Sleep(5 * time.Second)
 
-	resp, err := api("POST", "http://localhost:8000/device/camera1/get-image")
+	resp, err := api("POST", "http://"+demoAddr+"/device/camera1/get-image")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -287,7 +287,7 @@ func TestCamera(t *testing.T) {
 }
 
 func TestGadget(t *testing.T) {
-	resp, err := api("POST", "http://localhost:8000/device/gadget1/takeone")
+	resp, err := api("POST", "http://"+demoAddr+"/device/gadget1/takeone")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -300,7 +300,7 @@ func TestGadget(t *testing.T) {
 }
 
 func TestQRCode(t *testing.T) {
-	resp, err := api("POST", "http://localhost:8000/device/qrcode1/generate?Content=https://foo.com")
+	resp, err := api("POST", "http://"+demoAddr+"/device/qrcode1/generate?Content=https://foo.com")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -309,7 +309,7 @@ func TestQRCode(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	resp, err = api("GET", "http://localhost:8000/device/qrcode1/edit-content?id=qrcode1")
+	resp, err = api("GET", "http://"+demoAddr+"/device/qrcode1/edit-content?id=qrcode1")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -320,7 +320,7 @@ func TestQRCode(t *testing.T) {
 }
 
 func TestRelays(t *testing.T) {
-	resp, err := api("POST", "http://localhost:8000/device/relays1/click?Relay=0")
+	resp, err := api("POST", "http://"+demoAddr+"/device/relays1/click?Relay=0")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -329,7 +329,7 @@ func TestRelays(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	resp, err = api("POST", "http://localhost:8000/device/relays1/clicked?Relay=1&State=true")
+	resp, err = api("POST", "http://"+demoAddr+"/device/relays1/clicked?Relay=1&State=true")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}

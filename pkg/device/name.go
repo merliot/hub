@@ -31,8 +31,9 @@ func validateName(name string) error {
 			r != ' ' &&
 			r != '.' &&
 			r != '-' &&
+			r != '/' &&
 			r != '_' {
-			return errors.New("Name can only contain letters, numbers, spaces, dots, dashes, or underscores")
+			return errors.New("Name can only contain letters, numbers, spaces, dots, dashes, slashes, or underscores")
 		}
 	}
 
