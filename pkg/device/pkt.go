@@ -154,6 +154,7 @@ func (p *Packet) RouteUp() error {
 
 	s := p.server
 	if s == nil {
+		LogError("Packet.server not set")
 		return fmt.Errorf("Packet.server not set")
 	}
 
@@ -162,9 +163,10 @@ func (p *Packet) RouteUp() error {
 	err := s.sessions.routeAll(p)
 	if err != nil {
 		LogError("RouteUp", "err", err)
+		return fmt.Errorf("RouteUp error: %w", err)
 	}
 
-	return err
+	return nil
 }
 
 // RouteUp is a device packet handler that routes the packet up

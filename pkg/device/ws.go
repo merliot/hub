@@ -35,13 +35,12 @@ func (l *wsLink) Close() {
 }
 
 func (s *server) receive(l *wsLink) (*Packet, error) {
-	var pkt Packet
+	var pkt = s.newPacket()
 	if err := l.conn.ReadJSON(&pkt); err != nil {
 		l.done = true
 		return nil, fmt.Errorf("Websocket read error: %w", err)
 	}
-	pkt.server = s
-	return &pkt, nil
+	return pkt, nil
 }
 
 func (l *wsLink) setPongHandler() {

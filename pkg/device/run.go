@@ -6,7 +6,7 @@ import "time"
 
 func (d *device) runDemo() {
 
-	var pkt = &Packet{Dst: d.Id}
+	var pkt = d.newPacket()
 
 	// Poll right away, once, and then on ticker
 	d.stateMu.Lock()

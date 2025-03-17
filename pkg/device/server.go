@@ -84,7 +84,9 @@ func NewServer(addr string, models Models) *server {
 }
 
 func (s *server) newPacket() *Packet {
-	return &Packet{server: s}
+	return &Packet{
+		server: s,
+	}
 }
 
 // routeDown routes the packet down to a downlink.  Which downlink is
@@ -126,12 +128,39 @@ func (s *server) buildDevice(id string, d *device) error {
 	if err := validateId(id); err != nil {
 		return err
 	}
+	if err := validateName(d.Name); err != nil {
+		return err
+	}
 	model, exists := s.models.get(d.Model)
 	if !exists {
 		return fmt.Errorf("Model '%s' not registered", d.Model)
 	}
 	d.model = model
+	d.server = s
 	return d.build(s.defaultDeviceFlags())
+}
+
+func (s *server) newDevice(id, model, name string) (d *device, err error) {
+	if err = validateId(id); err != nil {
+		return
+	}
+	if err = validateName(name); err != nil {
+		return
+	}
+	m, exists := s.models.get(model)
+	if !exists {
+		return nil, fmt.Errorf("Model '%s' not registered", d.Model)
+	}
+
+	d = &device{
+		Id:     id,
+		Model:  model,
+		Name:   name,
+		model:  m,
+		server: s,
+	}
+
+	return
 }
 
 func (s *server) buildDevices() {

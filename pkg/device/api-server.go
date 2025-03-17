@@ -102,10 +102,7 @@ func (s *server) modelInstall(d *device) {
 
 func (s *server) installModels() {
 	s.models.drange(func(name string, model *Model) bool {
-		proto := &device{
-			Model: name,
-			model: model,
-		}
+		proto, _ := s.newDevice("proto", name, "proto")
 		proto.build(s.defaultDeviceFlags())
 		proto.installAPI()
 		s.modelInstall(proto)
@@ -170,11 +167,7 @@ func (s *server) showStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
-	var pkt = &Packet{
-		Path:      r.URL.Path,
-		SessionId: r.Header.Get("session-id"),
-		server:    s,
-	}
+	var pkt = s.newPacket().SetPath(r.URL.Path).SetSession(r.Header.Get("session-id"))
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
 	}

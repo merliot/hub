@@ -48,8 +48,8 @@ func (s *server) devicesOnline(l linker) {
 			return true
 		}
 
-		pkt := s.newPacket()
-		pkt.SetDst(id).SetPath("/online").Marshal(d.State)
+		pkt := d.newPacket()
+		pkt.SetPath("/online").Marshal(d.State)
 
 		LogInfo("Sending", "pkt", pkt)
 		l.Send(pkt)
@@ -62,12 +62,12 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	defer conn.Close()
 
 	var link = &wsLink{conn: conn}
-	var pkt = s.newPacket()
+	var pkt = s.root.newPacket()
 
 	link.setPongHandler()
 	link.startPing()
 
-	pkt.SetDst(s.root.Id).SetPath("/announce").Marshal(s.devices.getJSON())
+	pkt.SetPath("/announce").Marshal(s.devices.getJSON())
 
 	// Send announcement
 	LogInfo("<- Sending", "pkt", pkt)

@@ -26,7 +26,7 @@ func failSafe() {
 
 func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 
-	var pkt = &Packet{Dst: d.Id}
+	var pkt = d.newPacket()
 
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)

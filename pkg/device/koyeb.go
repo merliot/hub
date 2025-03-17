@@ -56,8 +56,7 @@ func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	// Send a /downloaded msg up so uplinks can update their DeployParams
 
 	msg := msgDownloaded{d.DeployParams}
-	pkt := Packet{Dst: d.Id, Path: "/downloaded"}
-	pkt.Marshal(&msg).RouteUp()
+	d.newPacket().SetPath("/downloaded").Marshal(&msg).RouteUp()
 
 	// Redirect the browser to Koyeb to deploy the device
 

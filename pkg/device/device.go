@@ -38,6 +38,7 @@ type device struct {
 	stopChan     chan struct{}
 	startup      time.Time
 	stateMu      mutex
+	*server
 	flags
 	deviceOS
 }
@@ -48,6 +49,12 @@ func deviceNotFound(id string) error {
 
 func (d *device) String() string {
 	return fmt.Sprintf("[%s:%s:%s]", d.Id, d.Model, d.Name)
+}
+
+func (d *device) newPacket() (pkt *Packet) {
+	pkt = d.server.newPacket()
+	pkt.Dst = d.Id
+	return
 }
 
 func (d *device) build(additionalFlags flags) error {

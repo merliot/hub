@@ -62,23 +62,26 @@ func (d *device) buildOS() error {
 	return err
 }
 
-func (s *server) addChild(parent *device, id, model, name string, flags flags) error {
+func (s *server) addChild(parent *device, id, model, name string, flags flags) (err error) {
 
 	var resurrect bool
 
 	if _, exists := parent.children.get(id); exists {
-		return fmt.Errorf("Device's children already includes child")
+		return fmt.Errorf("Device's children already includes child id %s", id)
 	}
 
 	child, exists := s.devices.get(id)
 	if exists {
 		if !child.isSet(flagGhost) {
-			return fmt.Errorf("Child device already exists")
+			return fmt.Errorf("Child device id %s already exists", id)
 		}
 		// Child exists, but it's a ghost: resurrect
 		resurrect = true
 	} else {
-		child = &device{Id: id, Model: model, Name: name}
+		child, err = s.newDevice(id, model, name)
+		if err != nil {
+			return
+		}
 	}
 
 	if resurrect {
@@ -88,12 +91,12 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 
 	m, exists := s.models.get(model)
 	if !exists {
-		return fmt.Errorf("Unknown model")
+		return fmt.Errorf("Model '%s' not registered", model)
 	}
 
 	child.model = m
-	if err := child.build(s.defaultDeviceFlags()); err != nil {
-		return err
+	if err = child.build(s.defaultDeviceFlags()); err != nil {
+		return
 	}
 
 	child.set(flags)
@@ -110,13 +113,13 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) e
 	}
 
 	if s.isSet(flagRunningDemo) {
-		if err := child.demoSetup(); err != nil {
-			return err
+		if err = child.demoSetup(); err != nil {
+			return
 		}
 		child.startDemo()
 	}
 
-	return nil
+	return
 }
 
 // ghost child and all children, recursively
@@ -179,8 +182,8 @@ func (d *device) familyTree() devicesJSON {
 func (s *server) deviceOffline(id string) {
 	if d, exists := s.devices.get(id); exists {
 		d.unSet(flagOnline)
-		pkt := s.newPacket()
-		pkt.SetDst(id).SetPath("/offline").BroadcastUp()
+		pkt := d.newPacket()
+		pkt.SetPath("/offline").BroadcastUp()
 	}
 }
 
