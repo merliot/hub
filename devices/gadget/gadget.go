@@ -13,11 +13,12 @@ type gadget struct {
 }
 
 func NewModel() device.Devicer {
-	return &gadget{Restock: 70}
+	return &gadget{}
 }
 
 func (g *gadget) Setup() error {
 	g.Bottles = g.FullCount
+	g.Restock = 70
 	return g.Led.Setup()
 }
 

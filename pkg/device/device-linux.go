@@ -278,12 +278,14 @@ func (d *device) demoReboot(pkt *Packet) {
 	pkt.SetPath("/offline").BroadcastUp()
 	time.Sleep(3 * time.Second)
 
-	pkt.server.buildDevice(d.Id, d)
-	d.installAPI()
-	d.demoSetup()
+	d.startup = time.Now()
+	d.formConfig(string(d.DeployParams))
+
+	d.DemoSetup()
 	d.startDemo()
 
 	// Come back online
+	d.set(flagOnline)
 	pkt.SetPath("/online").Marshal(d.State).BroadcastUp()
 }
 
