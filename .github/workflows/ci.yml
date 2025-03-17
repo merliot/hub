@@ -28,6 +28,12 @@ jobs:
         with:
           go-version: ${{ steps.go-version.outputs.version }}
 
+      # Install TinyGo
+      - name: Install TinyGo
+        run: |
+          wget https://github.com/tinygo-org/tinygo/releases/download/v0.36.0/tinygo_0.36.0_amd64.deb
+          sudo dpkg -i tinygo_0.36.0_amd64.deb
+
       # Run go generate to build required binaries
       - name: Generate Binaries
         run: go generate ./...
