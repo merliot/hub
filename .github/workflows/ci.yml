@@ -41,7 +41,7 @@ jobs:
       # Run integration tests with coverage
       - name: Run Integration Tests
         run: |
-          go test -v -coverpkg=./... -coverprofile=coverage.out ./cmd
+          go test -v -coverpkg=./... -coverprofile=coverage.txt ./cmd
 
       # Display coverage in logs
       - name: Show Coverage
@@ -49,8 +49,8 @@ jobs:
 
       # Upload coverage to Codecov
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
-          files: ./coverage.out
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: merliot/hub
           fail_ci_if_error: true  # Fail the CI if upload fails (optional)
