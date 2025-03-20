@@ -45,7 +45,7 @@ jobs:
 
       # Display coverage in logs
       - name: Show Coverage
-        run: go tool cover -func=coverage.out
+        run: go tool cover -func=coverage.txt
 
       # Upload coverage to Codecov
       - name: Upload Coverage to Codecov
@@ -53,4 +53,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: merliot/hub
-          fail_ci_if_error: true  # Fail the CI if upload fails (optional)
