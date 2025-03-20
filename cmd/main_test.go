@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -101,6 +102,8 @@ var devices = `{
 
 func TestMain(m *testing.M) {
 
+	var err error
+
 	device.Setenv("DEVICES", devices)
 	device.Setenv("USER", user)
 	device.Setenv("PASSWD", passwd)
@@ -114,7 +117,11 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second)
 
 	// Stash the session id
-	demoSessionId = getSession()
+	demoSessionId, err = getSession()
+	if err != nil {
+		fmt.Printf("Getting session failed: %s\n", err)
+		os.Exit(1)
+	}
 
 	// Run hub in site mode
 	device.Setenv("SITE", "true")
@@ -124,26 +131,27 @@ func TestMain(m *testing.M) {
 
 	m.Run()
 
-	os.RemoveAll("camera-images")
+	os.RemoveAll("../camera-images")
 }
 
-func getSession() string {
+var errNoMoreSessions = errors.New("no more sessions")
+
+func getSession() (string, error) {
+	// Little delay so we don't trip the ratelimiter
+	time.Sleep(100 * time.Millisecond)
 	resp, err := call("GET", "http://"+demoAddr+"/")
 	if err != nil {
-		fmt.Printf("API failed: %v\n", err)
-		os.Exit(1)
+		return "", fmt.Errorf("API failed: %v\n", err)
 	}
 	resp.Body.Close()
-	sessionId := resp.Header.Get("session-id")
-	if sessionId == "" {
-		fmt.Println("No session ID returned")
-		os.Exit(1)
+	if http.StatusTooManyRequests == resp.StatusCode {
+		return "", errNoMoreSessions
 	}
 	if http.StatusOK != resp.StatusCode {
-		fmt.Printf("Bad HTTP Status Code %d", resp.StatusCode)
-		os.Exit(1)
+		return "", fmt.Errorf("Bad HTTP Status Code %d", resp.StatusCode)
 	}
-	return sessionId
+	sessionId := resp.Header.Get("session-id")
+	return sessionId, nil
 }
 
 func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
@@ -162,6 +170,8 @@ func call(method, url string) (*http.Response, error) {
 }
 
 func testCallOK(t *testing.T, method, url string) []byte {
+	// Little delay so we don't trip the ratelimiter
+	time.Sleep(100 * time.Millisecond)
 
 	resp, err := call(method, url)
 	if err != nil {
@@ -179,6 +189,19 @@ func testCallOK(t *testing.T, method, url string) []byte {
 	}
 
 	return body
+}
+
+func TestMaxSessions(t *testing.T) {
+	for i := 0; i < 99; i++ {
+		_, err := getSession()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	_, err := getSession()
+	if err != errNoMoreSessions {
+		t.Fatal("Expected no more sessions")
+	}
 }
 
 func TestBadUser(t *testing.T) {
@@ -371,6 +394,10 @@ func TestAPIDestroy(t *testing.T) {
 	testCallOK(t, "DELETE", "http://"+demoAddr+"/destroy?Id=relaytest")
 }
 
+func TestSave(t *testing.T) {
+	testCallOK(t, "GET", "http://"+demoAddr+"/save")
+}
+
 func TestCamera(t *testing.T) {
 	time.Sleep(5 * time.Second)
 	testCallOK(t, "POST", "http://"+demoAddr+"/device/camera1/get-image")
@@ -389,9 +416,4 @@ func TestQRCode(t *testing.T) {
 func TestRelays(t *testing.T) {
 	testCallOK(t, "POST", "http://"+demoAddr+"/device/relays1/click?Relay=0")
 	testCallOK(t, "POST", "http://"+demoAddr+"/device/relays1/clicked?Relay=1&State=true")
-}
-
-func TestMaxSessions(t *testing.T) {
-	for i := 0; i < 100; i++ {
-	}
 }

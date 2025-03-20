@@ -28,7 +28,7 @@ type sessionMap struct {
 	sync.Map // key: session id, value: *session
 }
 
-var sessionsMax = 1000
+var sessionsMax = 100
 
 func newSessions() sessionMap {
 	var sm sessionMap

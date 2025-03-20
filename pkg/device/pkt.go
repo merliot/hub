@@ -49,7 +49,7 @@ func (p *Packet) Marshal(v any) *Packet {
 	var err error
 	p.Msg, err = json.Marshal(v)
 	if err != nil {
-		fmt.Printf("JSON marshal error %s\r\n", err.Error())
+		LogError("JSON marshal", "error", err.Error())
 	}
 	return p
 }
@@ -58,7 +58,7 @@ func (p *Packet) Marshal(v any) *Packet {
 func (p *Packet) Unmarshal(v any) *Packet {
 	if len(p.Msg) > 0 {
 		if err := json.Unmarshal(p.Msg, v); err != nil {
-			fmt.Printf("JSON unmarshal error %s\r\n", err.Error())
+			LogError("JSON unmarshal", "error", err.Error())
 		}
 	}
 	return p
