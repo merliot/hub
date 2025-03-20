@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/github/license/merliot/hub)](#license)
 [![Go Report Card](https://goreportcard.com/badge/github.com/merliot/hub)](https://goreportcard.com/report/github.com/merliot/hub)
 [![Issues](https://img.shields.io/github/issues/merliot/hub)](https://github.com/merliot/hub/issues)
-[![codecov](https://codecov.io/gh/merliot/hub/branch/dev/graph/badge.svg?token=N0ATO7YP4U)](https://codecov.io/gh/merliot/hub)
+[![codecov](https://codecov.io/gh/merliot/hub/graph/badge.svg?token=N0ATO7YP4U)](https://codecov.io/gh/merliot/hub)
 
 # MERLIOT
 PRIVATE DEVICE HUB
