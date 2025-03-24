@@ -60,6 +60,7 @@ func (d *device) genFile(dir, template, name string, data any) error {
 }
 
 func isLocalhost(referer string) bool {
+	println("isLocalHost", referer)
 	url, _ := url.Parse(referer)
 	hostname := url.Hostname()
 	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" || hostname == "0.0.0.0"
@@ -336,7 +337,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to download: device is locked")
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusLocked)
 		return
 	}
 
@@ -357,7 +358,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -365,7 +366,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.buildImage(d, w, r); err != nil {
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

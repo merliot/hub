@@ -110,7 +110,7 @@ func TestMain(m *testing.M) {
 	device.Setenv("LOG_LEVEL", "DEBUG")
 	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
 
-	// Run hub in demo mode
+	// Run a hub in demo mode
 	device.Setenv("DEMO", "true")
 	demo := device.NewServer(demoAddr, models.AllModels)
 	go demo.Run()
@@ -123,7 +123,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	// Run hub in site mode
+	// Run a hub in site mode
 	device.Setenv("SITE", "true")
 	site := device.NewServer(siteAddr, models.AllModels)
 	go site.Run()
@@ -131,7 +131,8 @@ func TestMain(m *testing.M) {
 
 	m.Run()
 
-	os.RemoveAll("../camera-images")
+	os.RemoveAll("./camera-images")
+	os.RemoveAll("./raw-1.jpg")
 }
 
 var errNoMoreSessions = errors.New("no more sessions")
@@ -139,7 +140,7 @@ var errNoMoreSessions = errors.New("no more sessions")
 func getSession() (string, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
-	resp, err := call("GET", "http://"+demoAddr+"/")
+	resp, err := call("GET", "/")
 	if err != nil {
 		return "", fmt.Errorf("API failed: %v\n", err)
 	}
@@ -155,6 +156,10 @@ func getSession() (string, error) {
 }
 
 func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
+	// Little delay so we don't trip the ratelimiter
+	time.Sleep(100 * time.Millisecond)
+
+	url = "http://" + demoAddr + url
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request: %w", err)
@@ -169,9 +174,7 @@ func call(method, url string) (*http.Response, error) {
 	return callUserPasswd(method, url, user, passwd)
 }
 
-func testCallOK(t *testing.T, method, url string) []byte {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
+func callOK(t *testing.T, method, url string) []byte {
 
 	resp, err := call(method, url)
 	if err != nil {
@@ -180,7 +183,7 @@ func testCallOK(t *testing.T, method, url string) []byte {
 	defer resp.Body.Close()
 
 	if http.StatusOK != resp.StatusCode {
-		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -189,6 +192,27 @@ func testCallOK(t *testing.T, method, url string) []byte {
 	}
 
 	return body
+}
+
+func callExpecting(t *testing.T, method, url string, expecting int) {
+
+	resp, err := call(method, url)
+	if err != nil {
+		t.Fatalf("API call failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if expecting != resp.StatusCode {
+		t.Fatalf("Expected %d, got %d", expecting, resp.StatusCode)
+	}
+}
+
+func callBad(t *testing.T, method, url string) {
+	callExpecting(t, method, url, http.StatusBadRequest)
+}
+
+func callNotFound(t *testing.T, method, url string) {
+	callExpecting(t, method, url, http.StatusNotFound)
 }
 
 func TestMaxSessions(t *testing.T) {
@@ -205,7 +229,7 @@ func TestMaxSessions(t *testing.T) {
 }
 
 func TestBadUser(t *testing.T) {
-	resp, err := callUserPasswd("GET", "http://"+demoAddr+"/", "foo", "bar")
+	resp, err := callUserPasswd("GET", "/", "foo", "bar")
 	if err != nil {
 		t.Fatalf("API failed: %v", err)
 	}
@@ -216,7 +240,7 @@ func TestBadUser(t *testing.T) {
 }
 
 func TestAPIDevices(t *testing.T) {
-	html := string(testCallOK(t, "GET", "http://"+demoAddr+"/devices"))
+	html := string(callOK(t, "GET", "/devices"))
 	if html != devices {
 		t.Fatalf("/devices response not valid")
 	}
@@ -242,7 +266,7 @@ func TestFiles(t *testing.T) {
 
 	for _, fileName := range files {
 
-		file, err := os.ReadFile("../pkg/device/" + fileName)
+		file, err := os.ReadFile("../../pkg/device/" + fileName)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -255,7 +279,7 @@ func TestFiles(t *testing.T) {
 			}
 		}
 
-		body := testCallOK(t, "GET", "http://"+demoAddr+"/"+fileName)
+		body := callOK(t, "GET", "/"+fileName)
 		if !bytes.Equal(file, body) {
 			t.Fatalf("Content mismatch:\nfile: %s\napi: %s",
 				string(file), string(body))
@@ -284,8 +308,7 @@ func TestShowViews(t *testing.T) {
 
 	for dev, _ := range devs {
 		for _, view := range views {
-			url := fmt.Sprintf("http://%s/device/%s/show-view?view=%s",
-				demoAddr, dev, view.name)
+			url := fmt.Sprintf("/device/%s/show-view?view=%s", dev, view.name)
 			resp, err := call("GET", url)
 			if err != nil {
 				t.Fatalf("API failed: %v", err)
@@ -313,7 +336,7 @@ var expectedGadgetState = []byte(`<pre class="text-sm"
 `)
 
 func TestShowState(t *testing.T) {
-	state := testCallOK(t, "GET", "http://"+demoAddr+"/device/gadget1/state")
+	state := callOK(t, "GET", "/device/gadget1/state")
 	if !bytes.Equal(expectedGadgetState, state) {
 		t.Fatalf("/state mismatch:\nexpected: %s\napi: %s",
 			string(expectedGadgetState), string(state))
@@ -337,7 +360,7 @@ var expectedGpsCode = []byte(`<!DOCTYPE html>
 `)
 
 func TestShowCode(t *testing.T) {
-	code := testCallOK(t, "GET", "http://"+demoAddr+"/device/gps1/code")
+	code := callOK(t, "GET", "/device/gps1/code")
 	if !bytes.Equal(expectedGpsCode, code) {
 		t.Fatalf("/code mismatch:\nexpected: %s\napi: %s",
 			string(expectedGpsCode), string(code))
@@ -345,75 +368,80 @@ func TestShowCode(t *testing.T) {
 }
 
 func TestDownloadTarget(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/device/locker1/download-target/xxx")
+	callOK(t, "GET", "/device/locker1/download-target/xxx")
 }
 
 func TestShowInstructions(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/device/qrcode1/instructions?view=collasped")
+	callOK(t, "GET", "/device/qrcode1/instructions?view=collasped")
 }
 
 func TestShowInstructionsTarget(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/device/qrcode1/instructions-target?target=x86-64")
+	callOK(t, "GET", "/device/qrcode1/instructions-target?target=x86-64")
 }
 
 func TestShowModel(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/model/gps/model?view=collasped")
+	callOK(t, "GET", "/model/gps/model?view=collasped")
 }
 
 func TestEditName(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/device/gps1/edit-name")
+	callOK(t, "GET", "/device/gps1/edit-name")
+	callNotFound(t, "GET", "/device/XXX/edit-name")
 }
 
 func TestAPICreate(t *testing.T) {
-	testCallOK(t, "POST", "http://"+demoAddr+
+	callOK(t, "POST",
 		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=test")
+	callBad(t, "POST",
+		"/create?ParentId=XXX&Child.Id=relaytest&Child.Model=relays&Child.Name=test")
+	callBad(t, "POST",
+		"/create?ParentId=hub&Child.Id=&Child.Model=relays&Child.Name=test")
+	callBad(t, "POST",
+		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=XXX&Child.Name=test")
+	callBad(t, "POST",
+		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=")
 }
 
-func TestAPIDownloadRpi(t *testing.T) {
+func TestAPIDownload(t *testing.T) {
 	odir, _ := os.Getwd()
-	os.Chdir("../") // Need to chdir to get access to ./bin files
+	os.Chdir("../../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
-	testCallOK(t, "GET", "http://"+demoAddr+"/download-image/relaytest?target=rpi")
-}
-
-func TestAPIDownloadX86(t *testing.T) {
-	odir, _ := os.Getwd()
-	os.Chdir("../") // Need to chdir to get access to ./bin files
-	defer os.Chdir(odir)
-	testCallOK(t, "GET", "http://"+demoAddr+"/download-image/relaytest?target=x86-64")
-}
-
-func TestAPIDownloadNano(t *testing.T) {
-	odir, _ := os.Getwd()
-	os.Chdir("../") // Need to chdir to get access to ./bin files
-	defer os.Chdir(odir)
-	testCallOK(t, "GET", "http://"+demoAddr+"/download-image/relaytest?target=nano-rp2040")
+	callOK(t, "GET", "/download-image/relaytest?target=rpi")
+	callOK(t, "GET", "/download-image/relaytest?target=x86-64")
+	callOK(t, "GET", "/download-image/relaytest?target=nano-rp2040")
+	callBad(t, "GET", "/download-image/relaytest?target=XXX")
+	callBad(t, "GET", "/download-image/XXX?target=rpi")
 }
 
 func TestAPIDestroy(t *testing.T) {
-	testCallOK(t, "DELETE", "http://"+demoAddr+"/destroy?Id=relaytest")
+	callOK(t, "DELETE", "/destroy?Id=relaytest")
+	callBad(t, "DELETE", "/destroy?Id=XXX")
+	callBad(t, "DELETE", "/destroy")
 }
 
 func TestSave(t *testing.T) {
-	testCallOK(t, "GET", "http://"+demoAddr+"/save")
+	callOK(t, "GET", "/save")
+}
+
+func TestSaveModal(t *testing.T) {
+	callOK(t, "GET", "/save-modal")
 }
 
 func TestCamera(t *testing.T) {
 	time.Sleep(5 * time.Second)
-	testCallOK(t, "POST", "http://"+demoAddr+"/device/camera1/get-image")
+	callOK(t, "POST", "/device/camera1/get-image")
 }
 
 func TestGadget(t *testing.T) {
-	testCallOK(t, "POST", "http://"+demoAddr+"/device/gadget1/takeone")
+	callOK(t, "POST", "/device/gadget1/takeone")
 	time.Sleep(2 * time.Second)
 }
 
 func TestQRCode(t *testing.T) {
-	testCallOK(t, "POST", "http://"+demoAddr+"/device/qrcode1/generate?Content=https://foo.com")
-	testCallOK(t, "GET", "http://"+demoAddr+"/device/qrcode1/edit-content?id=qrcode1")
+	callOK(t, "POST", "/device/qrcode1/generate?Content=https://foo.com")
+	callOK(t, "GET", "/device/qrcode1/edit-content?id=qrcode1")
 }
 
 func TestRelays(t *testing.T) {
-	testCallOK(t, "POST", "http://"+demoAddr+"/device/relays1/click?Relay=0")
-	testCallOK(t, "POST", "http://"+demoAddr+"/device/relays1/clicked?Relay=1&State=true")
+	callOK(t, "POST", "/device/relays1/click?Relay=0")
+	callOK(t, "POST", "/device/relays1/clicked?Relay=1&State=true")
 }

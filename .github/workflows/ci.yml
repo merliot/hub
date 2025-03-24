@@ -41,7 +41,7 @@ jobs:
       # Run integration tests with coverage
       - name: Run Integration Tests
         run: |
-          go test -v -coverpkg=./... -coverprofile=coverage.txt ./cmd
+          go test -v -coverpkg=./... -coverprofile=coverage.txt ./test/...
 
       # Display coverage in logs
       - name: Show Coverage
