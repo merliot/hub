@@ -60,7 +60,6 @@ func (d *device) genFile(dir, template, name string, data any) error {
 }
 
 func isLocalhost(referer string) bool {
-	println("isLocalHost", referer)
 	url, _ := url.Parse(referer)
 	hostname := url.Hostname()
 	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" || hostname == "0.0.0.0"

@@ -36,6 +36,7 @@ type server struct {
 	server         *http.Server
 	flags
 	wsxPingPeriod int
+	done          chan bool
 }
 
 var rlConfig = ratelimit.Config{
@@ -51,6 +52,7 @@ func NewServer(addr string, models Models) *server {
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
 		server:         &http.Server{Addr: addr},
+		done:           make(chan bool),
 	}
 
 	s.models.load(models)
@@ -236,10 +238,9 @@ func (s *server) Run() {
 			LogError("HTTP server ListenAndServe", "err", err)
 			os.Exit(1)
 		}
-
 	}()
 
-	// Ok, here we go...should run until interrupted
+	// Ok, here we go...device should run until interrupted (or stopped)
 	s.root.run()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -250,6 +251,12 @@ func (s *server) Run() {
 	}
 
 	LogInfo("Bye, Bye", "root", s.root.Name)
+	s.done <- true
+}
+
+func (s *server) Stop() {
+	s.root.stop()
+	<-s.done
 }
 
 func logBuildInfo() {

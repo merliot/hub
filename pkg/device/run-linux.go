@@ -13,6 +13,8 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 
 	var pkt = d.newPacket()
 
+	d.start()
+
 	// Catch OS kill signals so we can exit gracefully
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
@@ -27,6 +29,8 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 
 	for {
 		select {
+		case <-d.stopChan:
+			return
 		case <-c:
 			return
 		case <-ticker.C:

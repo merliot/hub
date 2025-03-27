@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"path"
 )
 
 func (s *server) setupAPI() {
@@ -141,29 +140,6 @@ func (s *server) showSaveModal(w http.ResponseWriter, r *http.Request) {
 	if err := s.root.renderTmpl(w, "modal-save.tmpl", nil); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-}
-
-func (s *server) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
-	template := "device-status-" + page + ".tmpl"
-	if err := s.root.renderTmpl(w, template, map[string]any{
-		"sessions": s.sessions.status(),
-		"devices":  s.devices.status(),
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-func (s *server) showStatus(w http.ResponseWriter, r *http.Request) {
-	refresh := path.Base(r.URL.Path)
-	if refresh == "refresh" {
-		s.showStatusRefresh(w, r)
-		return
-	}
-	s.root.showSection(w, r, "device.tmpl", "status", "sessions", statusPages, map[string]any{
-		"sessions": s.sessions.status(),
-		"devices":  s.devices.status(),
-	})
 }
 
 func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {

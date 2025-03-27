@@ -18,11 +18,10 @@ import (
 )
 
 var (
-	user          = "TEST"
-	passwd        = "TESTTEST"
-	demoAddr      = "localhost:8020"
-	siteAddr      = "localhost:8021"
-	demoSessionId string
+	user      = "TEST"
+	passwd    = "TESTTEST"
+	addr      = "localhost:8020"
+	sessionId string
 )
 
 var devices = `{
@@ -112,24 +111,20 @@ func TestMain(m *testing.M) {
 
 	// Run a hub in demo mode
 	device.Setenv("DEMO", "true")
-	demo := device.NewServer(demoAddr, models.AllModels)
+	demo := device.NewServer(addr, models.AllModels)
 	go demo.Run()
 	time.Sleep(time.Second)
 
 	// Stash the session id
-	demoSessionId, err = getSession()
+	sessionId, err = getSession()
 	if err != nil {
 		fmt.Printf("Getting session failed: %s\n", err)
 		os.Exit(1)
 	}
 
-	// Run a hub in site mode
-	device.Setenv("SITE", "true")
-	site := device.NewServer(siteAddr, models.AllModels)
-	go site.Run()
-	time.Sleep(time.Second)
-
 	m.Run()
+
+	demo.Stop()
 
 	os.RemoveAll("./camera-images")
 	os.RemoveAll("./raw-1.jpg")
@@ -159,13 +154,13 @@ func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
 
-	url = "http://" + demoAddr + url
+	url = "http://" + addr + url
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request: %w", err)
 	}
 	req.SetBasicAuth(user, passwd)
-	req.Header.Set("session-id", demoSessionId)
+	req.Header.Set("session-id", sessionId)
 	client := &http.Client{}
 	return client.Do(req)
 }
@@ -414,8 +409,14 @@ func TestAPIDownload(t *testing.T) {
 
 func TestAPIDestroy(t *testing.T) {
 	callOK(t, "DELETE", "/destroy?Id=relaytest")
+	callBad(t, "DELETE", "/destroy?Id=hub")
 	callBad(t, "DELETE", "/destroy?Id=XXX")
 	callBad(t, "DELETE", "/destroy")
+}
+
+func TestAPIRecreate(t *testing.T) {
+	callOK(t, "POST",
+		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=test")
 }
 
 func TestSave(t *testing.T) {
@@ -426,6 +427,18 @@ func TestSaveModal(t *testing.T) {
 	callOK(t, "GET", "/save-modal")
 }
 
+func TestRename(t *testing.T) {
+	callOK(t, "GET", "/rename?Id=relays1&NewName=foo")
+	callBad(t, "GET", "/rename?Id=relays1&NewName=")
+	callBad(t, "GET", "/rename?Id=XXX&NewName=foo")
+}
+
+func TestNewModal(t *testing.T) {
+	callOK(t, "GET", "/new-modal/hub")
+	callOK(t, "GET", "/new-modal/relays1")
+	callBad(t, "GET", "/new-modal/XXX")
+}
+
 func TestCamera(t *testing.T) {
 	time.Sleep(5 * time.Second)
 	callOK(t, "POST", "/device/camera1/get-image")
@@ -434,6 +447,7 @@ func TestCamera(t *testing.T) {
 func TestGadget(t *testing.T) {
 	callOK(t, "POST", "/device/gadget1/takeone")
 	time.Sleep(2 * time.Second)
+	callOK(t, "POST", "/device/gadget1/reboot")
 }
 
 func TestQRCode(t *testing.T) {

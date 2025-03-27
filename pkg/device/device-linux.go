@@ -150,7 +150,7 @@ func (child *device) orphan() {
 func (s *server) removeChild(child *device) {
 
 	if s.isSet(flagRunningDemo) {
-		child.stopDemo()
+		child.stop()
 	}
 
 	// Remove child from parent
@@ -271,7 +271,7 @@ func (s *server) devicesSave() error {
 
 func (d *device) demoReboot(pkt *Packet) {
 	// Simulate a reboot
-	d.stopDemo()
+	d.stop()
 
 	// Go offline for 3 seconds
 	d.unSet(flagOnline)

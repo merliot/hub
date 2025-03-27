@@ -30,11 +30,15 @@ func (d *device) runDemo() {
 
 // In demo mode, start a go func for each child device
 func (d *device) startDemo() {
-	d.stopChan = make(chan struct{})
+	d.start()
 	go d.runDemo()
 }
 
-func (d *device) stopDemo() {
+func (d *device) start() {
+	d.stopChan = make(chan struct{})
+}
+
+func (d *device) stop() {
 	close(d.stopChan)
 }
 
@@ -48,7 +52,7 @@ func (d *device) startDemoChildren() {
 
 func (d *device) stopDemoChildren() {
 	d.children.drange(func(_ string, child *device) bool {
-		child.stopDemo()
+		child.stop()
 		child.stopDemoChildren()
 		return true
 	})

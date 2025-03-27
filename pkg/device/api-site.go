@@ -77,6 +77,17 @@ func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *server) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
+	page := r.PathValue("page")
+	template := "device-status-" + page + ".tmpl"
+	if err := s.root.renderTmpl(w, template, map[string]any{
+		"sessions": s.sessions.status(),
+		"devices":  s.devices.status(),
+	}); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
 func (s *server) showSiteStatus(w http.ResponseWriter, r *http.Request) {
 	refresh := path.Base(r.URL.Path)
 	if refresh == "refresh" {

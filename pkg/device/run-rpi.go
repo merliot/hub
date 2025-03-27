@@ -28,6 +28,8 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 
 	var pkt = d.newPacket()
 
+	d.start()
+
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 
@@ -41,6 +43,9 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 
 	for {
 		select {
+		case <-d.stopChan:
+			failSafe()
+			return
 		case <-c:
 			failSafe()
 			return
