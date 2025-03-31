@@ -66,7 +66,7 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 
 	// Find root device in announcement
 
-	anchor, err := annDevices.findRoot()
+	anchor, err := annDevices.buildTree()
 	if err != nil {
 		return "", fmt.Errorf("Cannot find root: %s", err)
 	}

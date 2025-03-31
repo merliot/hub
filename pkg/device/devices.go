@@ -163,8 +163,10 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 
 	device.set(flagLocked)
 	device.installAPI()
+	s.packetHandlersInstall(device)
 
 	if !exists {
+		s.devices.Store(id, device)
 		s.deviceInstall(device)
 	}
 
@@ -178,7 +180,7 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	return nil
 }
 
-func (s *server) merge(id string, newDevices deviceMap) error {
+func (s *server) merge(id string, newDevices deviceMap) (err error) {
 
 	// Swing anchor to existing tree
 	anchor, ok := s.devices.get(id)
@@ -196,11 +198,19 @@ func (s *server) merge(id string, newDevices deviceMap) error {
 
 	// Now merge in the new devices, setting up each device as we go
 	newDevices.drange(func(id string, newDevice *device) bool {
-		if err := s.mergeDevice(id, anchor, newDevice); err != nil {
+		if err = s.mergeDevice(id, anchor, newDevice); err != nil {
 			return false
 		}
 		return true
 	})
+
+	if err != nil {
+		return err
+	}
+
+	if err = s.buildTree(); err != nil {
+		return err
+	}
 
 	anchor.set(flagOnline)
 

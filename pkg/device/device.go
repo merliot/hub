@@ -72,7 +72,6 @@ func (d *device) build(additionalFlags flags) error {
 	}
 
 	// Default handlers for all devices
-	d.PacketHandlers["/state"] = &PacketHandler[any]{d.handleState}
 	d.PacketHandlers["/online"] = &PacketHandler[any]{d.handleOnline}
 	d.PacketHandlers["/offline"] = &PacketHandler[any]{d.handleOffline}
 	d.PacketHandlers["/reboot"] = &PacketHandler[NoMsg]{d.handleReboot}
@@ -94,10 +93,6 @@ func (d *device) build(additionalFlags flags) error {
 	}
 
 	return d.buildOS()
-}
-
-func (d *device) handleState(pkt *Packet) {
-	pkt.Unmarshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleOnline(pkt *Packet) {
