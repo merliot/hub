@@ -71,7 +71,6 @@ func (d *device) baseFuncs() FuncMap {
 		"isProgenitive":   func() bool { return d.isSet(FlagProgenitive) },
 		"isHttpPortMust":  func() bool { return d.isSet(FlagHttpPortMust) },
 		"isOnline":        func() bool { return d.isSet(flagOnline) },
-		"isDemo":          func() bool { return d.isSet(flagDemo) },
 		"isDirty":         func() bool { return d.isSet(flagDirty) },
 		"isLocked":        func() bool { return d.isSet(flagLocked) },
 		"bgColor":         d.bgColor,

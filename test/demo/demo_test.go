@@ -104,6 +104,9 @@ func TestMain(m *testing.M) {
 
 	var err error
 
+	device.Setenv("WIFI_SSIDS", "foo")
+	device.Setenv("WIFI_PASSPHRASES", "bar")
+	device.Setenv("BACKGROUND", "GOOD")
 	device.Setenv("DEVICES", devices)
 	device.Setenv("USER", user)
 	device.Setenv("PASSWD", passwd)
@@ -315,6 +318,7 @@ func TestShowViews(t *testing.T) {
 		{"info", http.StatusOK},
 		{"state", http.StatusOK},
 		{"garbage", http.StatusBadRequest},
+		{"overview", http.StatusOK},
 	}
 	devs := make(map[string]any)
 	err := json.Unmarshal([]byte(devices), &devs)
@@ -416,7 +420,7 @@ func TestAPICreate(t *testing.T) {
 	callBad(t, "POST",
 		"/create?ParentId=hub&Child.Id=x,x&Child.Model=relays&Child.Name=test")
 	callBad(t, "POST",
-		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=XXX&Child.Name=test")
+		"/create?ParentId=hub&Child.Id=testtest&Child.Model=XXX&Child.Name=test")
 	callBad(t, "POST",
 		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=")
 }
@@ -429,6 +433,7 @@ func TestAPIDownload(t *testing.T) {
 	callOK(t, "GET", "/download-image/relaytest?target=x86-64")
 	callOK(t, "GET", "/download-image/relaytest?target=nano-rp2040")
 	callOK(t, "GET", "/deploy-koyeb/relaytest/"+sessionId)
+	callBad(t, "GET", "/deploy-koyeb/XXX/"+sessionId)
 	callBad(t, "GET", "/download-image/relaytest?target=XXX")
 	callBad(t, "GET", "/download-image/XXX?target=rpi")
 }

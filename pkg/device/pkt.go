@@ -94,12 +94,10 @@ func (p *Packet) handle() error {
 		return fmt.Errorf("Packet.server not set")
 	}
 
-	if p.Dst == "" {
-		// Run server handler
-		if handler, ok := s.packetHandlers[p.Path]; ok {
-			LogDebug("Handling", "pkt", p)
-			handler.cb(p)
-		}
+	// Run server handler
+	if handler, ok := s.packetHandlers[p.Path]; ok {
+		LogDebug("Server handling", "pkt", p)
+		handler.cb(p)
 		return nil
 	}
 

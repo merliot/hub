@@ -125,6 +125,7 @@ func TestMain(m *testing.M) {
 	device.Setenv("PASSWD", passwd)
 	device.Setenv("LOG_LEVEL", "DEBUG")
 	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
+	device.Setenv("DIAL_URLS", ",xx://xxx/ws,://example.com")
 
 	// Run a hub
 	hubby := device.NewServer(hubAddr, models.AllModels)
@@ -203,6 +204,10 @@ func callOK(t *testing.T, addr, method, url string) []byte {
 	return body
 }
 
+func TestSave(t *testing.T) {
+	callOK(t, hubAddr, "GET", "/save")
+}
+
 func TestJoin(t *testing.T) {
 	// Run a sub-hub
 	device.Setenv("DEVICES_FILE", "")
@@ -228,5 +233,19 @@ func TestJoin(t *testing.T) {
 
 	callOK(t, hubAddr, "POST", "/device/gadget2/get-uptime")
 	time.Sleep(time.Second)
+
+	callOK(t, subhubAddr, "POST",
+		"/create?ParentId=subhub1&Child.Id=test&Child.Model=gadget&Child.Name=test")
+
+	odir, _ := os.Getwd()
+	os.Chdir("../../") // Need to chdir to get access to ./bin files
+	defer os.Chdir(odir)
+	callOK(t, subhubAddr, "GET", "/download-image/test?target=x86-64")
+	callOK(t, subhubAddr, "GET", "/download-image/subhub1?target=x86-64")
+
+	callOK(t, subhubAddr, "DELETE", "/destroy?Id=test")
+
+	time.Sleep(time.Second)
+
 	subby.Stop()
 }

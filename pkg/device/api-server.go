@@ -256,10 +256,6 @@ func (s *server) handleDestroy(pkt *Packet) error {
 		return deviceNotFound(msg.Id)
 	}
 
-	if child.isSet(flagLocked) {
-		return fmt.Errorf("Can't destroy device; device is locked")
-	}
-
 	if child == s.root {
 		return fmt.Errorf("Can't destroy root")
 	}
@@ -282,6 +278,19 @@ func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 	pkt, err := s.newPacketFromRequest(r, &msg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	child, ok := s.devices.get(msg.Id)
+	if !ok {
+		err := deviceNotFound(msg.Id)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if child.isSet(flagLocked) {
+		http.Error(w, "Can't destroy device; device is locked",
+			http.StatusBadRequest)
 		return
 	}
 

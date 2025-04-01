@@ -145,7 +145,7 @@ func (s *server) newDevice(id, model, name string) (d *device, err error) {
 	}
 	m, exists := s.models.get(model)
 	if !exists {
-		return nil, fmt.Errorf("Model '%s' not registered", d.Model)
+		return nil, fmt.Errorf("Model '%s' not registered", model)
 	}
 
 	d = &device{
