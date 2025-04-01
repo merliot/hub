@@ -12,7 +12,7 @@ import (
 
 func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
-	var id = r.PathValue("sd")
+	var id = r.PathValue("id")
 	var sessionId = r.PathValue("sessionId")
 
 	d, exists := s.devices.get(id)

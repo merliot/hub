@@ -28,6 +28,8 @@ type sessionMap struct {
 	sync.Map // key: session id, value: *session
 }
 
+var errSessionNotConnected = errors.New("Session not connected")
+
 var sessionsMax = 100
 
 func newSessions() sessionMap {
@@ -108,6 +110,7 @@ func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
 				if err != errSessionNotConnected {
 					return false
 				}
+				err = nil
 			}
 		}
 		return true
@@ -117,7 +120,7 @@ func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
 
 func (sm *sessionMap) route(id string, pkt *Packet) error {
 	if s, ok := sm.get(id); ok {
-		//LogDebug("route", "pkt", pkt)
+		LogDebug("route", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
 				return err
@@ -134,26 +137,6 @@ func (sm *sessionMap) send(id, htmlSnippet string) {
 		}
 	}
 }
-
-/*
-func (sm *sessionMap) sessionHijack() string {
-	var hijackID string
-	sm.drange(func(id string, s *session) bool {
-		s.RLock()
-		if s.conn != nil {
-			hijackID = id
-			s.RUnlock()
-			return false // Stop iteration after finding one connected session
-		}
-		s.RUnlock()
-		return true // Continue iteration
-	})
-	if hijackID != "" {
-		return hijackID
-	}
-	return "none-to-hijack"
-}
-*/
 
 func (sm *sessionMap) gcSessions() {
 	minute := 1 * time.Minute
@@ -232,8 +215,6 @@ func (sm *sessionMap) status() []sessionStatus {
 
 	return statuses
 }
-
-var errSessionNotConnected = errors.New("Session not connected")
 
 func (s *session) _connected() bool {
 	return s.conn != nil

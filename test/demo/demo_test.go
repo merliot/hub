@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
 )
@@ -122,6 +123,10 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
+	// Simulate a browser session by opening a /wsx websocket
+	url := "ws://" + addr + "/wsx?session-id=" + sessionId
+	go wsx(url, user, passwd)
+
 	m.Run()
 
 	demo.Stop()
@@ -131,6 +136,21 @@ func TestMain(m *testing.M) {
 }
 
 var errNoMoreSessions = errors.New("no more sessions")
+
+func wsx(url, user, passwd string) {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.SetBasicAuth(user, passwd)
+	conn, _, err := websocket.DefaultDialer.Dial(url, req.Header)
+	if err != nil {
+		println(err.Error())
+	}
+	for {
+		_, _, err := conn.ReadMessage()
+		if err != nil {
+			println(err.Error())
+		}
+	}
+}
 
 func getSession() (string, error) {
 	// Little delay so we don't trip the ratelimiter
@@ -177,13 +197,14 @@ func callOK(t *testing.T, method, url string) []byte {
 	}
 	defer resp.Body.Close()
 
-	if http.StatusOK != resp.StatusCode {
-		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if http.StatusOK != resp.StatusCode {
+		println(string(body))
+		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
 	}
 
 	return body
@@ -391,6 +412,10 @@ func TestAPICreate(t *testing.T) {
 	callBad(t, "POST",
 		"/create?ParentId=hub&Child.Id=&Child.Model=relays&Child.Name=test")
 	callBad(t, "POST",
+		"/create?ParentId=hub&Child.Id=-xxx&Child.Model=relays&Child.Name=test")
+	callBad(t, "POST",
+		"/create?ParentId=hub&Child.Id=x,x&Child.Model=relays&Child.Name=test")
+	callBad(t, "POST",
 		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=XXX&Child.Name=test")
 	callBad(t, "POST",
 		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=")
@@ -403,6 +428,7 @@ func TestAPIDownload(t *testing.T) {
 	callOK(t, "GET", "/download-image/relaytest?target=rpi")
 	callOK(t, "GET", "/download-image/relaytest?target=x86-64")
 	callOK(t, "GET", "/download-image/relaytest?target=nano-rp2040")
+	callOK(t, "GET", "/deploy-koyeb/relaytest/"+sessionId)
 	callBad(t, "GET", "/download-image/relaytest?target=XXX")
 	callBad(t, "GET", "/download-image/XXX?target=rpi")
 }

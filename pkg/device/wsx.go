@@ -29,9 +29,7 @@ func (s *server) wsxServe(ws *websocket.Conn, r *http.Request) {
 
 	sessionId := r.URL.Query().Get("session-id")
 
-	if sessionId == "hijack" {
-		//sessionId = sessionHijack()
-	} else if s.sessions.expired(sessionId) {
+	if s.sessions.expired(sessionId) {
 		// Force full page refresh to start new session
 		LogDebug("Session expired, refreshing", "id", sessionId)
 		ws.WriteMessage(websocket.TextMessage, []byte("refresh"))

@@ -162,7 +162,7 @@ func (p *Packet) RouteUp() error {
 
 	err := s.sessions.routeAll(p)
 	if err != nil {
-		LogError("RouteUp", "err", err)
+		LogDebug("RouteUp", "err", err)
 		return fmt.Errorf("RouteUp error: %w", err)
 	}
 
