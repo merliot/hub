@@ -109,8 +109,6 @@ func TestMain(m *testing.M) {
 
 	m.Run()
 
-	demo.Stop()
-
 	os.RemoveAll("./camera-images")
 }
 

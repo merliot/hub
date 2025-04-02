@@ -108,5 +108,14 @@ func (t *timer) Poll(pkt *device.Packet) {
 	}
 }
 
-func (t *timer) DemoSetup() error            { return t.Setup() }
+func (t *timer) DemoSetup() error {
+	if t.StartUTC == "" {
+		t.StartUTC = "00:00"
+	}
+	if t.StopUTC == "" {
+		t.StopUTC = "00:00"
+	}
+	return t.Setup()
+}
+
 func (t *timer) DemoPoll(pkt *device.Packet) { t.Poll(pkt) }

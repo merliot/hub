@@ -140,8 +140,6 @@ func TestMain(m *testing.M) {
 	}
 
 	m.Run()
-
-	hubby.Stop()
 }
 
 var errNoMoreSessions = errors.New("no more sessions")
@@ -246,6 +244,4 @@ func TestJoin(t *testing.T) {
 	callOK(t, subhubAddr, "DELETE", "/destroy?Id=test")
 
 	time.Sleep(time.Second)
-
-	subby.Stop()
 }

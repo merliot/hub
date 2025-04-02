@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -26,6 +27,13 @@ var (
 )
 
 var devices = `{
+	"timer1": {
+		"Id": "timer1",
+		"Model": "timer",
+		"Name": "Timer",
+		"Children": null,
+		"DeployParams": "target=nano-rp2040\u0026StartHHMM=15:00\u0026StopHHMM=16:00"
+	},
 	"camera1": {
 		"Id": "camera1",
 		"Model": "camera",
@@ -52,6 +60,7 @@ var devices = `{
 		"Model": "hub",
 		"Name": "Hub",
 		"Children": [
+			"timer1",
 			"gadget1",
 			"gps1",
 			"locker1",
@@ -131,8 +140,6 @@ func TestMain(m *testing.M) {
 	go wsx(url, user, passwd)
 
 	m.Run()
-
-	demo.Stop()
 
 	os.RemoveAll("./camera-images")
 	os.RemoveAll("./raw-1.jpg")
@@ -258,10 +265,30 @@ func TestBadUser(t *testing.T) {
 	}
 }
 
+func devsEqual(a, b string) bool {
+	type device struct {
+		Id           string
+		Model        string
+		Name         string
+		DeployParams string
+		Children     []string
+	}
+	type devices map[string]device
+	var aa = make(devices)
+	var bb = make(devices)
+	if err := json.Unmarshal([]byte(a), &aa); err != nil {
+		println(err.Error())
+	}
+	if err := json.Unmarshal([]byte(b), &bb); err != nil {
+		println(err.Error())
+	}
+	return reflect.DeepEqual(aa, bb)
+}
+
 func TestAPIDevices(t *testing.T) {
-	html := string(callOK(t, "GET", "/devices"))
-	if html != devices {
-		t.Fatalf("/devices response not valid")
+	devs := string(callOK(t, "GET", "/devices"))
+	if !devsEqual(devs, devices) {
+		t.Fatalf("/devices response not valid, got: %s\nwant: %s\n", devs, devices)
 	}
 }
 
@@ -489,4 +516,12 @@ func TestQRCode(t *testing.T) {
 func TestRelays(t *testing.T) {
 	callOK(t, "POST", "/device/relays1/click?Relay=0")
 	callOK(t, "POST", "/device/relays1/clicked?Relay=1&State=true")
+}
+
+func TestTemp(t *testing.T) {
+	callOK(t, "POST", "/device/temp1/update")
+}
+
+func TestTimer(t *testing.T) {
+	callOK(t, "POST", "/device/timer1/update")
 }

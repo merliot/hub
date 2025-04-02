@@ -36,7 +36,6 @@ type server struct {
 	server         *http.Server
 	flags
 	wsxPingPeriod int
-	done          chan bool
 }
 
 var rlConfig = ratelimit.Config{
@@ -52,7 +51,6 @@ func NewServer(addr string, models Models) *server {
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
 		server:         &http.Server{Addr: addr},
-		done:           make(chan bool),
 	}
 
 	s.models.load(models)
@@ -251,12 +249,6 @@ func (s *server) Run() {
 	}
 
 	LogInfo("Bye, Bye", "root", s.root.Name)
-	s.done <- true
-}
-
-func (s *server) Stop() {
-	s.root.stop()
-	<-s.done
 }
 
 func logBuildInfo() {

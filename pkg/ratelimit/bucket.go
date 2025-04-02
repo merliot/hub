@@ -61,22 +61,3 @@ func (b *bucket) take(count int64) int64 {
 
 	return taken
 }
-
-// avail returns the current number of available tokens in the bucket.
-func (b *bucket) avail() int64 {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	// Calculate tokens to add based on elapsed time since last update
-	now := time.Now()
-	elapsed := now.Sub(b.lastUpdate)
-	tokensToAdd := int64(elapsed / b.fillInterval)
-
-	// Calculate current available tokens, capping at capacity
-	currentAvailable := b.available + tokensToAdd
-	if currentAvailable > b.capacity {
-		currentAvailable = b.capacity
-	}
-
-	return currentAvailable
-}
