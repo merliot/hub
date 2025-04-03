@@ -10,7 +10,7 @@ type APIs map[string]any
 type deviceMap struct{}
 type deviceOS struct{}
 
-func (d *device) buildOS() error { return nil }
+func (s *server) buildOS(d *device) error { return nil }
 
 func (dm *deviceMap) get(id string) (*device, bool) { return nil, false }
 

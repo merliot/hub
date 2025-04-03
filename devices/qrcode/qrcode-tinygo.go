@@ -109,7 +109,7 @@ func (q *qrcode) setupFS() error {
 	// Try to mount the filesystem
 	err := q.lfs.Mount()
 	if err != nil {
-		device.LogInfo("Filesystem not formatted. Formatting now...")
+		println("Filesystem not formatted. Formatting now...")
 		// If mounting fails, format the filesystem
 		err = q.lfs.Format()
 		if err != nil {

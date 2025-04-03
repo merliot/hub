@@ -37,7 +37,7 @@ func main() {
 			target = os.Args[4]
 		}
 
-		server := device.NewServer("", models.AllModels)
+		server := device.NewServer(device.WithModels(models.AllModels))
 		if err := server.Uf2GenerateBaseImages(dir, model, target); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
