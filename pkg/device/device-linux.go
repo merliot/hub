@@ -25,12 +25,12 @@ type deviceOS struct {
 }
 
 func (d *device) Handle(pattern string, handler http.Handler) {
-	//d.server.LogDebug("Handle", "pattern", pattern)
+	//d.server.logDebug("Handle", "pattern", pattern)
 	d.ServeMux.Handle(pattern, handler)
 }
 
 func (d *device) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	//d.server.LogDebug("HandleFunc", "pattern", pattern)
+	//d.server.logDebug("HandleFunc", "pattern", pattern)
 	d.ServeMux.HandleFunc(pattern, handler)
 }
 
@@ -217,7 +217,7 @@ func (s *server) loadDevices() error {
 	switch {
 
 	case noEnv && noFile && noDefault:
-		s.LogInfo("Loading with empty hub")
+		s.logInfo("Loading with empty hub")
 		if !s.isSet(flagAutoSave) {
 			s.set(flagSaveToClipboard)
 		}
@@ -226,19 +226,19 @@ func (s *server) loadDevices() error {
 		}
 
 	case noEnv && noFile && !noDefault:
-		s.LogInfo("Loading from devices.json")
+		s.logInfo("Loading from devices.json")
 		if err := fileReadJSON("devices.json", &devs); err != nil {
 			return err
 		}
 
 	case noEnv:
-		s.LogInfo("Loading from", "DEVICES_FILE", s.devicesFile)
+		s.logInfo("Loading from", "DEVICES_FILE", s.devicesFile)
 		if err := fileReadJSON(s.devicesFile, &devs); err != nil {
 			return err
 		}
 
 	default:
-		s.LogInfo("Loading from DEVICES env var")
+		s.logInfo("Loading from DEVICES env var")
 		s.set(flagSaveToClipboard)
 		if err := json.Unmarshal([]byte(s.devicesEnv), &devs); err != nil {
 			return err
@@ -254,13 +254,21 @@ func (s *server) devicesSave() error {
 	var noFile bool = (s.devicesFile == "")
 
 	if noEnv && noFile {
-		//s.LogDebug("Saving to devices.json")
-		return fileWriteJSON("devices.json", s.devices.getJSON())
+		//s.logDebug("Saving to devices.json")
+		if err := fileWriteJSON("devices.json", s.devices.getJSON()); err != nil {
+			return err
+		}
+		s.unSet(flagDirty)
+		return nil
 	}
 
 	if noEnv && !noFile {
-		//s.LogDebug("Saving to", "DEVICES_FILE", s.devicesFile)
-		return fileWriteJSON(s.devicesFile, s.devices.getJSON())
+		//s.logDebug("Saving to", "DEVICES_FILE", s.devicesFile)
+		if err := fileWriteJSON(s.devicesFile, s.devices.getJSON()); err != nil {
+			return err
+		}
+		s.unSet(flagDirty)
+		return nil
 	}
 
 	// Save to clipboard

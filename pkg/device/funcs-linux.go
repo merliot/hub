@@ -30,7 +30,7 @@ func (s *server) bodyColors() string {
 // Don't add any functions that expose sensitive data such as passwd
 func (s *server) baseFuncs() FuncMap {
 	return FuncMap{
-		"saveToClipboard": func() bool { return true },     // TODO move this
+		"saveToClipboard": func() bool { return s.isSet(flagSaveToClipboard) },
 		"devicesJSON":     func() string { return "TODO" }, // TODO move this
 		"title":           strings.Title,
 		"add":             func(a, b int) int { return a + b },
@@ -41,6 +41,7 @@ func (s *server) baseFuncs() FuncMap {
 		"ssids":           func() []string { return s.wifiSsids },
 		"isMissingWifi":   func() bool { return len(s.wifiSsids) == 0 },
 		"bodyColors":      s.bodyColors,
+		"isDirty":         func() bool { return s.isSet(flagDirty) },
 	}
 }
 
@@ -85,7 +86,6 @@ func (d *device) baseFuncs() FuncMap {
 		"isProgenitive":  func() bool { return d.isSet(FlagProgenitive) },
 		"isHttpPortMust": func() bool { return d.isSet(FlagHttpPortMust) },
 		"isOnline":       func() bool { return d.isSet(flagOnline) },
-		"isDirty":        func() bool { return d.isSet(flagDirty) },
 		"isLocked":       func() bool { return d.isSet(flagLocked) },
 		"bgColor":        d.bgColor,
 		"textColor":      d.textColor,

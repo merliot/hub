@@ -200,7 +200,7 @@ func NewServer(options ...ServerOption) *server {
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
 func (s *server) routeDown(pkt *Packet) error {
-	s.LogDebug("routeDown", "pkt", pkt)
+	s.logDebug("routeDown", "pkt", pkt)
 
 	d, ok := s.devices.get(pkt.Dst)
 	if !ok {
@@ -273,7 +273,7 @@ func (s *server) newDevice(id, model, name string) (d *device, err error) {
 func (s *server) buildDevices() {
 	s.devices.drange(func(id string, d *device) bool {
 		if err := s.buildDevice(id, d); err != nil {
-			s.LogError("Skipping", "device", d, "err", err)
+			s.logError("Skipping", "device", d, "err", err)
 			s.devices.Delete(id)
 		}
 		return true
@@ -291,20 +291,23 @@ func (s *server) Run() {
 	s.logBuildInfo()
 
 	if s.isSet(flagRunningSite) {
-		s.LogInfo("RUNNING full web site")
+		s.logInfo("RUNNING full web site")
 	} else if s.isSet(flagRunningDemo) {
-		s.LogInfo("RUNNING in DEMO mode")
+		s.logInfo("RUNNING in DEMO mode")
 	}
 
+	// Install /model/{model} patterns for models
+	s.installModels()
+
 	if err := s.loadDevices(); err != nil {
-		s.LogError("Loading devices", "err", err)
+		s.logError("Loading devices", "err", err)
 		return
 	}
 
 	s.buildDevices()
 
 	if err := s.buildTree(); err != nil {
-		s.LogError("Building tree", "err", err)
+		s.logError("Building tree", "err", err)
 		return
 	}
 
@@ -312,12 +315,12 @@ func (s *server) Run() {
 
 	if s.isSet(flagRunningDemo) {
 		if err := s.root.demoSetup(); err != nil {
-			s.LogError("Setting up root device", "err", err)
+			s.logError("Setting up root device", "err", err)
 			return
 		}
 	} else {
 		if err := s.root.setup(); err != nil {
-			s.LogError("Setting up root device", "err", err)
+			s.logError("Setting up root device", "err", err)
 			return
 		}
 	}
@@ -328,7 +331,7 @@ func (s *server) Run() {
 	// If no port, don't run as a web server
 	if s.port == 0 {
 		s.root.run()
-		s.LogInfo("Bye, Bye", "root", s.root.Name)
+		s.logInfo("Bye, Bye", "root", s.root.Name)
 		return
 	}
 
@@ -340,9 +343,9 @@ func (s *server) Run() {
 	// Run http server in go routine to be shutdown later
 	go func() {
 		s.server.Addr = ":" + strconv.Itoa(s.port)
-		s.LogInfo("ListenAndServe", "addr", s.server.Addr)
+		s.logInfo("ListenAndServe", "addr", s.server.Addr)
 		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.LogError("HTTP server ListenAndServe", "err", err)
+			s.logError("HTTP server ListenAndServe", "err", err)
 			os.Exit(1)
 		}
 	}()
@@ -353,24 +356,24 @@ func (s *server) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := s.server.Shutdown(ctx); err != nil {
-		s.LogError("HTTP server Shutdown", "err", err)
+		s.logError("HTTP server Shutdown", "err", err)
 		os.Exit(1)
 	}
 
-	s.LogInfo("Bye, Bye", "root", s.root.Name)
+	s.logInfo("Bye, Bye", "root", s.root.Name)
 }
 
 func (s *server) logBuildInfo() {
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		s.LogDebug("Build Info:")
-		s.LogDebug("Go Version:", "version", buildInfo.GoVersion)
-		s.LogDebug("Path", "path", buildInfo.Path)
+		s.logDebug("Build Info:")
+		s.logDebug("Go Version:", "version", buildInfo.GoVersion)
+		s.logDebug("Path", "path", buildInfo.Path)
 		for _, setting := range buildInfo.Settings {
-			s.LogDebug("Setting", setting.Key, setting.Value)
+			s.logDebug("Setting", setting.Key, setting.Value)
 		}
 		for _, dep := range buildInfo.Deps {
-			s.LogDebug("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
+			s.logDebug("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
 		}
 	}
-	s.LogDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
+	s.logDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
 }

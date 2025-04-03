@@ -40,7 +40,7 @@ func newConfig(wsUrl *url.URL, user, passwd string) (*websocket.Config, error) {
 func (s *server) wsDial(url *url.URL, user, passwd string) {
 	cfg, err := newConfig(url, user, passwd)
 	if err != nil {
-		s.LogError("Configuring websocket", "err", err)
+		s.logError("Configuring websocket", "err", err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (s *server) wsDial(url *url.URL, user, passwd string) {
 			// Service the client websocket
 			s.wsClient(conn)
 		} else {
-			s.LogError("Dialing", "url", url, "err", err)
+			s.logError("Dialing", "url", url, "err", err)
 		}
 
 		// Try again in a second
@@ -74,27 +74,27 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	pkt.Marshal(devices)
 
 	// Send announcement
-	s.LogInfo("<- Sending", "pkt", pkt)
+	s.logInfo("<- Sending", "pkt", pkt)
 	err := link.Send(pkt)
 	if err != nil {
-		s.LogError("Sending", "err", err)
+		s.logError("Sending", "err", err)
 		return
 	}
 
 	// Receive welcome within 1 sec
 	pkt, err = link.receiveTimeout(time.Second)
 	if err != nil {
-		s.LogError("Receiving", "err", err)
+		s.logError("Receiving", "err", err)
 		return
 	}
 
-	s.LogInfo("-> Reply", "pkt", pkt)
+	s.logInfo("-> Reply", "pkt", pkt)
 	if pkt.Path != "/welcome" {
-		s.LogError("Not welcomed, got", "path", pkt.Path)
+		s.logError("Not welcomed, got", "path", pkt.Path)
 		return
 	}
 
-	s.LogInfo("Adding Uplink")
+	s.logInfo("Adding Uplink")
 	s.uplinks.add(link)
 
 	// Send /online packet for all online devices
@@ -103,17 +103,17 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	// Route incoming packets down to the destination device.  Stop and
 	// disconnect on EOF.
 
-	s.LogInfo("Receiving packets")
+	s.logInfo("Receiving packets")
 	for {
 		pkt, err := link.receivePoll()
 		if err != nil {
-			s.LogError("Receiving packet", "err", err)
+			s.logError("Receiving packet", "err", err)
 			break
 		}
-		s.LogDebug("-> Route packet DOWN", "pkt", pkt)
+		s.logDebug("-> Route packet DOWN", "pkt", pkt)
 		s.routeDown(pkt)
 	}
 
-	s.LogInfo("Removing Uplink")
+	s.logInfo("Removing Uplink")
 	s.uplinks.remove(link)
 }

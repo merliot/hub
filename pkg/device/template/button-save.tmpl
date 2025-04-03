@@ -1,16 +1,15 @@
 <div id="{{uniq `save`}}">
 {{ if isDirty }}
+	<button class="flex flex-row items-center ml-4"
 	{{ if saveToClipboard }}
-		<img class="icon"
-			src="/model/{{model}}/images/save.svg"
-			hx-get="/device/{{id}}/save-modal"
-			hx-target="body"
-			hx-swap="beforeend">
+		hx-get="/save-modal"
+		hx-swap="beforeend"
 	{{ else }}
-		<img class="icon"
-			src="/model/{{model}}/images/save.svg"
-			hx-get="/save"
-			hx-swap="none">
+		hx-get="/save"
+		hx-swap="none"
 	{{ end }}
+		hx-target="body">
+		<img class="icon" src="/images/save.svg"> Save
+	</button>
 {{ end }}
 </div>

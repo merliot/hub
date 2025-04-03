@@ -25,9 +25,6 @@ func (s *server) setupAPI() {
 		return true
 	})
 
-	// Install /model/{model} patterns for models
-	s.installModels()
-
 	// Install / to point to root device
 	s.mux.Handle("/", s.root)
 
@@ -88,7 +85,7 @@ func (s *server) deviceInstall(d *device) {
 	prefix := "/device/" + d.Id
 	handler := d.deviceHandler(http.StripPrefix(prefix, d))
 	s.mux.Handle(prefix+"/", handler)
-	s.LogInfo("Device installed", "prefix", prefix, "device", d)
+	s.logInfo("Device installed", "prefix", prefix, "device", d)
 }
 
 // modelInstall installs /model/{model} pattern for device model
@@ -96,7 +93,7 @@ func (s *server) modelInstall(d *device) {
 	prefix := "/model/" + d.Model
 	handler := http.StripPrefix(prefix, d)
 	s.mux.Handle(prefix+"/", handler)
-	s.LogInfo("Model installed", "prefix", prefix)
+	s.logInfo("Model installed", "prefix", prefix)
 }
 
 func (s *server) installModels() {
@@ -209,7 +206,7 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 
 func (s *server) handleCreated(pkt *Packet) {
 	if err := s.handleCreate(pkt, flagLocked); err != nil {
-		s.LogError("Create", "err", err)
+		s.logError("Create", "err", err)
 		return
 	}
 	pkt.BroadcastUp()
@@ -262,7 +259,7 @@ func (s *server) handleDestroy(pkt *Packet) error {
 
 func (s *server) handleDestroyed(pkt *Packet) {
 	if err := s.handleDestroy(pkt); err != nil {
-		s.LogError("Destroy", "err", err)
+		s.logError("Destroy", "err", err)
 		return
 	}
 	pkt.BroadcastUp()

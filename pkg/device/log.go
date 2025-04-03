@@ -85,18 +85,18 @@ func (s *server) log(level string, msg string, args ...any) {
 	}
 }
 
-func (s *server) LogInfo(msg string, args ...any) {
+func (s *server) logInfo(msg string, args ...any) {
 	s.log("INFO", msg, args...)
 }
 
-func (s *server) LogWarn(msg string, args ...any) {
+func (s *server) logWarn(msg string, args ...any) {
 	s.log("WARN", msg, args...)
 }
 
-func (s *server) LogDebug(msg string, args ...any) {
+func (s *server) logDebug(msg string, args ...any) {
 	s.log("DEBUG", msg, args...)
 }
 
-func (s *server) LogError(msg string, args ...any) {
+func (s *server) logError(msg string, args ...any) {
 	s.log("ERROR", msg, args...)
 }

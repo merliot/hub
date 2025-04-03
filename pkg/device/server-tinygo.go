@@ -32,7 +32,7 @@ func (s *server) devicesOnline(l linker) {
 	var pkt = &Packet{}
 	pkt.SetDst(s.root.Id).SetPath("/online").Marshal(s.root.State)
 
-	s.LogInfo("Sending", "pkt", pkt)
+	s.logInfo("Sending", "pkt", pkt)
 	l.Send(pkt)
 }
 
@@ -95,7 +95,7 @@ func (s *server) Run() {
 }
 
 func (s *server) routeDown(pkt *Packet) error {
-	s.LogDebug("routeDown", "pkt", pkt)
+	s.logDebug("routeDown", "pkt", pkt)
 	s.root.handle(pkt)
 	return nil
 }

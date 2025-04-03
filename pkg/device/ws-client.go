@@ -18,7 +18,7 @@ func (s *server) wsDial(wsURL *url.URL, user, passwd string) {
 	if user != "" {
 		req, err := http.NewRequest("GET", wsURL.String(), nil)
 		if err != nil {
-			s.LogError("Dialing", "url", wsURL, "err", err)
+			s.logError("Dialing", "url", wsURL, "err", err)
 			return
 		}
 		req.SetBasicAuth(user, passwd)
@@ -32,7 +32,7 @@ func (s *server) wsDial(wsURL *url.URL, user, passwd string) {
 			// Service the client websocket
 			s.wsClient(conn)
 		} else {
-			s.LogError("Dialing", "url", wsURL, "err", err)
+			s.logError("Dialing", "url", wsURL, "err", err)
 		}
 
 		// Try again in a second
@@ -51,7 +51,7 @@ func (s *server) devicesOnline(l linker) {
 		pkt := d.newPacket()
 		pkt.SetPath("/online").Marshal(d.State)
 
-		s.LogInfo("Sending", "pkt", pkt)
+		s.logInfo("Sending", "pkt", pkt)
 		l.Send(pkt)
 
 		return true
@@ -70,47 +70,47 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	pkt.SetPath("/announce").Marshal(s.devices.getJSON())
 
 	// Send announcement
-	s.LogInfo("<- Sending", "pkt", pkt)
+	s.logInfo("<- Sending", "pkt", pkt)
 	err := link.Send(pkt)
 	if err != nil {
-		s.LogError("Sending", "err", err)
+		s.logError("Sending", "err", err)
 		return
 	}
 
 	// Receive welcome
 	pkt, err = s.receive(link)
 	if err != nil {
-		s.LogError("Receiving", "err", err)
+		s.logError("Receiving", "err", err)
 		return
 	}
 
-	s.LogInfo("-> Reply", "pkt", pkt)
+	s.logInfo("-> Reply", "pkt", pkt)
 	if pkt.Path != "/welcome" {
-		s.LogError("Not welcomed, got", "path", pkt.Path)
+		s.logError("Not welcomed, got", "path", pkt.Path)
 		return
 	}
 
-	s.LogInfo("Adding Uplink")
+	s.logInfo("Adding Uplink")
 	s.uplinks.add(link)
 
 	// Send /online packet to all online devices
 	s.devicesOnline(link)
 
 	// Route incoming packets down to the destination device
-	s.LogInfo("Receiving packets")
+	s.logInfo("Receiving packets")
 	for {
 		pkt, err := s.receive(link)
 		if err != nil {
-			s.LogError("Receiving packet", "err", err)
+			s.logError("Receiving packet", "err", err)
 			break
 		}
-		s.LogDebug("-> Route packet DOWN", "pkt", pkt)
+		s.logDebug("-> Route packet DOWN", "pkt", pkt)
 		if err := s.routeDown(pkt); err != nil {
-			s.LogError("Routing packet DOWN", "err", err)
+			s.logError("Routing packet DOWN", "err", err)
 			break
 		}
 	}
 
-	s.LogInfo("Removing Uplink")
+	s.logInfo("Removing Uplink")
 	s.uplinks.remove(link)
 }

@@ -18,7 +18,7 @@ func (d *device) renderTmpl(w io.Writer, template string, data any) error {
 	}
 	err := tmpl.Execute(w, data)
 	if err != nil {
-		d.server.LogError("Rendering template", "err", err)
+		d.server.logError("Rendering template", "err", err)
 	}
 	return err
 }
@@ -36,7 +36,7 @@ func (d *device) render(w io.Writer, sessionId, path, view string,
 	path = strings.TrimPrefix(path, "/")
 	template := path + "-" + view + ".tmpl"
 
-	//d.server.LogDebug("render", "id", d.Id, "session-id", sessionId, "path", path,
+	//d.server.logDebug("render", "id", d.Id, "session-id", sessionId, "path", path,
 	//	"view", view, "level", level, "template", template)
 	if err := d.renderSession(w, template, sessionId, level, data); err != nil {
 		return err
@@ -57,12 +57,12 @@ func (d *device) renderPkt(w io.Writer, sessionId string, pkt *Packet) error {
 		data = make(map[string]any)
 	}
 
-	//d.server.LogDebug("device.renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
+	//d.server.logDebug("device.renderPkt", "id", d.Id, "view", view, "level", level, "pkt", pkt)
 	return d.render(w, sessionId, pkt.Path, view, level, data)
 }
 
 func (p *Packet) render(w io.Writer, sessionId string) error {
-	//p.server.LogDebug("Packet.render", "sessionId", sessionId, "pkt", p)
+	//p.server.logDebug("Packet.render", "sessionId", sessionId, "pkt", p)
 
 	s := p.server
 	if s == nil {

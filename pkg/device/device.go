@@ -88,7 +88,7 @@ func (s *server) build(d *device, additionalFlags flags) error {
 	// Configure the device using DeployParams
 	_, err := d.formConfig(string(d.DeployParams))
 	if err != nil {
-		s.LogError("Configuring device using DeployParams",
+		s.logError("Configuring device using DeployParams",
 			"device", d, "err", err)
 	}
 
@@ -134,7 +134,7 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//d.server.LogDebug("Proposed", "DeployParams", proposedParams, "values", values)
+	//d.server.logDebug("Proposed", "DeployParams", proposedParams, "values", values)
 
 	// Form-decode these values into the device to configure the device
 	if err := decode(d.State, values); err != nil {

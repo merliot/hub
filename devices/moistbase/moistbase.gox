@@ -38,14 +38,14 @@ func (m *moistbase) GetConfig() device.Config {
 func (m *moistbase) created(pkt *device.Packet) {
 	var msg device.MsgCreated
 	pkt.Unmarshal(&msg)
-	device.LogInfo("Created", "msg", msg)
+	device.logInfo("Created", "msg", msg)
 	pkt.BroadcastUp()
 }
 
 func (m *moistbase) destroyed(pkt *device.Packet) {
 	var msg device.MsgDestroyed
 	pkt.Unmarshal(&msg)
-	device.LogInfo("Destroyed", "msg", msg)
+	device.logInfo("Destroyed", "msg", msg)
 	pkt.BroadcastUp()
 }
 

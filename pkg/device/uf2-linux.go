@@ -23,7 +23,7 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	}
 
 	if s.isSet(flagDebugKeepBuilds) {
-		s.LogInfo("Temporary build", "dir", temp)
+		s.logInfo("Temporary build", "dir", temp)
 	} else {
 		defer os.RemoveAll(temp)
 	}
@@ -40,12 +40,12 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	output := filepath.Join(dir, uf2Name)
 	input := filepath.Join(temp, runnerFile)
 	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "full", input)
-	s.LogInfo(cmd.String())
+	s.logInfo(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
-	s.LogInfo(string(stdoutStderr))
+	s.logInfo(string(stdoutStderr))
 
 	return nil
 }

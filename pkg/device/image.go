@@ -22,7 +22,7 @@ func (s *server) setContentMd5(w http.ResponseWriter, fileName string) error {
 
 	// Calculate MD5 checksum
 	cmd := exec.Command("md5sum", fileName)
-	s.LogDebug(cmd.String())
+	s.logDebug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -44,7 +44,7 @@ func (s *server) serveFile(w http.ResponseWriter, r *http.Request, fileName stri
 	w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(fileName))
 	w.Header().Set("Content-Type", "application/octet-stream")
 
-	s.LogInfo("Serving download file", "name", filepath.Base(fileName))
+	s.logInfo("Serving download file", "name", filepath.Base(fileName))
 	http.ServeFile(w, r, fileName)
 
 	return nil
@@ -200,7 +200,7 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 	args = append(args, "-C", dir, ".")
 
 	cmd := exec.Command("tar", args...)
-	s.LogDebug(cmd.String())
+	s.logDebug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -278,7 +278,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	}
 
 	if s.isSet(flagDebugKeepBuilds) {
-		s.LogDebug("Temporary build", "dir", dir)
+		s.logDebug("Temporary build", "dir", dir)
 	} else {
 		defer os.RemoveAll(dir)
 	}
@@ -300,7 +300,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 func (s *server) downloadMsgClear(d *device, sessionId string) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
-		s.LogError("Rendering template", "err", err)
+		s.logError("Rendering template", "err", err)
 		return
 	}
 	s.sessions.send(sessionId, string(buf.Bytes()))
@@ -311,7 +311,7 @@ func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error
 	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
 		"err": "Download error: " + downloadErr.Error(),
 	}); err != nil {
-		s.LogError("Rendering template", "err", err)
+		s.logError("Rendering template", "err", err)
 		return
 	}
 	s.sessions.send(sessionId, string(buf.Bytes()))
@@ -326,7 +326,7 @@ func (s *server) handleDownloaded(pkt *Packet) {
 
 	d, exists := s.devices.get(pkt.Dst)
 	if !exists {
-		s.LogError("Handling downloaded", "err", deviceNotFound(pkt.Dst))
+		s.logError("Handling downloaded", "err", deviceNotFound(pkt.Dst))
 		return
 	}
 
