@@ -47,7 +47,7 @@ func (l *wsLink) setPongHandler() {
 	l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
 	l.conn.SetPongHandler(func(appData string) error {
 		l.conn.SetReadDeadline(time.Now().Add(pingTimeout))
-		//LogInfo("Pong received, read deadline extended")
+		//println("Pong received, read deadline extended")
 		return nil
 	})
 }
@@ -60,7 +60,7 @@ func (l *wsLink) startPing() {
 			}
 			l.Lock()
 			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				LogError("Ping error:", "err", err)
+				println("Ping error:", "err", err)
 			}
 			l.Unlock()
 			time.Sleep(pingDuration)

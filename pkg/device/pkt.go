@@ -49,7 +49,7 @@ func (p *Packet) Marshal(v any) *Packet {
 	var err error
 	p.Msg, err = json.Marshal(v)
 	if err != nil {
-		LogError("JSON marshal", "error", err.Error())
+		p.server.LogError("JSON marshal", "error", err.Error())
 	}
 	return p
 }
@@ -58,7 +58,7 @@ func (p *Packet) Marshal(v any) *Packet {
 func (p *Packet) Unmarshal(v any) *Packet {
 	if len(p.Msg) > 0 {
 		if err := json.Unmarshal(p.Msg, v); err != nil {
-			LogError("JSON unmarshal", "error", err.Error())
+			p.server.LogError("JSON unmarshal", "error", err.Error())
 		}
 	}
 	return p
@@ -96,7 +96,7 @@ func (p *Packet) handle() error {
 
 	// Run server handler
 	if handler, ok := s.packetHandlers[p.Path]; ok {
-		LogDebug("Server handling", "pkt", p)
+		p.server.LogDebug("Server handling", "pkt", p)
 		handler.cb(p)
 		return nil
 	}
@@ -148,11 +148,11 @@ func (p *Packet) handle() error {
 //     ...
 //     </div>
 func (p *Packet) RouteUp() error {
-	LogDebug("RouteUp", "pkt", p)
+	p.server.LogDebug("RouteUp", "pkt", p)
 
 	s := p.server
 	if s == nil {
-		LogError("Packet.server not set")
+		p.server.LogError("Packet.server not set")
 		return fmt.Errorf("Packet.server not set")
 	}
 
@@ -160,7 +160,7 @@ func (p *Packet) RouteUp() error {
 
 	err := s.sessions.routeAll(p)
 	if err != nil {
-		LogDebug("RouteUp", "err", err)
+		p.server.LogDebug("RouteUp", "err", err)
 		return fmt.Errorf("RouteUp error: %w", err)
 	}
 

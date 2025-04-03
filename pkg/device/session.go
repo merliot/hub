@@ -105,7 +105,6 @@ func (sm *sessionMap) keepAlive(id string) {
 func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
 	sm.drange(func(id string, s *session) bool {
 		if pkt.SessionId == "" || pkt.SessionId == id {
-			//LogDebug("routeAll", "pkt", pkt)
 			if err = s.renderPkt(pkt); err != nil {
 				if err != errSessionNotConnected {
 					return false
@@ -120,7 +119,6 @@ func (sm *sessionMap) routeAll(pkt *Packet) (err error) {
 
 func (sm *sessionMap) route(id string, pkt *Packet) error {
 	if s, ok := sm.get(id); ok {
-		LogDebug("route", "pkt", pkt)
 		if err := s.renderPkt(pkt); err != nil {
 			if err != errSessionNotConnected {
 				return err
@@ -133,7 +131,6 @@ func (sm *sessionMap) route(id string, pkt *Packet) error {
 func (sm *sessionMap) send(id, htmlSnippet string) {
 	if s, ok := sm.get(id); ok {
 		if err := s.send([]byte(htmlSnippet)); err != nil {
-			LogError("sessionSend", "err", err)
 		}
 	}
 }

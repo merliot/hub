@@ -25,16 +25,16 @@ type deviceOS struct {
 }
 
 func (d *device) Handle(pattern string, handler http.Handler) {
-	//LogDebug("Handle", "pattern", pattern)
+	//d.server.LogDebug("Handle", "pattern", pattern)
 	d.ServeMux.Handle(pattern, handler)
 }
 
 func (d *device) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	//LogDebug("HandleFunc", "pattern", pattern)
+	//d.server.LogDebug("HandleFunc", "pattern", pattern)
 	d.ServeMux.HandleFunc(pattern, handler)
 }
 
-func (d *device) buildOS() error {
+func (s *server) buildOS(d *device) error {
 	var err error
 
 	d.ServeMux = http.NewServeMux()
@@ -47,9 +47,13 @@ func (d *device) buildOS() error {
 		d.layeredFS.stack(d.FS)
 	}
 
-	// Merge base funcs with device funcs to make one FuncMap
+	// Merge device-specific funcs with base server and base device funcs
+	// to make one FuncMap
 	if d.FuncMap == nil {
 		d.FuncMap = make(FuncMap)
+	}
+	for k, v := range s.baseFuncs() {
+		d.FuncMap[k] = v
 	}
 	for k, v := range d.baseFuncs() {
 		d.FuncMap[k] = v
@@ -95,7 +99,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) (
 	}
 
 	child.model = m
-	if err = child.build(s.defaultDeviceFlags()); err != nil {
+	if err = s.build(child, s.defaultDeviceFlags()); err != nil {
 		return
 	}
 
@@ -200,11 +204,8 @@ var emptyHub = `{
 func (s *server) loadDevices() error {
 
 	var devs = make(devicesJSON)
-	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
-	var devicesEnv = Getenv("DEVICES", "")
-	var devicesFile = Getenv("DEVICES_FILE", "")
-	var noEnv bool = (devicesEnv == "")
-	var noFile bool = (devicesFile == "")
+	var noEnv bool = (s.devicesEnv == "")
+	var noFile bool = (s.devicesFile == "")
 	var noDefault bool
 
 	defaultFile, err := os.Open("devices.json")
@@ -216,8 +217,8 @@ func (s *server) loadDevices() error {
 	switch {
 
 	case noEnv && noFile && noDefault:
-		LogInfo("Loading with empty hub")
-		if !autoSave {
+		s.LogInfo("Loading with empty hub")
+		if !s.isSet(flagAutoSave) {
 			s.set(flagSaveToClipboard)
 		}
 		if err := json.Unmarshal([]byte(emptyHub), &devs); err != nil {
@@ -225,21 +226,21 @@ func (s *server) loadDevices() error {
 		}
 
 	case noEnv && noFile && !noDefault:
-		LogInfo("Loading from devices.json")
+		s.LogInfo("Loading from devices.json")
 		if err := fileReadJSON("devices.json", &devs); err != nil {
 			return err
 		}
 
 	case noEnv:
-		LogInfo("Loading from", "DEVICES_FILE", devicesFile)
-		if err := fileReadJSON(devicesFile, &devs); err != nil {
+		s.LogInfo("Loading from", "DEVICES_FILE", s.devicesFile)
+		if err := fileReadJSON(s.devicesFile, &devs); err != nil {
 			return err
 		}
 
 	default:
-		LogInfo("Loading from DEVICES env var")
+		s.LogInfo("Loading from DEVICES env var")
 		s.set(flagSaveToClipboard)
-		if err := json.Unmarshal([]byte(devicesEnv), &devs); err != nil {
+		if err := json.Unmarshal([]byte(s.devicesEnv), &devs); err != nil {
 			return err
 		}
 	}
@@ -249,19 +250,17 @@ func (s *server) loadDevices() error {
 }
 
 func (s *server) devicesSave() error {
-	var devicesJSON = Getenv("DEVICES", "")
-	var devicesFile = Getenv("DEVICES_FILE", "")
-	var noJSON bool = (devicesJSON == "")
-	var noFile bool = (devicesFile == "")
+	var noEnv bool = (s.devicesEnv == "")
+	var noFile bool = (s.devicesFile == "")
 
-	if noJSON && noFile {
-		//LogDebug("Saving to devices.json")
+	if noEnv && noFile {
+		//s.LogDebug("Saving to devices.json")
 		return fileWriteJSON("devices.json", s.devices.getJSON())
 	}
 
-	if noJSON && !noFile {
-		//LogDebug("Saving to", "DEVICES_FILE", devicesFile)
-		return fileWriteJSON(devicesFile, s.devices.getJSON())
+	if noEnv && !noFile {
+		//s.LogDebug("Saving to", "DEVICES_FILE", s.devicesFile)
+		return fileWriteJSON(s.devicesFile, s.devices.getJSON())
 	}
 
 	// Save to clipboard

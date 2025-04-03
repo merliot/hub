@@ -2,13 +2,6 @@
 
 package device
 
-func bodyColors() string {
-	if Getenv("BACKGROUND", "") == "GOOD" {
-		return "bg-space-white text"
-	}
-	return "bg-black text"
-}
-
 func (d *device) bgColor() string {
 	if d.Config.BgColor == "" {
 		return "bg-space-white"

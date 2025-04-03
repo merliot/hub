@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/merliot/hub/pkg/ratelimit"
@@ -20,6 +21,7 @@ const (
 	flagRunningDemo     flags = 1 << iota // Running in DEMO mode
 	flagRunningSite                       // Running in SITE mode
 	flagSaveToClipboard                   // Save changes to clipboard
+	flagAutoSave                          // Automatically save changes
 	flagDirty                             // Server has unsaved changes
 	flagDebugKeepBuilds                   // Don't delete temp build directory
 )
@@ -35,7 +37,126 @@ type server struct {
 	mux            *http.ServeMux
 	server         *http.Server
 	flags
-	wsxPingPeriod int
+	port            int
+	wsxPingPeriod   int
+	background      string
+	wifiSsids       []string
+	wifiPassphrases []string
+	devicesEnv      string
+	devicesFile     string
+	logLevel        string
+	dialUrls        string
+	user            string
+	passwd          string
+}
+
+type ServerOption func(*server)
+
+func WithPort(port int) ServerOption {
+	return func(s *server) {
+		s.port = port
+	}
+}
+
+func WithModels(models Models) ServerOption {
+	return func(s *server) {
+		s.models.load(models)
+	}
+}
+
+func WithPingPeriod(period int) ServerOption {
+	return func(s *server) {
+		if period < 2 {
+			period = 2
+		}
+		s.wsxPingPeriod = period
+	}
+}
+
+func WithKeepBuilds(keep string) ServerOption {
+	return func(s *server) {
+		if keep == "true" {
+			s.set(flagDebugKeepBuilds)
+		}
+	}
+}
+
+func WithRunningSite(running string) ServerOption {
+	return func(s *server) {
+		if running == "true" {
+			s.set(flagRunningSite)
+		}
+	}
+}
+
+func WithRunningDemo(running string) ServerOption {
+	return func(s *server) {
+		if running == "true" {
+			s.set(flagRunningDemo)
+		}
+	}
+}
+
+func WithBackground(bg string) ServerOption {
+	return func(s *server) {
+		s.background = bg
+	}
+}
+
+func WithWifiSsids(ssids string) ServerOption {
+	return func(s *server) {
+		s.wifiSsids = strings.Split(ssids, ",")
+	}
+}
+
+func WithWifiPassphrases(ps string) ServerOption {
+	return func(s *server) {
+		s.wifiPassphrases = strings.Split(ps, ",")
+	}
+}
+
+func WithAutoSave(save string) ServerOption {
+	return func(s *server) {
+		if save == "true" {
+			s.set(flagAutoSave)
+		}
+	}
+}
+
+func WithDevicesEnv(devs string) ServerOption {
+	return func(s *server) {
+		s.devicesEnv = devs
+	}
+}
+
+func WithDevicesFile(file string) ServerOption {
+	return func(s *server) {
+		s.devicesFile = file
+	}
+}
+
+func WithLogLevel(level string) ServerOption {
+	return func(s *server) {
+		s.logLevel = level
+	}
+}
+
+func WithDialUrls(urls string) ServerOption {
+	return func(s *server) {
+		s.dialUrls = urls
+	}
+}
+
+func WithUser(user string) ServerOption {
+	return func(s *server) {
+		s.user = user
+	}
+}
+
+func WithPasswd(passwd string) ServerOption {
+	return func(s *server) {
+		s.passwd = passwd
+	}
 }
 
 var rlConfig = ratelimit.Config{
@@ -45,19 +166,23 @@ var rlConfig = ratelimit.Config{
 }
 
 // NewServer returns a device server listening on addr
-func NewServer(addr string, models Models) *server {
-	s := server{
+func NewServer(options ...ServerOption) *server {
+
+	s := &server{
 		sessions:       newSessions(),
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
-		server:         &http.Server{Addr: addr},
+		server:         &http.Server{},
+		wsxPingPeriod:  30,
+		logLevel:       "INFO",
 	}
 
-	s.models.load(models)
+	for _, opt := range options {
+		opt(s)
+	}
 
-	s.wsxPingPeriod, _ = strconv.Atoi(Getenv("PING_PERIOD", "2"))
-	if s.wsxPingPeriod < 2 {
-		s.wsxPingPeriod = 2
+	if s.isSet(flagRunningSite) {
+		s.set(flagRunningDemo)
 	}
 
 	s.packetHandlers["/created"] = &PacketHandler[msgCreated]{s.handleCreated}
@@ -66,28 +191,16 @@ func NewServer(addr string, models Models) *server {
 	s.packetHandlers["/announced"] = &PacketHandler[deviceMap]{s.handleAnnounced}
 
 	rl := ratelimit.New(rlConfig)
-	s.server.Handler = rl.RateLimit(basicAuth(s.mux))
+	s.server.Handler = rl.RateLimit(s.basicAuth(s.mux))
 
-	if Getenv("DEBUG_KEEP_BUILDS", "") == "true" {
-		s.set(flagDebugKeepBuilds)
-	}
-
-	if Getenv("SITE", "") == "true" {
-		s.set(flagRunningSite)
-	}
-
-	if (Getenv("DEMO", "") == "true") || s.isSet(flagRunningSite) {
-		s.set(flagRunningDemo)
-	}
-
-	return &s
+	return s
 }
 
 // routeDown routes the packet down to a downlink.  Which downlink is
 // determined by a lookup in the routing table for the "next-hop" downlink, the
 // downlink which is towards the destination.
 func (s *server) routeDown(pkt *Packet) error {
-	LogDebug("routeDown", "pkt", pkt)
+	s.LogDebug("routeDown", "pkt", pkt)
 
 	d, ok := s.devices.get(pkt.Dst)
 	if !ok {
@@ -131,7 +244,7 @@ func (s *server) buildDevice(id string, d *device) error {
 	}
 	d.model = model
 	d.server = s
-	return d.build(s.defaultDeviceFlags())
+	return s.build(d, s.defaultDeviceFlags())
 }
 
 func (s *server) newDevice(id, model, name string) (d *device, err error) {
@@ -160,7 +273,7 @@ func (s *server) newDevice(id, model, name string) (d *device, err error) {
 func (s *server) buildDevices() {
 	s.devices.drange(func(id string, d *device) bool {
 		if err := s.buildDevice(id, d); err != nil {
-			LogError("Skipping", "device", d, "err", err)
+			s.LogError("Skipping", "device", d, "err", err)
 			s.devices.Delete(id)
 		}
 		return true
@@ -175,25 +288,23 @@ func (s *server) buildTree() (err error) {
 // Run device server
 func (s *server) Run() {
 
-	logLevel = Getenv("LOG_LEVEL", "INFO")
-
-	logBuildInfo()
+	s.logBuildInfo()
 
 	if s.isSet(flagRunningSite) {
-		LogInfo("RUNNING full web site")
+		s.LogInfo("RUNNING full web site")
 	} else if s.isSet(flagRunningDemo) {
-		LogInfo("RUNNING in DEMO mode")
+		s.LogInfo("RUNNING in DEMO mode")
 	}
 
 	if err := s.loadDevices(); err != nil {
-		LogError("Loading devices", "err", err)
+		s.LogError("Loading devices", "err", err)
 		return
 	}
 
 	s.buildDevices()
 
 	if err := s.buildTree(); err != nil {
-		LogError("Building tree", "err", err)
+		s.LogError("Building tree", "err", err)
 		return
 	}
 
@@ -201,26 +312,23 @@ func (s *server) Run() {
 
 	if s.isSet(flagRunningDemo) {
 		if err := s.root.demoSetup(); err != nil {
-			LogError("Setting up root device", "err", err)
+			s.LogError("Setting up root device", "err", err)
 			return
 		}
 	} else {
 		if err := s.root.setup(); err != nil {
-			LogError("Setting up root device", "err", err)
+			s.LogError("Setting up root device", "err", err)
 			return
 		}
 	}
 
 	// Dial parents
-	var urls = Getenv("DIAL_URLS", "")
-	var user = Getenv("USER", "")
-	var passwd = Getenv("PASSWD", "")
-	s.dialParents(urls, user, passwd)
+	s.dialParents(s.dialUrls, s.user, s.passwd)
 
-	// If Server.Addr empty, don't run as a web server
-	if s.server.Addr == "" || s.server.Addr == ":" {
+	// If no port, don't run as a web server
+	if s.port == 0 {
 		s.root.run()
-		LogInfo("Bye, Bye", "root", s.root.Name)
+		s.LogInfo("Bye, Bye", "root", s.root.Name)
 		return
 	}
 
@@ -231,9 +339,10 @@ func (s *server) Run() {
 
 	// Run http server in go routine to be shutdown later
 	go func() {
-		LogInfo("ListenAndServe", "addr", s.server.Addr)
+		s.server.Addr = ":" + strconv.Itoa(s.port)
+		s.LogInfo("ListenAndServe", "addr", s.server.Addr)
 		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			LogError("HTTP server ListenAndServe", "err", err)
+			s.LogError("HTTP server ListenAndServe", "err", err)
 			os.Exit(1)
 		}
 	}()
@@ -244,24 +353,24 @@ func (s *server) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := s.server.Shutdown(ctx); err != nil {
-		LogError("HTTP server Shutdown", "err", err)
+		s.LogError("HTTP server Shutdown", "err", err)
 		os.Exit(1)
 	}
 
-	LogInfo("Bye, Bye", "root", s.root.Name)
+	s.LogInfo("Bye, Bye", "root", s.root.Name)
 }
 
-func logBuildInfo() {
+func (s *server) logBuildInfo() {
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		LogDebug("Build Info:")
-		LogDebug("Go Version:", "version", buildInfo.GoVersion)
-		LogDebug("Path", "path", buildInfo.Path)
+		s.LogDebug("Build Info:")
+		s.LogDebug("Go Version:", "version", buildInfo.GoVersion)
+		s.LogDebug("Path", "path", buildInfo.Path)
 		for _, setting := range buildInfo.Settings {
-			LogDebug("Setting", setting.Key, setting.Value)
+			s.LogDebug("Setting", setting.Key, setting.Value)
 		}
 		for _, dep := range buildInfo.Deps {
-			LogDebug("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
+			s.LogDebug("Dependency", "Path", dep.Path, "Version", dep.Version, "Replace", dep.Replace)
 		}
 	}
-	LogDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
+	s.LogDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
 }

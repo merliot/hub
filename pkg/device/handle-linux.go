@@ -9,7 +9,7 @@ import (
 func (s *server) packetHandlersInstall(d *device) {
 	for path, handler := range d.PacketHandlers {
 		if len(path) > 0 && path[0] != '/' {
-			LogError("Packet handler missing leading '/'", "path", path, "device", d)
+			s.LogError("Packet handler missing leading '/'", "path", path, "device", d)
 			continue
 		}
 		d.Handle("POST "+path, s.newPacketRoute(handler, d))
@@ -23,7 +23,7 @@ func (s *server) newPacketRoute(h packetHandler, d *device) http.Handler {
 
 		if s.sessions.expired(sessionId) {
 			// Force full page refresh to start new session
-			LogDebug("Session expired, refreshing", "id", sessionId)
+			s.LogDebug("Session expired, refreshing", "id", sessionId)
 			w.Header().Set("HX-Refresh", "true")
 			return
 		}

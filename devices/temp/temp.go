@@ -59,7 +59,7 @@ func (t *temp) Setup() error {
 func (t *temp) Poll(pkt *device.Packet) {
 	temp, hum, err := t.Read()
 	if err != nil {
-		device.LogError("Temp device poll read", "err", err)
+		println("Temp device poll read", "err", err)
 		return
 	}
 	if t.TempUnits == "F" {

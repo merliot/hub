@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 func (s *server) wsHandle(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		LogError("Upgrading WebSocket", "err", err)
+		s.LogError("Upgrading WebSocket", "err", err)
 		return
 	}
 	s.wsServer(conn)
@@ -27,7 +27,7 @@ func (s *server) wsHandle(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handleAnnounced(pkt *Packet) {
 	if _, err := s.handleAnnounce(pkt); err != nil {
-		LogDebug("Error handling announcement", "err", err)
+		s.LogDebug("Error handling announcement", "err", err)
 	}
 }
 
@@ -95,7 +95,7 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 
 	// Send /announced packet up so parents can update their trees
 	pkt.SetPath("/announced")
-	LogDebug("<- Sending", "pkt", pkt)
+	s.LogDebug("<- Sending", "pkt", pkt)
 	pkt.RouteUp()
 
 	return id, nil
@@ -110,30 +110,30 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	// First receive should be an /announce packet
 	pkt, err := s.receive(link)
 	if err != nil {
-		LogError("Receiving first packet", "err", err)
+		s.LogError("Receiving first packet", "err", err)
 		return
 	}
 	pkt.server = s
 
 	if pkt.Path != "/announce" {
-		LogError("Expected /announce, got", "path", pkt.Path)
+		s.LogError("Expected /announce, got", "path", pkt.Path)
 		return
 	}
-	LogDebug("-> Announcement", "pkt", pkt)
+	s.LogDebug("-> Announcement", "pkt", pkt)
 
 	id, err := s.handleAnnounce(pkt)
 	if err != nil {
-		LogError("Bad announcement", "err", err)
+		s.LogError("Bad announcement", "err", err)
 		return
 	}
 
 	// Announcement is good, send /welcome packet down to device
 	pkt.ClearMsg().SetPath("/welcome")
-	LogDebug("<- Sending", "pkt", pkt)
+	s.LogDebug("<- Sending", "pkt", pkt)
 	link.Send(pkt)
 
 	// Add as active downlink
-	LogDebug("Adding Downlink", "id", id)
+	s.LogDebug("Adding Downlink", "id", id)
 	s.downlinks.add(id, link)
 
 	// Start ping/pong
@@ -144,7 +144,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	for {
 		pkt, err := s.receive(link)
 		if err != nil {
-			LogError("Receiving packet", "err", err)
+			s.LogError("Receiving packet", "err", err)
 			break
 		}
 		pkt.server = s
@@ -156,13 +156,13 @@ func (s *server) wsServer(conn *websocket.Conn) {
 			continue
 		}
 
-		LogDebug("-> Received", "pkt", pkt)
+		s.LogDebug("-> Received", "pkt", pkt)
 		if err := pkt.handle(); err != nil {
-			LogError("Handling packet", "err", err)
+			s.LogError("Handling packet", "err", err)
 		}
 	}
 
-	LogDebug("Removing Downlink", "id", id)
+	s.LogDebug("Removing Downlink", "id", id)
 	s.downlinks.remove(id)
 
 	s.deviceOffline(id)

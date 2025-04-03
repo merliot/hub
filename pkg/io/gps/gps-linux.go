@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"sync"
 
-	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/io/gps/nmea"
 	"github.com/tarm/serial"
 )
@@ -37,10 +36,10 @@ func (g *Gps) Setup() (err error) {
 func (g *Gps) scan() {
 	scanner := bufio.NewScanner(g.Port)
 	for scanner.Scan() {
-		//device.LogDebug(scanner.Text())
+		//println(scanner.Text())
 		lat, long, err := nmea.ParseGLL(scanner.Text())
 		if err != nil {
-			//device.LogError("Scan", "err", err)
+			//println("Scan", "err", err)
 			continue
 		}
 		g.Lock()
@@ -49,7 +48,7 @@ func (g *Gps) scan() {
 	}
 
 	if err := scanner.Err(); err != nil {
-		device.LogError("Closing scan", "err", err)
+		println("Closing scan", "err", err)
 	}
 
 	g.Port.Close()

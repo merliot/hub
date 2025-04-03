@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -76,9 +77,9 @@ func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	q.Set("image", "merliot/hub")
 
 	q.Set("env[DIAL_URLS]", dialurls)
-	q.Set("env[LOG_LEVEL]", logLevel)
-	q.Set("env[PING_PERIOD]", Getenv("PING_PERIOD", ""))
-	q.Set("env[BACKGROUND]", Getenv("BACKGROUND", ""))
+	q.Set("env[LOG_LEVEL]", s.logLevel)
+	q.Set("env[PING_PERIOD]", strconv.Itoa(s.wsxPingPeriod))
+	q.Set("env[BACKGROUND]", s.background)
 	q.Set("env[DEVICES]", string(devs))
 	q.Set("env[AUTO_SAVE]", "false")
 

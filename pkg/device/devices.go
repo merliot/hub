@@ -105,16 +105,18 @@ func (dm *deviceMap) buildTree() (root *device, err error) {
 		for _, childId := range d.Children {
 			child, ok := dm.get(childId)
 			if !ok {
-				LogError("Unknown child id, skipping device",
-					"device-id", id, "child-id", childId)
-				dm.Delete(id)
-				break
+				err = fmt.Errorf("Unknown child id '%s', device id '%s'",
+					childId, id)
+				return false
 			}
 			child.parent = d
 			d.children.Store(childId, child)
 		}
 		return true
 	})
+	if err != nil {
+		return
+	}
 
 	// Find root of family tree
 	root, err = dm.findRoot()

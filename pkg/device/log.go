@@ -6,13 +6,13 @@ package device
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"time"
 )
 
 var (
 	logBuffer   bytes.Buffer
 	logBufferMu mutex
-	logLevel    = "INFO"
 )
 
 // Format the args into key=value pairs
@@ -58,8 +58,8 @@ func getColor(level string) string {
 	}
 }
 
-func ok(level string) bool {
-	switch logLevel {
+func (s *server) logok(level string) bool {
+	switch s.logLevel {
 	case "DEBUG":
 		return true
 	case "INFO":
@@ -72,27 +72,31 @@ func ok(level string) bool {
 	return false
 }
 
-func log(level string, msg string, args ...any) {
-	if ok(level) {
+func (s *server) log(level string, msg string, args ...any) {
+	if s.logok(level) {
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
 		color := getColor(level)
-		fmt.Printf("%s %s[%s]%s %s%s%s", timestamp, color, level,
-			colorReset, msg, formatArgs(args...), crlf)
+		port := ""
+		if s.port != 0 {
+			port = "[:" + strconv.Itoa(s.port) + "]"
+		}
+		fmt.Printf("%s %s%s[%s]%s %s%s%s", timestamp, port, color,
+			level, colorReset, msg, formatArgs(args...), crlf)
 	}
 }
 
-func LogInfo(msg string, args ...any) {
-	log("INFO", msg, args...)
+func (s *server) LogInfo(msg string, args ...any) {
+	s.log("INFO", msg, args...)
 }
 
-func LogWarn(msg string, args ...any) {
-	log("WARN", msg, args...)
+func (s *server) LogWarn(msg string, args ...any) {
+	s.log("WARN", msg, args...)
 }
 
-func LogDebug(msg string, args ...any) {
-	log("DEBUG", msg, args...)
+func (s *server) LogDebug(msg string, args ...any) {
+	s.log("DEBUG", msg, args...)
 }
 
-func LogError(msg string, args ...any) {
-	log("ERROR", msg, args...)
+func (s *server) LogError(msg string, args ...any) {
+	s.log("ERROR", msg, args...)
 }

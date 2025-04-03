@@ -13,13 +13,48 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
 )
 
 func main() {
-	port := device.Getenv("PORT", "8000")
-	addr := ":" + port
-	server := device.NewServer(addr, models.AllModels)
+
+	port, _ := strconv.Atoi(device.Getenv("PORT", "8000"))
+	pingPeriod, _ := strconv.Atoi(device.Getenv("PING_PERIOD", "2"))
+	keepBuilds := device.Getenv("DEBUG_KEEP_BUILDS", "")
+	runningSite := device.Getenv("SITE", "")
+	runningDemo := device.Getenv("DEMO", "")
+	background := device.Getenv("BACKGROUND", "")
+	wifiSsids := device.Getenv("WIFI_SSIDS", "")
+	wifiPassphrases := device.Getenv("WIFI_PASSPHRASES", "")
+	autoSave := device.Getenv("AUTO_SAVE", "true")
+	devicesEnv := device.Getenv("DEVICES", "")
+	devicesFile := device.Getenv("DEVICES_FILE", "")
+	logLevel := device.Getenv("LOG_LEVEL", "INFO")
+	dialUrls := device.Getenv("DIAL_URLS", "")
+	user := device.Getenv("USER", "")
+	passwd := device.Getenv("PASSWD", "")
+
+	server := device.NewServer(
+		device.WithPort(port),
+		device.WithModels(models.AllModels),
+		device.WithPingPeriod(pingPeriod),
+		device.WithKeepBuilds(keepBuilds),
+		device.WithRunningSite(runningSite),
+		device.WithRunningDemo(runningDemo),
+		device.WithBackground(background),
+		device.WithWifiSsids(wifiSsids),
+		device.WithWifiPassphrases(wifiPassphrases),
+		device.WithAutoSave(autoSave),
+		device.WithDevicesEnv(devicesEnv),
+		device.WithDevicesFile(devicesFile),
+		device.WithLogLevel(logLevel),
+		device.WithDialUrls(dialUrls),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
+
 	server.Run()
 }

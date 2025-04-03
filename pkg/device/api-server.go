@@ -88,7 +88,7 @@ func (s *server) deviceInstall(d *device) {
 	prefix := "/device/" + d.Id
 	handler := d.deviceHandler(http.StripPrefix(prefix, d))
 	s.mux.Handle(prefix+"/", handler)
-	LogInfo("Device installed", "prefix", prefix, "device", d)
+	s.LogInfo("Device installed", "prefix", prefix, "device", d)
 }
 
 // modelInstall installs /model/{model} pattern for device model
@@ -96,13 +96,13 @@ func (s *server) modelInstall(d *device) {
 	prefix := "/model/" + d.Model
 	handler := http.StripPrefix(prefix, d)
 	s.mux.Handle(prefix+"/", handler)
-	LogInfo("Model installed", "prefix", prefix)
+	s.LogInfo("Model installed", "prefix", prefix)
 }
 
 func (s *server) installModels() {
 	s.models.drange(func(name string, model *Model) bool {
 		proto, _ := s.newDevice("proto", name, "proto")
-		proto.build(s.defaultDeviceFlags())
+		s.build(proto, s.defaultDeviceFlags())
 		proto.installAPI()
 		s.modelInstall(proto)
 		model.Config = proto.GetConfig()
@@ -160,14 +160,10 @@ func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
 }
 
 func (s *server) save() error {
-	var autoSave = Getenv("AUTO_SAVE", "true") == "true"
-
-	if autoSave {
+	if s.isSet(flagAutoSave) {
 		return s.devicesSave()
 	}
-
 	s.set(flagDirty)
-
 	return nil
 }
 
@@ -213,7 +209,7 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 
 func (s *server) handleCreated(pkt *Packet) {
 	if err := s.handleCreate(pkt, flagLocked); err != nil {
-		LogError("Create", "err", err)
+		s.LogError("Create", "err", err)
 		return
 	}
 	pkt.BroadcastUp()
@@ -266,7 +262,7 @@ func (s *server) handleDestroy(pkt *Packet) error {
 
 func (s *server) handleDestroyed(pkt *Packet) {
 	if err := s.handleDestroy(pkt); err != nil {
-		LogError("Destroy", "err", err)
+		s.LogError("Destroy", "err", err)
 		return
 	}
 	pkt.BroadcastUp()

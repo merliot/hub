@@ -9,20 +9,18 @@ import (
 )
 
 // HTTP Basic Authentication middleware
-func _basicAuth(w http.ResponseWriter, r *http.Request) bool {
-	var user = Getenv("USER", "")
-	var passwd = Getenv("PASSWD", "")
+func (s *server) _basicAuth(w http.ResponseWriter, r *http.Request) bool {
 
 	// skip basic authentication if no user
-	if user == "" {
+	if s.user == "" {
 		return true
 	}
 
 	ruser, rpasswd, ok := r.BasicAuth()
 
 	if ok {
-		userHash := sha256.Sum256([]byte(user))
-		passHash := sha256.Sum256([]byte(passwd))
+		userHash := sha256.Sum256([]byte(s.user))
+		passHash := sha256.Sum256([]byte(s.passwd))
 		ruserHash := sha256.Sum256([]byte(ruser))
 		rpassHash := sha256.Sum256([]byte(rpasswd))
 
@@ -42,9 +40,9 @@ func _basicAuth(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // basicAuth middleware function for http.Handler
-func basicAuth(next http.Handler) http.Handler {
+func (s *server) basicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !_basicAuth(w, r) {
+		if !s._basicAuth(w, r) {
 			return
 		}
 		// Call the next handler if the credentials are valid

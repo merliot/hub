@@ -16,7 +16,7 @@ func (s *server) wsxHandle(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		LogError("Failed to upgrade to websocket", "error", err)
+		s.LogError("Failed to upgrade to websocket", "error", err)
 		return
 	}
 	defer ws.Close()
@@ -31,7 +31,7 @@ func (s *server) wsxServe(ws *websocket.Conn, r *http.Request) {
 
 	if s.sessions.expired(sessionId) {
 		// Force full page refresh to start new session
-		LogDebug("Session expired, refreshing", "id", sessionId)
+		s.LogDebug("Session expired, refreshing", "id", sessionId)
 		ws.WriteMessage(websocket.TextMessage, []byte("refresh"))
 		return
 	}
@@ -48,7 +48,7 @@ func (s *server) wsxServe(ws *websocket.Conn, r *http.Request) {
 		if err != nil {
 			if !websocket.IsCloseError(err, websocket.CloseGoingAway,
 				websocket.CloseAbnormalClosure) {
-				LogError("Failed to read message", "error", err)
+				s.LogError("Failed to read message", "error", err)
 			}
 			break
 		}

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -17,8 +18,8 @@ import (
 var (
 	user       = "TEST"
 	passwd     = "TESTTEST"
-	hubAddr    = "localhost:8022"
-	subhubAddr = "localhost:8023"
+	hubPort    = 8022
+	subhubPort = 8023
 	sessionId  string
 )
 
@@ -120,20 +121,22 @@ func TestMain(m *testing.M) {
 
 	os.WriteFile("devices.json", []byte(hub), 0644)
 
-	device.Setenv("DEVICES_FILE", "devices.json")
-	device.Setenv("USER", user)
-	device.Setenv("PASSWD", passwd)
-	device.Setenv("LOG_LEVEL", "DEBUG")
-	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
-	device.Setenv("DIAL_URLS", ",xx://xxx/ws,://example.com")
-
 	// Run a hub
-	hubby := device.NewServer(hubAddr, models.AllModels)
+	hubby := device.NewServer(
+		device.WithPort(hubPort),
+		device.WithModels(models.AllModels),
+		//device.WithKeepBuilds("true"),
+		device.WithDevicesFile("devices.json"),
+		device.WithLogLevel("DEBUG"),
+		device.WithDialUrls(",xx://xxx/ws,://example.com"),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
 	go hubby.Run()
 	time.Sleep(time.Second)
 
 	// Stash the session id
-	sessionId, err = getSession(hubAddr)
+	sessionId, err = getSession(hubPort)
 	if err != nil {
 		fmt.Printf("Getting session failed: %s\n", err)
 		os.Exit(1)
@@ -144,10 +147,10 @@ func TestMain(m *testing.M) {
 
 var errNoMoreSessions = errors.New("no more sessions")
 
-func getSession(addr string) (string, error) {
+func getSession(port int) (string, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
-	resp, err := call(addr, "GET", "/")
+	resp, err := call(port, "GET", "/")
 	if err != nil {
 		return "", fmt.Errorf("API failed: %v\n", err)
 	}
@@ -162,11 +165,11 @@ func getSession(addr string) (string, error) {
 	return sessionId, nil
 }
 
-func callUserPasswd(addr, method, url, user, passwd string) (*http.Response, error) {
+func callUserPasswd(port int, method, url, user, passwd string) (*http.Response, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
 
-	url = "http://" + addr + url
+	url = "http://localhost:" + strconv.Itoa(port) + url
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request: %w", err)
@@ -177,13 +180,13 @@ func callUserPasswd(addr, method, url, user, passwd string) (*http.Response, err
 	return client.Do(req)
 }
 
-func call(addr, method, url string) (*http.Response, error) {
-	return callUserPasswd(addr, method, url, user, passwd)
+func call(port int, method, url string) (*http.Response, error) {
+	return callUserPasswd(port, method, url, user, passwd)
 }
 
-func callOK(t *testing.T, addr, method, url string) []byte {
+func callOK(t *testing.T, port int, method, url string) []byte {
 
-	resp, err := call(addr, method, url)
+	resp, err := call(port, method, url)
 	if err != nil {
 		t.Fatalf("API call failed: %v", err)
 	}
@@ -203,45 +206,54 @@ func callOK(t *testing.T, addr, method, url string) []byte {
 }
 
 func TestSave(t *testing.T) {
-	callOK(t, hubAddr, "GET", "/save")
+	callOK(t, hubPort, "GET", "/save")
 }
 
 func TestJoin(t *testing.T) {
 	// Run a sub-hub
-	device.Setenv("DEVICES_FILE", "")
-	device.Setenv("DEVICES", subhub)
-	device.Setenv("DIAL_URLS", "ws://"+hubAddr+"/ws")
-	subby := device.NewServer(subhubAddr, models.AllModels)
+	subby := device.NewServer(
+		device.WithPort(subhubPort),
+		device.WithModels(models.AllModels),
+		device.WithDevicesEnv(subhub),
+		device.WithDialUrls("ws://localhost:"+strconv.Itoa(hubPort)+"/ws"),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
 	go subby.Run()
 	time.Sleep(time.Second)
 
-	devs := callOK(t, hubAddr, "GET", "/devices")
+	devs := callOK(t, hubPort, "GET", "/devices")
 	if !bytes.Equal(devs, []byte(merged)) {
 		t.Fatalf("Expected /devices:\n%s\ngot:\n%s", merged, devs)
 	}
 
 	// Run gadget2
-	device.Setenv("DEVICES", gadget2)
-	device.Setenv("DIAL_URLS", "ws://"+subhubAddr+"/ws")
-	g2 := device.NewServer("", device.Models{
+	models := device.Models{
 		"gadget": &models.Gadget,
-	})
+	}
+	g2 := device.NewServer(
+		device.WithModels(models),
+		device.WithDevicesEnv(gadget2),
+		device.WithDialUrls("ws://localhost:"+strconv.Itoa(subhubPort)+"/ws"),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
 	go g2.Run()
 	time.Sleep(time.Second)
 
-	callOK(t, hubAddr, "POST", "/device/gadget2/get-uptime")
+	callOK(t, hubPort, "POST", "/device/gadget2/get-uptime")
 	time.Sleep(time.Second)
 
-	callOK(t, subhubAddr, "POST",
+	callOK(t, subhubPort, "POST",
 		"/create?ParentId=subhub1&Child.Id=test&Child.Model=gadget&Child.Name=test")
 
 	odir, _ := os.Getwd()
 	os.Chdir("../../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
-	callOK(t, subhubAddr, "GET", "/download-image/test?target=x86-64")
-	callOK(t, subhubAddr, "GET", "/download-image/subhub1?target=x86-64")
+	callOK(t, subhubPort, "GET", "/download-image/test?target=x86-64")
+	callOK(t, subhubPort, "GET", "/download-image/subhub1?target=x86-64")
 
-	callOK(t, subhubAddr, "DELETE", "/destroy?Id=test")
+	callOK(t, subhubPort, "DELETE", "/destroy?Id=test")
 
 	time.Sleep(time.Second)
 }

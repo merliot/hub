@@ -23,7 +23,7 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	}
 
 	if s.isSet(flagDebugKeepBuilds) {
-		LogInfo("Temporary build", "dir", temp)
+		s.LogInfo("Temporary build", "dir", temp)
 	} else {
 		defer os.RemoveAll(temp)
 	}
@@ -40,12 +40,12 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	output := filepath.Join(dir, uf2Name)
 	input := filepath.Join(temp, runnerFile)
 	cmd := exec.Command("tinygo", "build", "-target", target, "-o", output, "-stack-size", "8kb", "-size", "full", input)
-	LogInfo(cmd.String())
+	s.LogInfo(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
-	LogInfo(string(stdoutStderr))
+	s.LogInfo(string(stdoutStderr))
 
 	return nil
 }
@@ -54,7 +54,7 @@ func (s *server) Uf2GenerateBaseImages(dir, modelName, targetName string) (err e
 	s.models.drange(func(name string, model *Model) bool {
 		if name == modelName || modelName == "" {
 			proto, _ := s.newDevice("proto", name, "proto")
-			proto.build(0)
+			s.build(proto, 0)
 			for _, target := range target.TinyGoTargets(proto.Targets) {
 				if target == targetName || targetName == "" {
 					if err = s.generateUf2(proto, dir, target); err != nil {

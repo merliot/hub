@@ -103,7 +103,7 @@ func (c *camera) captureAndSave() {
 	// Start the capture process in the background, continuously capturing
 	// camera images to raw files
 	if err := startCapture(rawSpec); err != nil {
-		device.LogError("Failed to start camera capture process", "err", err)
+		println("Failed to start camera capture process:", err)
 		return
 	}
 
@@ -113,7 +113,7 @@ func (c *camera) captureAndSave() {
 		time.Sleep(time.Second)
 		matches, err := filepath.Glob(rawGlob)
 		if err != nil {
-			device.LogError("Failed to find any raw files", "err", err)
+			println("Failed to find any raw files:", err)
 			continue
 		}
 		time.Sleep(time.Second)
@@ -124,7 +124,7 @@ func (c *camera) captureAndSave() {
 				if err == nil {
 					c.Cache.SaveJpeg(jpeg)
 				} else {
-					device.LogError("Failed to add watermark",
+					println("Failed to add watermark",
 						"fileName", fileName, "err", err)
 				}
 			}

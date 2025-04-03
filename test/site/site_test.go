@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 var (
 	user   = "TEST"
 	passwd = "TESTTEST"
-	addr   = "localhost:8021"
+	port   = 8021
 )
 
 var devices = `{
@@ -95,15 +96,17 @@ var devices = `{
 
 func TestMain(m *testing.M) {
 
-	device.Setenv("DEVICES", devices)
-	device.Setenv("USER", user)
-	device.Setenv("PASSWD", passwd)
-	device.Setenv("LOG_LEVEL", "DEBUG")
-	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
-
 	// Run a hub in site mode
-	device.Setenv("SITE", "true")
-	demo := device.NewServer(addr, models.AllModels)
+	demo := device.NewServer(
+		device.WithPort(port),
+		device.WithModels(models.AllModels),
+		//device.WithKeepBuilds("true"),
+		device.WithRunningSite("true"),
+		device.WithDevicesEnv(devices),
+		device.WithLogLevel("DEBUG"),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
 	go demo.Run()
 	time.Sleep(time.Second)
 
@@ -116,7 +119,7 @@ func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
 
-	url = "http://" + addr + url
+	url = "http://localhost:" + strconv.Itoa(port) + url
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request: %w", err)

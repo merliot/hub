@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -22,7 +23,7 @@ import (
 var (
 	user      = "TEST"
 	passwd    = "TESTTEST"
-	addr      = "localhost:8020"
+	port      = 8020
 	sessionId string
 )
 
@@ -113,18 +114,20 @@ func TestMain(m *testing.M) {
 
 	var err error
 
-	device.Setenv("WIFI_SSIDS", "foo")
-	device.Setenv("WIFI_PASSPHRASES", "bar")
-	device.Setenv("BACKGROUND", "GOOD")
-	device.Setenv("DEVICES", devices)
-	device.Setenv("USER", user)
-	device.Setenv("PASSWD", passwd)
-	device.Setenv("LOG_LEVEL", "DEBUG")
-	//device.Setenv("DEBUG_KEEP_BUILDS", "true")
-
 	// Run a hub in demo mode
-	device.Setenv("DEMO", "true")
-	demo := device.NewServer(addr, models.AllModels)
+	demo := device.NewServer(
+		device.WithPort(port),
+		device.WithModels(models.AllModels),
+		//device.WithKeepBuilds("true"),
+		device.WithRunningDemo("true"),
+		device.WithBackground("GOOD"),
+		device.WithWifiSsids("foo"),
+		device.WithWifiPassphrases("bar"),
+		device.WithDevicesEnv(devices),
+		device.WithLogLevel("DEBUG"),
+		device.WithUser(user),
+		device.WithPasswd(passwd),
+	)
 	go demo.Run()
 	time.Sleep(time.Second)
 
@@ -136,7 +139,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Simulate a browser session by opening a /wsx websocket
-	url := "ws://" + addr + "/wsx?session-id=" + sessionId
+	url := "ws://localhost:" + strconv.Itoa(port) + "/wsx?session-id=" + sessionId
 	go wsx(url, user, passwd)
 
 	m.Run()
@@ -184,7 +187,7 @@ func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
 	// Little delay so we don't trip the ratelimiter
 	time.Sleep(100 * time.Millisecond)
 
-	url = "http://" + addr + url
+	url = "http://localhost:" + strconv.Itoa(port) + url
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create request: %w", err)
@@ -458,7 +461,7 @@ func TestAPIDownload(t *testing.T) {
 	defer os.Chdir(odir)
 	callOK(t, "GET", "/download-image/relaytest?target=rpi")
 	callOK(t, "GET", "/download-image/relaytest?target=x86-64")
-	callOK(t, "GET", "/download-image/relaytest?target=nano-rp2040")
+	callOK(t, "GET", "/download-image/relaytest?target=nano-rp2040&ssid=foo")
 	callOK(t, "GET", "/deploy-koyeb/relaytest/"+sessionId)
 	callBad(t, "GET", "/deploy-koyeb/XXX/"+sessionId)
 	callBad(t, "GET", "/download-image/relaytest?target=XXX")

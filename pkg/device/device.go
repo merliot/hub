@@ -55,7 +55,7 @@ func (d *device) newPacket() *Packet {
 	return d.server.newPacket().SetDst(d.Id)
 }
 
-func (d *device) build(additionalFlags flags) error {
+func (s *server) build(d *device, additionalFlags flags) error {
 
 	d.startup = time.Now()
 	d.Devicer = d.model.Maker()
@@ -88,11 +88,11 @@ func (d *device) build(additionalFlags flags) error {
 	// Configure the device using DeployParams
 	_, err := d.formConfig(string(d.DeployParams))
 	if err != nil {
-		LogError("Configuring device using DeployParams",
+		s.LogError("Configuring device using DeployParams",
 			"device", d, "err", err)
 	}
 
-	return d.buildOS()
+	return s.buildOS(d)
 }
 
 func (d *device) handleOnline(pkt *Packet) {
@@ -134,7 +134,7 @@ func (d *device) formConfig(rawQuery string) (changed bool, err error) {
 		return false, err
 	}
 
-	//LogDebug("Proposed", "DeployParams", proposedParams, "values", values)
+	//d.server.LogDebug("Proposed", "DeployParams", proposedParams, "values", values)
 
 	// Form-decode these values into the device to configure the device
 	if err := decode(d.State, values); err != nil {

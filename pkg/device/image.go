@@ -5,6 +5,7 @@ package device
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,11 +18,11 @@ import (
 	tpkg "github.com/merliot/hub/pkg/target"
 )
 
-func setContentMd5(w http.ResponseWriter, fileName string) error {
+func (s *server) setContentMd5(w http.ResponseWriter, fileName string) error {
 
 	// Calculate MD5 checksum
 	cmd := exec.Command("md5sum", fileName)
-	LogDebug(cmd.String())
+	s.LogDebug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -34,16 +35,16 @@ func setContentMd5(w http.ResponseWriter, fileName string) error {
 	return nil
 }
 
-func serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
+func (s *server) serveFile(w http.ResponseWriter, r *http.Request, fileName string) error {
 
-	if err := setContentMd5(w, fileName); err != nil {
+	if err := s.setContentMd5(w, fileName); err != nil {
 		return err
 	}
 
 	w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(fileName))
 	w.Header().Set("Content-Type", "application/octet-stream")
 
-	LogInfo("Serving download file", "name", filepath.Base(fileName))
+	s.LogInfo("Serving download file", "name", filepath.Base(fileName))
 	http.ServeFile(w, r, fileName)
 
 	return nil
@@ -110,13 +111,13 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 	// from this file.
 	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
 		"port":       r.URL.Query().Get("port"),
-		"user":       Getenv("USER", ""),
-		"passwd":     Getenv("PASSWD", ""),
+		"user":       s.user,
+		"passwd":     s.passwd,
 		"dialurls":   dialurls,
-		"logLevel":   logLevel,
-		"pingPeriod": Getenv("PING_PERIOD", ""),
-		"background": Getenv("BACKGROUND", ""),
-		"autoSave":   Getenv("AUTO_SAVE", "true"),
+		"logLevel":   s.logLevel,
+		"pingPeriod": s.wsxPingPeriod,
+		"background": s.background,
+		"autoSave":   s.isSet(flagAutoSave),
 	}); err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 	args = append(args, "-C", dir, ".")
 
 	cmd := exec.Command("tar", args...)
-	LogDebug(cmd.String())
+	s.LogDebug(cmd.String())
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
@@ -214,16 +215,32 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 
 	// Serve installer file for download
 
-	return serveFile(w, r, filepath.Join(dir, installer))
+	return s.serveFile(w, r, filepath.Join(dir, installer))
 }
 
-func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, target string) error {
+func (s *server) buildTinyGoImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
 
 	var referer = r.Referer()
 	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
 	var ssid = r.URL.Query().Get("ssid")
-	var wifiAuths = wifiAuths()
-	var passphrase = wifiAuths[ssid]
+
+	if len(s.wifiSsids) != len(s.wifiPassphrases) {
+		return errors.New("Wifi SSIDS and Passphrases don't match")
+	}
+
+	var passphrase = ""
+	var found bool
+	for i, ss := range s.wifiSsids {
+		if ss == ssid {
+			passphrase = s.wifiPassphrases[i]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("Wifi SSID '%s' not valid", ssid)
+	}
 
 	var p = uf2ParamsBlock{
 		MagicStart: uf2Magic,
@@ -234,10 +251,10 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 			Model:        d.Model,
 			Name:         d.Name,
 			DeployParams: d.DeployParams,
-			User:         Getenv("USER", ""),
-			Passwd:       Getenv("PASSWD", ""),
+			User:         s.user,
+			Passwd:       s.passwd,
 			DialURLs:     dialurls,
-			LogLevel:     logLevel,
+			LogLevel:     s.logLevel,
 		},
 		MagicEnd: uf2Magic,
 	}
@@ -249,7 +266,7 @@ func (d *device) buildTinyGoImage(w http.ResponseWriter, r *http.Request, dir, t
 		return err
 	}
 
-	return serveFile(w, r, installer)
+	return s.serveFile(w, r, installer)
 }
 
 func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) error {
@@ -261,7 +278,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	}
 
 	if s.isSet(flagDebugKeepBuilds) {
-		LogDebug("Temporary build", "dir", dir)
+		s.LogDebug("Temporary build", "dir", dir)
 	} else {
 		defer os.RemoveAll(dir)
 	}
@@ -272,7 +289,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	case "x86-64", "rpi":
 		return s.buildLinuxImage(d, w, r, dir, target)
 	case "nano-rp2040", "wioterminal", "pyportal":
-		return d.buildTinyGoImage(w, r, dir, target)
+		return s.buildTinyGoImage(d, w, r, dir, target)
 	default:
 		return fmt.Errorf("Target '%s' not supported", target)
 	}
@@ -283,7 +300,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 func (s *server) downloadMsgClear(d *device, sessionId string) {
 	var buf bytes.Buffer
 	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
-		LogError("Rendering template", "err", err)
+		s.LogError("Rendering template", "err", err)
 		return
 	}
 	s.sessions.send(sessionId, string(buf.Bytes()))
@@ -294,7 +311,7 @@ func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error
 	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
 		"err": "Download error: " + downloadErr.Error(),
 	}); err != nil {
-		LogError("Rendering template", "err", err)
+		s.LogError("Rendering template", "err", err)
 		return
 	}
 	s.sessions.send(sessionId, string(buf.Bytes()))
@@ -309,7 +326,7 @@ func (s *server) handleDownloaded(pkt *Packet) {
 
 	d, exists := s.devices.get(pkt.Dst)
 	if !exists {
-		LogError("Handling downloaded", "err", deviceNotFound(pkt.Dst))
+		s.LogError("Handling downloaded", "err", deviceNotFound(pkt.Dst))
 		return
 	}
 
