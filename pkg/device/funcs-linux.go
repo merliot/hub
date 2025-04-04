@@ -31,7 +31,7 @@ func (s *server) bodyColors() string {
 func (s *server) baseFuncs() FuncMap {
 	return FuncMap{
 		"saveToClipboard": func() bool { return s.isSet(flagSaveToClipboard) },
-		"devicesJSON":     func() string { return "TODO" }, // TODO move this
+		"devicesJSON":     func() string { return string(s.devices.getPrettyJSON()) },
 		"title":           strings.Title,
 		"add":             func(a, b int) int { return a + b },
 		"mult":            func(a, b int) int { return a * b },

@@ -50,7 +50,11 @@ func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 	// redeployed, the downlink device will connect.
 
 	if changed {
-		s.save()
+		if err := s.save(); err != nil {
+			s.downloadMsgError(d, sessionId, err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		s.downlinks.linkClose(d.Id)
 	}
 

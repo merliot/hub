@@ -249,6 +249,18 @@ func (s *server) loadDevices() error {
 	return nil
 }
 
+func (s *server) dirty() error {
+	s.set(flagDirty)
+	pkt := s.newPacket().SetDst(s.root.Id).SetPath("/dirty")
+	return s.sessions.routeAll(pkt)
+}
+
+func (s *server) clean() error {
+	s.unSet(flagDirty)
+	pkt := s.newPacket().SetDst(s.root.Id).SetPath("/clean")
+	return s.sessions.routeAll(pkt)
+}
+
 func (s *server) devicesSave() error {
 	var noEnv bool = (s.devicesEnv == "")
 	var noFile bool = (s.devicesFile == "")
@@ -258,8 +270,7 @@ func (s *server) devicesSave() error {
 		if err := fileWriteJSON("devices.json", s.devices.getJSON()); err != nil {
 			return err
 		}
-		s.unSet(flagDirty)
-		return nil
+		return s.clean()
 	}
 
 	if noEnv && !noFile {
@@ -267,8 +278,7 @@ func (s *server) devicesSave() error {
 		if err := fileWriteJSON(s.devicesFile, s.devices.getJSON()); err != nil {
 			return err
 		}
-		s.unSet(flagDirty)
-		return nil
+		return s.clean()
 	}
 
 	// Save to clipboard

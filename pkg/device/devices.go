@@ -3,6 +3,7 @@
 package device
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"sync"
@@ -236,6 +237,11 @@ func (dm *deviceMap) getJSON() devicesJSON {
 		return true
 	})
 	return devs
+}
+
+func (dm *deviceMap) getPrettyJSON() []byte {
+	devices, _ := json.MarshalIndent(dm.getJSON(), "", "\t")
+	return devices
 }
 
 func (dm *deviceMap) getRoutes() routesJSON {

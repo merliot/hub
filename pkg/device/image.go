@@ -393,7 +393,11 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	// will connect.
 
 	if changed {
-		s.save()
+		if err := s.save(); err != nil {
+			s.downloadMsgError(d, sessionId, err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		s.downlinks.linkClose(d.Id)
 	}
 

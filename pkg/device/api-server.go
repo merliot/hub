@@ -123,7 +123,7 @@ func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
-	devices, _ := json.MarshalIndent(s.devices.getJSON(), "", "\t")
+	devices := s.devices.getPrettyJSON()
 	w.Write(devices)
 }
 
@@ -160,8 +160,7 @@ func (s *server) save() error {
 	if s.isSet(flagAutoSave) {
 		return s.devicesSave()
 	}
-	s.set(flagDirty)
-	return nil
+	return s.dirty()
 }
 
 func validateIds(id, name string) error {
