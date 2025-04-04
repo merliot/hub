@@ -53,7 +53,7 @@ func (mm *modelMap) load(models Models) {
 	}
 }
 
-func (mm modelMap) unload() Models {
+func (mm *modelMap) unload() Models {
 	var models = make(Models)
 	mm.drange(func(name string, model *Model) bool {
 		models[name] = model
@@ -62,7 +62,7 @@ func (mm modelMap) unload() Models {
 	return models
 }
 
-func (s *server) childModels(d *device) modelMap {
+func (s *server) childModels(d *device) *modelMap {
 	var models modelMap
 	s.models.drange(func(name string, model *Model) bool {
 		if slices.Contains(model.Config.Parents, d.Model) {
@@ -70,5 +70,5 @@ func (s *server) childModels(d *device) modelMap {
 		}
 		return true
 	})
-	return models
+	return &models
 }

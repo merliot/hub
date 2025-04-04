@@ -4,7 +4,7 @@ package device
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 )
 
 func fileWriteJSON(name string, payload any) error {
@@ -12,11 +12,11 @@ func fileWriteJSON(name string, payload any) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(name, data, 0644)
+	return os.WriteFile(name, data, 0644)
 }
 
 func fileReadJSON(name string, payload any) error {
-	data, err := ioutil.ReadFile(name)
+	data, err := os.ReadFile(name)
 	if err != nil {
 		return err
 	}

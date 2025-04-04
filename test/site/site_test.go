@@ -153,23 +153,6 @@ func callOK(t *testing.T, method, url string) []byte {
 	return body
 }
 
-func callExpecting(t *testing.T, method, url string, expecting int) {
-
-	resp, err := call(method, url)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if expecting != resp.StatusCode {
-		t.Fatalf("Expected %d, got %d", expecting, resp.StatusCode)
-	}
-}
-
-func callBad(t *testing.T, method, url string) {
-	callExpecting(t, method, url, http.StatusBadRequest)
-}
-
 func TestShowSiteHome(t *testing.T) {
 	callOK(t, "GET", "/")
 	callOK(t, "GET", "/home")

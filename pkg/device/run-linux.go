@@ -16,7 +16,7 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 	d.start()
 
 	// Catch OS kill signals so we can exit gracefully
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 
 	// Poll right away, once, and then on ticker

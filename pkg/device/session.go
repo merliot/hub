@@ -32,10 +32,8 @@ var errSessionNotConnected = errors.New("Session not connected")
 
 var sessionsMax = 100
 
-func newSessions() sessionMap {
-	var sm sessionMap
+func (sm *sessionMap) start() {
 	go sm.gcSessions()
-	return sm
 }
 
 func (sm *sessionMap) get(id string) (*session, bool) {
@@ -76,7 +74,7 @@ func (sm *sessionMap) newSession() (string, bool) {
 	return sessionId, true
 }
 
-func (sm *sessionMap) noSessions(w http.ResponseWriter, r *http.Request) {
+func (sm *sessionMap) noSessions(w http.ResponseWriter, _ *http.Request) {
 	http.Error(w, "no more sessions", http.StatusTooManyRequests)
 }
 
@@ -215,12 +213,6 @@ func (sm *sessionMap) status() []sessionStatus {
 
 func (s *session) _connected() bool {
 	return s.conn != nil
-}
-
-func (s *session) connected() bool {
-	s.RLock()
-	defer s.RUnlock()
-	return s._connected()
 }
 
 // _send wants s.Lock to serialize writes on socket

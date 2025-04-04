@@ -356,7 +356,7 @@ func TestShowViews(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for dev, _ := range devs {
+	for dev := range devs {
 		for _, view := range views {
 			url := fmt.Sprintf("/device/%s/show-view?view=%s", dev, view.name)
 			resp, err := call("GET", url)

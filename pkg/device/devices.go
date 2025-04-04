@@ -244,15 +244,6 @@ func (dm *deviceMap) getPrettyJSON() []byte {
 	return devices
 }
 
-func (dm *deviceMap) getRoutes() routesJSON {
-	routes := make(routesJSON)
-	dm.drange(func(id string, d *device) bool {
-		routes[id] = d.nexthop.Id
-		return true
-	})
-	return routes
-}
-
 func (dm *deviceMap) sortedId() []string {
 	keys := make([]string, 0)
 	dm.drange(func(id string, _ *device) bool {

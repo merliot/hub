@@ -169,7 +169,6 @@ var rlConfig = ratelimit.Config{
 func NewServer(options ...ServerOption) *server {
 
 	s := &server{
-		sessions:       newSessions(),
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
 		server:         &http.Server{},
@@ -192,6 +191,8 @@ func NewServer(options ...ServerOption) *server {
 
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(s.basicAuth(s.mux))
+
+	s.sessions.start()
 
 	return s
 }

@@ -4,8 +4,8 @@ package device
 
 import (
 	"html/template"
+	"io"
 	"io/fs"
-	"io/ioutil"
 )
 
 // layeredFS is a layered fs, built up from individual file systems
@@ -47,7 +47,7 @@ func (lfs layeredFS) readFile(name string) ([]byte, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return ioutil.ReadAll(file)
+	return io.ReadAll(file)
 }
 
 // parseFS returns a template by parsing the layered file system for the

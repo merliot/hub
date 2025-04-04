@@ -303,7 +303,7 @@ func (s *server) downloadMsgClear(d *device, sessionId string) {
 		s.logError("Rendering template", "err", err)
 		return
 	}
-	s.sessions.send(sessionId, string(buf.Bytes()))
+	s.sessions.send(sessionId, buf.String())
 }
 
 func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error) {
@@ -314,7 +314,7 @@ func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error
 		s.logError("Rendering template", "err", err)
 		return
 	}
-	s.sessions.send(sessionId, string(buf.Bytes()))
+	s.sessions.send(sessionId, buf.String())
 }
 
 type msgDownloaded struct {
