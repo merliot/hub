@@ -183,7 +183,7 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	return nil
 }
 
-func (s *server) merge(id string, newDevices deviceMap) (err error) {
+func (s *server) merge(id string, newDevices *deviceMap) (err error) {
 
 	// Swing anchor to existing tree
 	anchor, ok := s.devices.get(id)

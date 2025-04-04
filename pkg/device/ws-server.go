@@ -89,7 +89,7 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 
 	// Merge in annoucement devices
 
-	if err := s.merge(id, annDevices); err != nil {
+	if err := s.merge(id, &annDevices); err != nil {
 		return "", fmt.Errorf("Cannot merge device id: %s err: %s", id, err)
 	}
 
