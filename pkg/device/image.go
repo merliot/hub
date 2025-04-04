@@ -61,7 +61,10 @@ func (d *device) genFile(dir, template, name string, data any) error {
 }
 
 func isLocalhost(referer string) bool {
-	url, _ := url.Parse(referer)
+	url, err := url.Parse(referer)
+	if err != nil {
+		return false
+	}
 	hostname := url.Hostname()
 	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" || hostname == "0.0.0.0"
 }
@@ -69,43 +72,80 @@ func isLocalhost(referer string) bool {
 // createSFX concatenates the tar ball to the SFX installer script, making the
 // SFX installer
 func createSFX(dir, sfxFile, tarFile, installerFile string) error {
-
 	script, err := os.Open(filepath.Join(dir, sfxFile))
 	if err != nil {
-		return fmt.Errorf("error opening sfx script file: %v", err)
+		return fmt.Errorf("opening SFX script: %w", err)
 	}
 	defer script.Close()
 
 	archive, err := os.Open(filepath.Join(dir, tarFile))
 	if err != nil {
-		return fmt.Errorf("error opening archive file: %v", err)
+		return fmt.Errorf("opening archive: %w", err)
 	}
 	defer archive.Close()
 
 	installer, err := os.Create(filepath.Join(dir, installerFile))
 	if err != nil {
-		return fmt.Errorf("error creating installer file: %v", err)
+		return fmt.Errorf("creating installer: %w", err)
 	}
 	defer installer.Close()
 
 	// Copy the script file to the installer file
 	if _, err := io.Copy(installer, script); err != nil {
-		return fmt.Errorf("error writing script to installer file: %v", err)
+		return fmt.Errorf("copying script to installer: %w", err)
 	}
 
 	// Copy the archive file to the installer file
 	if _, err := io.Copy(installer, archive); err != nil {
-		return fmt.Errorf("error writing archive to installer file: %v", err)
+		return fmt.Errorf("copying archive to installer: %w", err)
 	}
 
 	return nil
 }
 
-func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
+// collectBinFiles determines which binaries to include in the installer
+func (s *server) collectBinFiles(d *device, target string) []string {
+	var binFiles []string
+	childModels := s.childModels(d)
+	if childModels.length() == 0 {
+		// Sterile device only needs the bin/device-<target> binary
+		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
+	} else {
+		// Copy over the binaries needed to produce children devices
+		binFiles = append(binFiles, "-C", ".", "./bin/device-rpi")
+		binFiles = append(binFiles, "-C", ".", "./bin/device-x86-64")
+		childModels.drange(func(name string, model *Model) bool {
+			// Copy the UF2 files for the model (all targets)
+			for _, t := range tpkg.TinyGoTargets(model.Config.Targets) {
+				binFiles = append(binFiles, "-C", ".", "./bin/"+name+"-"+t+".uf2")
+			}
+			return true
+		})
+	}
+	return binFiles
+}
 
-	var referer = r.Referer()
-	var service = d.Model + "-" + d.Id
-	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
+// createTarBall creates a gzipped tar archive containing the specified files and directories.
+// It excludes the tar file itself from the archive to prevent recursion.
+func (s *server) createTarBall(dir, tarFile string, binFiles []string) error {
+	tarFilePath := filepath.Join(dir, tarFile)
+	args := []string{"--exclude", tarFile, "-czf", tarFilePath}
+	args = append(args, binFiles...)
+	args = append(args, "-C", dir, ".")
+
+	cmd := exec.Command("tar", args...)
+	s.logDebug(cmd.String())
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	}
+	return nil
+}
+
+func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
+	referer := r.Referer()
+	service := d.Model + "-" + d.Id
+	dialurls := strings.Replace(referer, "http", "ws", 1) + "ws"
 
 	// Generate environment variable file.  The service will load env vars
 	// from this file.
@@ -168,68 +208,35 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	// Figure out which binaries to include in installer such that this
-	// device can reproduce any child model device
-
-	var binFiles []string
-	childModels := s.childModels(d)
-	if childModels.length() == 0 {
-		// Sterile device only needs the bin/device-<target> binary
-		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
-	} else {
-		// Copy over the binaries needed to produce children devices
-		binFiles = append(binFiles, "-C", ".", "./bin/device-rpi")
-		binFiles = append(binFiles, "-C", ".", "./bin/device-x86-64")
-		childModels.drange(func(name string, model *Model) bool {
-			// Copy the UF2 files for the model (all targets)
-			for _, t := range tpkg.TinyGoTargets(model.Config.Targets) {
-				binFiles = append(binFiles, "-C", ".", "./bin/"+name+"-"+t+".uf2")
-			}
-			return true
-		})
-	}
-
 	// Create a gzipped tar ball with everything inside need to
 	// install/uninstall the device
-
 	tarFile := service + ".tar.gz"
-	tarFilePath := filepath.Join(dir, tarFile)
-
-	args := []string{"--exclude", tarFile, "-czf", tarFilePath}
-	args = append(args, binFiles...)
-	args = append(args, "-C", dir, ".")
-
-	cmd := exec.Command("tar", args...)
-	s.logDebug(cmd.String())
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("%w: %s", err, stdoutStderr)
+	if err := s.createTarBall(dir, tarFile, s.collectBinFiles(d, target)); err != nil {
+		return err
 	}
 
 	// Create final SFX image as the installer
-
 	installer := service + "-installer"
 	if err := createSFX(dir, sfxFile, tarFile, installer); err != nil {
 		return err
 	}
 
 	// Serve installer file for download
-
 	return s.serveFile(w, r, filepath.Join(dir, installer))
 }
 
 func (s *server) buildTinyGoImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
 
-	var referer = r.Referer()
-	var dialurls = strings.Replace(referer, "http", "ws", 1) + "ws"
-	var ssid = r.URL.Query().Get("ssid")
+	referer := r.Referer()
+	dialurls := strings.Replace(referer, "http", "ws", 1) + "ws"
+	ssid := r.URL.Query().Get("ssid")
 
 	if len(s.wifiSsids) != len(s.wifiPassphrases) {
 		return errors.New("Wifi SSIDS and Passphrases don't match")
 	}
 
-	var passphrase = ""
-	var found bool
+	passphrase := ""
+	found := false
 	for i, ss := range s.wifiSsids {
 		if ss == ssid {
 			passphrase = s.wifiPassphrases[i]
@@ -293,8 +300,6 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	default:
 		return fmt.Errorf("Target '%s' not supported", target)
 	}
-
-	return nil
 }
 
 func (s *server) downloadMsgClear(d *device, sessionId string) {
