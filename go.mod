@@ -12,7 +12,6 @@ require (
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/x448/float16 v0.8.4
 	gobot.io/x/gobot/v2 v2.3.0
-	golang.org/x/exp v0.0.0-20241204233417-43b7b7cde48d
 	golang.org/x/image v0.24.0
 	golang.org/x/net v0.36.0
 	tinygo.org/x/drivers v0.30.0
