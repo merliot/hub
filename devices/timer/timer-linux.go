@@ -20,7 +20,7 @@ func (t *timer) GetConfig() device.Config {
 		FS:         &fs,
 		Targets:    []string{"rpi", "nano-rp2040"},
 		PollPeriod: time.Second,
-		BgColor:    "gray",
+		BgColor:    "butterscotch",
 		FgColor:    "black",
 		PacketHandlers: device.PacketHandlers{
 			"/update": &device.PacketHandler[msgUpdate]{t.update},

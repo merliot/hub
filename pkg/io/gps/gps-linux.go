@@ -18,6 +18,7 @@ type Gps struct {
 }
 
 func (g *Gps) Setup() (err error) {
+	println("Setup")
 	cfg := &serial.Config{Name: "/dev/ttyUSB0", Baud: 9600}
 
 	g.Lock()
@@ -25,6 +26,7 @@ func (g *Gps) Setup() (err error) {
 	g.Unlock()
 
 	if err != nil {
+		println(err.Error())
 		return err
 	}
 
@@ -39,7 +41,7 @@ func (g *Gps) scan() {
 		//println(scanner.Text())
 		lat, long, err := nmea.ParseGLL(scanner.Text())
 		if err != nil {
-			//println("Scan", "err", err)
+			//println("Scan", err.Error())
 			continue
 		}
 		g.Lock()

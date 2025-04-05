@@ -58,6 +58,9 @@ func (dm *deviceMap) findRoot() (root *device, err error) {
 	var count int
 
 	dm.drange(func(id string, d *device) bool {
+		if d.isSet(flagGhost) {
+			return true
+		}
 		if d.parent == nil {
 			root = d
 			count++
@@ -167,9 +170,10 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	device.set(flagLocked)
 	device.installAPI()
 	s.packetHandlersInstall(device)
+	s.devices.Store(id, device)
 
 	if !exists {
-		s.devices.Store(id, device)
+		// Only install /device/{id} pattern if not previously ghosted
 		s.deviceInstall(device)
 	}
 
@@ -183,7 +187,7 @@ func (s *server) mergeDevice(id string, anchor, newDevice *device) error {
 	return nil
 }
 
-func (s *server) merge(id string, newDevices *deviceMap) (err error) {
+func (s *server) merge(id string, newDevices deviceMap) (err error) {
 
 	// Swing anchor to existing tree
 	anchor, ok := s.devices.get(id)

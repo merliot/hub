@@ -18,6 +18,13 @@ import (
 	tpkg "github.com/merliot/hub/pkg/target"
 )
 
+const (
+	localhost     = "localhost"
+	localhostIPv4 = "127.0.0.1"
+	localhostIPv6 = "::1"
+	localhostAny  = "0.0.0.0"
+)
+
 func (s *server) setContentMd5(w http.ResponseWriter, fileName string) error {
 
 	// Calculate MD5 checksum
@@ -66,38 +73,39 @@ func isLocalhost(referer string) bool {
 		return false
 	}
 	hostname := url.Hostname()
-	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" || hostname == "0.0.0.0"
+	return hostname == localhost || hostname == localhostIPv4 || hostname == localhostIPv6 || hostname == localhostAny
 }
 
 // createSFX concatenates the tar ball to the SFX installer script, making the
 // SFX installer
 func createSFX(dir, sfxFile, tarFile, installerFile string) error {
+
 	script, err := os.Open(filepath.Join(dir, sfxFile))
 	if err != nil {
-		return fmt.Errorf("opening SFX script: %w", err)
+		return fmt.Errorf("%w: opening sfx script file", err)
 	}
 	defer script.Close()
 
 	archive, err := os.Open(filepath.Join(dir, tarFile))
 	if err != nil {
-		return fmt.Errorf("opening archive: %w", err)
+		return fmt.Errorf("%w: opening archive file", err)
 	}
 	defer archive.Close()
 
 	installer, err := os.Create(filepath.Join(dir, installerFile))
 	if err != nil {
-		return fmt.Errorf("creating installer: %w", err)
+		return fmt.Errorf("%w: creating installer file", err)
 	}
 	defer installer.Close()
 
 	// Copy the script file to the installer file
 	if _, err := io.Copy(installer, script); err != nil {
-		return fmt.Errorf("copying script to installer: %w", err)
+		return fmt.Errorf("%w: writing script to installer file", err)
 	}
 
 	// Copy the archive file to the installer file
 	if _, err := io.Copy(installer, archive); err != nil {
-		return fmt.Errorf("copying archive to installer: %w", err)
+		return fmt.Errorf("%w: writing archive to installer file", err)
 	}
 
 	return nil
