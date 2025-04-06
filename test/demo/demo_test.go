@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
+	"github.com/merliot/hub/test/common"
 )
 
 var (
@@ -132,7 +133,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second)
 
 	// Stash the session id
-	sessionId, err = getSession()
+	sessionId, err = common.GetSession(user, passwd, port)
 	if err != nil {
 		fmt.Printf("Getting session failed: %s\n", err)
 		os.Exit(1)
@@ -165,106 +166,44 @@ func wsx(url, user, passwd string) {
 	}
 }
 
-func getSession() (string, error) {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
-	resp, err := call("GET", "/")
+func callOK(t *testing.T, method, path string) []byte {
+	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
 	if err != nil {
-		return "", fmt.Errorf("API failed: %v\n", err)
+		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
 	}
-	resp.Body.Close()
-	if http.StatusTooManyRequests == resp.StatusCode {
-		return "", errNoMoreSessions
-	}
-	if http.StatusOK != resp.StatusCode {
-		return "", fmt.Errorf("Bad HTTP Status Code %d", resp.StatusCode)
-	}
-	sessionId := resp.Header.Get("session-id")
-	return sessionId, nil
+	return resp
 }
 
-func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
+func callBad(t *testing.T, method, path string) []byte {
+	return callExpecting(t, method, path, http.StatusBadRequest)
+}
 
-	url = "http://localhost:" + strconv.Itoa(port) + url
-	req, err := http.NewRequest(method, url, nil)
+func callExpecting(t *testing.T, method, path string, expectedStatus int) []byte {
+	resp, err := common.CallExpecting(user, passwd, sessionId, port, method, path, expectedStatus)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %w", err)
+		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
 	}
-	req.SetBasicAuth(user, passwd)
-	req.Header.Set("session-id", sessionId)
-	client := &http.Client{}
-	return client.Do(req)
-}
-
-func call(method, url string) (*http.Response, error) {
-	return callUserPasswd(method, url, user, passwd)
-}
-
-func callOK(t *testing.T, method, url string) []byte {
-
-	resp, err := call(method, url)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if http.StatusOK != resp.StatusCode {
-		println(string(body))
-		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
-	}
-
-	return body
-}
-
-func callExpecting(t *testing.T, method, url string, expecting int) {
-
-	resp, err := call(method, url)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if expecting != resp.StatusCode {
-		t.Fatalf("Expected %d, got %d", expecting, resp.StatusCode)
-	}
-}
-
-func callBad(t *testing.T, method, url string) {
-	callExpecting(t, method, url, http.StatusBadRequest)
-}
-
-func callNotFound(t *testing.T, method, url string) {
-	callExpecting(t, method, url, http.StatusNotFound)
+	return resp
 }
 
 func TestMaxSessions(t *testing.T) {
 	for i := 0; i < 99; i++ {
-		_, err := getSession()
+		_, err := common.GetSession(user, passwd, port)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
-	_, err := getSession()
-	if err != errNoMoreSessions {
+	_, err := common.GetSession(user, passwd, port)
+	if err != common.ErrNoMoreSessions {
 		t.Fatal("Expected no more sessions")
 	}
 }
 
 func TestBadUser(t *testing.T) {
-	resp, err := callUserPasswd("GET", "/", "foo", "bar")
+	_, err := common.CallExpecting("bad", "user", sessionId, port,
+		"GET", "/", http.StatusUnauthorized)
 	if err != nil {
-		t.Fatalf("API failed: %v", err)
-	}
-	resp.Body.Close()
-	if http.StatusUnauthorized != resp.StatusCode {
-		t.Fatalf("Bad HTTP Status Code %d", resp.StatusCode)
+		t.Fatalf("Error: %s", err)
 	}
 }
 
@@ -289,8 +228,8 @@ func devsEqual(a, b string) bool {
 }
 
 func TestAPIDevices(t *testing.T) {
-	devs := string(callOK(t, "GET", "/devices"))
-	if !devsEqual(devs, devices) {
+	devs := callOK(t, "GET", "/devices")
+	if !devsEqual(string(devs), devices) {
 		t.Fatalf("/devices response not valid, got: %s\nwant: %s\n", devs, devices)
 	}
 }
@@ -359,17 +298,7 @@ func TestShowViews(t *testing.T) {
 	for dev := range devs {
 		for _, view := range views {
 			url := fmt.Sprintf("/device/%s/show-view?view=%s", dev, view.name)
-			resp, err := call("GET", url)
-			if err != nil {
-				t.Fatalf("API failed: %v", err)
-			}
-			if view.expectedStatus != resp.StatusCode {
-				t.Fatalf("Unexpected HTTP status code, got: %d want: %d",
-					resp.StatusCode, view.expectedStatus)
-			}
-			resp.Body.Close()
-			// Sleep a bit to avoid hitting rate limiter
-			time.Sleep(100 * time.Millisecond)
+			callExpecting(t, "GET", url, view.expectedStatus)
 		}
 	}
 }
@@ -435,7 +364,7 @@ func TestShowModel(t *testing.T) {
 
 func TestEditName(t *testing.T) {
 	callOK(t, "GET", "/device/gps1/edit-name")
-	callNotFound(t, "GET", "/device/XXX/edit-name")
+	callExpecting(t, "GET", "/device/XXX/edit-name", http.StatusNotFound)
 }
 
 func TestAPICreate(t *testing.T) {

@@ -2,21 +2,20 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
+	"github.com/merliot/hub/test/common"
 )
 
 var (
-	user   = "TEST"
-	passwd = "TESTTEST"
-	port   = 8021
+	user      = "TEST"
+	passwd    = "TESTTEST"
+	port      = 8021
+	sessionId string
 )
 
 var devices = `{
@@ -96,6 +95,8 @@ var devices = `{
 
 func TestMain(m *testing.M) {
 
+	var err error
+
 	// Run a hub in site mode
 	demo := device.NewServer(
 		device.WithPort(port),
@@ -110,47 +111,24 @@ func TestMain(m *testing.M) {
 	go demo.Run()
 	time.Sleep(time.Second)
 
+	// Stash the session id
+	sessionId, err = common.GetSession(user, passwd, port)
+	if err != nil {
+		fmt.Printf("Getting session failed: %s\n", err)
+		os.Exit(1)
+	}
+
 	m.Run()
 
 	os.RemoveAll("./camera-images")
 }
 
-func callUserPasswd(method, url, user, passwd string) (*http.Response, error) {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
-
-	url = "http://localhost:" + strconv.Itoa(port) + url
-	req, err := http.NewRequest(method, url, nil)
+func callOK(t *testing.T, method, path string) []byte {
+	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %w", err)
+		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
 	}
-	req.SetBasicAuth(user, passwd)
-	client := &http.Client{}
-	return client.Do(req)
-}
-
-func call(method, url string) (*http.Response, error) {
-	return callUserPasswd(method, url, user, passwd)
-}
-
-func callOK(t *testing.T, method, url string) []byte {
-
-	resp, err := call(method, url)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if http.StatusOK != resp.StatusCode {
-		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return body
+	return resp
 }
 
 func TestShowSiteHome(t *testing.T) {

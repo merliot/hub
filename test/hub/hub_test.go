@@ -2,10 +2,7 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"testing"
@@ -13,6 +10,7 @@ import (
 
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
+	"github.com/merliot/hub/test/common"
 )
 
 var (
@@ -29,7 +27,7 @@ var hub = `{
 		"Model": "gadget",
 		"Name": "Gadget",
 		"Children": null,
-		"DeployParams": "target=x86-64\u0026port=\u0026Bottles=99"
+		"DeployParams": "target=x86-64&port=&Bottles=99"
 	},
 	"subhub1": {
 		"Id": "subhub1",
@@ -136,7 +134,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second)
 
 	// Stash the session id
-	sessionId, err = getSession(hubPort)
+	sessionId, err = common.GetSession(user, passwd, hubPort)
 	if err != nil {
 		fmt.Printf("Getting session failed: %s\n", err)
 		os.Exit(1)
@@ -145,64 +143,12 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-var errNoMoreSessions = errors.New("no more sessions")
-
-func getSession(port int) (string, error) {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
-	resp, err := call(port, "GET", "/")
+func callOK(t *testing.T, port int, method, path string) []byte {
+	resp, err := common.CallOK(user, passwd, sessionId, hubPort, method, path)
 	if err != nil {
-		return "", fmt.Errorf("API failed: %v\n", err)
+		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
 	}
-	resp.Body.Close()
-	if http.StatusTooManyRequests == resp.StatusCode {
-		return "", errNoMoreSessions
-	}
-	if http.StatusOK != resp.StatusCode {
-		return "", fmt.Errorf("Bad HTTP Status Code %d", resp.StatusCode)
-	}
-	sessionId := resp.Header.Get("session-id")
-	return sessionId, nil
-}
-
-func callUserPasswd(port int, method, url, user, passwd string) (*http.Response, error) {
-	// Little delay so we don't trip the ratelimiter
-	time.Sleep(100 * time.Millisecond)
-
-	url = "http://localhost:" + strconv.Itoa(port) + url
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %w", err)
-	}
-	req.SetBasicAuth(user, passwd)
-	req.Header.Set("session-id", sessionId)
-	client := &http.Client{}
-	return client.Do(req)
-}
-
-func call(port int, method, url string) (*http.Response, error) {
-	return callUserPasswd(port, method, url, user, passwd)
-}
-
-func callOK(t *testing.T, port int, method, url string) []byte {
-
-	resp, err := call(port, method, url)
-	if err != nil {
-		t.Fatalf("API call failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if http.StatusOK != resp.StatusCode {
-		println(string(body))
-		t.Fatalf("Expected StatusOK (200), got %d", resp.StatusCode)
-	}
-
-	return body
+	return resp
 }
 
 func TestSave(t *testing.T) {
@@ -251,7 +197,7 @@ func TestJoin(t *testing.T) {
 	os.Chdir("../../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
 	callOK(t, subhubPort, "GET", "/download-image/test?target=x86-64")
-	callOK(t, subhubPort, "GET", "/download-image/subhub1?target=x86-64")
+	callOK(t, subhubPort, "GET", "/download-image/subhub1?target=x86-64&port=8000")
 
 	callOK(t, subhubPort, "DELETE", "/destroy?Id=test")
 
