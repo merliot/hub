@@ -110,6 +110,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) (
 	s.devices.Store(id, child)
 
 	child.installAPI()
+	s.packetHandlersInstall(child)
 
 	if !resurrect {
 		// Only install /device/{id} pattern if not previously ghosted
