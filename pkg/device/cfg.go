@@ -22,14 +22,17 @@ type Config struct {
 	// PollPeriod is the device polling period.  The default is 1 second.
 	// The range is [1..forever) seconds.
 	PollPeriod time.Duration
-	// BgColor is the device background color
-	BgColor string
-	// FgColor is the device forground (text, border) color
-	FgColor string
 	// PacketHandlers
 	PacketHandlers
 	// Custom device APIs
 	APIs
 	// Custom device funcs
 	FuncMap
+	// BgColor is the device background color
+	BgColor string
+	// FgColor is the device forground (text, border) color
+	FgColor string
+	// InitialView is the initial display view mode when device is first
+	// displayed.  Value can be "overview" (default) or "detail".
+	InitialView string
 }

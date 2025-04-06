@@ -19,7 +19,7 @@ func (d *device) lastView(sessionId string) (string, int) {
 		return view.last, view.level
 	}
 
-	return "overview", 0
+	return d.InitialView, 0
 }
 
 func (d *device) saveView(sessionId, last string, level int) {

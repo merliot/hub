@@ -92,6 +92,12 @@ func (s *server) build(d *device, additionalFlags flags) error {
 			"device", d, "err", err)
 	}
 
+	switch d.InitialView {
+	case "detail":
+	default:
+		d.InitialView = "overview"
+	}
+
 	return s.buildOS(d)
 }
 
