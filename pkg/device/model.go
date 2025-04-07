@@ -7,14 +7,23 @@ import (
 	"sync"
 )
 
+// Maker is a function type that creates new instances of a device model.
+// It is used by the device system to instantiate devices of a particular model.
+// Each Maker function returns a new Devicer implementation that represents
+// a specific device instance's behavior and state.
 type Maker func() Devicer
 
+// Model represents a device model in the system. It contains:
+// - Package: The Go package name where the model is implemented
+// - Maker: A function to create new instances of this model
+// - Config: The default configuration for devices of this model
 type Model struct {
 	Package string
 	Maker
 	Config
 }
 
+// Models is a map of device models keyed by model name.
 type Models map[string]*Model
 
 type modelMap struct {
