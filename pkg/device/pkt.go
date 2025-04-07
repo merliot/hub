@@ -167,16 +167,20 @@ func (p *Packet) RouteUp() error {
 	return nil
 }
 
-// RouteUp is a device packet handler that routes the packet up
+// RouteUp is a device packet handler that routes the packet up to all uplinks
+// and to the p.SessionId session
 func RouteUp(p *Packet) {
 	p.RouteUp()
 }
 
+// BroadcastUp routes the packet to all uplinks and to all sessions
 func (p *Packet) BroadcastUp() {
 	// Route to all sessions
 	p.SetSession("").RouteUp()
 }
 
+// BroadcastUp is a device packet handler that routes the packet up to all
+// uplinks and all sessions
 func BroadcastUp(p *Packet) {
 	p.BroadcastUp()
 }

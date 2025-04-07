@@ -26,6 +26,7 @@ const (
 	flagDebugKeepBuilds                   // Don't delete temp build directory
 )
 
+// Server
 type server struct {
 	devices        deviceMap      // key: device id, value: *device
 	sessions       sessionMap     // key: session id, value: *session
@@ -50,20 +51,33 @@ type server struct {
 	passwd          string
 }
 
+// ServerOption is passed to NewServer to set server options
 type ServerOption func(*server)
 
+// WithPort returns a ServerOption that sets the port number for the server to
+// listen on.  The port must be a valid port number between 1024 and 49151
+// (user port range).
 func WithPort(port int) ServerOption {
 	return func(s *server) {
+		if port < 1024 || port > 49151 {
+			port = 0 // invalid port, will run server without web server
+		}
 		s.port = port
 	}
 }
 
+// WithModels returns a ServerOption that sets the device models available to
+// the server.
 func WithModels(models Models) ServerOption {
 	return func(s *server) {
 		s.models.load(models)
 	}
 }
 
+// WithPingPeriod returns a ServerOption that sets the period (in seconds)
+// between device pings.  This determines how often the server checks if
+// devices are still connected.  Must be greater than or equal to 2s.  Default
+// is 10s.
 func WithPingPeriod(period int) ServerOption {
 	return func(s *server) {
 		if period < 2 {
@@ -73,6 +87,9 @@ func WithPingPeriod(period int) ServerOption {
 	}
 }
 
+// WithKeepBuilds returns a ServerOption that sets whether to keep build
+// artifacts after compilation.  The keep parameter should be "true" or "false"
+// to enable or disable keeping builds.
 func WithKeepBuilds(keep string) ServerOption {
 	return func(s *server) {
 		if keep == "true" {
@@ -81,6 +98,8 @@ func WithKeepBuilds(keep string) ServerOption {
 	}
 }
 
+// WithRunningSite returns a ServerOption that enables full https://merliot.io
+// website mode.
 func WithRunningSite(running string) ServerOption {
 	return func(s *server) {
 		if running == "true" {
@@ -89,6 +108,8 @@ func WithRunningSite(running string) ServerOption {
 	}
 }
 
+// WithRunningDemo returns a ServerOption that runs the server in demo mode.
+// All devices will run in demo mode.
 func WithRunningDemo(running string) ServerOption {
 	return func(s *server) {
 		if running == "true" {
@@ -97,12 +118,18 @@ func WithRunningDemo(running string) ServerOption {
 	}
 }
 
+// WithBackground returns a ServerOption that sets whether the server should
+// run in the background.  The bg parameter should be "GOOD" or "EVIL".  The
+// default is "EVIL".
 func WithBackground(bg string) ServerOption {
 	return func(s *server) {
 		s.background = bg
 	}
 }
 
+// WithWifiSsids returns a ServerOption that sets the list of WiFi SSIDs to
+// select from.  The ssids parameter should be a comma-separated list of SSID
+// names.
 func WithWifiSsids(ssids string) ServerOption {
 	return func(s *server) {
 		if ssids != "" {
@@ -111,6 +138,9 @@ func WithWifiSsids(ssids string) ServerOption {
 	}
 }
 
+// WithWifiPassphrases returns a ServerOption that sets the list of WiFi
+// passphrases.  The ps parameter should be a comma-separated list of
+// passphrases corresponding to the SSIDs.
 func WithWifiPassphrases(ps string) ServerOption {
 	return func(s *server) {
 		if ps != "" {
@@ -119,6 +149,9 @@ func WithWifiPassphrases(ps string) ServerOption {
 	}
 }
 
+// WithAutoSave returns a ServerOption that sets whether device changes should
+// be automatically saved.  The save parameter should be "true" or "false" to
+// enable or disable auto-saving.
 func WithAutoSave(save string) ServerOption {
 	return func(s *server) {
 		if save == "true" {
@@ -127,36 +160,55 @@ func WithAutoSave(save string) ServerOption {
 	}
 }
 
+// WithDevicesEnv returns a ServerOption that sets the devices configuration
+// from the DEVICES environment variable.  The devs parameter should be a JSON
+// string containing the devices.
 func WithDevicesEnv(devs string) ServerOption {
 	return func(s *server) {
 		s.devicesEnv = devs
 	}
 }
 
+// WithDevicesFile returns a ServerOption that sets the path to the devices
+// file.  The file parameter should be the path to a JSON file containing
+// devices.
 func WithDevicesFile(file string) ServerOption {
 	return func(s *server) {
 		s.devicesFile = file
 	}
 }
 
+// WithLogLevel returns a ServerOption that sets the logging level for the
+// server.  The level parameter should be one of: "DEBUG", "INFO", "WARN",
+// "ERROR".  The default is "INFO".
 func WithLogLevel(level string) ServerOption {
 	return func(s *server) {
 		s.logLevel = level
 	}
 }
 
+// WithDialUrls returns a ServerOption that sets the list of URLs to dial.
+// Each URL is a websocket URL in the form ws://host:port/ws or
+// wss://host:port/ws.  The host:port is the address of the parent hub device.
+// The URLs are used to dial parent devices.  Note that the server will dial
+// all the URLs in the list, so one device can have multiple parents.  The urls
+// parameter should be a comma-separated list of URLs.
 func WithDialUrls(urls string) ServerOption {
 	return func(s *server) {
 		s.dialUrls = urls
 	}
 }
 
+// WithUser returns a ServerOption that sets the username for HTTP Basic
+// Authentication.
 func WithUser(user string) ServerOption {
 	return func(s *server) {
 		s.user = user
 	}
 }
 
+// WithPasswd returns a ServerOption that sets the password for HTTP Basic
+// Authentication.
 func WithPasswd(passwd string) ServerOption {
 	return func(s *server) {
 		s.passwd = passwd
@@ -169,14 +221,14 @@ var rlConfig = ratelimit.Config{
 	CleanupInterval: 1 * time.Minute,
 }
 
-// NewServer returns a device server listening on addr
+// NewServer returns new server.
 func NewServer(options ...ServerOption) *server {
 
 	s := &server{
 		packetHandlers: make(PacketHandlers),
 		mux:            http.NewServeMux(),
 		server:         &http.Server{},
-		wsxPingPeriod:  30,
+		wsxPingPeriod:  10,
 		logLevel:       "INFO",
 	}
 

@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 )
 
-type APIs map[string]http.HandlerFunc
-
 func (d *device) installAPI() {
 
 	// Base APIs for all devices

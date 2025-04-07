@@ -24,8 +24,8 @@ func (h *PacketHandler[T]) cb(pkt *Packet) {
 	}
 }
 
-// PacketHandlers is a map of Handlers, keyed by path.
-type PacketHandlers map[string]packetHandler
+// PacketHandlers is a map of PacketHandlers
+type PacketHandlers map[string]packetHandler // key: path
 
 func (d *device) handle(pkt *Packet) {
 	if d.isSet(flagOnline) || pkt.Path == "/online" || pkt.Path == "/downloaded" {
