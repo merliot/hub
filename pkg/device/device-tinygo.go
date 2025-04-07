@@ -6,7 +6,6 @@ import "machine"
 
 type Maker func() Devicer
 type Model struct{ Maker }
-type APIs map[string]any
 type deviceMap struct{}
 type deviceOS struct{}
 
