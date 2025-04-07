@@ -351,7 +351,7 @@ func TestDownloadTarget(t *testing.T) {
 }
 
 func TestShowInstructions(t *testing.T) {
-	callOK(t, "GET", "/device/qrcode1/instructions?view=collasped")
+	callOK(t, "GET", "/device/qrcode1/instructions?view=collapsed")
 }
 
 func TestShowInstructionsTarget(t *testing.T) {
@@ -359,7 +359,7 @@ func TestShowInstructionsTarget(t *testing.T) {
 }
 
 func TestShowModel(t *testing.T) {
-	callOK(t, "GET", "/model/gps/model?view=collasped")
+	callOK(t, "GET", "/model/gps/model?view=collapsed")
 }
 
 func TestEditName(t *testing.T) {
