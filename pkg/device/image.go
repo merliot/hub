@@ -158,14 +158,16 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 	// Generate environment variable file.  The service will load env vars
 	// from this file.
 	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
-		"port":       r.URL.Query().Get("port"),
-		"user":       s.user,
-		"passwd":     s.passwd,
-		"dialurls":   dialurls,
-		"logLevel":   s.logLevel,
-		"pingPeriod": s.wsxPingPeriod,
-		"background": s.background,
-		"autoSave":   s.isSet(flagAutoSave),
+		"port":            r.URL.Query().Get("port"),
+		"user":            s.user,
+		"passwd":          s.passwd,
+		"dialurls":        dialurls,
+		"logLevel":        s.logLevel,
+		"pingPeriod":      s.wsxPingPeriod,
+		"background":      s.background,
+		"autoSave":        s.isSet(flagAutoSave),
+		"wifiSsids":       strings.Join(s.wifiSsids, ","),
+		"wifiPassphrases": strings.Join(s.wifiPassphrases, ","),
 	}); err != nil {
 		return err
 	}
