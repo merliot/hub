@@ -368,7 +368,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	if d.isSet(flagLocked) {
 		err := fmt.Errorf("Refusing to download: device is locked")
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusLocked)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -389,7 +389,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	changed, err := d.formConfig(r.URL.RawQuery)
 	if err != nil {
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -397,7 +397,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.buildImage(d, w, r); err != nil {
 		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -410,7 +410,7 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 	if changed {
 		if err := s.save(); err != nil {
 			s.downloadMsgError(d, sessionId, err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusNoContent)
 			return
 		}
 		s.downlinks.linkClose(d.Id)
