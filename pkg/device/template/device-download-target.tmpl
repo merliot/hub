@@ -13,14 +13,12 @@
 	{{- end }}
 			</select>
 		</label>
-	</div>
-
 	{{- if isMissingWifi  }}
-	<div class="flex flex-row mb-5">
 		<span class="mx-5 my-0">&#9888;</span>
-		<a class="text-red-500" href="/doc/env-vars#WIFI_SSIDS">Missing Wifi Settings</a>
-	</div>
+		<a class="text-red-500" href="https://merliot.io/doc/env-vars#WIFI_SSIDS">Missing Wifi Settings</a>
 	{{- end }}
+
+	</div>
 
 {{- end }}
 

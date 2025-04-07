@@ -105,13 +105,17 @@ func WithBackground(bg string) ServerOption {
 
 func WithWifiSsids(ssids string) ServerOption {
 	return func(s *server) {
-		s.wifiSsids = strings.Split(ssids, ",")
+		if ssids != "" {
+			s.wifiSsids = strings.Split(ssids, ",")
+		}
 	}
 }
 
 func WithWifiPassphrases(ps string) ServerOption {
 	return func(s *server) {
-		s.wifiPassphrases = strings.Split(ps, ",")
+		if ps != "" {
+			s.wifiPassphrases = strings.Split(ps, ",")
+		}
 	}
 }
 
