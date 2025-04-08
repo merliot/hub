@@ -350,9 +350,52 @@ func (s *server) handleDownloaded(pkt *Packet) {
 	pkt.BroadcastUp()
 }
 
+func (s *server) _downloadImage(d *device, w http.ResponseWriter, r *http.Request) error {
+
+	if d.isSet(flagLocked) {
+		return fmt.Errorf("Refusing to download: device is locked")
+	}
+
+	if isLocalhost(r.Referer()) {
+		return fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
+			"using the hostname or IP address of the host; something that " +
+			"is addressable on the network so the device can dial into the hub.")
+	}
+
+	// The r.URL values are passed in from the download <form>.  These
+	// values are the proposed new device config, and should decode into
+	// the device.  If accepted, the device is updated and the config is
+	// stored in DeployParams.
+
+	changed, err := d.formConfig(r.URL.RawQuery)
+	if err != nil {
+		return err
+	}
+
+	// Built it!
+
+	if err := s.buildImage(d, w, r); err != nil {
+		return err
+	}
+
+	// If the device config has changed, kick the downlink device offline.
+	// It will try to reconnect, but fail, because the DeployParams now
+	// don't match this (uplink) device.  Once the downlink device is
+	// updated (with the image we created above) the downlink device
+	// will connect.
+
+	if changed {
+		if err := s.save(); err != nil {
+			return err
+		}
+		s.downlinks.linkClose(d.Id)
+	}
+
+	return nil
+}
+
 func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 
-	var referer = r.Referer()
 	var id = r.PathValue("id")
 	var sessionId = r.PathValue("sessionId")
 
@@ -365,55 +408,15 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 
 	s.downloadMsgClear(d, sessionId)
 
-	if d.isSet(flagLocked) {
-		err := fmt.Errorf("Refusing to download: device is locked")
-		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
-		return
-	}
-
-	if isLocalhost(referer) {
-		err := fmt.Errorf("Cannot use localhost for hub address.  Access the hub " +
-			"using the hostname or IP address of the host; something that " +
-			"is addressable on the network so the device can dial into the hub.")
-		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
-		return
-	}
-
-	// The r.URL values are passed in from the download <form>.  These
-	// values are the proposed new device config, and should decode into
-	// the device.  If accepted, the device is updated and the config is
-	// stored in DeployParams.
-
-	changed, err := d.formConfig(r.URL.RawQuery)
+	err := s._downloadImage(d, w, r)
 	if err != nil {
-		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
-		return
-	}
-
-	// Built it!
-
-	if err := s.buildImage(d, w, r); err != nil {
-		s.downloadMsgError(d, sessionId, err)
-		http.Error(w, err.Error(), http.StatusNoContent)
-		return
-	}
-
-	// If the device config has changed, kick the downlink device offline.
-	// It will try to reconnect, but fail, because the DeployParams now
-	// don't match this (uplink) device.  Once the downlink device is
-	// updated (with the image we created above) the downlink device
-	// will connect.
-
-	if changed {
-		if err := s.save(); err != nil {
+		if sessionId == "" {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
 			s.downloadMsgError(d, sessionId, err)
-			http.Error(w, err.Error(), http.StatusNoContent)
-			return
+			w.WriteHeader(http.StatusNoContent)
 		}
-		s.downlinks.linkClose(d.Id)
+		return
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams

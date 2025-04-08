@@ -11,6 +11,37 @@ import (
 	"strings"
 )
 
+func (s *server) _deployKoyeb(d *device, r *http.Request) error {
+
+	if d.isSet(flagLocked) {
+		return fmt.Errorf("Refusing to deploy: device is locked")
+	}
+
+	// The r.URL values are passed in from the download <form>.  These
+	// values are the proposed new device config, and should decode into
+	// the device.  If accepted, the device is updated and the config is
+	// stored in DeployParams.
+
+	changed, err := d.formConfig(r.URL.RawQuery)
+	if err != nil {
+		return err
+	}
+
+	// If the device config has changed, kick the downlink device offline.
+	// It will try to reconnect, but fail, because the DeployParams now
+	// don't match this (uplink) device.  Once the downlink device is
+	// redeployed, the downlink device will connect.
+
+	if changed {
+		if err := s.save(); err != nil {
+			return err
+		}
+		s.downlinks.linkClose(d.Id)
+	}
+
+	return nil
+}
+
 func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	var id = r.PathValue("id")
@@ -25,37 +56,15 @@ func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 
 	s.downloadMsgClear(d, sessionId)
 
-	if d.isSet(flagLocked) {
-		err := fmt.Errorf("Refusing to deploy: device is locked")
-		s.downloadMsgError(d, sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	// The r.URL values are passed in from the download <form>.  These
-	// values are the proposed new device config, and should decode into
-	// the device.  If accepted, the device is updated and the config is
-	// stored in DeployParams.
-
-	changed, err := d.formConfig(r.URL.RawQuery)
+	err := s._deployKoyeb(d, r)
 	if err != nil {
-		s.downloadMsgError(d, sessionId, err)
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	// If the device config has changed, kick the downlink device offline.
-	// It will try to reconnect, but fail, because the DeployParams now
-	// don't match this (uplink) device.  Once the downlink device is
-	// redeployed, the downlink device will connect.
-
-	if changed {
-		if err := s.save(); err != nil {
-			s.downloadMsgError(d, sessionId, err)
+		if sessionId == "" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+		} else {
+			s.downloadMsgError(d, sessionId, err)
+			w.WriteHeader(http.StatusNoContent)
 		}
-		s.downlinks.linkClose(d.Id)
+		return
 	}
 
 	// Send a /downloaded msg up so uplinks can update their DeployParams
