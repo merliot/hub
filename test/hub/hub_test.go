@@ -163,10 +163,6 @@ func callExpecting(t *testing.T, port int, method, path string, expectedStatus i
 	return resp
 }
 
-func TestSave(t *testing.T) {
-	callOK(t, hubPort, "GET", "/save")
-}
-
 func TestJoin(t *testing.T) {
 	// Run a sub-hub
 	subby := device.NewServer(

@@ -247,13 +247,3 @@ func (dm *deviceMap) getPrettyJSON() []byte {
 	devices, _ := json.MarshalIndent(dm.getJSON(), "", "\t")
 	return devices
 }
-
-func (dm *deviceMap) sortedId() []string {
-	keys := make([]string, 0)
-	dm.drange(func(id string, _ *device) bool {
-		keys = append(keys, id)
-		return true
-	})
-	sort.Strings(keys)
-	return keys
-}
