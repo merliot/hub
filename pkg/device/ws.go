@@ -10,13 +10,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var pingDuration = 2 * time.Second
-
-// var pingTimeout = pingDuration + time.Second
-// TODO allow two ping periods before timing out, rather than one, to
-// workaround some issue I'm having deploying to cloud where ping (or pong)
-// packet's are getting buffered and timing out.
-var pingTimeout = 4*pingDuration + time.Second
+var (
+	pingPeriod  = 5 * time.Second
+	pingTimeout = pingPeriod + time.Second
+)
 
 type wsLink struct {
 	conn *websocket.Conn
@@ -63,7 +60,7 @@ func (l *wsLink) startPing() {
 				println("Ping error:", "err", err)
 			}
 			l.Unlock()
-			time.Sleep(pingDuration)
+			time.Sleep(pingPeriod)
 		}
 	}()
 }
