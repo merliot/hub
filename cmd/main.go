@@ -31,7 +31,7 @@ func getenv(name string, defaultValue string) string {
 func main() {
 
 	port, _ := strconv.Atoi(getenv("PORT", "8000"))
-	pingPeriod, _ := strconv.Atoi(getenv("PING_PERIOD", "2"))
+	pingPeriod, _ := strconv.Atoi(getenv("PING_PERIOD", "5"))
 	keepBuilds := getenv("DEBUG_KEEP_BUILDS", "")
 	runningSite := getenv("SITE", "")
 	runningDemo := getenv("DEMO", "")
