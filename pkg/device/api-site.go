@@ -4,7 +4,6 @@ package device
 
 import (
 	"net/http"
-	"path"
 )
 
 type siteTab struct {
@@ -15,16 +14,14 @@ type siteTab struct {
 type siteTabs []siteTab
 
 var (
-	tabHome    = siteTab{"HOME", "/"}
-	tabDemo    = siteTab{"DEMO", "/demo"}
-	tabStatus  = siteTab{"STATUS", "/status"}
-	tabDocs    = siteTab{"DOCS", "/doc"}
-	tabBlog    = siteTab{"BLOG", "/blog"}
-	tabsHome   = siteTabs{tabHome, tabDemo, tabStatus, tabDocs, tabBlog}
-	tabsDemo   = siteTabs{tabDemo, tabHome, tabStatus, tabDocs, tabBlog}
-	tabsStatus = siteTabs{tabStatus, tabHome, tabDemo, tabDocs, tabBlog}
-	tabsDocs   = siteTabs{tabDocs, tabHome, tabDemo, tabStatus, tabBlog}
-	tabsBlog   = siteTabs{tabBlog, tabHome, tabDemo, tabStatus, tabDocs}
+	tabHome  = siteTab{"HOME", "/"}
+	tabDemo  = siteTab{"DEMO", "/demo"}
+	tabDocs  = siteTab{"DOCS", "/doc"}
+	tabBlog  = siteTab{"BLOG", "/blog"}
+	tabsHome = siteTabs{tabHome, tabDemo, tabDocs, tabBlog}
+	tabsDemo = siteTabs{tabDemo, tabHome, tabDocs, tabBlog}
+	tabsDocs = siteTabs{tabDocs, tabHome, tabDemo, tabBlog}
+	tabsBlog = siteTabs{tabBlog, tabHome, tabDemo, tabDocs}
 )
 
 func (d *device) showPage(w http.ResponseWriter, r *http.Request,
@@ -75,30 +72,6 @@ func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 			"tabs": tabsDemo,
 		})
 	}
-}
-
-func (s *server) showStatusRefresh(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
-	template := "device-status-" + page + ".tmpl"
-	if err := s.root.renderTmpl(w, template, map[string]any{
-		"sessions": s.sessions.status(),
-		"devices":  s.devices.status(),
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-func (s *server) showSiteStatus(w http.ResponseWriter, r *http.Request) {
-	refresh := path.Base(r.URL.Path)
-	if refresh == "refresh" {
-		s.showStatusRefresh(w, r)
-		return
-	}
-	s.root.showSection(w, r, "site.tmpl", "status", "sessions", statusPages, map[string]any{
-		"tabs":     tabsStatus,
-		"sessions": s.sessions.status(),
-		"devices":  s.devices.status(),
-	})
 }
 
 func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {

@@ -24,12 +24,6 @@ var demoPages = []page{
 	{"about-demo", "ABOUT", "/demo/about-demo"},
 }
 
-var statusPages = []page{
-	{"", "STATUS", ""},
-	{"sessions", "SESSIONS", "/status/sessions"},
-	{"devices", "DEVICES", "/status/devices"},
-}
-
 var docPages = []page{
 	{"", "GUIDES", ""},
 	{"quick-start", "QUICK START", "/doc/quick-start"},

@@ -6,10 +6,8 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
-	"fmt"
 	"net/http"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -171,44 +169,6 @@ func (sm *sessionMap) sortedAge() []string {
 type sessionStatus struct {
 	Color  string
 	Status string
-}
-
-func (sm *sessionMap) status() []sessionStatus {
-
-	color := func(s *session) string {
-		elapsed := time.Since(s.lastUpdate)
-		switch {
-		case elapsed < 30*time.Second:
-			return "gold"
-		case elapsed < 60*time.Second:
-			return "orange"
-		}
-		return "red"
-	}
-
-	status := func(s *session) string {
-		segs := strings.Split(s.id, "-")
-		id := strings.ToUpper(segs[len(segs)-1])
-		age := int(time.Since(s.lastUpdate).Truncate(time.Second).Seconds())
-		connected := "C"
-		if s.conn == nil {
-			connected = " "
-		}
-		return fmt.Sprintf("%s %3d %s", id, age, connected)
-	}
-
-	var statuses = make([]sessionStatus, 0)
-	for _, id := range sm.sortedAge() {
-		s, _ := sm.get(id)
-		s.RLock()
-		statuses = append(statuses, sessionStatus{
-			Color:  color(s),
-			Status: status(s),
-		})
-		s.RUnlock()
-	}
-
-	return statuses
 }
 
 func (s *session) _connected() bool {

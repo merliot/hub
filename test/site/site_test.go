@@ -143,12 +143,6 @@ func TestShowSiteDemo(t *testing.T) {
 	callOK(t, "GET", "/demo/about-demo")
 }
 
-func TestShowSiteStatus(t *testing.T) {
-	callOK(t, "GET", "/status")
-	callOK(t, "GET", "/status/devices")
-	callOK(t, "GET", "/status/sessions/refresh")
-}
-
 func TestShowSiteDocs(t *testing.T) {
 	callOK(t, "GET", "/doc")
 	callOK(t, "GET", "/doc/faq")

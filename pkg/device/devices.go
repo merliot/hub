@@ -257,26 +257,3 @@ func (dm *deviceMap) sortedId() []string {
 	sort.Strings(keys)
 	return keys
 }
-
-type deviceStatus struct {
-	Color  string
-	Status string
-}
-
-func (dm *deviceMap) status() []deviceStatus {
-	var statuses = make([]deviceStatus, 0)
-	for _, id := range dm.sortedId() {
-		d, _ := dm.get(id)
-		status := fmt.Sprintf("%-16s %-16s %-16s %3d",
-			d.Id, d.Model, d.Name, len(d.Children))
-		color := "gold"
-		if d.isSet(flagGhost) {
-			color = "gray"
-		}
-		statuses = append(statuses, deviceStatus{
-			Color:  color,
-			Status: status,
-		})
-	}
-	return statuses
-}

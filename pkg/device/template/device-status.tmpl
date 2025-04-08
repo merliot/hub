@@ -1,7 +1,0 @@
-<div class="flex flex-row mx-4 my-8">
-{{ template "page-tabs.tmpl" . }}
-	<div>
-{{ $tmpl := joinStrings "device-status-" .page ".tmpl" }}
-{{ renderTemplate $tmpl . }}
-	</div>
-</div>

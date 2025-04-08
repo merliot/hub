@@ -44,28 +44,6 @@ session.tmpl
 		device-footer.tmpl
 </pre>
 
-<h4>/status</h4>
-
-<pre class="text-sm">
-	device.tmpl
-		device-header.tmpl
-			device-status.tmpl   (renderTemplate device-status-xxx.tmpl)
-				device-status-sessions.tmpl
-				device-status-models.tmpl
-				device-status-devices.tmpl
-		device-footer.tmpl
-</pre>
-
-<h4>/doc</h4>
-
-<pre class="text-sm">
-	device.tmpl
-		device-header.tmpl
-		device-docs.tmpl
-			/docs/{page}.html or /model/{model}/docs/doc.html
-		device-footer.tmpl
-</pre>
-
 <h3>SITE</h3>
 
 <pre class="cmd-line">SITE=true</pre>
@@ -86,19 +64,6 @@ session.tmpl
 		site-header.tmpl
 		site-demo.tmpl
 			session.tmpl
-		site-footer.tmpl
-</pre>
-
-<h4>/status</h4>
-
-<pre class="text-sm">
-	site.tmpl
-		site-header.tmpl
-		site-status.tmpl
-			device-status.tmpl   (renderTemplate device-status-xxx.tmpl)
-				device-status-sessions.tmpl
-				device-status-models.tmpl
-				device-status-devices.tmpl
 		site-footer.tmpl
 </pre>
 
