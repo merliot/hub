@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"testing"
@@ -125,6 +126,7 @@ func TestMain(m *testing.M) {
 		device.WithModels(models.AllModels),
 		//device.WithKeepBuilds("true"),
 		device.WithDevicesFile("devices.json"),
+		device.WithAutoSave("true"),
 		device.WithLogLevel("DEBUG"),
 		device.WithDialUrls(",xx://xxx/ws,://example.com"),
 		device.WithUser(user),
@@ -146,7 +148,15 @@ func TestMain(m *testing.M) {
 }
 
 func callOK(t *testing.T, port int, method, path string) []byte {
-	resp, err := common.CallOK(user, passwd, sessionId, hubPort, method, path)
+	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
+	if err != nil {
+		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
+	}
+	return resp
+}
+
+func callExpecting(t *testing.T, port int, method, path string, expectedStatus int) []byte {
+	resp, err := common.CallExpecting(user, passwd, sessionId, port, method, path, expectedStatus)
 	if err != nil {
 		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
 	}
@@ -188,20 +198,32 @@ func TestJoin(t *testing.T) {
 	)
 	go g2.Run()
 	time.Sleep(time.Second)
+}
 
+func TestUptime(t *testing.T) {
 	callOK(t, hubPort, "POST", "/device/gadget2/get-uptime")
 	time.Sleep(time.Second)
+}
 
+func TestCreate(t *testing.T) {
 	callOK(t, subhubPort, "POST",
 		"/create?ParentId=subhub1&Child.Id=test&Child.Model=gadget&Child.Name=test")
+	callExpecting(t, subhubPort, "POST",
+		"/create?ParentId=subhub1&Child.Id=test&Child.Model=gadget&Child.Name=test", http.StatusBadRequest)
+	callExpecting(t, subhubPort, "POST",
+		"/create?ParentId=subhub1&Child.Id=test2&Child.Model=XXX&Child.Name=test", http.StatusBadRequest)
+}
 
+func TestDownload(t *testing.T) {
 	odir, _ := os.Getwd()
 	os.Chdir("../../") // Need to chdir to get access to ./bin files
 	defer os.Chdir(odir)
 	callOK(t, subhubPort, "GET", "/download-image/test?target=x86-64")
 	callOK(t, subhubPort, "GET", "/download-image/subhub1?target=x86-64&port=8000")
+	callExpecting(t, hubPort, "GET", "/download-image/gadget2?target=x86-64&port=&Bottles=99", http.StatusBadRequest)
+}
 
+func TestDestroy(t *testing.T) {
+	callExpecting(t, hubPort, "DELETE", "/destroy?Id=test", http.StatusBadRequest)
 	callOK(t, subhubPort, "DELETE", "/destroy?Id=test")
-
-	time.Sleep(time.Second)
 }

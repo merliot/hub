@@ -404,9 +404,17 @@ func TestAPIDestroy(t *testing.T) {
 	callBad(t, "DELETE", "/destroy")
 }
 
+func TestGhost(t *testing.T) {
+	callExpecting(t, "GET", "/device/relaytest/state", http.StatusGone)
+}
+
 func TestAPIRecreate(t *testing.T) {
 	callOK(t, "POST",
 		"/create?ParentId=hub&Child.Id=relaytest&Child.Model=relays&Child.Name=test")
+}
+
+func TestNOP(t *testing.T) {
+	callOK(t, "PUT", "/nop")
 }
 
 func TestSave(t *testing.T) {
