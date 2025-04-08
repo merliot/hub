@@ -184,6 +184,9 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 
 	pkt.Unmarshal(&msg)
 
+	s.Lock()
+	defer s.Unlock()
+
 	parent, ok := s.devices.get(msg.ParentId)
 	if !ok {
 		return deviceNotFound(msg.ParentId)
@@ -239,6 +242,9 @@ func (s *server) handleDestroy(pkt *Packet) error {
 	var msg msgDestroy
 
 	pkt.Unmarshal(&msg)
+
+	s.Lock()
+	defer s.Unlock()
 
 	child, ok := s.devices.get(msg.Id)
 	if !ok {

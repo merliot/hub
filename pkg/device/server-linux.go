@@ -11,6 +11,7 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/merliot/hub/pkg/ratelimit"
@@ -38,6 +39,7 @@ type server struct {
 	mux            *http.ServeMux
 	server         *http.Server
 	flags
+	sync.Mutex
 	port            int
 	wsxPingPeriod   int
 	background      string

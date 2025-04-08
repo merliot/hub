@@ -80,6 +80,13 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 		return "", fmt.Errorf("Cannot dial into root (self)")
 	}
 
+	// Hold lock while merging new devices in with existing
+	// devices...we could have multiple announcements coming in on
+	// different requests, so want to serialize the merging.
+
+	s.Lock()
+	defer s.Unlock()
+
 	// Make sure announcement root device exists in existing devices and
 	// matches existing device
 
