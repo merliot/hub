@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	pingPeriod  = 5 * time.Second
+	pingPeriod  = 2 * time.Second
 	pingTimeout = pingPeriod + time.Second
 )
 
