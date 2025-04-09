@@ -12,7 +12,7 @@ import (
 
 var (
 	pingPeriod  = 2 * time.Second
-	pingTimeout = pingPeriod + time.Second
+	pingTimeout = 10 * time.Second
 )
 
 type wsLink struct {
