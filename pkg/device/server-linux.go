@@ -53,7 +53,7 @@ type server struct {
 	passwd          string
 }
 
-// ServerOption is passed to NewServer to set server options
+// ServerOption is a server option
 type ServerOption func(*server)
 
 // WithPort returns a ServerOption that sets the port number for the server to

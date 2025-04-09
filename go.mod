@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/ietxaniz/delock v0.3.0
+	github.com/mark3labs/mcp-go v0.18.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/x448/float16 v0.8.4
@@ -26,6 +27,7 @@ require (
 	github.com/sigurn/crc8 v0.0.0-20220107193325-2243fe600f9f // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/warthog618/gpiod v0.8.2 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect

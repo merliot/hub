@@ -22,6 +22,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/ietxaniz/delock v0.3.0 h1:PJiwiOtmYrtMPJAmgPRkvOAyOI8KQB0NG38+piQfTFU=
 github.com/ietxaniz/delock v0.3.0/go.mod h1:zJuHarV3NdiZD7szgx7yYGLGiLn0I6IHhiomHbYfa7I=
+github.com/mark3labs/mcp-go v0.18.0 h1:YuhgIVjNlTG2ZOwmrkORWyPTp0dz1opPEqvsPtySXao=
+github.com/mark3labs/mcp-go v0.18.0/go.mod h1:KmJndYv7GIgcPVwEKJjNcbhVQ+hJGJhrCCB/9xITzpE=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -42,6 +44,8 @@ github.com/warthog618/gpiod v0.8.2 h1:2HgQ9pNowPp7W77sXhX5ut5Tqq1WoS3t7bXYDxtYvx
 github.com/warthog618/gpiod v0.8.2/go.mod h1:O7BNpHjCn/4YS5yFVmoFZAlY1LuYuQ8vhPf0iy/qdi4=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
+github.com/yosida95/uritemplate/v3 v3.0.2 h1:Ed3Oyj9yrmi9087+NczuL5BwkIc4wvTb5zIM+UJPGz4=
+github.com/yosida95/uritemplate/v3 v3.0.2/go.mod h1:ILOh0sOhIJR3+L/8afwt/kE++YT040gmv5BQTMR2HP4=
 gobot.io/x/gobot/v2 v2.3.0 h1:A5uT4J54hS0CJ0qlcbOwBr6joEpQpkMSjdJavyAIGME=
 gobot.io/x/gobot/v2 v2.3.0/go.mod h1:Y2OP99XZwxvTaExiSf42NFQ4HfFeD9lhh+kHS6WGpPI=
 golang.org/x/image v0.24.0 h1:AN7zRgVsbvmTfNyqIbbOraYL8mSwcKncEj8ofjgzcMQ=
