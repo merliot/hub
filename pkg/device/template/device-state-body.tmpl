@@ -4,7 +4,13 @@
 		<h3>State</h3>
 	</div>
 
-{{ template "device-state-state.tmpl" . }}
+	<pre class="text-sm"
+		hx-get="/device/{{id}}/state"
+		hx-trigger="load delay:1s"
+		hx-target="this"
+		hx-swap="innerHTML">
+		{{- stateJSON -}}
+	</pre>
 
 </div>
 

@@ -53,9 +53,8 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {
-	if err := d.renderTmpl(w, "device-state-state.tmpl", nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(d.stateJSON())
 }
 
 func (d *device) showCode(w http.ResponseWriter, r *http.Request) {

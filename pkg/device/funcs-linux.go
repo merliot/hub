@@ -31,7 +31,7 @@ func (s *server) bodyColors() string {
 func (s *server) baseFuncs() FuncMap {
 	return FuncMap{
 		"saveToClipboard": func() bool { return s.isSet(flagSaveToClipboard) },
-		"devicesJSON":     func() string { return string(s.devices.getPrettyJSON()) },
+		"devicesJSON":     func() string { return string(s.devices.devicesJSON()) },
 		"title":           strings.Title,
 		"add":             func(a, b int) int { return a + b },
 		"mult":            func(a, b int) int { return a * b },
@@ -53,9 +53,9 @@ func (d *device) classOffline() string {
 	}
 }
 
-func (d *device) stateJSON() (string, error) {
-	bytes, err := json.MarshalIndent(d.State, "", "\t")
-	return string(bytes), err
+func (d *device) stateJSON() []byte {
+	bytes, _ := json.MarshalIndent(d.State, "", "\t")
+	return bytes
 }
 
 func (d *device) uptime() string {
@@ -75,7 +75,7 @@ func (d *device) baseFuncs() FuncMap {
 		"uniq":           func(s string) string { return d.Model + "-" + d.Id + "-" + s },
 		"deployParams":   func() template.URL { return template.URL(d.DeployParams) },
 		"state":          func() any { return d.State },
-		"stateJSON":      d.stateJSON,
+		"stateJSON":      func() string { return string(d.stateJSON()) },
 		"uptime":         d.uptime,
 		"targets":        func() target.Targets { return target.MakeTargets(d.Targets) },
 		"target":         func() string { return d.deployValues().Get("target") },
