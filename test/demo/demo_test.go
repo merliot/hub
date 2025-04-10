@@ -303,16 +303,11 @@ func TestShowViews(t *testing.T) {
 	}
 }
 
-var expectedGadgetState = []byte(`<pre class="text-sm"
-	hx-get="/device/gadget1/state"
-	hx-trigger="load delay:1s"
-	hx-target="this"
-	hx-swap="outerHTML">{
-	&#34;Bottles&#34;: 99,
-	&#34;Restock&#34;: 70,
-	&#34;FullCount&#34;: 99
-}</pre>
-`)
+var expectedGadgetState = []byte(`{
+	"Bottles": 99,
+	"Restock": 70,
+	"FullCount": 99
+}`)
 
 func TestShowState(t *testing.T) {
 	state := callOK(t, "GET", "/device/gadget1/state")
@@ -418,7 +413,7 @@ func TestNOP(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	callOK(t, "GET", "/save")
+	callOK(t, "POST", "/save")
 }
 
 func TestSaveModal(t *testing.T) {
@@ -426,9 +421,9 @@ func TestSaveModal(t *testing.T) {
 }
 
 func TestRename(t *testing.T) {
-	callOK(t, "GET", "/rename?Id=relays1&NewName=foo")
-	callBad(t, "GET", "/rename?Id=relays1&NewName=")
-	callBad(t, "GET", "/rename?Id=XXX&NewName=foo")
+	callOK(t, "PUT", "/rename?Id=relays1&NewName=foo")
+	callBad(t, "PUT", "/rename?Id=relays1&NewName=")
+	callBad(t, "PUT", "/rename?Id=XXX&NewName=foo")
 }
 
 func TestNewModal(t *testing.T) {
