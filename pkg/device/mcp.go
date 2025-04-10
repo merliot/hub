@@ -156,7 +156,6 @@ func (ms *MCPServer) handlerAddDevice(ctx context.Context, request mcp.CallToolR
 	// Create URL with query parameters
 	reqURL := fmt.Sprintf("%s/create?ParentId=hub&Child.Id=%s&Child.Model=%s&Child.Name=%s",
 		ms.url, url.QueryEscape(id), url.QueryEscape(model), url.QueryEscape(name))
-	println(reqURL)
 
 	body, err := ms.doRequest(ctx, "POST", reqURL)
 	if err != nil {
@@ -192,8 +191,8 @@ func (ms *MCPServer) toolAddDevice() {
 }
 
 func (ms *MCPServer) handlerRemoveDevice(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	id, ok := request.Params.Arguments["id"].(string)
-	if !ok || id == "" {
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
 		return nil, errors.New("id parameter is required")
 	}
 
@@ -231,10 +230,10 @@ func (ms *MCPServer) hubTools() {
 	ms.toolRemoveDevice()
 }
 
-func (ms *MCPServer) modelResources(d *device) {
+func (ms *MCPServer) modelResources(cfg Config) {
 }
 
-func (ms *MCPServer) modelTools(d *device) {
+func (ms *MCPServer) modelTools(cfg Config) {
 }
 
 func (ms *MCPServer) build() error {
@@ -245,15 +244,14 @@ func (ms *MCPServer) build() error {
 	for _, model := range ms.models {
 
 		// Build device model instance and get config
-		d := &device{}
-		d.Devicer = model.Maker()
-		d.Config = d.GetConfig()
+		device := model.Maker()
+		cfg := device.GetConfig()
 
 		// Build MCP resources for model
-		ms.modelResources(d)
+		ms.modelResources(cfg)
 
 		// Build MCP tools for model
-		ms.modelTools(d)
+		ms.modelTools(cfg)
 	}
 
 	return nil
