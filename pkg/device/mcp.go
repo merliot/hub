@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	mcp "github.com/mark3labs/mcp-go/mcp"
 	mcpserver "github.com/mark3labs/mcp-go/server"
@@ -87,32 +88,40 @@ func (ms *MCPServer) ServeStdio() error {
 	return mcpserver.ServeStdio(ms.MCPServer)
 }
 
-func (ms *MCPServer) handlerGetDevices(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", ms.url+"/devices", nil)
+func (ms *MCPServer) doRequest(ctx context.Context, method, url string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Add basic auth
 	req.SetBasicAuth(ms.user, ms.passwd)
 
-	// Make request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch devices: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch devices: status %d", resp.StatusCode)
-	}
-
-	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return body, fmt.Errorf("request failed: status %d", resp.StatusCode)
+	}
+
+	return body, nil
+}
+
+func (ms *MCPServer) handlerGetDevices(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	body, err := ms.doRequest(ctx, "GET", ms.url+"/devices")
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to fetch devices: %w", err)
 	}
 
 	return mcp.NewToolResultText(string(body)), nil
@@ -125,24 +134,61 @@ func (ms *MCPServer) toolGetDevices() {
 	ms.AddTool(tool, ms.handlerGetDevices)
 }
 
-func handlerHelloWorld(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	name, ok := request.Params.Arguments["name"].(string)
-	if !ok {
-		return nil, errors.New("name must be a string")
+func (ms *MCPServer) handlerAddDevice(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Extract parameters
+	parentId, _ := request.Params.Arguments["parent_id"].(string)
+	if parentId == "" {
+		return nil, errors.New("parent-id parameter is required")
+	}
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
+		id = generateRandomId()
+	}
+	model, _ := request.Params.Arguments["model"].(string)
+	if model == "" {
+		return nil, errors.New("model parameter is required")
+	}
+	name, _ := request.Params.Arguments["name"].(string)
+	if name == "" {
+		return nil, errors.New("name parameter is required")
 	}
 
-	return mcp.NewToolResultText(fmt.Sprintf("Hello, %s!", name)), nil
+	// Create URL with query parameters
+	reqURL := fmt.Sprintf("%s/create?ParentId=hub&Child.Id=%s&Child.Model=%s&Child.Name=%s",
+		ms.url, url.QueryEscape(id), url.QueryEscape(model), url.QueryEscape(name))
+	println(reqURL)
+
+	body, err := ms.doRequest(ctx, "POST", reqURL)
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to create device: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to create device: %w", err)
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Device %s created successfully with id %s", name, id)), nil
 }
 
-func (ms *MCPServer) toolHelloWorld() {
-	tool := mcp.NewTool("hello_world",
-		mcp.WithDescription("Say hello to someone"),
+func (ms *MCPServer) toolAddDevice() {
+	tool := mcp.NewTool("add_device",
+		mcp.WithDescription("Add a new device to the Merliot Hub"),
+		mcp.WithString("parent_id",
+			mcp.Required(),
+			mcp.Description("Parent device ID"),
+		),
+		mcp.WithString("id",
+			mcp.Description("ID of the device (optional, will be generated if not provided)"),
+		),
+		mcp.WithString("model",
+			mcp.Required(),
+			mcp.Description("Model of the device"),
+		),
 		mcp.WithString("name",
 			mcp.Required(),
-			mcp.Description("Name of the person to greet"),
+			mcp.Description("Name of the device"),
 		),
 	)
-	ms.AddTool(tool, handlerHelloWorld)
+	ms.AddTool(tool, ms.handlerAddDevice)
 }
 
 func (ms *MCPServer) hubResources() {
@@ -150,8 +196,8 @@ func (ms *MCPServer) hubResources() {
 }
 
 func (ms *MCPServer) hubTools() {
-	ms.toolHelloWorld()
 	ms.toolGetDevices()
+	ms.toolAddDevice()
 }
 
 func (ms *MCPServer) modelResources(d *device) {
