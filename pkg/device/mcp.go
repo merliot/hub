@@ -191,6 +191,36 @@ func (ms *MCPServer) toolAddDevice() {
 	ms.AddTool(tool, ms.handlerAddDevice)
 }
 
+func (ms *MCPServer) handlerRemoveDevice(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	id, ok := request.Params.Arguments["id"].(string)
+	if !ok || id == "" {
+		return nil, errors.New("id parameter is required")
+	}
+
+	reqURL := fmt.Sprintf("%s/destroy?Id=%s", ms.url, url.QueryEscape(id))
+
+	body, err := ms.doRequest(ctx, "DELETE", reqURL)
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to remove device: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to remove device: %w", err)
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Device %s removed successfully", id)), nil
+}
+
+func (ms *MCPServer) toolRemoveDevice() {
+	tool := mcp.NewTool("remove_device",
+		mcp.WithDescription("Remove a device from the Merliot Hub"),
+		mcp.WithString("id",
+			mcp.Required(),
+			mcp.Description("ID of the device to remove"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerRemoveDevice)
+}
+
 func (ms *MCPServer) hubResources() {
 	// No resources for now
 }
@@ -198,6 +228,7 @@ func (ms *MCPServer) hubResources() {
 func (ms *MCPServer) hubTools() {
 	ms.toolGetDevices()
 	ms.toolAddDevice()
+	ms.toolRemoveDevice()
 }
 
 func (ms *MCPServer) modelResources(d *device) {
