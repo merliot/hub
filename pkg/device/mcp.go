@@ -278,6 +278,33 @@ func (ms *MCPServer) toolRename() {
 	ms.AddTool(tool, ms.handlerRename)
 }
 
+func (ms *MCPServer) handlerGetState(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
+		return nil, errors.New("id parameter is required")
+	}
+	body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/state")
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to fetch devices: %w", err)
+	}
+
+	return mcp.NewToolResultText(string(body)), nil
+}
+
+func (ms *MCPServer) toolGetState() {
+	tool := mcp.NewTool("get_state",
+		mcp.WithDescription("Get the state of a device on the Merliot Hub"),
+		mcp.WithString("id",
+			mcp.Required(),
+			mcp.Description("ID of the device"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerGetState)
+}
+
 func (ms *MCPServer) hubResources() {
 	// No resources for now
 }
@@ -294,6 +321,7 @@ func (ms *MCPServer) modelResources(cfg Config) {
 }
 
 func (ms *MCPServer) modelTools(cfg Config) {
+	ms.toolGetState()
 }
 
 func (ms *MCPServer) build() error {
