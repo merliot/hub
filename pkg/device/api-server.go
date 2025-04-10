@@ -283,6 +283,12 @@ func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if child.isSet(flagGhost) {
+		err := deviceNotFound(msg.Id)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	if child.isSet(flagLocked) {
 		http.Error(w, "Can't destroy device; device is locked",
 			http.StatusBadRequest)
