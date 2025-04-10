@@ -55,14 +55,14 @@ func (s *server) setupAPI() {
 
 	s.mux.HandleFunc("GET /devices", s.showDevices)
 	s.mux.HandleFunc("PUT /nop", func(w http.ResponseWriter, r *http.Request) {})
-	s.mux.HandleFunc("GET /save", s.saveDevices)
+	s.mux.HandleFunc("POST /save", s.saveDevices)
 	s.mux.HandleFunc("GET /save-modal", s.showSaveModal)
 	s.mux.HandleFunc("POST /create", s.createChild)
 	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
 	s.mux.HandleFunc("GET /download-image/{id}", s.downloadImage)
 	s.mux.HandleFunc("GET /download-image/{id}/{sessionId}", s.downloadImage)
 	s.mux.HandleFunc("GET /deploy-koyeb/{id}/{sessionId}", s.deployKoyeb)
-	s.mux.HandleFunc("GET /rename", s.rename)
+	s.mux.HandleFunc("PUT /rename", s.rename)
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 }
 

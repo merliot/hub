@@ -19,12 +19,12 @@ $ curl -X POST "http://localhost:8000/create?ParentId=hub&Child.Id=foo&Child.Mod
 $ curl -X DELETE "http://localhost:8000/destroy?Id=foo"
 </pre>
 
-<pre class="code-snippet">POST /rename?Id=xxx&NewName=yyy</pre>
+<pre class="code-snippet">PUT /rename?Id=xxx&NewName=yyy</pre>
 
 <p>Rename a device, for example:</p>
 
 <pre class="cmd-line">
-$ curl -X POST "http://localhost:8000/rename?Id=foo&NewName=Bar"
+$ curl -X PUT "http://localhost:8000/rename?Id=foo&NewName=Bar"
 </pre>
 
 <pre class="code-snippet">POST /save</pre>
