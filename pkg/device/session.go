@@ -7,7 +7,6 @@ import (
 	_ "embed"
 	"errors"
 	"net/http"
-	"sort"
 	"sync"
 	"time"
 
@@ -145,25 +144,6 @@ func (sm *sessionMap) gcSessions() {
 			return true
 		})
 	}
-}
-
-func (sm *sessionMap) sortedAge() []string {
-
-	keys := make([]string, 0)
-	sm.drange(func(id string, s *session) bool {
-		keys = append(keys, id)
-		return true
-	})
-
-	// Sort keys based on lastUpdate, newest first
-	sort.Slice(keys, func(i, j int) bool {
-		s1, _ := sm.get(keys[i])
-		s2, _ := sm.get(keys[j])
-		return s1.lastUpdate.After(s2.lastUpdate)
-	})
-
-	return keys
-
 }
 
 type sessionStatus struct {
