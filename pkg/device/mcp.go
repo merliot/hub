@@ -220,6 +220,25 @@ func (ms *MCPServer) toolRemoveDevice() {
 	ms.AddTool(tool, ms.handlerRemoveDevice)
 }
 
+func (ms *MCPServer) handlerSave(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	body, err := ms.doRequest(ctx, "POST", ms.url+"/save")
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to save devices: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to save devices: %w", err)
+	}
+
+	return mcp.NewToolResultText("Devices saved successfully"), nil
+}
+
+func (ms *MCPServer) toolSave() {
+	tool := mcp.NewTool("save",
+		mcp.WithDescription("Save current device configuration"),
+	)
+	ms.AddTool(tool, ms.handlerSave)
+}
+
 func (ms *MCPServer) hubResources() {
 	// No resources for now
 }
@@ -228,6 +247,7 @@ func (ms *MCPServer) hubTools() {
 	ms.toolGetDevices()
 	ms.toolAddDevice()
 	ms.toolRemoveDevice()
+	ms.toolSave()
 }
 
 func (ms *MCPServer) modelResources(cfg Config) {
