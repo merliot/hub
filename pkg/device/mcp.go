@@ -239,6 +239,45 @@ func (ms *MCPServer) toolSave() {
 	ms.AddTool(tool, ms.handlerSave)
 }
 
+func (ms *MCPServer) handlerRename(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
+		return nil, errors.New("id parameter is required")
+	}
+	newName, _ := request.Params.Arguments["new_name"].(string)
+	if newName == "" {
+		return nil, errors.New("new_name parameter is required")
+	}
+
+	reqURL := fmt.Sprintf("%s/rename?Id=%s&NewName=%s",
+		ms.url, url.QueryEscape(id), url.QueryEscape(newName))
+
+	body, err := ms.doRequest(ctx, "POST", reqURL)
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to rename device: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to rename device: %w", err)
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Device %s renamed to %s successfully", id, newName)), nil
+}
+
+func (ms *MCPServer) toolRename() {
+	tool := mcp.NewTool("rename",
+		mcp.WithDescription("Rename a device on the Merliot Hub"),
+		mcp.WithString("id",
+			mcp.Required(),
+			mcp.Description("ID of the device to rename"),
+		),
+		mcp.WithString("new_name",
+			mcp.Required(),
+			mcp.Description("New name for the device"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerRename)
+}
+
 func (ms *MCPServer) hubResources() {
 	// No resources for now
 }
@@ -248,6 +287,7 @@ func (ms *MCPServer) hubTools() {
 	ms.toolAddDevice()
 	ms.toolRemoveDevice()
 	ms.toolSave()
+	ms.toolRename()
 }
 
 func (ms *MCPServer) modelResources(cfg Config) {
