@@ -221,7 +221,7 @@ func (ms *MCPServer) toolRemoveDevice() {
 }
 
 func (ms *MCPServer) handlerSave(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	body, err := ms.doRequest(ctx, "POST", ms.url+"/save")
+	body, err := ms.doRequest(ctx, "GET", ms.url+"/save")
 	if err != nil {
 		if body != nil {
 			return nil, fmt.Errorf("failed to save devices: %w: %s", err, string(body))
@@ -252,7 +252,7 @@ func (ms *MCPServer) handlerRename(ctx context.Context, request mcp.CallToolRequ
 	reqURL := fmt.Sprintf("%s/rename?Id=%s&NewName=%s",
 		ms.url, url.QueryEscape(id), url.QueryEscape(newName))
 
-	body, err := ms.doRequest(ctx, "POST", reqURL)
+	body, err := ms.doRequest(ctx, "GET", reqURL)
 	if err != nil {
 		if body != nil {
 			return nil, fmt.Errorf("failed to rename device: %w: %s", err, string(body))
