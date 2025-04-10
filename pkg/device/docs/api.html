@@ -3,12 +3,12 @@
 <p>These APIs are available for the hub at <code>/</code>, and for each hub
 device at <code>/device/{{id}}/</code>.</p>
 
-<pre class="code-snippet">POST /create?Id=xxx&Model=yyy&Name=zzz</pre>
+<pre class="code-snippet text-wrap">POST /create?ParentId=xxx&Child.Id=yyy&Child.Model=zzz&Child.Name=www</pre>
 
-<p>Create a new device model instance with id, name.  For example, to create a new relays device:</p>
+<p>Create a new device model instance with id, model, and name. The device will be created as a child of the specified parent. For example, to create a new relays device:</p>
 
-<pre class="cmd-line">
-$ curl -X POST "http://localhost:8000/create?Id=foo&Model=relays&Name=Foo"
+<pre class="cmd-line text-wrap">
+$ curl -X POST "http://localhost:8000/create?ParentId=hub&Child.Id=foo&Child.Model=relays&Child.Name=Foo"
 </pre>
 
 <pre class="code-snippet">DELETE /destroy?Id=xxx</pre>
@@ -19,9 +19,25 @@ $ curl -X POST "http://localhost:8000/create?Id=foo&Model=relays&Name=Foo"
 $ curl -X DELETE "http://localhost:8000/destroy?Id=foo"
 </pre>
 
-<pre class="code-snippet">GET /download-image?target=xxx&port=yyy&[more...]</pre>
+<pre class="code-snippet">POST /rename?Id=xxx&NewName=yyy</pre>
 
-<p>Download a device image for the given target.  Device-specific parameters
+<p>Rename a device, for example:</p>
+
+<pre class="cmd-line">
+$ curl -X POST "http://localhost:8000/rename?Id=foo&NewName=Bar"
+</pre>
+
+<pre class="code-snippet">POST /save</pre>
+
+<p>Save the current device configuration, for example:</p>
+
+<pre class="cmd-line">
+$ curl -X POST "http://localhost:8000/save"
+</pre>
+
+<pre class="code-snippet">GET /download-image/{id}?target=xxx&port=yyy&[more...]</pre>
+
+<p>Download a device image for the given target. Device-specific parameters
 follow port=yyy.</p>
 
 <p>Example:</p>
@@ -29,7 +45,7 @@ follow port=yyy.</p>
 <pre class="cmd-line">
 $ curl -X GET -H "Referer: http://&lt;host&gt;:8000/" \
   -o foo-installer \
-  "http://&lt;host&gt;:8000/device/foo/download-image? \
+  "http://&lt;host&gt;:8000/download-image/foo? \
   target=x86-64"
 </pre>
 
@@ -49,8 +65,8 @@ $ curl -X GET "http://nuc:8000/devices"
 
 <h3>CUSTOM API</h3>
 
-<p>A device model may add device-spcific APIs using the
-<code>Config.APIs</code>.  An example:</p>
+<p>A device model may add device-specific APIs using the
+<code>Config.APIs</code>. An example:</p>
 
 <pre class="code-snippet">
 func (q *qrcode) GetConfig() device.Config {
