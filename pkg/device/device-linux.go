@@ -317,6 +317,18 @@ func (d *device) handleReboot(pkt *Packet) {
 	}
 }
 
+type status struct {
+	Online bool
+}
+
+func (d *device) statusJSON() []byte {
+	var s = status{
+		Online: d.isSet(flagOnline),
+	}
+	j, _ := json.MarshalIndent(&s, "", "\t")
+	return j
+}
+
 /*
 func dumpStack() {
 	buf := make([]byte, 1024)

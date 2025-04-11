@@ -387,6 +387,34 @@ func (ms *MCPServer) toolGetConfig() {
 	ms.AddTool(tool, ms.handlerGetConfig)
 }
 
+func (ms *MCPServer) handlerGetStatus(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
+		return nil, errors.New("id parameter is required")
+	}
+
+	body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/status")
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to fetch devices: %w", err)
+	}
+
+	return mcp.NewToolResultText(string(body)), nil
+}
+
+func (ms *MCPServer) toolGetStatus() {
+	tool := mcp.NewTool("get_status",
+		mcp.WithDescription("Get the status of a Merliot Hub device.  Device status includes connection status (online/offline)."),
+		mcp.WithString("id",
+			mcp.Required(),
+			mcp.Description("Device ID"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerGetStatus)
+}
+
 func (ms *MCPServer) build() error {
 
 	// Cache model configs by making a temp device and saving its config
@@ -403,6 +431,7 @@ func (ms *MCPServer) build() error {
 	ms.toolGetState()
 	ms.toolGetInstructions()
 	ms.toolGetConfig()
+	ms.toolGetStatus()
 
 	return nil
 }
