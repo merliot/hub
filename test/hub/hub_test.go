@@ -142,9 +142,11 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	m.Run()
+	code := m.Run()
 
 	os.RemoveAll("devices.json")
+
+	os.Exit(code)
 }
 
 func callOK(t *testing.T, port int, method, path string) []byte {

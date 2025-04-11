@@ -143,10 +143,12 @@ func TestMain(m *testing.M) {
 	url := "ws://localhost:" + strconv.Itoa(port) + "/wsx?session-id=" + sessionId
 	go wsx(url, user, passwd)
 
-	m.Run()
+	code := m.Run()
 
 	os.RemoveAll("./camera-images")
 	os.RemoveAll("./raw-1.jpg")
+
+	os.Exit(code)
 }
 
 var errNoMoreSessions = errors.New("no more sessions")

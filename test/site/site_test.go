@@ -118,9 +118,11 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	m.Run()
+	code := m.Run()
 
 	os.RemoveAll("./camera-images")
+
+	os.Exit(code)
 }
 
 func callOK(t *testing.T, method, path string) []byte {

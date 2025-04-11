@@ -286,9 +286,9 @@ func (ms *MCPServer) handlerGetState(ctx context.Context, request mcp.CallToolRe
 	body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/state")
 	if err != nil {
 		if body != nil {
-			return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+			return nil, fmt.Errorf("failed to get device state: %w: %s", err, string(body))
 		}
-		return nil, fmt.Errorf("failed to fetch devices: %w", err)
+		return nil, fmt.Errorf("failed to get device state: %w", err)
 	}
 
 	return mcp.NewToolResultText(string(body)), nil
@@ -303,6 +303,42 @@ func (ms *MCPServer) toolGetState() {
 		),
 	)
 	ms.AddTool(tool, ms.handlerGetState)
+}
+
+func (ms *MCPServer) handlerGetInstructions(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	id, _ := request.Params.Arguments["id"].(string)
+	if id == "" {
+		return nil, errors.New("id parameter is required")
+	}
+	target, _ := request.Params.Arguments["target"].(string)
+	if target == "" {
+		return nil, errors.New("target parameter is required")
+	}
+	body, err := ms.doRequest(ctx, "GET",
+		ms.url+"/device/"+id+"/instructions-target?target="+target)
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to get device instructions: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to get device instructions: %w", err)
+	}
+
+	return mcp.NewToolResultText(string(body)), nil
+}
+
+func (ms *MCPServer) toolGetInstructions() {
+	tool := mcp.NewTool("get_instructions",
+		mcp.WithDescription("Get the instructions for device on the Merliot Hub.  The instructions include parts list and steps to build, download, and deploy the device."),
+		mcp.WithString("id",
+			mcp.Required(),
+			mcp.Description("ID of the device"),
+		),
+		mcp.WithString("target",
+			mcp.Required(),
+			mcp.Description("Build target"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerGetInstructions)
 }
 
 func (ms *MCPServer) hubResources() {
@@ -322,6 +358,7 @@ func (ms *MCPServer) modelResources(cfg Config) {
 
 func (ms *MCPServer) modelTools(cfg Config) {
 	ms.toolGetState()
+	ms.toolGetInstructions()
 }
 
 func (ms *MCPServer) build() error {
