@@ -15,9 +15,6 @@ import (
 	mcpserver "github.com/mark3labs/mcp-go/server"
 )
 
-// ResourceHandlerFunc is a function that handles MCP resource requests
-type ResourceHandlerFunc func(ctx context.Context) (string, error)
-
 // MCPServer represents the MCP server for Merliot Hub
 type MCPServer struct {
 	*mcpserver.MCPServer
