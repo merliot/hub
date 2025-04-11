@@ -419,8 +419,8 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send a /downloaded msg up so uplinks can update their DeployParams
+	// Send a downloaded msg up so uplinks can update their DeployParams
 
 	msg := msgDownloaded{d.DeployParams}
-	d.newPacket().SetPath("/downloaded").Marshal(&msg).RouteUp()
+	d.newPacket().SetPath("downloaded").Marshal(&msg).RouteUp()
 }

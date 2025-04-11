@@ -38,9 +38,9 @@ func (p *Packet) String() string {
 	}
 
 	if p.SessionId == "" {
-		return fmt.Sprintf("[%s%s*] %v", p.Dst, p.Path, msgStr)
+		return fmt.Sprintf("[%s %s*] %v", p.Dst, p.Path, msgStr)
 	} else {
-		return fmt.Sprintf("[%s%s] %v", p.Dst, p.Path, msgStr)
+		return fmt.Sprintf("[%s %s] %v", p.Dst, p.Path, msgStr)
 	}
 }
 
@@ -134,7 +134,7 @@ func (p *Packet) handle() error {
 //     For example, consider routing the packet with the message:
 //
 //     var msg = MsgClicked{Relay: 2, State: true}
-//     pkt.SetPath("/clicked").Marshal(&msg).RouteUp()
+//     pkt.SetPath("clicked").Marshal(&msg).RouteUp()
 //
 //     And say the current view is "overview".  The template name is:
 //

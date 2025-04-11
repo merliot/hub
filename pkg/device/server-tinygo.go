@@ -30,7 +30,7 @@ func NewServer(maker Maker) *server {
 func (s *server) devicesOnline(l linker) {
 
 	var pkt = &Packet{}
-	pkt.SetDst(s.root.Id).SetPath("/online").Marshal(s.root.State)
+	pkt.SetDst(s.root.Id).SetPath("online").Marshal(s.root.State)
 
 	s.logInfo("Sending", "pkt", pkt)
 	l.Send(pkt)

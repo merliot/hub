@@ -40,7 +40,7 @@ func (s *server) wsxServe(ws *websocket.Conn, r *http.Request) {
 
 	// Force a refresh of root full view on successful ws connection, in
 	// case anything has changed since last connect
-	pkt := s.root.newPacket().SetPath("/device")
+	pkt := s.root.newPacket().SetPath("device")
 	s.sessions.route(sessionId, pkt)
 
 	for {

@@ -97,7 +97,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	s.logInfo("Adding Uplink")
 	s.uplinks.add(link)
 
-	// Send /online packet for all online devices
+	// Send online packet for all online devices
 	s.devicesOnline(link)
 
 	// Route incoming packets down to the destination device.  Stop and

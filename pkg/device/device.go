@@ -72,11 +72,11 @@ func (s *server) build(d *device, additionalFlags flags) error {
 	}
 
 	// Default handlers for all devices
-	d.PacketHandlers["/online"] = &PacketHandler[any]{d.handleOnline}
-	d.PacketHandlers["/offline"] = &PacketHandler[any]{d.handleOffline}
+	d.PacketHandlers["online"] = &PacketHandler[any]{d.handleOnline}
+	d.PacketHandlers["offline"] = &PacketHandler[any]{d.handleOffline}
 	d.PacketHandlers["/reboot"] = &PacketHandler[NoMsg]{d.handleReboot}
 	d.PacketHandlers["/get-uptime"] = &PacketHandler[NoMsg]{d.handleGetUptime}
-	d.PacketHandlers["/uptime"] = &PacketHandler[msgUptime]{d.handleUptime}
+	d.PacketHandlers["uptime"] = &PacketHandler[msgUptime]{d.handleUptime}
 
 	// Bracket poll period: [1..forever) seconds
 	if d.PollPeriod == 0 {
@@ -118,7 +118,7 @@ type msgUptime struct {
 func (d *device) handleGetUptime(pkt *Packet) {
 	var uptime = time.Since(d.startup)
 	var msg = msgUptime{uptime}
-	pkt.SetPath("/uptime").Marshal(&msg).RouteUp()
+	pkt.SetPath("uptime").Marshal(&msg).RouteUp()
 }
 
 func (d *device) handleUptime(pkt *Packet) {

@@ -49,7 +49,7 @@ func (s *server) devicesOnline(l linker) {
 		}
 
 		pkt := d.newPacket()
-		pkt.SetPath("/online").Marshal(d.State)
+		pkt.SetPath("online").Marshal(d.State)
 
 		s.logInfo("Sending", "pkt", pkt)
 		l.Send(pkt)
@@ -67,7 +67,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	link.setPongHandler()
 	link.startPing()
 
-	pkt.SetPath("/announce").Marshal(s.devices.getJSON())
+	pkt.SetPath("announce").Marshal(s.devices.getJSON())
 
 	// Send announcement
 	s.logInfo("<- Sending", "pkt", pkt)
@@ -85,7 +85,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	}
 
 	s.logInfo("-> Reply", "pkt", pkt)
-	if pkt.Path != "/welcome" {
+	if pkt.Path != "welcome" {
 		s.logError("Not welcomed, got", "path", pkt.Path)
 		return
 	}
@@ -93,7 +93,7 @@ func (s *server) wsClient(conn *websocket.Conn) {
 	s.logInfo("Adding Uplink")
 	s.uplinks.add(link)
 
-	// Send /online packet to all online devices
+	// Send online packet to all online devices
 	s.devicesOnline(link)
 
 	// Route incoming packets down to the destination device

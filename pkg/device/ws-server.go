@@ -100,8 +100,8 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 		return "", fmt.Errorf("Cannot merge device id: %s err: %s", id, err)
 	}
 
-	// Send /announced packet up so parents can update their trees
-	pkt.SetPath("/announced")
+	// Send announced packet up so parents can update their trees
+	pkt.SetPath("announced")
 	s.logDebug("<- Sending", "pkt", pkt)
 	pkt.RouteUp()
 
@@ -114,7 +114,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 	var link = &wsLink{conn: conn}
 
-	// First receive should be an /announce packet
+	// First receive should be an announce packet
 	pkt, err := s.receive(link)
 	if err != nil {
 		s.logError("Receiving first packet", "err", err)
@@ -122,8 +122,8 @@ func (s *server) wsServer(conn *websocket.Conn) {
 	}
 	pkt.server = s
 
-	if pkt.Path != "/announce" {
-		s.logError("Expected /announce, got", "path", pkt.Path)
+	if pkt.Path != "announce" {
+		s.logError("Expected announce, got", "path", pkt.Path)
 		return
 	}
 	s.logDebug("-> Announcement", "pkt", pkt)
@@ -134,8 +134,8 @@ func (s *server) wsServer(conn *websocket.Conn) {
 		return
 	}
 
-	// Announcement is good, send /welcome packet down to device
-	pkt.ClearMsg().SetPath("/welcome")
+	// Announcement is good, send welcome packet down to device
+	pkt.ClearMsg().SetPath("welcome")
 	s.logDebug("<- Sending", "pkt", pkt)
 	link.Send(pkt)
 
@@ -158,8 +158,8 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 		// Special handling for non-gorilla clients
 		// TODO: delete this when clients are converted to gorilla websocket
-		if pkt.Path == "/ping" {
-			link.Send(pkt.SetPath("/pong"))
+		if pkt.Path == "ping" {
+			link.Send(pkt.SetPath("pong"))
 			continue
 		}
 

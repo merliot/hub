@@ -40,7 +40,7 @@ type Config struct {
 	//
 	// PacketHandlers: PacketHandlers{
 	//	"/click":   &PacketHandler[msgClick]{r.click},
-	//	"/clicked": &PacketHandler[msgClicked]{r.clicked},
+	//	"clicked": &PacketHandler[msgClicked]{r.clicked},
 	// }
 	//
 	// The map key is a path (e.g. "/click").  A http handler is installed
@@ -74,7 +74,7 @@ type Config struct {
 	//         // broadcast /clicked notification msg up
 	//
 	//         var clicked = msgClicked{click.Relay, relay.State}
-	//         p.SetPath("/clicked").Marshal(&clicked).BroadcastUp()
+	//         p.SetPath("clicked").Marshal(&clicked).BroadcastUp()
 	// }
 	//
 	// Additionally, the packet handlers are use to handle packets arriving

@@ -242,10 +242,10 @@ func NewServer(options ...ServerOption) *server {
 		s.set(flagRunningDemo)
 	}
 
-	s.packetHandlers["/created"] = &PacketHandler[msgCreated]{s.handleCreated}
-	s.packetHandlers["/destroyed"] = &PacketHandler[msgDestroy]{s.handleDestroyed}
-	s.packetHandlers["/downloaded"] = &PacketHandler[msgDownloaded]{s.handleDownloaded}
-	s.packetHandlers["/announced"] = &PacketHandler[deviceMap]{s.handleAnnounced}
+	s.packetHandlers["created"] = &PacketHandler[msgCreated]{s.handleCreated}
+	s.packetHandlers["destroyed"] = &PacketHandler[msgDestroy]{s.handleDestroyed}
+	s.packetHandlers["downloaded"] = &PacketHandler[msgDownloaded]{s.handleDownloaded}
+	s.packetHandlers["announced"] = &PacketHandler[deviceMap]{s.handleAnnounced}
 
 	rl := ratelimit.New(rlConfig)
 	s.server.Handler = rl.RateLimit(s.basicAuth(s.mux))

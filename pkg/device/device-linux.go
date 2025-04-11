@@ -188,7 +188,7 @@ func (s *server) deviceOffline(id string) {
 	if d, exists := s.devices.get(id); exists {
 		d.unSet(flagOnline)
 		pkt := d.newPacket()
-		pkt.SetPath("/offline").BroadcastUp()
+		pkt.SetPath("offline").BroadcastUp()
 	}
 }
 
@@ -252,13 +252,13 @@ func (s *server) loadDevices() error {
 
 func (s *server) dirty() error {
 	s.set(flagDirty)
-	pkt := s.newPacket().SetDst(s.root.Id).SetPath("/dirty")
+	pkt := s.newPacket().SetDst(s.root.Id).SetPath("dirty")
 	return s.sessions.routeAll(pkt)
 }
 
 func (s *server) clean() error {
 	s.unSet(flagDirty)
-	pkt := s.newPacket().SetDst(s.root.Id).SetPath("/clean")
+	pkt := s.newPacket().SetDst(s.root.Id).SetPath("clean")
 	return s.sessions.routeAll(pkt)
 }
 
@@ -293,7 +293,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	// Go offline for 3 seconds
 	d.unSet(flagOnline)
-	pkt.SetPath("/offline").BroadcastUp()
+	pkt.SetPath("offline").BroadcastUp()
 	time.Sleep(3 * time.Second)
 
 	d.startup = time.Now()
@@ -304,7 +304,7 @@ func (d *device) demoReboot(pkt *Packet) {
 
 	// Come back online
 	d.set(flagOnline)
-	pkt.SetPath("/online").Marshal(d.State).BroadcastUp()
+	pkt.SetPath("online").Marshal(d.State).BroadcastUp()
 }
 
 func (d *device) handleReboot(pkt *Packet) {

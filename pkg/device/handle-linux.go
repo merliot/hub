@@ -4,15 +4,14 @@ package device
 
 import (
 	"net/http"
+	"strings"
 )
 
 func (s *server) packetHandlersInstall(d *device) {
 	for path, handler := range d.PacketHandlers {
-		if len(path) > 0 && path[0] != '/' {
-			s.logError("Packet handler missing leading '/'", "path", path, "device", d)
-			continue
+		if strings.HasPrefix(path, "/") {
+			d.Handle("POST "+path, s.newPacketRoute(handler, d))
 		}
-		d.Handle("POST "+path, s.newPacketRoute(handler, d))
 	}
 }
 
