@@ -120,7 +120,7 @@ func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
-	devices := s.devices.devicesJSON()
+	devices := s.devices.getPrettyJSON()
 	w.Write(devices)
 }
 

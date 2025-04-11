@@ -2,6 +2,7 @@ package device
 
 import (
 	"embed"
+	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -21,10 +22,10 @@ type Config struct {
 	Flags flags
 
 	// The device state, usually set to the containing device struct instance
-	State any
+	State any `json:"-"`
 
 	// The device's embedded static file system
-	FS *embed.FS
+	FS *embed.FS `json:"-"`
 
 	// Targets support by device, e.g. ["rpi", "nano-rp2040"]
 	Targets []string
@@ -95,7 +96,7 @@ type Config struct {
 	//         relay.Set(clicked.State)
 	//         pkt.BroadcastUp()
 	// }
-	PacketHandlers
+	PacketHandlers `json:"-"`
 
 	// APIs are custom APIs for the device.
 	//
@@ -136,4 +137,12 @@ type Config struct {
 	// InitialView is the initial display view mode when device is first
 	// displayed.  Value can be "overview" (default) or "detail".
 	InitialView string
+}
+
+func (c Config) getPrettyJSON() []byte {
+	json, err := json.MarshalIndent(&c, "", "\t")
+	if err != nil {
+		return []byte(err.Error())
+	}
+	return json
 }

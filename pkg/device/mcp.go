@@ -20,10 +20,11 @@ type ResourceHandlerFunc func(ctx context.Context) (string, error)
 // MCPServer represents the MCP server for Merliot Hub
 type MCPServer struct {
 	*mcpserver.MCPServer
-	user   string
-	passwd string
-	url    string
-	models Models
+	user    string
+	passwd  string
+	url     string
+	models  Models
+	configs map[string]Config // key: model name
 }
 
 // MCPServerOption is a MCPServer option
@@ -71,6 +72,8 @@ func NewMCPServer(options ...MCPServerOption) *MCPServer {
 			"Merliot Hub MCP Server",
 			"1.0.0",
 		),
+		models:  make(Models),
+		configs: make(map[string]Config),
 	}
 
 	for _, opt := range options {
@@ -341,43 +344,48 @@ func (ms *MCPServer) toolGetInstructions() {
 	ms.AddTool(tool, ms.handlerGetInstructions)
 }
 
-func (ms *MCPServer) hubResources() {
-	// No resources for now
+func (ms *MCPServer) handlerGetConfig(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	model, _ := request.Params.Arguments["model"].(string)
+	if model == "" {
+		return nil, errors.New("model parameter is required")
+	}
+
+	cfg, ok := ms.configs[model]
+	if !ok {
+		return nil, errors.New("unknown model '" + model + "'")
+	}
+
+	json := cfg.getPrettyJSON()
+
+	return mcp.NewToolResultText(string(json)), nil
 }
 
-func (ms *MCPServer) hubTools() {
+func (ms *MCPServer) toolGetConfig() {
+	tool := mcp.NewTool("get_config",
+		mcp.WithDescription("Get the model configuration of a Merliot Hub device model"),
+		mcp.WithString("model",
+			mcp.Required(),
+			mcp.Description("Device model"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerGetConfig)
+}
+
+func (ms *MCPServer) build() error {
+
+	// Cache model configs by making a temp device and saving its config
+	for name, model := range ms.models {
+		ms.configs[name] = model.Maker().GetConfig()
+	}
+
 	ms.toolGetDevices()
 	ms.toolAddDevice()
 	ms.toolRemoveDevice()
 	ms.toolSave()
 	ms.toolRename()
-}
-
-func (ms *MCPServer) modelResources(cfg Config) {
-}
-
-func (ms *MCPServer) modelTools(cfg Config) {
 	ms.toolGetState()
 	ms.toolGetInstructions()
-}
-
-func (ms *MCPServer) build() error {
-
-	ms.hubResources()
-	ms.hubTools()
-
-	for _, model := range ms.models {
-
-		// Build device model instance and get config
-		device := model.Maker()
-		cfg := device.GetConfig()
-
-		// Build MCP resources for model
-		ms.modelResources(cfg)
-
-		// Build MCP tools for model
-		ms.modelTools(cfg)
-	}
+	ms.toolGetConfig()
 
 	return nil
 }

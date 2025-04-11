@@ -243,7 +243,7 @@ func (dm *deviceMap) getJSON() devicesJSON {
 	return devs
 }
 
-func (dm *deviceMap) devicesJSON() []byte {
+func (dm *deviceMap) getPrettyJSON() []byte {
 	devices, _ := json.MarshalIndent(dm.getJSON(), "", "\t")
 	return devices
 }
