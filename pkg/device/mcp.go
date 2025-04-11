@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	mcp "github.com/mark3labs/mcp-go/mcp"
 	mcpserver "github.com/mark3labs/mcp-go/server"
@@ -116,6 +117,21 @@ func (ms *MCPServer) doRequest(ctx context.Context, method, url string) ([]byte,
 	}
 
 	return body, nil
+}
+
+func (ms *MCPServer) handlerGetModels(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	var names []string
+	for name := range ms.configs {
+		names = append(names, name)
+	}
+	return mcp.NewToolResultText(strings.Join(names, ",")), nil
+}
+
+func (ms *MCPServer) toolGetModels() {
+	tool := mcp.NewTool("get_models",
+		mcp.WithDescription("Get list of all device models available on the Merliot Hub"),
+	)
+	ms.AddTool(tool, ms.handlerGetModels)
 }
 
 func (ms *MCPServer) handlerGetDevices(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -378,6 +394,7 @@ func (ms *MCPServer) build() error {
 		ms.configs[name] = model.Maker().GetConfig()
 	}
 
+	ms.toolGetModels()
 	ms.toolGetDevices()
 	ms.toolAddDevice()
 	ms.toolRemoveDevice()
