@@ -110,7 +110,7 @@ type Config struct {
 	// The custom APIs are available at /device/{id}/xxx.  For example, a
 	// http request to POST /device/foo/generate would call q.generate, an
 	// http.HandlerFunc.
-	APIs
+	APIs `json:"-"`
 
 	// FuncMap are custom template functions for the device.  Most devices
 	// will not have any custom functions.
@@ -126,7 +126,7 @@ type Config struct {
 	// <div class="m-8">
 	//     <img src="{{png state.Content -5}}">
 	// </div>
-	FuncMap
+	FuncMap `json:"-"`
 
 	// BgColor is the device background color
 	BgColor string
