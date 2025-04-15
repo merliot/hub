@@ -9,11 +9,17 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 
 	mcp "github.com/mark3labs/mcp-go/mcp"
 	mcpserver "github.com/mark3labs/mcp-go/server"
 )
+
+// mcper interface
+type mcper interface {
+	desc() string
+}
 
 // MCPServer represents the MCP server for Merliot Hub
 type MCPServer struct {
@@ -412,6 +418,100 @@ func (ms *MCPServer) toolGetStatus() {
 	ms.AddTool(tool, ms.handlerGetStatus)
 }
 
+func parseMcpTag(tag string) []mcp.PropertyOption {
+	var opts []mcp.PropertyOption
+
+	// Split the tag into components
+	parts := strings.Split(tag, ",")
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		switch {
+		case strings.EqualFold(part, "required"):
+			opts = append(opts, mcp.Required())
+		case strings.HasPrefix(part, "desc="):
+			desc := strings.TrimPrefix(part, "desc=")
+			opts = append(opts, mcp.Description(desc))
+		}
+	}
+
+	return opts
+}
+
+func toolOptions(msg any) []mcp.ToolOption {
+	var opts []mcp.ToolOption
+
+	m, ok := msg.(mcper)
+	if !ok {
+		return opts
+	}
+
+	opts = append(opts,
+		mcp.WithDescription(m.desc()),
+		mcp.WithString("id", mcp.Required(), mcp.Description("Device ID")))
+
+	elem := reflect.ValueOf(msg).Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		tag := elem.Type().Field(i).Tag.Get("mcp")
+		if tag != "" {
+			name := strings.ToLower(elem.Type().Field(i).Name)
+			popts := parseMcpTag(tag)
+			opts = append(opts, mcp.WithString(name, popts...))
+		}
+	}
+
+	return opts
+}
+
+func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFunc {
+	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+
+		id, _ := request.Params.Arguments["id"].(string)
+		if id == "" {
+			return nil, errors.New("id parameter is required")
+		}
+
+		elem := reflect.ValueOf(msg).Elem()
+		pairs := make([]string, elem.NumField())
+		for i := 0; i < elem.NumField(); i++ {
+			tag := elem.Type().Field(i).Tag.Get("mcp")
+			if tag != "" {
+				name := elem.Type().Field(i).Name
+				lname := strings.ToLower(name)
+				val, _ := request.Params.Arguments[lname].(string)
+				pairs[i] = name + "=" + val
+			}
+		}
+
+		params := strings.Join(pairs, "&")
+
+		body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/"+path+"?"+params)
+		if err != nil {
+			if body != nil {
+				return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+			}
+			return nil, fmt.Errorf("failed to fetch devices: %w", err)
+		}
+
+		return mcp.NewToolResultText(string(body)), nil
+	}
+}
+
+func (ms *MCPServer) toolCustom(model, path string, msg any) {
+	tool := mcp.NewTool(model+"_"+path, toolOptions(msg)...)
+	ms.AddTool(tool, ms.handlerCustom(path, msg))
+}
+
+func (ms *MCPServer) toolsCustom() {
+	for model, cfg := range ms.configs {
+		for path, handler := range cfg.PacketHandlers {
+			if strings.HasPrefix(path, "/") {
+				msg := handler.gen()
+				ms.toolCustom(model, path, msg)
+			}
+		}
+	}
+}
+
 func (ms *MCPServer) build() error {
 
 	// Cache model configs by making a temp device and saving its config
@@ -429,6 +529,7 @@ func (ms *MCPServer) build() error {
 	ms.toolGetInstructions()
 	ms.toolGetConfig()
 	ms.toolGetStatus()
+	ms.toolsCustom()
 
 	return nil
 }

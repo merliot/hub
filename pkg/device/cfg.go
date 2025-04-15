@@ -71,7 +71,7 @@ type Config struct {
 	//         relay := &r.Relays[click.Relay]
 	//         relay.Set(!relay.State)
 	//
-	//         // broadcast /clicked notification msg up
+	//         // broadcast clicked notification msg up
 	//
 	//         var clicked = msgClicked{click.Relay, relay.State}
 	//         p.SetPath("clicked").Marshal(&clicked).BroadcastUp()

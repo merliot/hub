@@ -34,7 +34,11 @@ func (r *relays) Decode(values url.Values) error {
 }
 
 type msgClick struct {
-	Relay int
+	Relay int `mcp:"required,desc=Relay index"`
+}
+
+func (m msgClick) desc() string {
+	return "Click (toggle) the relay"
 }
 
 type msgClicked struct {
@@ -56,8 +60,8 @@ func (r *relays) GetConfig() device.Config {
 		BgColor: "ice",
 		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
-			"/click":   &device.PacketHandler[msgClick]{r.click},
-			"/clicked": &device.PacketHandler[msgClicked]{r.clicked},
+			"/click":  &device.PacketHandler[msgClick]{r.click},
+			"clicked": &device.PacketHandler[msgClicked]{r.clicked},
 		},
 	}
 }
@@ -78,7 +82,7 @@ func (r *relays) click(pkt *device.Packet) {
 	relay := &r.Relays[click.Relay]
 	relay.Set(!relay.State)
 	var clicked = msgClicked{click.Relay, relay.State}
-	pkt.SetPath("/clicked").Marshal(&clicked).BroadcastUp()
+	pkt.SetPath("clicked").Marshal(&clicked).BroadcastUp()
 }
 
 func (r *relays) clicked(pkt *device.Packet) {
