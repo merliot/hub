@@ -24,7 +24,7 @@ func (t *temp) GetConfig() device.Config {
 		FgColor:    "black",
 		PollPeriod: pollPeriod,
 		PacketHandlers: device.PacketHandlers{
-			"/update": &device.PacketHandler[msgUpdate]{t.update},
+			"update": &device.PacketHandler[msgUpdate]{t.update},
 		},
 		FuncMap: device.FuncMap{
 			"tempf":  t.tempf,

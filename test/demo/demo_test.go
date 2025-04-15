@@ -452,13 +452,4 @@ func TestQRCode(t *testing.T) {
 
 func TestRelays(t *testing.T) {
 	callOK(t, "POST", "/device/relays1/click?Relay=0")
-	callOK(t, "POST", "/device/relays1/clicked?Relay=1&State=true")
-}
-
-func TestTemp(t *testing.T) {
-	callOK(t, "POST", "/device/temp1/update")
-}
-
-func TestTimer(t *testing.T) {
-	callOK(t, "POST", "/device/timer1/update")
 }

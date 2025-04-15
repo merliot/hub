@@ -52,7 +52,7 @@ func (c *camera) GetConfig() device.Config {
 		FgColor: "black",
 		PacketHandlers: device.PacketHandlers{
 			"/get-image": &device.PacketHandler[msgGetImage]{c.getImage},
-			"/image":     &device.PacketHandler[msgImage]{device.RouteUp},
+			"image":      &device.PacketHandler[msgImage]{device.RouteUp},
 		},
 		FuncMap: device.FuncMap{
 			"jpeg": c.jpeg,
@@ -70,7 +70,7 @@ func (c *camera) getImage(pkt *device.Packet) {
 	if err != nil {
 		msgImage.Err = err.Error()
 	}
-	pkt.SetPath("/image").Marshal(&msgImage).RouteUp()
+	pkt.SetPath("image").Marshal(&msgImage).RouteUp()
 }
 
 func (c *camera) jpeg(raw string) (template.URL, error) {

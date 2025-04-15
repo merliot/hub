@@ -35,7 +35,7 @@ func (g *gps) GetConfig() device.Config {
 		FgColor:    "black",
 		PollPeriod: time.Second * time.Duration(g.PollPeriod),
 		PacketHandlers: device.PacketHandlers{
-			"/update": &device.PacketHandler[updateMsg]{g.update},
+			"update": &device.PacketHandler[updateMsg]{g.update},
 		},
 	}
 }
@@ -50,6 +50,6 @@ func (g *gps) Poll(pkt *device.Packet) {
 	if dist >= g.Radius {
 		var up = updateMsg{lat, long}
 		g.Lat, g.Long = lat, long
-		pkt.SetPath("/update").Marshal(&up).BroadcastUp()
+		pkt.SetPath("update").Marshal(&up).BroadcastUp()
 	}
 }

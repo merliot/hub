@@ -70,5 +70,5 @@ func (t *temp) Poll(pkt *device.Packet) {
 	t.Humidity = hum
 	t.addRecord()
 	var msg = msgUpdate{temp, hum}
-	pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
+	pkt.SetPath("update").Marshal(&msg).BroadcastUp()
 }

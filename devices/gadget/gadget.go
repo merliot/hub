@@ -32,14 +32,14 @@ func (g *gadget) Poll(pkt *device.Packet) {
 			g.Restock--
 			g.Led.On()
 		}
-		pkt.SetPath("/update").Marshal(g).BroadcastUp()
+		pkt.SetPath("update").Marshal(g).BroadcastUp()
 	}
 }
 
 func (g *gadget) takeone(pkt *device.Packet) {
 	if g.Bottles > 0 {
 		g.Bottles--
-		pkt.SetPath("/update").Marshal(g).BroadcastUp()
+		pkt.SetPath("update").Marshal(g).BroadcastUp()
 	}
 }
 

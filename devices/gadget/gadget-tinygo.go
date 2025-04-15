@@ -15,7 +15,7 @@ func (g *gadget) GetConfig() device.Config {
 		PollPeriod: time.Second,
 		PacketHandlers: device.PacketHandlers{
 			"/takeone": &device.PacketHandler[device.NoMsg]{g.takeone},
-			"/update":  &device.PacketHandler[gadget]{g.update},
+			"update":   &device.PacketHandler[gadget]{g.update},
 		},
 	}
 }

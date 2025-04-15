@@ -37,5 +37,5 @@ func (t *temp) DemoPoll(pkt *device.Packet) {
 	t.Temperature = msg.Temperature
 	t.Humidity = msg.Humidity
 	t.addRecord()
-	pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
+	pkt.SetPath("update").Marshal(&msg).BroadcastUp()
 }

@@ -23,7 +23,7 @@ func (t *timer) GetConfig() device.Config {
 		BgColor:    "butterscotch",
 		FgColor:    "black",
 		PacketHandlers: device.PacketHandlers{
-			"/update": &device.PacketHandler[msgUpdate]{t.update},
+			"update": &device.PacketHandler[msgUpdate]{t.update},
 		},
 	}
 }

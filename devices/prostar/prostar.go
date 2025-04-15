@@ -193,7 +193,7 @@ func (p *prostar) sendStatus(pkt *device.Packet, newStatus Status) {
 		return
 	}
 	p.Status = newStatus
-	pkt.SetPath("/update-status").Marshal(p.Status).BroadcastUp()
+	pkt.SetPath("update-status").Marshal(p.Status).BroadcastUp()
 }
 
 func (p *prostar) sendDynamic(pkt *device.Packet) {
@@ -211,19 +211,19 @@ func (p *prostar) sendDynamic(pkt *device.Packet) {
 
 	if controller != p.Controller {
 		p.Controller = controller
-		pkt.SetPath("/update-controller").Marshal(controller).BroadcastUp()
+		pkt.SetPath("update-controller").Marshal(controller).BroadcastUp()
 	}
 	if battery != p.Battery {
 		p.Battery = battery
-		pkt.SetPath("/update-battery").Marshal(battery).BroadcastUp()
+		pkt.SetPath("update-battery").Marshal(battery).BroadcastUp()
 	}
 	if load != p.Load {
 		p.Load = load
-		pkt.SetPath("/update-load").Marshal(load).BroadcastUp()
+		pkt.SetPath("update-load").Marshal(load).BroadcastUp()
 	}
 	if array != p.Array {
 		p.Array = array
-		pkt.SetPath("/update-array").Marshal(array).BroadcastUp()
+		pkt.SetPath("update-array").Marshal(array).BroadcastUp()
 	}
 
 	p.sendStatus(pkt, statusOK)
@@ -241,7 +241,7 @@ func (p *prostar) sendHourly(pkt *device.Packet) (err error) {
 
 	if daily != p.Daily {
 		p.Daily = daily
-		pkt.SetPath("/update-daily").Marshal(daily).BroadcastUp()
+		pkt.SetPath("update-daily").Marshal(daily).BroadcastUp()
 	}
 
 	p.sendStatus(pkt, statusOK)

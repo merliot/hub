@@ -58,7 +58,7 @@ func (t *timer) on(pkt *device.Packet) {
 		t.On = true
 		t.gpio.On()
 		var msg = msgUpdate{true}
-		pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
+		pkt.SetPath("update").Marshal(&msg).BroadcastUp()
 	}
 }
 
@@ -67,7 +67,7 @@ func (t *timer) off(pkt *device.Packet) {
 		t.On = false
 		t.gpio.Off()
 		var msg = msgUpdate{false}
-		pkt.SetPath("/update").Marshal(&msg).BroadcastUp()
+		pkt.SetPath("update").Marshal(&msg).BroadcastUp()
 	}
 }
 
