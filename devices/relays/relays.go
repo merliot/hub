@@ -37,7 +37,7 @@ type msgClick struct {
 	Relay int `mcp:"required,desc=Relay index"`
 }
 
-func (m msgClick) desc() string {
+func (m msgClick) Desc() string {
 	return "Click (toggle) the relay"
 }
 

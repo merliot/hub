@@ -18,7 +18,7 @@ import (
 
 // mcper interface
 type mcper interface {
-	desc() string
+	Desc() string
 }
 
 // MCPServer represents the MCP server for Merliot Hub
@@ -446,7 +446,7 @@ func toolOptions(msg any) []mcp.ToolOption {
 	}
 
 	opts = append(opts,
-		mcp.WithDescription(m.desc()),
+		mcp.WithDescription(m.Desc()),
 		mcp.WithString("id", mcp.Required(), mcp.Description("Device ID")))
 
 	elem := reflect.ValueOf(msg).Elem()
@@ -484,7 +484,8 @@ func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFu
 
 		params := strings.Join(pairs, "&")
 
-		body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/"+path+"?"+params)
+		url := ms.url + "/device/" + id + path + "?" + params
+		body, err := ms.doRequest(ctx, "POST", url)
 		if err != nil {
 			if body != nil {
 				return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
@@ -492,12 +493,12 @@ func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFu
 			return nil, fmt.Errorf("failed to fetch devices: %w", err)
 		}
 
-		return mcp.NewToolResultText(string(body)), nil
+		return mcp.NewToolResultText("Call successful"), nil
 	}
 }
 
 func (ms *MCPServer) toolCustom(model, path string, msg any) {
-	tool := mcp.NewTool(model+"_"+path, toolOptions(msg)...)
+	tool := mcp.NewTool(model+path, toolOptions(msg)...)
 	ms.AddTool(tool, ms.handlerCustom(path, msg))
 }
 

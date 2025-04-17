@@ -23,7 +23,7 @@ func (g *gadget) GetConfig() device.Config {
 		BgColor:    "african-violet",
 		FgColor:    "black",
 		PacketHandlers: device.PacketHandlers{
-			"/takeone": &device.PacketHandler[device.NoMsg]{g.takeone},
+			"/takeone": &device.PacketHandler[msgTakeone]{g.takeone},
 			"update":   &device.PacketHandler[gadget]{g.update},
 		},
 	}

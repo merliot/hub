@@ -12,6 +12,13 @@ type gadget struct {
 	io.Led
 }
 
+type msgTakeone struct {
+}
+
+func (m msgTakeone) Desc() string {
+	return "Take one down, pass it around"
+}
+
 func NewModel() device.Devicer {
 	return &gadget{FullCount: 99}
 }

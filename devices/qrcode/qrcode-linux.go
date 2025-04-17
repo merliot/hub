@@ -17,7 +17,11 @@ import (
 var fs embed.FS
 
 type qrcode struct {
-	Content string
+	Content string `mcp:"required,desc=QR code content"`
+}
+
+func (q qrcode) Desc() string {
+	return "QR code"
 }
 
 func (q *qrcode) GetConfig() device.Config {
