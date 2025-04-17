@@ -37,6 +37,9 @@ func (s *server) setupAPI() {
 	// Install /wsx websocket listener (wsx is for htmx ws)
 	s.mux.HandleFunc("/wsx", s.wsxHandle)
 
+	// Install /wsmcp websocket listener for MCP servers
+	s.mux.HandleFunc("/wsmcp", s.wsMcpHandle)
+
 	if s.isSet(flagRunningSite) {
 		s.mux.HandleFunc("GET /{$}", s.showSiteHome)
 		s.mux.HandleFunc("GET /home", s.showSiteHome)

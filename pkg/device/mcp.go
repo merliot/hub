@@ -89,9 +89,15 @@ func NewMCPServer(options ...MCPServerOption) *MCPServer {
 
 // ServeStdio starts the stdio server
 func (ms *MCPServer) ServeStdio() error {
+
 	if err := ms.build(); err != nil {
 		return err
 	}
+
+	if err := ms.mcpWsDial(); err != nil {
+		return err
+	}
+
 	return mcpserver.ServeStdio(ms.MCPServer)
 }
 
