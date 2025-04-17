@@ -14,7 +14,7 @@ require (
 	github.com/x448/float16 v0.8.4
 	gobot.io/x/gobot/v2 v2.3.0
 	golang.org/x/image v0.24.0
-	golang.org/x/net v0.36.0
+	golang.org/x/net v0.38.0
 	tinygo.org/x/drivers v0.30.0
 	tinygo.org/x/tinyfs v0.4.0
 )
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/warthog618/gpiod v0.8.2 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect
 )
