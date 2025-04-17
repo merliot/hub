@@ -399,9 +399,9 @@ func (ms *MCPServer) handlerGetStatus(ctx context.Context, request mcp.CallToolR
 	body, err := ms.doRequest(ctx, "GET", ms.url+"/device/"+id+"/status")
 	if err != nil {
 		if body != nil {
-			return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+			return nil, fmt.Errorf("failed to get device status: %w: %s", err, string(body))
 		}
-		return nil, fmt.Errorf("failed to fetch devices: %w", err)
+		return nil, fmt.Errorf("failed to get device status: %w", err)
 	}
 
 	return mcp.NewToolResultText(string(body)), nil
@@ -488,9 +488,9 @@ func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFu
 		body, err := ms.doRequest(ctx, "POST", url)
 		if err != nil {
 			if body != nil {
-				return nil, fmt.Errorf("failed to fetch devices: %w: %s", err, string(body))
+				return nil, fmt.Errorf("failed to execute custom command: %w: %s", err, string(body))
 			}
-			return nil, fmt.Errorf("failed to fetch devices: %w", err)
+			return nil, fmt.Errorf("failed to execute custom command: %w", err)
 		}
 
 		return mcp.NewToolResultText("Call successful"), nil
