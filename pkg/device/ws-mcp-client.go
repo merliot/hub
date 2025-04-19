@@ -16,10 +16,14 @@ func (ms *MCPServer) mcpWsDial() error {
 
 	var hdr = http.Header{}
 
+	if ms.url == "" {
+		return fmt.Errorf("Missing dial URL")
+	}
+
 	// Transform http(s) URL to ws(s) URL
 	wsURL, err := url.Parse(ms.url)
 	if err != nil {
-		return fmt.Errorf("invalid URL: %w", err)
+		return fmt.Errorf("Invalid URL: %w", err)
 	}
 	switch wsURL.Scheme {
 	case "http":
@@ -27,7 +31,7 @@ func (ms *MCPServer) mcpWsDial() error {
 	case "https":
 		wsURL.Scheme = "wss"
 	default:
-		return fmt.Errorf("unsupported URL scheme: %s", wsURL.Scheme)
+		return fmt.Errorf("Unsupported URL scheme: %s", wsURL.Scheme)
 	}
 
 	// Add /wsmcp to the path

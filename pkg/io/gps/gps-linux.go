@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/merliot/hub/pkg/io/gps/nmea"
-	"github.com/tarm/serial"
+	"github.com/merliot/hub/pkg/io/serial"
 )
 
 type Gps struct {
