@@ -5,7 +5,6 @@ package device
 import (
 	"bytes"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,9 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
-
-	tpkg "github.com/merliot/hub/pkg/target"
 )
 
 const (
@@ -111,28 +107,6 @@ func createSFX(dir, sfxFile, tarFile, installerFile string) error {
 	return nil
 }
 
-// collectBinFiles determines which binaries to include in the installer
-func (s *server) collectBinFiles(d *device, target string) []string {
-	var binFiles []string
-	childModels := s.childModels(d)
-	if childModels.length() == 0 {
-		// Sterile device only needs the bin/device-<target> binary
-		binFiles = append(binFiles, "-C", ".", "./bin/device-"+target)
-	} else {
-		// Copy over the binaries needed to produce children devices
-		binFiles = append(binFiles, "-C", ".", "./bin/device-rpi")
-		binFiles = append(binFiles, "-C", ".", "./bin/device-x86-64")
-		childModels.drange(func(name string, model *Model) bool {
-			// Copy the UF2 files for the model (all targets)
-			for _, t := range tpkg.TinyGoTargets(model.Config.Targets) {
-				binFiles = append(binFiles, "-C", ".", "./bin/"+name+"-"+t+".uf2")
-			}
-			return true
-		})
-	}
-	return binFiles
-}
-
 // createTarBall creates a gzipped tar archive containing the specified files and directories.
 // It excludes the tar file itself from the archive to prevent recursion.
 func (s *server) createTarBall(dir, tarFile string, binFiles []string) error {
@@ -148,142 +122,6 @@ func (s *server) createTarBall(dir, tarFile string, binFiles []string) error {
 		return fmt.Errorf("%w: %s", err, stdoutStderr)
 	}
 	return nil
-}
-
-func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
-	referer := r.Referer()
-	service := d.Model + "-" + d.Id
-	dialurls := strings.Replace(referer, "http", "ws", 1) + "ws"
-
-	// Generate environment variable file.  The service will load env vars
-	// from this file.
-	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
-		"port":            r.URL.Query().Get("port"),
-		"user":            s.user,
-		"passwd":          s.passwd,
-		"dialurls":        dialurls,
-		"logLevel":        s.logLevel,
-		"pingPeriod":      s.wsxPingPeriod,
-		"background":      s.background,
-		"autoSave":        s.isSet(flagAutoSave),
-		"wifiSsids":       strings.Join(s.wifiSsids, ","),
-		"wifiPassphrases": strings.Join(s.wifiPassphrases, ","),
-	}); err != nil {
-		return err
-	}
-
-	// Generate systemd merliot.target unit from
-	// device-merliot-target.tmpl.  This will be the parent unit of all
-	// device units.
-	targetFile := "merliot.target"
-	if err := d.genFile(dir, "device-merliot-target.tmpl", targetFile, nil); err != nil {
-		return err
-	}
-
-	// Generate systemd {{service}}.service unit from device-service.tmpl
-	serviceFile := service + ".service"
-	if err := d.genFile(dir, "device-service.tmpl", serviceFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate {{service}}.conf from device-conf.tmpl.  This sets up
-	// logging service for the device.  Logs are available at
-	// /var/log/{{.service}}.log.
-	confFile := service + ".conf"
-	if err := d.genFile(dir, "device-conf.tmpl", confFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate SelF-eXtracting (SFX) installer script
-	sfxFile := "sfx.sh"
-	if err := d.genFile(dir, "device-sfx.tmpl", sfxFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate service install script
-	if err := d.genFile(dir, "device-install.tmpl", "install.sh", map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Make a devices.json file
-	if err := fileWriteJSON(filepath.Join(dir, "devices.json"), d.familyTree()); err != nil {
-		return err
-	}
-
-	// Create a gzipped tar ball with everything inside need to
-	// install/uninstall the device
-	tarFile := service + ".tar.gz"
-	if err := s.createTarBall(dir, tarFile, s.collectBinFiles(d, target)); err != nil {
-		return err
-	}
-
-	// Create final SFX image as the installer
-	installer := service + "-installer"
-	if err := createSFX(dir, sfxFile, tarFile, installer); err != nil {
-		return err
-	}
-
-	// Serve installer file for download
-	return s.serveFile(w, r, filepath.Join(dir, installer))
-}
-
-func (s *server) buildTinyGoImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
-
-	referer := r.Referer()
-	dialurls := strings.Replace(referer, "http", "ws", 1) + "ws"
-	ssid := r.URL.Query().Get("ssid")
-
-	if len(s.wifiSsids) != len(s.wifiPassphrases) {
-		return errors.New("Wifi SSIDS and Passphrases don't match")
-	}
-
-	passphrase := ""
-	found := false
-	for i, ss := range s.wifiSsids {
-		if ss == ssid {
-			passphrase = s.wifiPassphrases[i]
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return fmt.Errorf("Wifi SSID '%s' not valid", ssid)
-	}
-
-	var p = uf2ParamsBlock{
-		MagicStart: uf2Magic,
-		uf2Params: uf2Params{
-			Ssid:         ssid,
-			Passphrase:   passphrase,
-			Id:           d.Id,
-			Model:        d.Model,
-			Name:         d.Name,
-			DeployParams: d.DeployParams,
-			User:         s.user,
-			Passwd:       s.passwd,
-			DialURLs:     dialurls,
-			LogLevel:     s.logLevel,
-		},
-		MagicEnd: uf2Magic,
-	}
-
-	base := filepath.Join("bin", d.Model+"-"+target+".uf2")
-	installer := filepath.Join(dir, d.Model+"-"+d.Id+"-installer.uf2")
-
-	if err := uf2Create(base, installer, p); err != nil {
-		return err
-	}
-
-	return s.serveFile(w, r, installer)
 }
 
 func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) error {

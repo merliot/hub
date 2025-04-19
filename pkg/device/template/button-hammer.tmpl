@@ -1,0 +1,6 @@
+{{- if isRoot }}
+	<img class="icon" title="Download Model Context Protocol (MCP) server for {{name}}.&#10;&#10;The MCP server lets large language models (LLMs), such as Claude, interact with {{name}}.  Basically, it means we can plug the physical world of devices into an LLM."
+		src="/model/{{model}}/images/hammer.svg"
+		hx-get="/mcp-modal"
+		hx-swap="beforeend">
+{{- end }}

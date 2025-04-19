@@ -64,6 +64,7 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
 	s.mux.HandleFunc("GET /download-image/{id}", s.downloadImage)
 	s.mux.HandleFunc("GET /download-image/{id}/{sessionId}", s.downloadImage)
+	s.mux.HandleFunc("GET /download-mcp-server/{arch}", s.downloadMCPServer)
 	s.mux.HandleFunc("GET /deploy-koyeb/{id}/{sessionId}", s.deployKoyeb)
 	s.mux.HandleFunc("PUT /rename", s.rename)
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
