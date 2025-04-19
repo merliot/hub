@@ -3,7 +3,6 @@
 package device
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -80,22 +79,21 @@ func (ms *MCPServer) mcpWsClient(conn *websocket.Conn) {
 			break
 		}
 
-		// Decode the packet message
 		var msgContent map[string]any
 		if err := json.Unmarshal(pkt.Msg, &msgContent); err != nil {
 			continue
 		}
 
-		// Create params map with device ID, path and message content
 		params := map[string]any{
 			"device_id": pkt.Dst,
 			"path":      pkt.Path,
 			"msg":       msgContent,
 		}
 
-		// Send notification to MCP client using SendNotificationToClient
-		ctx := context.Background()
-		ms.MCPServer.SendNotificationToClient(ctx, "notification", params)
+		// TODO enable this once SendNotificationToAllClients is accepted:
+		// https://github.com/mark3labs/mcp-go/pull/176
+		params = params
+		//ms.MCPServer.SendNotificationToAllClients("notification/update", params)
 	}
 
 	link.done = true

@@ -504,7 +504,8 @@ func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFu
 }
 
 func (ms *MCPServer) toolCustom(model, path string, msg any) {
-	tool := mcp.NewTool(model+path, toolOptions(msg)...)
+	name := model + "_" + path[1:]
+	tool := mcp.NewTool(name, toolOptions(msg)...)
 	ms.AddTool(tool, ms.handlerCustom(path, msg))
 }
 
