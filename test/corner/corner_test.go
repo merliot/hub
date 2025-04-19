@@ -7,6 +7,7 @@ import (
 
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
+	"github.com/stretchr/testify/require"
 )
 
 var hub = `{
@@ -37,8 +38,8 @@ var hub = `{
 }`
 
 func TestOddOptions(t *testing.T) {
-
-	os.WriteFile("devices.json", []byte(hub), 0644)
+	err := os.WriteFile("devices.json", []byte(hub), 0644)
+	require.NoError(t, err)
 
 	// Run a hub
 	hubby := device.NewServer(
@@ -52,5 +53,6 @@ func TestOddOptions(t *testing.T) {
 	go hubby.Run()
 	time.Sleep(time.Second)
 
-	os.RemoveAll("devices.json")
+	err = os.RemoveAll("devices.json")
+	require.NoError(t, err)
 }

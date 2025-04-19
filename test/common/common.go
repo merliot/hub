@@ -49,6 +49,10 @@ func GetSession(user, passwd string, port int) (string, error) {
 	if resp.StatusCode == http.StatusTooManyRequests {
 		return "", ErrNoMoreSessions
 	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Expected status %d, got %d",
+			http.StatusOK, resp.StatusCode)
+	}
 	sessionId := resp.Header.Get("session-id")
 	return sessionId, nil
 }

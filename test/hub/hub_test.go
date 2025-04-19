@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
 	"github.com/merliot/hub/test/common"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -115,10 +116,11 @@ var gadget2 = `{
 }`
 
 func TestMain(m *testing.M) {
-
-	var err error
-
-	os.WriteFile("devices.json", []byte(hub), 0644)
+	err := os.WriteFile("devices.json", []byte(hub), 0644)
+	if err != nil {
+		fmt.Printf("Error writing devices.json: %s\n", err)
+		os.Exit(1)
+	}
 
 	// Run a hub
 	hubby := device.NewServer(
@@ -144,24 +146,23 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	os.RemoveAll("devices.json")
+	err = os.RemoveAll("devices.json")
+	if err != nil {
+		fmt.Printf("Error removing devices.json: %s\n", err)
+	}
 
 	os.Exit(code)
 }
 
 func callOK(t *testing.T, port int, method, path string) []byte {
 	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
-	if err != nil {
-		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
-	}
+	require.NoError(t, err, "Error %s %s (%d): %s", method, path, port, err)
 	return resp
 }
 
 func callExpecting(t *testing.T, port int, method, path string, expectedStatus int) []byte {
 	resp, err := common.CallExpecting(user, passwd, sessionId, port, method, path, expectedStatus)
-	if err != nil {
-		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
-	}
+	require.NoError(t, err, "Error %s %s (%d): %s", method, path, port, err)
 	return resp
 }
 
@@ -179,9 +180,7 @@ func TestJoin(t *testing.T) {
 	time.Sleep(time.Second)
 
 	devs := callOK(t, hubPort, "GET", "/devices")
-	if !bytes.Equal(devs, []byte(merged)) {
-		t.Fatalf("Expected /devices:\n%s\ngot:\n%s", merged, devs)
-	}
+	assert.Equal(t, []byte(merged), devs, "Expected /devices:\n%s\ngot:\n%s", merged, devs)
 
 	// Run gadget2
 	models := device.Models{

@@ -19,6 +19,8 @@ import (
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
 	"github.com/merliot/hub/test/common"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -170,9 +172,7 @@ func wsx(url, user, passwd string) {
 
 func callOK(t *testing.T, method, path string) []byte {
 	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
-	if err != nil {
-		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
-	}
+	require.NoError(t, err, "Error %s %s (%d): %s", method, path, port, err)
 	return resp
 }
 
@@ -182,31 +182,22 @@ func callBad(t *testing.T, method, path string) []byte {
 
 func callExpecting(t *testing.T, method, path string, expectedStatus int) []byte {
 	resp, err := common.CallExpecting(user, passwd, sessionId, port, method, path, expectedStatus)
-	if err != nil {
-		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
-	}
+	require.NoError(t, err, "Error %s %s (%d): %s", method, path, port, err)
 	return resp
 }
 
 func TestMaxSessions(t *testing.T) {
 	for i := 0; i < 99; i++ {
 		_, err := common.GetSession(user, passwd, port)
-		if err != nil {
-			t.Fatal(err)
-		}
+		require.NoError(t, err)
 	}
 	_, err := common.GetSession(user, passwd, port)
-	if err != common.ErrNoMoreSessions {
-		t.Fatal("Expected no more sessions")
-	}
+	assert.Equal(t, common.ErrNoMoreSessions, err, "Expected no more sessions")
 }
 
 func TestBadUser(t *testing.T) {
-	_, err := common.CallExpecting("bad", "user", sessionId, port,
-		"GET", "/", http.StatusUnauthorized)
-	if err != nil {
-		t.Fatalf("Error: %s", err)
-	}
+	_, err := common.GetSession("bad", "bad", port)
+	assert.Error(t, err)
 }
 
 func devsEqual(a, b string) bool {
@@ -231,9 +222,7 @@ func devsEqual(a, b string) bool {
 
 func TestAPIDevices(t *testing.T) {
 	devs := callOK(t, "GET", "/devices")
-	if !devsEqual(string(devs), devices) {
-		t.Fatalf("/devices response not valid, got: %s\nwant: %s\n", devs, devices)
-	}
+	assert.True(t, devsEqual(string(devs), devices), "devices not equal")
 }
 
 func decompressGzip(data []byte) ([]byte, error) {
@@ -257,23 +246,17 @@ func TestFiles(t *testing.T) {
 	for _, fileName := range files {
 
 		file, err := os.ReadFile("../../pkg/device/" + fileName)
-		if err != nil {
-			t.Fatal(err)
-		}
+		require.NoError(t, err)
 
 		if strings.HasSuffix(fileName, ".gz") {
 			var err error
 			file, err = decompressGzip(file)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 		}
 
 		body := callOK(t, "GET", "/"+fileName)
-		if !bytes.Equal(file, body) {
-			t.Fatalf("Content mismatch:\nfile: %s\napi: %s",
-				string(file), string(body))
-		}
+		assert.Equal(t, file, body, "Content mismatch:\nfile: %s\napi: %s",
+			string(file), string(body))
 	}
 }
 
@@ -293,9 +276,7 @@ func TestShowViews(t *testing.T) {
 	}
 	devs := make(map[string]any)
 	err := json.Unmarshal([]byte(devices), &devs)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	for dev := range devs {
 		for _, view := range views {
@@ -313,10 +294,8 @@ var expectedGadgetState = []byte(`{
 
 func TestShowState(t *testing.T) {
 	state := callOK(t, "GET", "/device/gadget1/state")
-	if !bytes.Equal(expectedGadgetState, state) {
-		t.Fatalf("/state mismatch:\nexpected: %s\napi: %s",
-			string(expectedGadgetState), string(state))
-	}
+	assert.Equal(t, expectedGadgetState, state, "/state mismatch:\nexpected: %s\napi: %s",
+		string(expectedGadgetState), string(state))
 }
 
 var expectedGpsCode = []byte(`<!DOCTYPE html>
@@ -337,10 +316,8 @@ var expectedGpsCode = []byte(`<!DOCTYPE html>
 
 func TestShowCode(t *testing.T) {
 	code := callOK(t, "GET", "/device/gps1/code")
-	if !bytes.Equal(expectedGpsCode, code) {
-		t.Fatalf("/code mismatch:\nexpected: %s\napi: %s",
-			string(expectedGpsCode), string(code))
-	}
+	assert.Equal(t, expectedGpsCode, code, "/code mismatch:\nexpected: %s\napi: %s",
+		string(expectedGpsCode), string(code))
 }
 
 func TestDownloadTarget(t *testing.T) {

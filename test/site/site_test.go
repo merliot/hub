@@ -9,6 +9,7 @@ import (
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/models"
 	"github.com/merliot/hub/test/common"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -94,9 +95,6 @@ var devices = `{
 }`
 
 func TestMain(m *testing.M) {
-
-	var err error
-
 	// Run a hub in site mode
 	demo := device.NewServer(
 		device.WithPort(port),
@@ -112,6 +110,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second)
 
 	// Stash the session id
+	var err error
 	sessionId, err = common.GetSession(user, passwd, port)
 	if err != nil {
 		fmt.Printf("Getting session failed: %s\n", err)
@@ -120,16 +119,17 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	os.RemoveAll("./camera-images")
+	err = os.RemoveAll("./camera-images")
+	if err != nil {
+		fmt.Printf("Error removing camera-images: %s\n", err)
+	}
 
 	os.Exit(code)
 }
 
 func callOK(t *testing.T, method, path string) []byte {
 	resp, err := common.CallOK(user, passwd, sessionId, port, method, path)
-	if err != nil {
-		t.Fatalf("Error %s %s (%d): %s", method, path, port, err)
-	}
+	require.NoError(t, err, "Error %s %s (%d): %s", method, path, port, err)
 	return resp
 }
 
