@@ -48,7 +48,7 @@ func WithMCPModels(models Models) MCPServerOption {
 // ws(s)://host:port/wsmcp, where host:port are from hub URL.
 func WithMCPHubURL(url string) MCPServerOption {
 	return func(ms *MCPServer) {
-		ms.url = url
+		ms.url = strings.TrimSuffix(url, "/")
 	}
 }
 
@@ -102,6 +102,7 @@ func (ms *MCPServer) ServeStdio() error {
 }
 
 func (ms *MCPServer) doRequest(ctx context.Context, method, url string) ([]byte, error) {
+
 	req, err := http.NewRequestWithContext(ctx, method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -122,7 +123,7 @@ func (ms *MCPServer) doRequest(ctx context.Context, method, url string) ([]byte,
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return body, fmt.Errorf("request failed: status %d", resp.StatusCode)
+		return body, fmt.Errorf("request failed: status %d, url: %s, body: %s", resp.StatusCode, url, string(body))
 	}
 
 	return body, nil
@@ -182,8 +183,8 @@ func (ms *MCPServer) handlerAddDevice(ctx context.Context, request mcp.CallToolR
 	}
 
 	// Create URL with query parameters
-	reqURL := fmt.Sprintf("%s/create?ParentId=hub&Child.Id=%s&Child.Model=%s&Child.Name=%s",
-		ms.url, url.QueryEscape(id), url.QueryEscape(model), url.QueryEscape(name))
+	reqURL := fmt.Sprintf("%s/create?ParentId=%s&Child.Id=%s&Child.Model=%s&Child.Name=%s",
+		ms.url, url.QueryEscape(parentId), url.QueryEscape(id), url.QueryEscape(model), url.QueryEscape(name))
 
 	body, err := ms.doRequest(ctx, "POST", reqURL)
 	if err != nil {
