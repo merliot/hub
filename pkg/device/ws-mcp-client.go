@@ -94,10 +94,7 @@ func (ms *MCPServer) mcpWsClient(conn *websocket.Conn) {
 			"msg":       msgContent,
 		}
 
-		// TODO enable this once SendNotificationToAllClients is accepted:
-		// https://github.com/mark3labs/mcp-go/pull/176
-		params = params
-		//ms.MCPServer.SendNotificationToAllClients("notification/update", params)
+		ms.MCPServer.SendNotificationToAllClients("notification/update", params)
 	}
 
 	link.done = true
