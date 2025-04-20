@@ -2,7 +2,6 @@ package serial
 
 import (
 	"io"
-	"syscall"
 	"time"
 )
 
@@ -16,8 +15,8 @@ type Config struct {
 }
 
 type Port struct {
-	fd   int
-	name string
+	handle interface{}
+	name   string
 }
 
 type Parity byte
@@ -37,17 +36,17 @@ func OpenPort(c *Config) (*Port, error) {
 
 // Close closes the serial port
 func (p *Port) Close() error {
-	return syscall.Close(p.fd)
+	return closePort(p)
 }
 
 // Read reads from the serial port
 func (p *Port) Read(b []byte) (n int, err error) {
-	return syscall.Read(p.fd, b)
+	return readPort(p, b)
 }
 
 // Write writes to the serial port
 func (p *Port) Write(b []byte) (n int, err error) {
-	return syscall.Write(p.fd, b)
+	return writePort(p, b)
 }
 
 // Implement io.ReadWriteCloser interface
