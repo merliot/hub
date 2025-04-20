@@ -1,0 +1,28 @@
+<div class="modal">
+
+	<div class="modal-content">
+
+		<h3>DOWNLOAD MCP SERVER</h3>
+
+		<form action="/download-mcp-server" method="GET" class="mt-4">
+
+			<div class="mt-4">
+				<label for="platform" class="block mb-2">SELECT YOUR PLATFORM</label>
+				<select class="p-2 border" id="platform" name="platform" required>
+					<option value="">-- Select Platform --</option>
+{{range .platforms}}
+					<option value="{{.Os}}-{{.Arch}}">{{.Desc}}</option>
+{{end}}
+				</select>
+			</div>
+
+			<div class="flex flex-row justify-end mt-8">
+				<button class="btn" hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
+				<button class="btn" type="submit">Download</button>
+			</div>
+
+		</form>
+
+	</div>
+
+</div>

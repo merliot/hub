@@ -11,10 +11,10 @@ import (
 )
 
 func (s *server) downloadMCPServer(w http.ResponseWriter, r *http.Request) {
-	arch := r.PathValue("arch")
+	platform := r.URL.Query().Get("platform")
 
 	// Check if binary exists
-	binary := fmt.Sprintf("bin/mcp-server-%s", arch)
+	binary := fmt.Sprintf("bin/mcp-server-%s", platform)
 	if _, err := os.Stat(binary); os.IsNotExist(err) {
 		http.Error(w, fmt.Sprintf("Binary %s not found", binary), http.StatusNotFound)
 		return
@@ -109,7 +109,7 @@ EOF`, hubURL, s.user, s.passwd)
 	// Set response headers
 	w.Header().Set("Content-Type", "application/gzip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-%s-mcp-server-%s.sh.gz"`,
-		s.root.Model, s.root.Id, arch))
+		s.root.Model, s.root.Id, platform))
 
 	// Write the gzipped data
 	if _, err := w.Write(gzipBuf.Bytes()); err != nil {

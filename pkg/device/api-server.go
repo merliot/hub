@@ -64,10 +64,11 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("DELETE /destroy", s.destroyChild)
 	s.mux.HandleFunc("GET /download-image/{id}", s.downloadImage)
 	s.mux.HandleFunc("GET /download-image/{id}/{sessionId}", s.downloadImage)
-	s.mux.HandleFunc("GET /download-mcp-server/{arch}", s.downloadMCPServer)
+	s.mux.HandleFunc("GET /download-mcp-server", s.downloadMCPServer)
 	s.mux.HandleFunc("GET /deploy-koyeb/{id}/{sessionId}", s.deployKoyeb)
 	s.mux.HandleFunc("PUT /rename", s.rename)
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
+	s.mux.HandleFunc("GET /mcp-modal", s.showMcpModal)
 }
 
 func (d *device) deviceHandler(next http.Handler) http.Handler {
@@ -369,6 +370,28 @@ func (s *server) showNewModal(w http.ResponseWriter, r *http.Request) {
 	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
 		"models": s.childModels(d).unload(),
 		"newid":  generateRandomId(),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+type mcpPlatform struct {
+	Os   string
+	Arch string
+	Desc string
+}
+
+func (s *server) showMcpModal(w http.ResponseWriter, r *http.Request) {
+	err := s.root.renderTmpl(w, "modal-mcp.tmpl", map[string]any{
+		"platforms": []mcpPlatform{
+			{"linux", "amd64", "Linux amd64"},
+			{"linux", "arm64", "Linux arm64 (Raspberry Pi)"},
+			{"darwin", "amd64", "MacOS (Intel Silicon)"},
+			{"darwin", "arm64", "MacOS (Apple Silicon)"},
+			{"windows", "amd64", "Windows amd64"},
+			{"windows", "arm64", "Windows arm64"},
+		},
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

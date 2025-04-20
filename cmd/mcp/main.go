@@ -1,8 +1,11 @@
 //go:generate sh -x -c "go run ./../gen-models/ ../../models.json ../../pkg/models/models.go"
-//go:generate sh -x -c "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o ../../bin/mcp-server-x86-64 -tags x86_64 ./"
-//go:generate sh -x -c "CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=5 go build -ldflags '-s -w' -o ../../bin/mcp-server-rpi -tags rpi ./"
-//go:generate sh -x -c "CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-s -w' -o ../../bin/mcp-server-darwin-amd64 -tags darwin ./"
-//go:generate sh -x -c "CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags '-s -w' -o ../../bin/mcp-server-darwin-arm64 -tags darwin ./"
+
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o ../../bin/mcp-server-linux-amd64 ./"
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=linux GOARCH=arm64 GOARM=5 go build -ldflags '-s -w' -o ../../bin/mcp-server-linux-arm64 ./"
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-s -w' -o ../../bin/mcp-server-darwin-amd64 ./"
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags '-s -w' -o ../../bin/mcp-server-darwin-arm64 ./"
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-s -w' -o ../../bin/mcp-server-windows-amd64.exe ./"
+//go:generate sh -x -c "CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags '-s -w' -o ../../bin/mcp-server-windows-arm64.exe ./"
 
 package main
 
