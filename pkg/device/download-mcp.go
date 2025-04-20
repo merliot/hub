@@ -41,11 +41,15 @@ export PASSWD="%s"
 # Create a temporary file for the binary
 TEMP_BINARY=$(mktemp)
 
-# Find the line number of the EOF marker
-EOF_LINE=$(grep -n '^EOF$' "$0" | cut -d: -f1)
+# Find the marker line and extract binary
+ARCHIVE_START=$(awk '/^__ARCHIVE_START__/ {print NR + 1; exit 0; }' "$0")
+if [ -z "$ARCHIVE_START" ]; then
+    echo "Error: __ARCHIVE_START__ marker not found"
+    exit 1
+fi
 
-# Extract the binary (everything after the EOF marker) using tail
-tail -n +$((EOF_LINE + 1)) "$0" > "$TEMP_BINARY"
+# Extract binary
+tail -n+$ARCHIVE_START "$0" > "$TEMP_BINARY"
 
 # Make the temporary file executable
 chmod +x "$TEMP_BINARY"
@@ -58,8 +62,8 @@ rm -f "$TEMP_BINARY"
 
 exit 0
 
-# Marker for the end of the script content
-EOF`, hubURL, s.user, s.passwd)
+__ARCHIVE_START__
+`, hubURL, s.user, s.passwd)
 
 	if _, err := tmpFile.WriteString(scriptHeader); err != nil {
 		http.Error(w, "Failed to write script header", http.StatusInternalServerError)
@@ -107,8 +111,9 @@ EOF`, hubURL, s.user, s.passwd)
 	}
 
 	// Set response headers
-	w.Header().Set("Content-Type", "application/gzip")
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-%s-mcp-server-%s.sh.gz"`,
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Encoding", "gzip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="mcp-server-%s-%s-%s"`,
 		s.root.Model, s.root.Id, platform))
 
 	// Write the gzipped data
