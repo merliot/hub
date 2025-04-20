@@ -34,7 +34,6 @@ func (s *server) wsMcpServe(conn *websocket.Conn) {
 	for {
 		_, _, err := conn.ReadMessage()
 		if err != nil {
-			s.logError("Reading message", "err", err)
 			break
 		}
 	}
