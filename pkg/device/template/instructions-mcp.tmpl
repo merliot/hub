@@ -1,0 +1,52 @@
+<div>
+	<h3>Setting up MCP Server for Hub Integration</h3>
+	<ol>
+		<li>
+			<p>Select Platform</p>
+			<p>Choose the appropriate platform for your system to run the MCP server locally using stdio transport.</p>
+		</li>
+		<li>
+			<p>Download MCP Server</p>
+			<p>Download the MCP server binary for your selected platform.</p>
+		</li>
+		<li>
+			<p>Configure LLM Host</p>
+			<p>Edit the MCP configuration file in your LLM host application:</p>
+			<ul>
+				<li>For Claude Desktop: Follow instructions <a href="https://modelcontextprotocol.io/quickstart/user">here</a>.</li>
+				<li>For Cursor: Edit the mcp.json file in Cursor Settings &gt; MCP</li>
+			</ul>
+			<p>Example MCP configuration:</p>
+			<pre class="code-snippet">
+{
+	"mcpServers": {
+		"hub-mcp-server": {
+			"command": "/path/to/mcp-server"
+			"args": [],
+			"env": {}
+		}
+	}
+}</pre>
+			<p>The MCP server connects to the hub using the hub's user and passwd.</p>
+		</li>
+		<li>
+			<p>Integration Complete</p>
+			<p>Once configured, your LLM will have access to:</p>
+			<ul>
+				<li>Hub device hierarchy and state</li>
+				<li>Device configurations and capabilities</li>
+				<li>Device-specific tools</li>
+				<li>Real-time device state updates via notifications</li>
+			</ul>
+		</li>
+		<li>
+			<p>Try it!</p>
+			<pre class="cmd-line">
+"List all of the devices in a tree view"
+"Add a new gps device"
+"Turn on all the relays"
+"Show the instructions on how to deploy a qrcode device"
+			</pre>
+		</li>
+	</ol>
+</div>

@@ -4,6 +4,13 @@
 
 		<h3>DOWNLOAD MCP SERVER</h3>
 
+		<p>Download Model Context Protocol (MCP) server for {{name}}.
+		The MCP server lets large language models (LLMs), such as
+		Claude, interact with {{name}}.  Basically, it means we can
+		plug the physical world of devices into an LLM.</p>
+
+		<p>What could go wrong?</p>
+
 		<form action="/download-mcp-server" method="GET" class="mt-4">
 
 			<div class="mt-4">
@@ -22,6 +29,8 @@
 			</div>
 
 		</form>
+
+{{ template "instructions-mcp-collapsed.tmpl" . }}
 
 	</div>
 

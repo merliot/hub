@@ -1,0 +1,13 @@
+<div class="flex flex-col items-center" id="mcp-instructions">
+	<h3 class="cursor-pointer"
+		hx-get="/instructions-mcp?view=collapsed"
+		hx-target="#mcp-instructions"
+		hx-swap="outerHTML">
+		Instructions &#9650;
+	</h3>
+
+	<hr>
+
+{{ template "instructions-mcp.tmpl" . }}
+
+</div>

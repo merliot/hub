@@ -69,6 +69,7 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("PUT /rename", s.rename)
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 	s.mux.HandleFunc("GET /mcp-modal", s.showMcpModal)
+	s.mux.HandleFunc("GET /instructions-mcp", s.showMcpInstructions)
 }
 
 func (d *device) deviceHandler(next http.Handler) http.Handler {
@@ -393,6 +394,14 @@ func (s *server) showMcpModal(w http.ResponseWriter, r *http.Request) {
 			{"windows", "arm64", "Windows arm64"},
 		},
 	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (s *server) showMcpInstructions(w http.ResponseWriter, r *http.Request) {
+	view := r.URL.Query().Get("view")
+	err := s.root.renderTmpl(w, "instructions-mcp-"+view+".tmpl", nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

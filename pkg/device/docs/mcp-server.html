@@ -1,0 +1,24 @@
+<h2>MCP SERVER</h2>
+
+<p>Merliot Hub supports Model Context Protocol (MCP).  MCP allows LLM hosts to
+"plug-in" to external context.  Merliot Hub includes a MCP Server which lets
+LLM hosts "plug-in" to the hub.  Now, using the LLM, we can "chat" with the hub
+using natural language:</p>
+
+			<pre class="cmd-line">
+"List all of the devices in a tree view"
+"Add a new gps device"
+"Turn on all the relays"
+"Show the instructions on how to deploy a qrcode device"
+			</pre>
+
+<h3>INSTALL</h3>
+
+<p>Click on the tool icon on the root-level hub</p>
+
+<img class="w-80" src="/images/mcp-server.png">
+
+<p>Follow the instructions to download and install the MCP server for your
+local platform.  The MCP server only supports stdio transport.  The MCP server
+will automatically connect to the hub once plugged into an LLM host.  More than
+one LLM host may be using a MCP Server to connect to the hub.</p>

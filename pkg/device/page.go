@@ -30,6 +30,7 @@ var docPages = []page{
 	{"install", "INSTALL GUIDE", "/doc/install"},
 	{"devices", "DEVICES", "/doc/devices"},
 	{"env-vars", "ENV VARS", "/doc/env-vars"},
+	{"mcp-server", "MCP SERVER", "/doc/mcp-server"},
 	{"faq", "FAQ", "/doc/faq"},
 
 	{"", "DEVELOPER", ""},
