@@ -39,6 +39,7 @@ var docPages = []page{
 	{"new-model", "NEW MODEL", "/doc/new-model"},
 	{"services", "SERVICES", "/doc/services"},
 	{"api", "API", "/doc/api"},
+	{"mcp", "MCP", "/doc/mcp"},
 	{"ui-device", "UI TO DEVICE", "/doc/ui-device"},
 	{"device-ui", "DEVICE TO UI", "/doc/device-ui"},
 	{"device-views", "DEVICE VIEWS", "/doc/device-views"},

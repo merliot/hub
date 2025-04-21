@@ -1,0 +1,39 @@
+<h2>MODEL CONTEXT PROTOCOL</h2>
+
+<p>Merliot Hub devices supports Model Context Protocol (MCP) server in two ways:</p>
+ 
+<p>Any PacketHandler with a path with a leading "/" will create a MCP tool
+that's custom for that device.  For example, consider the PacketHandlers:</p>
+
+<pre class="code-snippet">
+PacketHandlers: device.PacketHandlers{
+	"/click":  &amp;device.PacketHandler[msgClick]{r.click},
+	"clicked": &amp;device.PacketHandler[msgClicked]{r.clicked},
+}
+</pre>
+
+<p>A MCP tool called "relays_click" is created for the "/click" handler.  In
+general, the tool name will be {model}_{path}, with the leading "/" removed
+from the path.  No tool is created for "clicked" handler since it does not have
+a leading "/".</p>
+
+<p>The tool parameters are derived from the handler type.  In our example, the
+"/click" handler's type is msgClick.</p>
+
+<pre class="code-snippet">
+type msgClick struct {
+	Relay int `mcp:"required,desc=Relay index"`
+}
+
+func (m msgClick) Desc() string {
+	return "Click (toggle) the relay"
+}
+</pre>
+
+<p>Field in the type struct must be tagged with `mcp` to be included in the
+tools input parameters.  In our example, Relay field is tagged with `mcp` to it
+will be included in the tool input parameters.  The device id is also an input
+parameter for each custom device tool.</p>
+
+<p>The type struct itself should include a Desc() function to return a
+description of the tool.</p>
