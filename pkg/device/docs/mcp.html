@@ -1,6 +1,20 @@
 <h2>MODEL CONTEXT PROTOCOL</h2>
 
 <p>Merliot Hub devices supports Model Context Protocol (MCP) server in two ways:</p>
+
+<ol>
+	<li>
+		<p>Custom MCP Tools</p>
+		<p>Custom tools for the device are generated from the
+		device's PacketHandlers.</p>
+	</li>
+	<li>
+		<p>Unsolicited MCP Notifications.</p>
+		<p>Unsolicited MCP notifications are sent for each Packet routed up.</p>
+	</li>
+</ol>
+
+<h3>CUSTOM TOOLS</h3>
  
 <p>Any PacketHandler with a path with a leading "/" will create a MCP tool
 that's custom for that device.  For example, consider the PacketHandlers:</p>
@@ -37,3 +51,15 @@ parameter for each custom device tool.</p>
 
 <p>The type struct itself should include a Desc() function to return a
 description of the tool.</p>
+
+<h3>NOTIFICATIONS</h3>
+ 
+<p>Any Packet that is routed up will be turned into a MCP notification.  The notification method is "notification/update" and the parameters include:</p>
+
+<pre class="code-snippet">
+params := map[string]any{
+	"dst_id": pkt.Dst,
+	"path":   pkt.Path,
+	"msg":    msgContent,
+}
+</pre>

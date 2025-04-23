@@ -89,9 +89,9 @@ func (ms *MCPServer) mcpWsClient(conn *websocket.Conn) {
 		}
 
 		params := map[string]any{
-			"device_id": pkt.Dst,
-			"path":      pkt.Path,
-			"msg":       msgContent,
+			"dst_id": pkt.Dst,
+			"path":   pkt.Path,
+			"msg":    msgContent,
 		}
 
 		ms.MCPServer.SendNotificationToAllClients("notification/update", params)
