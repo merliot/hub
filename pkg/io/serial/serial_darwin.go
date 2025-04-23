@@ -1,45 +1,33 @@
 //go:build darwin
+// +build darwin
 
 package serial
 
 import (
 	"fmt"
-	"syscall"
+	"time"
 )
 
-func openPort(c *Config) (*Port, error) {
-	if c == nil {
-		return nil, fmt.Errorf("nil config")
-	}
-
-	fd, err := syscall.Open(c.Name, syscall.O_RDWR|syscall.O_NOCTTY|syscall.O_NONBLOCK, 0666)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Port{handle: fd, name: c.Name}, nil
+func openPort(name string, baud int, databits byte, parity Parity, stopbits StopBits, readTimeout time.Duration) (p *Port, err error) {
+	// TODO
+	return &Port{}, fmt.Errorf("not implemented")
 }
 
-func closePort(p *Port) error {
-	fd, ok := p.handle.(int)
-	if !ok {
-		return fmt.Errorf("invalid handle type")
-	}
-	return syscall.Close(fd)
+type Port struct {
 }
 
-func readPort(p *Port, b []byte) (n int, err error) {
-	fd, ok := p.handle.(int)
-	if !ok {
-		return 0, fmt.Errorf("invalid handle type")
-	}
-	return syscall.Read(fd, b)
+func (p *Port) Read(b []byte) (n int, err error) {
+	return 0, fmt.Errorf("not implemented")
 }
 
-func writePort(p *Port, b []byte) (n int, err error) {
-	fd, ok := p.handle.(int)
-	if !ok {
-		return 0, fmt.Errorf("invalid handle type")
-	}
-	return syscall.Write(fd, b)
+func (p *Port) Write(b []byte) (n int, err error) {
+	return 0, fmt.Errorf("not implemented")
+}
+
+func (p *Port) Flush() error {
+	return fmt.Errorf("not implemented")
+}
+
+func (p *Port) Close() (err error) {
+	return fmt.Errorf("not implemented")
 }

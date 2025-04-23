@@ -18,7 +18,6 @@ type Gps struct {
 }
 
 func (g *Gps) Setup() (err error) {
-	println("Setup")
 	cfg := &serial.Config{Name: "/dev/ttyUSB0", Baud: 9600}
 
 	g.Lock()
