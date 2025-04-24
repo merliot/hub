@@ -225,6 +225,10 @@ func TestAPIDevices(t *testing.T) {
 	assert.True(t, devsEqual(string(devs), devices), "devices not equal")
 }
 
+func TestAPIServerStatus(t *testing.T) {
+	callOK(t, "GET", "/server-status")
+}
+
 func decompressGzip(data []byte) ([]byte, error) {
 	r, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
