@@ -30,7 +30,7 @@ func (s *server) wsDial(wsURL *url.URL, user, passwd string) {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), hdr)
 		if err == nil {
 			// Service the client websocket
-			s.wsClient(conn)
+			s.wsClient(wsURL.String(), conn)
 		} else {
 			s.logError("Dialing", "url", wsURL, "err", err)
 		}
@@ -58,10 +58,10 @@ func (s *server) devicesOnline(l linker) {
 	})
 }
 
-func (s *server) wsClient(conn *websocket.Conn) {
+func (s *server) wsClient(dialURL string, conn *websocket.Conn) {
 	defer conn.Close()
 
-	var link = &wsLink{conn: conn}
+	var link = &wsLink{name: "/ws client dialing " + dialURL, conn: conn}
 	var pkt = s.root.newPacket()
 
 	link.setPongHandler()

@@ -21,7 +21,7 @@ func (s *server) wsMcpHandle(w http.ResponseWriter, r *http.Request) {
 func (s *server) wsMcpServe(conn *websocket.Conn) {
 	defer conn.Close()
 
-	var link = &wsLink{conn: conn}
+	var link = &wsLink{name: "/wsmcp server", conn: conn}
 
 	s.logDebug("Adding MCP Uplink")
 	s.uplinks.add(link)

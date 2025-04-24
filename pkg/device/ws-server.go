@@ -105,7 +105,7 @@ func (s *server) wsServer(conn *websocket.Conn) {
 
 	defer conn.Close()
 
-	var link = &wsLink{conn: conn}
+	var link = &wsLink{name: "/ws server", conn: conn}
 
 	// First receive should be an announce packet
 	pkt, err := s.receive(link)

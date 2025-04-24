@@ -13,6 +13,7 @@ import (
 )
 
 type wsLink struct {
+	name string
 	conn *websocket.Conn
 	sync.RWMutex
 	lastRecv time.Time
@@ -28,6 +29,10 @@ func (l *wsLink) send(pkt *Packet) error {
 		return fmt.Errorf("Send error: %w", err)
 	}
 	return nil
+}
+
+func (l *wsLink) Name() string {
+	return l.name
 }
 
 func (l *wsLink) Send(pkt *Packet) error {

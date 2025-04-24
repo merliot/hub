@@ -6,12 +6,24 @@ import (
 )
 
 type linker interface {
+	Name() string
 	Send(pkt *Packet) error
 	RemoteAddr() net.Addr
 	Close()
 }
 
 type linksJSON []net.Addr
+type linkJSON struct {
+	Name       string
+	RemoteAddr net.Addr
+}
+
+func linkGetJSON(l linker) linkJSON {
+	return linkJSON{
+		Name:       l.Name(),
+		RemoteAddr: l.RemoteAddr(),
+	}
+}
 
 type uplinkMap struct {
 	sync.Map // key: linker
@@ -43,6 +55,8 @@ func (ul *uplinkMap) getJSON() linksJSON {
 	return addrs
 }
 
+type downlinksJSON map[string]linkJSON
+
 type downlinkMap struct {
 	sync.Map // key: device id, value: linker
 }
@@ -67,12 +81,13 @@ func (dl *downlinkMap) linkClose(id string) {
 	}
 }
 
-func (dl *downlinkMap) getJSON() linksJSON {
-	var addrs linksJSON
+func (dl *downlinkMap) getJSON() downlinksJSON {
+	downlinks := make(downlinksJSON)
 	dl.Range(func(key, value any) bool {
+		id := key.(string)
 		l := value.(linker)
-		addrs = append(addrs, l.RemoteAddr())
+		downlinks[id] = linkGetJSON(l)
 		return true
 	})
-	return addrs
+	return downlinks
 }

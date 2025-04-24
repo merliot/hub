@@ -13,6 +13,7 @@ import (
 )
 
 type wsLink struct {
+	name string
 	conn *websocket.Conn
 	sync.RWMutex
 	done bool
@@ -28,6 +29,10 @@ var upgrader = websocket.Upgrader{
 		// Allow all origins, update as necessary
 		return true
 	},
+}
+
+func (l *wsLink) Name() string {
+	return l.name
 }
 
 func (l *wsLink) Send(pkt *Packet) error {

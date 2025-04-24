@@ -54,7 +54,7 @@ func (ms *MCPServer) mcpWsDial() error {
 	}
 
 	// Service the MCP websocket client
-	go ms.mcpWsClient(conn)
+	go ms.mcpWsClient(wsURL.String(), conn)
 
 	return nil
 }
@@ -68,10 +68,10 @@ func (ms *MCPServer) receive(l *wsLink) (*Packet, error) {
 	return pkt, nil
 }
 
-func (ms *MCPServer) mcpWsClient(conn *websocket.Conn) {
+func (ms *MCPServer) mcpWsClient(url string, conn *websocket.Conn) {
 	defer conn.Close()
 
-	var link = &wsLink{conn: conn}
+	var link = &wsLink{name: "/wsmcp client dialing " + url, conn: conn}
 
 	link.setPongHandler()
 	link.startPing()

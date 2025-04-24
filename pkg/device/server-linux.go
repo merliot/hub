@@ -432,7 +432,7 @@ type serverStatus struct {
 	Flags     string
 	Sessions  sessionsJSON
 	Uplinks   linksJSON
-	Downlinks linksJSON
+	Downlinks downlinksJSON
 }
 
 func (s *server) statusJSON() []byte {
