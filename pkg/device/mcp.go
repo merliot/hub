@@ -416,13 +416,32 @@ func (ms *MCPServer) handlerGetStatus(ctx context.Context, request mcp.CallToolR
 
 func (ms *MCPServer) toolGetStatus() {
 	tool := mcp.NewTool("get_status",
-		mcp.WithDescription("Get the status of a Merliot Hub device.  Device status includes connection status (online/offline)."),
+		mcp.WithDescription("Get the status of a Merliot Hub device.  Device status includes connection status (online/offline) and active flags."),
 		mcp.WithString("id",
 			mcp.Required(),
 			mcp.Description("Device ID"),
 		),
 	)
 	ms.AddTool(tool, ms.handlerGetStatus)
+}
+
+func (ms *MCPServer) handlerGetServerStatus(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	body, err := ms.doRequest(ctx, "GET", ms.url+"/server-status")
+	if err != nil {
+		if body != nil {
+			return nil, fmt.Errorf("failed to get device status: %w: %s", err, string(body))
+		}
+		return nil, fmt.Errorf("failed to get device status: %w", err)
+	}
+
+	return mcp.NewToolResultText(string(body)), nil
+}
+
+func (ms *MCPServer) toolGetServerStatus() {
+	tool := mcp.NewTool("get_server_status",
+		mcp.WithDescription("Get the status of the Merliot Hub."),
+	)
+	ms.AddTool(tool, ms.handlerGetServerStatus)
 }
 
 func parseMcpTag(tag string) []mcp.PropertyOption {
@@ -538,6 +557,7 @@ func (ms *MCPServer) build() error {
 	ms.toolGetInstructions()
 	ms.toolGetConfig()
 	ms.toolGetStatus()
+	ms.toolGetServerStatus()
 	ms.toolsCustom()
 
 	return nil

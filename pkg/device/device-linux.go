@@ -317,13 +317,19 @@ func (d *device) handleReboot(pkt *Packet) {
 	}
 }
 
-type status struct {
-	Online bool
+type deviceStatus struct {
+	StartTime time.Time
+	Online    bool
+	Nexthop   string
+	Flags     string
 }
 
 func (d *device) statusJSON() []byte {
-	var s = status{
-		Online: d.isSet(flagOnline),
+	var s = deviceStatus{
+		Online:    d.isSet(flagOnline),
+		Nexthop:   d.nexthop.Id,
+		StartTime: d.startup,
+		Flags:     d.deviceFlags.list(),
 	}
 	j, _ := json.MarshalIndent(&s, "", "\t")
 	return j

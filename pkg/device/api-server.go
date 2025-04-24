@@ -57,6 +57,7 @@ func (s *server) setupAPI() {
 	}
 
 	s.mux.HandleFunc("GET /devices", s.showDevices)
+	s.mux.HandleFunc("GET /server-status", s.showServerStatus)
 	s.mux.HandleFunc("PUT /nop", func(w http.ResponseWriter, r *http.Request) {})
 	s.mux.HandleFunc("POST /save", s.saveDevices)
 	s.mux.HandleFunc("GET /save-modal", s.showSaveModal)
@@ -126,8 +127,12 @@ func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=devices.json")
-	devices := s.devices.getPrettyJSON()
-	w.Write(devices)
+	w.Write(s.devices.getPrettyJSON())
+}
+
+func (s *server) showServerStatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(s.statusJSON())
 }
 
 func (s *server) saveDevices(w http.ResponseWriter, r *http.Request) {

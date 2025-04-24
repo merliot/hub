@@ -11,8 +11,9 @@ import (
 type Devicer interface {
 	// GetConfig returns the device configuration
 	GetConfig() Config
-	// Setup prepares the device for operation.  Device hardware and other
-	// initializations are done here.  Returning an error fails the device load.
+	// Setup prepares the device for operation.  Device hardware and
+	// other initializations are done here.  Returning an error fails the
+	// device load.
 	Setup() error
 	// Poll services the device.  Poll is called every Config.PollPeriod
 	// seconds.  The Packet can be used to send a message.
@@ -38,8 +39,8 @@ type device struct {
 	stopChan     chan struct{}
 	startup      time.Time
 	stateMu      mutex
+	deviceFlags
 	*server
-	flags
 	deviceOS
 }
 

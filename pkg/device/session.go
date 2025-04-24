@@ -14,6 +14,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type sessionJSON struct {
+	Connected  bool
+	LastUpdate string
+}
+
 type session struct {
 	id         string
 	conn       *websocket.Conn
@@ -21,13 +26,16 @@ type session struct {
 	rwMutex
 }
 
+type sessionsJSON map[string]sessionJSON
+
 type sessionMap struct {
 	sync.Map // key: session id, value: *session
 }
 
-var errSessionNotConnected = errors.New("Session not connected")
-
-var sessionsMax = 100
+var (
+	errSessionNotConnected = errors.New("Session not connected")
+	sessionsMax            = 100
+)
 
 func (sm *sessionMap) start() {
 	go sm.gcSessions()
@@ -130,6 +138,15 @@ func (sm *sessionMap) send(id, htmlSnippet string) {
 	}
 }
 
+func (sm *sessionMap) getJSON() sessionsJSON {
+	sessions := make(sessionsJSON)
+	sm.drange(func(id string, s *session) bool {
+		sessions[id] = s.getJSON()
+		return true
+	})
+	return sessions
+}
+
 func (sm *sessionMap) gcSessions() {
 	minute := 1 * time.Minute
 	ticker := time.NewTicker(minute)
@@ -146,9 +163,13 @@ func (sm *sessionMap) gcSessions() {
 	}
 }
 
-type sessionStatus struct {
-	Color  string
-	Status string
+func (s session) getJSON() sessionJSON {
+	s.RLock()
+	defer s.RUnlock()
+	return sessionJSON{
+		Connected:  s._connected(),
+		LastUpdate: time.Now().Sub(s.lastUpdate).Truncate(time.Second).String(),
+	}
 }
 
 func (s *session) _connected() bool {

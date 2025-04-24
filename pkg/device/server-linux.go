@@ -4,6 +4,7 @@ package device
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -17,16 +18,6 @@ import (
 	"github.com/merliot/hub/pkg/ratelimit"
 )
 
-// Server flags
-const (
-	flagRunningDemo     flags = 1 << iota // Running in DEMO mode
-	flagRunningSite                       // Running in SITE mode
-	flagSaveToClipboard                   // Save changes to clipboard
-	flagAutoSave                          // Automatically save changes
-	flagDirty                             // Server has unsaved changes
-	flagDebugKeepBuilds                   // Don't delete temp build directory
-)
-
 // Server
 type server struct {
 	devices        deviceMap      // key: device id, value: *device
@@ -38,7 +29,7 @@ type server struct {
 	root           *device
 	mux            *http.ServeMux
 	server         *http.Server
-	flags
+	serverFlags
 	sync.Mutex
 	port            int
 	wsxPingPeriod   int
@@ -435,4 +426,22 @@ func (s *server) logBuildInfo() {
 		}
 	}
 	s.logDebug("GOMAXPROCS", "n", runtime.GOMAXPROCS(0))
+}
+
+type serverStatus struct {
+	Flags     string
+	Sessions  sessionsJSON
+	Uplinks   linksJSON
+	Downlinks linksJSON
+}
+
+func (s *server) statusJSON() []byte {
+	var status = serverStatus{
+		Flags:     s.serverFlags.list(),
+		Sessions:  s.sessions.getJSON(),
+		Uplinks:   s.uplinks.getJSON(),
+		Downlinks: s.downlinks.getJSON(),
+	}
+	j, _ := json.MarshalIndent(&status, "", "\t")
+	return j
 }

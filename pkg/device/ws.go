@@ -4,15 +4,12 @@ package device
 
 import (
 	"fmt"
+	"net"
+	"net/http"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
-)
-
-var (
-	pingPeriod  = 2 * time.Second
-	pingTimeout = 10 * time.Second
 )
 
 type wsLink struct {
@@ -21,10 +18,26 @@ type wsLink struct {
 	done bool
 }
 
+var (
+	pingPeriod  = 2 * time.Second
+	pingTimeout = 10 * time.Second
+)
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		// Allow all origins, update as necessary
+		return true
+	},
+}
+
 func (l *wsLink) Send(pkt *Packet) error {
 	l.Lock()
 	defer l.Unlock()
 	return l.conn.WriteJSON(pkt)
+}
+
+func (l *wsLink) RemoteAddr() net.Addr {
+	return l.conn.RemoteAddr()
 }
 
 func (l *wsLink) Close() {

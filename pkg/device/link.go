@@ -1,11 +1,17 @@
 package device
 
-import "sync"
+import (
+	"net"
+	"sync"
+)
 
 type linker interface {
 	Send(pkt *Packet) error
+	RemoteAddr() net.Addr
 	Close()
 }
+
+type linksJSON []net.Addr
 
 type uplinkMap struct {
 	sync.Map // key: linker
@@ -25,6 +31,20 @@ func (ul *uplinkMap) routeAll(pkt *Packet) {
 		l.Send(pkt)
 		return true
 	})
+}
+
+func getLinks(links sync.Map) linksJSON {
+	var addrs linksJSON
+	links.Range(func(key, value any) bool {
+		l := key.(linker)
+		addrs = append(addrs, l.RemoteAddr())
+		return true
+	})
+	return addrs
+}
+
+func (ul *uplinkMap) getJSON() linksJSON {
+	return getLinks(ul.Map)
 }
 
 type downlinkMap struct {
@@ -49,4 +69,8 @@ func (dl *downlinkMap) linkClose(id string) {
 	if l, ok := dl.Load(id); ok {
 		l.(linker).Close()
 	}
+}
+
+func (dl *downlinkMap) getJSON() linksJSON {
+	return getLinks(dl.Map)
 }
