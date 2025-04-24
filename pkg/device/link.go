@@ -33,18 +33,14 @@ func (ul *uplinkMap) routeAll(pkt *Packet) {
 	})
 }
 
-func getLinks(links sync.Map) linksJSON {
+func (ul *uplinkMap) getJSON() linksJSON {
 	var addrs linksJSON
-	links.Range(func(key, value any) bool {
+	ul.Range(func(key, value any) bool {
 		l := key.(linker)
 		addrs = append(addrs, l.RemoteAddr())
 		return true
 	})
 	return addrs
-}
-
-func (ul *uplinkMap) getJSON() linksJSON {
-	return getLinks(ul.Map)
 }
 
 type downlinkMap struct {
@@ -72,5 +68,11 @@ func (dl *downlinkMap) linkClose(id string) {
 }
 
 func (dl *downlinkMap) getJSON() linksJSON {
-	return getLinks(dl.Map)
+	var addrs linksJSON
+	dl.Range(func(key, value any) bool {
+		l := value.(linker)
+		addrs = append(addrs, l.RemoteAddr())
+		return true
+	})
+	return addrs
 }
