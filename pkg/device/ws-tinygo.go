@@ -36,6 +36,10 @@ func (l *wsLink) Send(pkt *Packet) error {
 	return l.send(pkt)
 }
 
+func (l *wsLink) RemoteAddr() net.Addr {
+	return l.conn.RemoteAddr()
+}
+
 func (l *wsLink) Close() {
 	l.conn.Close()
 }
