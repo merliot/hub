@@ -20,7 +20,6 @@ type temp struct {
 	Temperature float32 // deg F or C, depends on TempUnits
 	Humidity    float32 // %
 	Sensor      string
-	Gpio        string
 	TempUnits   string
 	History
 	io.Temp
@@ -53,7 +52,7 @@ func (t *temp) update(pkt *device.Packet) {
 }
 
 func (t *temp) Setup() error {
-	return t.Temp.Setup(t.Sensor, t.Gpio)
+	return t.Temp.Setup(t.Sensor, "")
 }
 
 func (t *temp) Poll(pkt *device.Packet) {

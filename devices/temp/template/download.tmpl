@@ -2,9 +2,9 @@
 	<span class="mr-4">Sensor</span>
 	<label class="mr-2.5">
 {{ if or (eq state.Sensor "BME280") (eq state.Sensor "") }}
-		<input type="radio" name="Sensor" value="BME280" id="sensor-bme280" checked onchange="toggleGpioSelect()">
+		<input type="radio" name="Sensor" value="BME280" checked>
 {{ else }}
-		<input type="radio" name="Sensor" value="BME280" id="sensor-bme280" onchange="toggleGpioSelect()">
+		<input type="radio" name="Sensor" value="BME280">
 {{ end }}
 		BME280
 	</label>
@@ -29,22 +29,4 @@
 {{ end }}
 		C&deg;
 	</label>
-</div>
-
-<div class="flex flex-row mb-5">
-	<span class="mr-4">GPIO</span>
-	<select class="h-5" name="Gpio">
-		<option value="">Select GPIO</option>
-{{- range $key, $target := targets }}
-	{{- if eq $key $.selectedTarget }}
-		{{- range $gpio, $pin := $target.GpioPins }}
-			{{- if eq $gpio state.Gpio }}
-		<option selected value="{{$gpio}}">{{$gpio}}</option>
-			{{- else }}
-		<option value="{{$gpio}}">{{$gpio}}</option>
-			{{- end }}
-		{{- end }}
-	{{- end }}
-{{- end }}
-	</select>
 </div>
