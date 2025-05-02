@@ -7,15 +7,12 @@ import (
 	"fmt"
 	"machine"
 
-	"github.com/merliot/hub/pkg/target"
 	"tinygo.org/x/drivers/bme280"
 	"tinygo.org/x/drivers/dht"
 )
 
 const (
-	DHT11 uint = iota
-	DHT22
-	BME280
+	BME280 uint = iota
 )
 
 type Temp struct {
@@ -27,12 +24,6 @@ type Temp struct {
 
 func (t *Temp) Setup(sensor, gpio string) error {
 	switch sensor {
-	case "DHT11":
-		t.sensor = DHT11
-		return t.dhtSetup(gpio)
-	case "DHT22":
-		t.sensor = DHT22
-		return t.dhtSetup(gpio)
 	case "BME280":
 		t.sensor = BME280
 		return t.bmeSetup()
@@ -42,41 +33,10 @@ func (t *Temp) Setup(sensor, gpio string) error {
 
 func (t *Temp) Read() (temperature, humidity float32, err error) {
 	switch t.sensor {
-	case DHT11, DHT22:
-		return t.dhtRead()
 	case BME280:
 		return t.bmeRead()
 	}
 	return 0.0, 0.0, fmt.Errorf("Sensor %s not supported")
-}
-
-func (t *Temp) dhtSetup(gpio string) error {
-	sensor := dht.DHT11
-	switch t.sensor {
-	case DHT22:
-		sensor = dht.DHT22
-	}
-	t.pin = machine.NoPin
-	if pin, ok := target.Pin(gpio); ok {
-		t.pin = machine.Pin(pin)
-		t.dht = dht.New(t.pin, sensor)
-		return nil
-	}
-	return errors.New("Gpio not valid for target")
-}
-
-func (t *Temp) dhtRead() (temperature, humidity float32, err error) {
-	if t.pin == machine.NoPin {
-		err = errors.New("Gpio pin not configured")
-		return
-	}
-	var temp int16
-	var hum uint16
-	temp, hum, err = t.dht.Measurements()
-	if err != nil {
-		return
-	}
-	return float32(temp) / 10.0, float32(hum) / 10.0, nil
 }
 
 func (t *Temp) bmeSetup() error {
