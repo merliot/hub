@@ -30,8 +30,10 @@ type Config struct {
 	// Targets support by device, e.g. ["rpi", "nano-rp2040"]
 	Targets []string
 
-	// PollPeriod is the device polling period.  The default is 1 second.
-	// The range is [1..forever) seconds.
+	// PollPeriod is the device polling period. If not specified (zero),
+	// polling is effectively disabled by setting to math.MaxInt64. If
+	// specified, the range is [10ms..forever).  Values less than 10ms
+	// are forced to 10ms.
 	PollPeriod time.Duration
 
 	// PacketHandlers is a custom map of packet handlers.

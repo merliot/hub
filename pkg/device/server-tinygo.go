@@ -75,11 +75,7 @@ func (s *server) Run() {
 
 	s.dialParents(params.DialURLs, params.User, params.Passwd)
 
-	// Poll right away and then on ticker
 	var pkt = &Packet{Dst: s.root.Id}
-	s.root.stateMu.Lock()
-	s.root.Poll(pkt)
-	s.root.stateMu.Unlock()
 
 	ticker := time.NewTicker(s.root.PollPeriod)
 	defer ticker.Stop()

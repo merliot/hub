@@ -19,11 +19,6 @@ func (d *device) runPolling(pollFunc func(pkt *Packet)) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 
-	// Poll right away, once, and then on ticker
-	d.stateMu.Lock()
-	pollFunc(pkt)
-	d.stateMu.Unlock()
-
 	ticker := time.NewTicker(d.PollPeriod)
 	defer ticker.Stop()
 

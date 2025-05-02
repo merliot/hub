@@ -8,11 +8,6 @@ func (d *device) runDemo() {
 
 	var pkt = d.newPacket()
 
-	// Poll right away, once, and then on ticker
-	d.stateMu.Lock()
-	d.DemoPoll(pkt)
-	d.stateMu.Unlock()
-
 	ticker := time.NewTicker(d.PollPeriod)
 	defer ticker.Stop()
 

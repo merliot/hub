@@ -9,18 +9,25 @@ import (
 
 // Devicer is the device model interface
 type Devicer interface {
+
 	// GetConfig returns the device configuration
 	GetConfig() Config
+
 	// Setup prepares the device for operation.  Device hardware and
 	// other initializations are done here.  Returning an error fails the
 	// device load.
 	Setup() error
-	// Poll services the device.  Poll is called every Config.PollPeriod
-	// seconds.  The Packet can be used to send a message.
+
+	// Poll services the device.  Poll is called every Config.PollPeriod.
+	// The Packet can be used to send a message up.  Note that the same
+	// packet is reused for each Poll() call.  Poll should not block
+	// (sleep).
 	Poll(*Packet)
-	// DemoSetup is DEMO mode Setup
+
+	// DemoSetup is DEMO mode Setup()
 	DemoSetup() error
-	// DemoPoll is DEMO mode Poll
+
+	// DemoPoll is DEMO mode Poll()
 	DemoPoll(*Packet)
 }
 
@@ -79,11 +86,13 @@ func (s *server) build(d *device, additionalFlags flags) error {
 	d.PacketHandlers["/get-uptime"] = &PacketHandler[NoMsg]{d.handleGetUptime}
 	d.PacketHandlers["uptime"] = &PacketHandler[msgUptime]{d.handleUptime}
 
-	// Bracket poll period: [1..forever) seconds
+	// Bracket poll period: [10ms..forever)
+	// A zero PollPeriod means poll forever
+	// The minimum PollPeriod is 10ms
 	if d.PollPeriod == 0 {
 		d.PollPeriod = time.Duration(math.MaxInt64)
-	} else if d.PollPeriod < time.Second {
-		d.PollPeriod = time.Second
+	} else if d.PollPeriod < 10*time.Millisecond {
+		d.PollPeriod = 10 * time.Millisecond
 	}
 
 	// Configure the device using DeployParams
