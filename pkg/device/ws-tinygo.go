@@ -93,7 +93,7 @@ func (l *wsLink) sendPing() error {
 	l.Lock()
 	defer l.Unlock()
 	l.lastPing = time.Now()
-	return l.send(&Packet{Path: "/ping"})
+	return l.send(&Packet{Path: "ping"})
 }
 
 func (l *wsLink) receivePoll() (*Packet, error) {
@@ -105,7 +105,7 @@ func (l *wsLink) receivePoll() (*Packet, error) {
 		}
 		pkt, err := l.receiveTimeout(time.Second)
 		if err == nil {
-			if pkt.Path == "/pong" {
+			if pkt.Path == "pong" {
 				continue
 			}
 			return pkt, nil

@@ -65,7 +65,7 @@ func (s *server) wsClient(url string, conn *websocket.Conn) {
 	var link = &wsLink{name: "/ws client dialing " + url, conn: conn}
 	var pkt = &Packet{
 		Dst:  s.root.Id,
-		Path: "/announce",
+		Path: "announce",
 	}
 
 	devices := make(map[string]*device)
@@ -89,7 +89,7 @@ func (s *server) wsClient(url string, conn *websocket.Conn) {
 	}
 
 	s.logInfo("-> Reply", "pkt", pkt)
-	if pkt.Path != "/welcome" {
+	if pkt.Path != "welcome" {
 		s.logError("Not welcomed, got", "path", pkt.Path)
 		return
 	}
