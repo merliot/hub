@@ -2,9 +2,26 @@
 
 <img class="w-32" src="/docs/images/under-construction.svg">
 
-<p>This page is under construction.  If you're looking to create new device
-model, this is where you would look.</p>
+<p>This page is under construction.  If you're looking to create a new device
+model, this is where you would look.  I plan to write full guide for creating a
+new device model, but in the absense of that, here are two shortcuts to get you
+going:</p>
 
-<p>In the meantime, find the <button>Show Code</button> button one of the demo
-devices to see how it's constructed.  The devices are written in Go and
+<h3>Shortcut #1: Stare at example code</h3>
+
+<p>Find the <button>Show Code</button> button on one of the demo
+devices to see the device code.  The devices are written in Go and
 HTMX.</p>
+
+<h3>Shortcut #2: Use AI to write it for you</h3>
+
+<p>This one works; I used it to create the 'buttons' device model.  Here's the
+prompt I gave <a target="_blank" href="https://www.cursor.com/">Cursor</a>:</p>
+
+<pre class="code-snippet text-wrap">
+Let's make a new device model called "buttons".  Similar to the relays device, it allows for up to four buttons to be defined and each button has a name and a gpio pin.  targets include: rpi, nano-rp2040.  Reuse on/off switch icon from relays.  When button is pressed (may be mometary or continuous), show the on icon.  When button is not pressed, show the off icon.  May need to create a new pkg/io/button pkg.  There is an "update" msg for when the button transisions from on to off and for when button transistions from off to on.   Make sure tinygo or rpi libs used can handle button de-bouncing.  bg-color is gold.
+</pre>
+
+<p>Cursor had access to the Merliot Hub Github repo, so it could use the existing examples to create the "buttons" device model.  I was surprised because the first try almost compiled and ran.  It took a few more prompts to fine-tune it and I was done.  It even wrote the parts list and instructions!</p>
+
+<p>Give it a try.  It works so good, I'm not motivated to finish this page.</p>
