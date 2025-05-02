@@ -1,0 +1,21 @@
+<div class="flex flex-col items-center justify-center" id="{{uniq `buttons`}}">
+
+{{- $added := false }}
+{{- range $i, $button := state.Buttons }}
+	{{- if and (ne $button.Gpio "") (ne $button.Name "") }}
+		{{- $added = true }}
+
+	<div class="flex flex-row items-center">
+		<span class="w-16 text-right mx-6">{{$button.Name}}</span>
+		<img class="h-10" src="/model/{{model}}/images/button-{{$button.State}}.png">
+		<span class="mx-6 px-2.5 text-sm bg-amber-500 text-white rounded">{{$button.Gpio}}</span>
+	</div>
+
+	{{- end }}
+{{- end }}
+
+{{- if not $added }}
+	{{ template "undefined-detail.tmpl" . }}
+{{- end }}
+
+</div> 

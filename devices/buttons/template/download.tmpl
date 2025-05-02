@@ -1,0 +1,27 @@
+<div class="flex flex-row">
+	<div class="flex flex-col">
+		<span>Button Name</span>
+{{- range $i, $button := state.Buttons }}
+	<input class="h-5 mr-2.5 w-36" type="text" placeholder="Button #{{$i}}" name="Buttons[{{$i}}].Name" value="{{$button.Name}}">
+{{- end }}
+	</div>
+	<div class="flex flex-col">
+		<span>GPIO</span>
+{{- range $i, $button := state.Buttons }}
+		<select class="h-5" name="Buttons[{{$i}}].Gpio">
+			<option value="">Select GPIO</option>
+	{{- range $key, $target := targets }}
+		{{- if eq $key $.selectedTarget }}
+			{{- range $gpio, $pin := $target.GpioPins }}
+				{{- if eq $gpio $button.Gpio }}
+			<option selected value="{{$gpio}}">{{$gpio}}</option>
+				{{- else }}
+			<option value="{{$gpio}}">{{$gpio}}</option>
+				{{- end }}
+			{{- end }}
+		{{- end }}
+	{{- end }}
+		</select>
+{{- end }}
+	</div>
+</div> 

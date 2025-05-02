@@ -1,4 +1,8 @@
 {
+	"buttons": {
+		"Package": "github.com/merliot/hub/devices/buttons",
+		"Maker": "buttons.NewModel"
+	},
 	"hub": {
 		"Package": "github.com/merliot/hub/devices/hubdevice",
 		"Maker": "hubdevice.NewModel"

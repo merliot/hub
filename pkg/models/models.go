@@ -3,6 +3,7 @@
 package models
 
 import (
+	"github.com/merliot/hub/devices/buttons"
 	"github.com/merliot/hub/devices/camera"
 	"github.com/merliot/hub/devices/gadget"
 	"github.com/merliot/hub/devices/gps"
@@ -17,6 +18,7 @@ import (
 )
 
 var AllModels = device.Models{
+	"buttons": &Buttons,
 	"camera":  &Camera,
 	"gadget":  &Gadget,
 	"gps":     &Gps,
@@ -27,6 +29,10 @@ var AllModels = device.Models{
 	"relays":  &Relays,
 	"temp":    &Temp,
 	"timer":   &Timer,
+}
+var Buttons = device.Model{
+	Package: "github.com/merliot/hub/devices/buttons",
+	Maker:   buttons.NewModel,
 }
 var Camera = device.Model{
 	Package: "github.com/merliot/hub/devices/camera",
