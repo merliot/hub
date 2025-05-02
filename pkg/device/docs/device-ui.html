@@ -18,19 +18,19 @@ target="_blank" href="https://htmx.org/extensions/ws/">htmx</a>.</p>
 
 <p>Each uplink is a websocket connected on /ws.  The packet is JSON-encoded
 before sending on the websocket, and JSON-decoded by the receiving device.
-Let's send up a /clicked message for a relay state change:</p>
+Let's send up a clicked message for a relay state change:</p>
 
 <pre class="code-snippet">
 var msg = MsgClicked{Relay: 2, State: true}
-pkt.SetPath("/clicked").Marshal(&amp;msg).RouteUp()
+pkt.SetPath("clicked").Marshal(&amp;msg).RouteUp()
 </pre>
 
-<p>The receiving device will catch the /clicked message using a packet handler:</p>
+<p>The receiving device will catch the clicked message using a packet handler:</p>
 
 <pre class="code-snippet">
 func (r *Relays) GetHandlers() hub.Handlers {
 	return hub.Handlers{
-		"/clicked":   &amp;hub.Handler[MsgClick]{r.clicked},
+		"clicked":   &amp;hub.Handler[MsgClick]{r.clicked},
 		// ... other handlers
 	}
 }
@@ -41,8 +41,8 @@ func (r *relays) clicked(pkt *hub.Packet) {
 	// update state
 	relay := &amp;r.Relays[clicked.Relay]
 	relay.Set(clicked.State)
-	// forward /clicked packet up
-	pkt.RouteUp()
+	// forward clicked packet up
+	pkt.BroadcastUp()
 }
 </pre>
 
@@ -70,7 +70,7 @@ For example, consider routing the packet from earlier:
 
 <pre class="code-snippet">
 var msg = MsgClicked{Relay: 2, State: true}
-pkt.SetPath("/clicked").Marshal(&amp;msg).RouteUp()
+pkt.SetPath("clicked").Marshal(&amp;msg).RouteUp()
 </pre>
 
 And say the current <a href="/doc/device-views">view</a> is "overview".
