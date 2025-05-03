@@ -7,14 +7,14 @@ import (
 	io "github.com/merliot/hub/pkg/io/temp"
 )
 
-var (
-	pollPeriod  = time.Hour
-	historyRecs = 24
+const (
+	pollPeriod  = 5 * time.Second
+	historyRecs = (60 / 5) * 5 // 5 minute's worth
 )
 
-type Record []float32
+type Record [2]float32
 
-type History []Record
+type History [historyRecs]Record
 
 type temp struct {
 	Temperature float32 // deg F or C, depends on TempUnits
@@ -31,19 +31,16 @@ type msgUpdate struct {
 }
 
 func NewModel() device.Devicer {
-	return &temp{
-		History: []Record{},
-	}
+	return &temp{}
 }
 
 func (t *temp) addRecord() {
-	if len(t.History) >= historyRecs {
-		// Remove the oldest
-		t.History = t.History[1:]
+	// Shift all records one position to the left
+	for i := 0; i < historyRecs-1; i++ {
+		t.History[i] = t.History[i+1]
 	}
-	// Add the new
-	rec := Record{t.Temperature, t.Humidity}
-	t.History = append(t.History, rec)
+	// Add the new record at the end
+	t.History[historyRecs-1] = Record{t.Temperature, t.Humidity}
 }
 
 func (t *temp) update(pkt *device.Packet) {
@@ -51,15 +48,10 @@ func (t *temp) update(pkt *device.Packet) {
 	pkt.Unmarshal(t).BroadcastUp()
 }
 
-func (t *temp) Setup() error {
-	return t.Temp.Setup(t.Sensor, "")
-}
-
-func (t *temp) Poll(pkt *device.Packet) {
+func (t *temp) read() error {
 	temp, hum, err := t.Read()
 	if err != nil {
-		println("Temp device poll read", "err", err)
-		return
+		return err
 	}
 	if t.TempUnits == "F" {
 		// Convert from Celsius
@@ -68,6 +60,21 @@ func (t *temp) Poll(pkt *device.Packet) {
 	t.Temperature = temp
 	t.Humidity = hum
 	t.addRecord()
-	var msg = msgUpdate{temp, hum}
+	return nil
+}
+
+func (t *temp) Setup() error {
+	if err := t.Temp.Setup(t.Sensor, ""); err != nil {
+		return err
+	}
+	return t.read()
+}
+
+func (t *temp) Poll(pkt *device.Packet) {
+	if err := t.read(); err != nil {
+		println("Temp device poll read", "err", err)
+		return
+	}
+	var msg = msgUpdate{t.Temperature, t.Humidity}
 	pkt.SetPath("update").Marshal(&msg).BroadcastUp()
 }

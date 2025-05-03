@@ -76,7 +76,7 @@ func (s *server) Run() {
 
 	s.dialParents(params.DialURLs, params.User, params.Passwd)
 
-	var pkt = &Packet{Dst: s.root.Id}
+	var pkt = s.newPacket().SetDst(s.root.Id)
 
 	ticker := time.NewTicker(s.root.PollPeriod)
 	defer ticker.Stop()
