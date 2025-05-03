@@ -49,29 +49,28 @@ func (l *wsLink) Close() {
 	l.conn.Close()
 }
 
-func (l *wsLink) receive() (*Packet, error) {
+func (l *wsLink) receive(pkt *Packet) error {
 	var data []byte
-	var pkt Packet
 
 	if err := websocket.Message.Receive(l.conn, &data); err != nil {
-		return nil, err
+		return err
 	}
 
 	l.Lock()
 	l.lastRecv = time.Now()
 	l.Unlock()
 
-	if err := json.Unmarshal(data, &pkt); err != nil {
-		return nil, fmt.Errorf("Unmarshalling error: %w", err)
+	if err := json.Unmarshal(data, pkt); err != nil {
+		return fmt.Errorf("Unmarshalling error: %w", err)
 	}
-	return &pkt, nil
+	return nil
 }
 
-func (l *wsLink) receiveTimeout(timeout time.Duration) (*Packet, error) {
+func (l *wsLink) receiveTimeout(pkt *Packet, timeout time.Duration) error {
 	l.conn.SetReadDeadline(time.Now().Add(timeout))
-	pkt, err := l.receive()
+	err := l.receive(pkt)
 	l.conn.SetReadDeadline(time.Time{})
-	return pkt, err
+	return err
 }
 
 var pingDuration = 4 * time.Second
@@ -96,27 +95,40 @@ func (l *wsLink) sendPing() error {
 	return l.send(&Packet{Path: "ping"})
 }
 
-func (l *wsLink) receivePoll() (*Packet, error) {
+func (l *wsLink) readJSON(pkt *Packet) error {
 	for {
 		if l.timeToPing() {
 			if err := l.sendPing(); err != nil {
-				return nil, err
+				return err
 			}
 		}
-		pkt, err := l.receiveTimeout(time.Second)
+		err := l.receiveTimeout(pkt, time.Second)
 		if err == nil {
 			if pkt.Path == "pong" {
 				continue
 			}
-			return pkt, nil
+			return nil
 		}
 		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
 			if l.timedOut() {
-				return nil, err
+				return err
 			}
 			continue
 		}
-		return nil, err
+		return err
 	}
-	return nil, nil
+}
+
+func (s *server) receive(l *wsLink) (*Packet, error) {
+	var pkt = s.newPacket()
+	if err := l.readJSON(pkt); err != nil {
+		return nil, fmt.Errorf("Websocket read error: %w", err)
+	}
+	return pkt, nil
+}
+
+func (s *server) receiveTimeout(l *wsLink, timeout time.Duration) (*Packet, error) {
+	var pkt = s.newPacket()
+	err := l.receiveTimeout(pkt, timeout)
+	return pkt, err
 }

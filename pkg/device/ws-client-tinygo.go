@@ -59,6 +59,8 @@ func (s *server) wsDial(url *url.URL, user, passwd string) {
 	}
 }
 
+// TODO: merge this with ws-client.go:wsClient() and share?  Or maybe just
+// parts of it?
 func (s *server) wsClient(url string, conn *websocket.Conn) {
 	defer conn.Close()
 
@@ -82,7 +84,7 @@ func (s *server) wsClient(url string, conn *websocket.Conn) {
 	}
 
 	// Receive welcome within 1 sec
-	pkt, err = link.receiveTimeout(time.Second)
+	pkt, err = s.receiveTimeout(link, time.Second)
 	if err != nil {
 		s.logError("Receiving", "err", err)
 		return
@@ -100,18 +102,19 @@ func (s *server) wsClient(url string, conn *websocket.Conn) {
 	// Send online packet for all online devices
 	s.devicesOnline(link)
 
-	// Route incoming packets down to the destination device.  Stop and
-	// disconnect on EOF.
-
+	// Route incoming packets down to the destination device
 	s.logInfo("Receiving packets")
 	for {
-		pkt, err := link.receivePoll()
+		pkt, err := s.receive(link)
 		if err != nil {
 			s.logError("Receiving packet", "err", err)
 			break
 		}
 		s.logDebug("-> Route packet DOWN", "pkt", pkt)
-		s.routeDown(pkt)
+		if err := s.routeDown(pkt); err != nil {
+			s.logError("Routing packet DOWN", "err", err)
+			break
+		}
 	}
 
 	s.logInfo("Removing Uplink")
