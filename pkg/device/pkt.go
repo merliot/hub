@@ -148,13 +148,13 @@ func (p *Packet) handle() error {
 //     ...
 //     </div>
 func (p *Packet) RouteUp() error {
-	p.server.logDebug("RouteUp", "pkt", p)
 
 	s := p.server
 	if s == nil {
-		p.server.logError("Packet.server not set")
 		return fmt.Errorf("Packet.server not set")
 	}
+
+	s.logDebug("RouteUp", "pkt", p)
 
 	s.uplinks.routeAll(p)
 
