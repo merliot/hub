@@ -242,7 +242,7 @@ func (s *server) createChild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Route created msg up
-	pkt.SetDst(msg.ParentId).SetPath("created").RouteUp()
+	pkt.SetDst(msg.ParentId).SetPath("created").BroadcastUp()
 }
 
 type msgDestroy struct {
@@ -317,7 +317,7 @@ func (s *server) destroyChild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Route destroyed msg up
-	pkt.SetDst(s.root.Id).SetPath("destroyed").RouteUp()
+	pkt.SetDst(s.root.Id).SetPath("destroyed").BroadcastUp()
 }
 
 type msgRename struct {
