@@ -61,6 +61,7 @@ func (s *server) Run() {
 		Name:         params.Name,
 		DeployParams: params.DeployParams,
 		model:        &Model{Maker: s.maker},
+		server:       s,
 	}
 
 	if err := s.build(s.root, 0); err != nil {
