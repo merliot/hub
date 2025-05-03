@@ -102,7 +102,7 @@ func (s *server) modelInstall(d *device) {
 
 func (s *server) installModels() {
 	s.models.drange(func(name string, model *Model) bool {
-		proto, _ := s.newDevice("proto", name, "proto")
+		proto, _ := s.newDevice("proto", name, "proto", "")
 		s.build(proto, s.defaultDeviceFlags())
 		proto.installAPI()
 		s.modelInstall(proto)
@@ -184,9 +184,10 @@ func validateIds(id, name string) error {
 type msgCreated struct {
 	ParentId string
 	Child    struct {
-		Id    string
-		Model string
-		Name  string
+		Id           string
+		Model        string
+		Name         string
+		DeployParams string
 	}
 }
 
@@ -211,7 +212,7 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 		return err
 	}
 
-	return s.addChild(parent, msg.Child.Id, msg.Child.Model, msg.Child.Name, flags)
+	return s.addChild(parent, msg.Child.Id, msg.Child.Model, msg.Child.Name, msg.Child.DeployParams, flags)
 }
 
 func (s *server) handleCreated(pkt *Packet) {

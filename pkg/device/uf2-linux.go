@@ -53,7 +53,7 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 func (s *server) Uf2GenerateBaseImages(dir, modelName, targetName string) (err error) {
 	s.models.drange(func(name string, model *Model) bool {
 		if name == modelName || modelName == "" {
-			proto, _ := s.newDevice("proto", name, "proto")
+			proto, _ := s.newDevice("proto", name, "proto", "")
 			s.build(proto, 0)
 			for _, target := range target.TinyGoTargets(proto.Targets) {
 				if target == targetName || targetName == "" {

@@ -181,10 +181,15 @@ func (ms *MCPServer) handlerAddDevice(ctx context.Context, request mcp.CallToolR
 	if name == "" {
 		return nil, errors.New("name parameter is required")
 	}
+	params, _ := request.Params.Arguments["params"].(string)
+	if params == "" {
+		return nil, errors.New("params parameter is required")
+	}
 
 	// Create URL with query parameters
-	reqURL := fmt.Sprintf("%s/create?ParentId=%s&Child.Id=%s&Child.Model=%s&Child.Name=%s",
-		ms.url, url.QueryEscape(parentId), url.QueryEscape(id), url.QueryEscape(model), url.QueryEscape(name))
+	reqURL := fmt.Sprintf("%s/create?ParentId=%s&Child.Id=%s&Child.Model=%s&Child.Name=%s&Child.DeployParams=%s",
+		ms.url, url.QueryEscape(parentId), url.QueryEscape(id), url.QueryEscape(model),
+		url.QueryEscape(name), url.QueryEscape(params))
 
 	body, err := ms.doRequest(ctx, "POST", reqURL)
 	if err != nil {
@@ -214,6 +219,10 @@ func (ms *MCPServer) toolAddDevice() {
 		mcp.WithString("name",
 			mcp.Required(),
 			mcp.Description("Name of the device"),
+		),
+		mcp.WithString("params",
+			mcp.Required(),
+			mcp.Description("DeployParams of the device (optional) as URL params.  Is empty for an undefined device.  If not empty, a target param should be set.  If target is not a tinygo target, then port param is optional.  Remaining params are device model specific."),
 		),
 	)
 	ms.AddTool(tool, ms.handlerAddDevice)

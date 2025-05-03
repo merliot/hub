@@ -66,7 +66,7 @@ func (s *server) buildOS(d *device) error {
 	return err
 }
 
-func (s *server) addChild(parent *device, id, model, name string, flags flags) (err error) {
+func (s *server) addChild(parent *device, id, model, name, params string, flags flags) (err error) {
 
 	var resurrect bool
 
@@ -82,7 +82,7 @@ func (s *server) addChild(parent *device, id, model, name string, flags flags) (
 		// Child exists, but it's a ghost: resurrect
 		resurrect = true
 	} else {
-		child, err = s.newDevice(id, model, name)
+		child, err = s.newDevice(id, model, name, params)
 		if err != nil {
 			return
 		}

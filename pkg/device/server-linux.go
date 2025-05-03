@@ -297,7 +297,7 @@ func (s *server) buildDevice(id string, d *device) error {
 	return s.build(d, s.defaultDeviceFlags())
 }
 
-func (s *server) newDevice(id, model, name string) (d *device, err error) {
+func (s *server) newDevice(id, model, name, params string) (d *device, err error) {
 	if err = validateId(id); err != nil {
 		return
 	}
@@ -310,11 +310,12 @@ func (s *server) newDevice(id, model, name string) (d *device, err error) {
 	}
 
 	d = &device{
-		Id:     id,
-		Model:  model,
-		Name:   name,
-		model:  m,
-		server: s,
+		Id:           id,
+		Model:        model,
+		Name:         name,
+		DeployParams: params,
+		model:        m,
+		server:       s,
 	}
 
 	return
