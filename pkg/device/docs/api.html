@@ -3,9 +3,9 @@
 <p>These APIs are available for the hub at <code>/</code>, and for each hub
 device at <code>/device/{{id}}/</code>.</p>
 
-<pre class="code-snippet text-wrap">POST /create?ParentId=xxx&Child.Id=yyy&Child.Model=zzz&Child.Name=www</pre>
+<pre class="code-snippet text-wrap">POST /create?ParentId=xxx&Child.Id=yyy&Child.Model=zzz&Child.Name=www&Child.DeployParams=uuu</pre>
 
-<p>Create a new device model instance with id, model, and name. The device will be created as a child of the specified parent. For example, to create a new relays device:</p>
+<p>Create a new device model instance with id, model, name, and params. The device will be created as a child of the specified parent. For example, to create a new relays device:</p>
 
 <pre class="cmd-line text-wrap">
 $ curl -X POST "http://localhost:8000/create?ParentId=hub&Child.Id=foo&Child.Model=relays&Child.Name=Foo"
