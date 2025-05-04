@@ -3,8 +3,8 @@
 package button
 
 type Button struct {
-	Name  string
-	Gpio  string
+	Name  string `schema:"desc=Button name"`
+	Gpio  string `schema:"desc=GPIO pin"`
 	State bool
 }
 

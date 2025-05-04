@@ -67,7 +67,7 @@ type Daily struct {
 }
 
 type prostar struct {
-	TTY string
+	TTY string `schema:"desc=TTY serial device"`
 	Status
 	System
 	Controller

@@ -17,7 +17,7 @@ import (
 var fs embed.FS
 
 type qrcode struct {
-	Content string `mcp:"required,desc=QR code content"`
+	Content string `schema:"required,desc=QR code content"`
 }
 
 func (q qrcode) Desc() string {

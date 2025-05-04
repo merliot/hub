@@ -36,7 +36,7 @@ a leading "/".</p>
 
 <pre class="code-snippet">
 type msgClick struct {
-	Relay int `mcp:"required,desc=Relay index"`
+	Relay int `schema:"required,desc=Relay index"`
 }
 
 func (m msgClick) Desc() string {
@@ -44,8 +44,8 @@ func (m msgClick) Desc() string {
 }
 </pre>
 
-<p>Field in the type struct must be tagged with `mcp` to be included in the
-tools input parameters.  In our example, Relay field is tagged with `mcp` to it
+<p>Field in the type struct must be tagged with `schema` to be included in the
+tools input parameters.  In our example, Relay field is tagged with `schema` to it
 will be included in the tool input parameters.  The device id is also an input
 parameter for each custom device tool.</p>
 

@@ -10,8 +10,8 @@ import (
 type gps struct {
 	Lat        float64
 	Long       float64
-	Radius     float64 // units: meters
-	PollPeriod uint    // units: seconds
+	Radius     float64 `schema:"desc=Radius for updates,units=meters"`
+	PollPeriod uint    `schema:"desc=Poll period,units=seconds"`
 	io.Gps
 }
 

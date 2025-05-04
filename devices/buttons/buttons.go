@@ -10,7 +10,7 @@ import (
 )
 
 type buttons struct {
-	Buttons [4]io.Button
+	Buttons [4]io.Button `schema:"desc=Buttons"`
 }
 
 func (b *buttons) Decode(values url.Values) error {

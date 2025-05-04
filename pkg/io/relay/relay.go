@@ -3,8 +3,8 @@
 package relay
 
 type Relay struct {
-	Name  string
-	Gpio  string
+	Name  string `schema:"desc=Relay name"`
+	Gpio  string `schema:"desc=GPIO pin"`
 	State bool
 }
 

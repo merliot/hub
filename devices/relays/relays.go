@@ -9,7 +9,7 @@ import (
 )
 
 type relays struct {
-	Relays [4]io.Relay
+	Relays [4]io.Relay `schema:"desc=Relays"`
 }
 
 func (r *relays) Decode(values url.Values) error {
@@ -34,7 +34,7 @@ func (r *relays) Decode(values url.Values) error {
 }
 
 type msgClick struct {
-	Relay int `mcp:"required,desc=Relay index"`
+	Relay int `schema:"required,desc=Relay index"`
 }
 
 func (m msgClick) Desc() string {

@@ -453,7 +453,7 @@ func (ms *MCPServer) toolGetServerStatus() {
 	ms.AddTool(tool, ms.handlerGetServerStatus)
 }
 
-func parseMcpTag(tag string) []mcp.PropertyOption {
+func parseSchemaTag(tag string) []mcp.PropertyOption {
 	var opts []mcp.PropertyOption
 
 	// Split the tag into components
@@ -486,10 +486,10 @@ func toolOptions(msg any) []mcp.ToolOption {
 
 	elem := reflect.ValueOf(msg).Elem()
 	for i := 0; i < elem.NumField(); i++ {
-		tag := elem.Type().Field(i).Tag.Get("mcp")
+		tag := elem.Type().Field(i).Tag.Get("schema")
 		if tag != "" {
 			name := strings.ToLower(elem.Type().Field(i).Name)
-			popts := parseMcpTag(tag)
+			popts := parseSchemaTag(tag)
 			opts = append(opts, mcp.WithString(name, popts...))
 		}
 	}
@@ -549,6 +549,31 @@ func (ms *MCPServer) toolsCustom() {
 	}
 }
 
+func (ms *MCPServer) handlerGetParams(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	model, _ := request.Params.Arguments["model"].(string)
+	if model == "" {
+		return nil, errors.New("model parameter is required")
+	}
+
+	cfg, ok := ms.configs[model]
+	if !ok {
+		return nil, errors.New("unknown model '" + model + "'")
+	}
+
+	return mcp.NewToolResultText(string(cfg.getParamsJSON())), nil
+}
+
+func (ms *MCPServer) toolGetParams() {
+	tool := mcp.NewTool("get_params",
+		mcp.WithDescription("Get the parameter schema for a Merliot Hub device model.  These parameters are used in DeployParams."),
+		mcp.WithString("model",
+			mcp.Required(),
+			mcp.Description("Device model"),
+		),
+	)
+	ms.AddTool(tool, ms.handlerGetParams)
+}
+
 func (ms *MCPServer) build() error {
 
 	// Cache model configs by making a temp device and saving its config
@@ -565,6 +590,7 @@ func (ms *MCPServer) build() error {
 	ms.toolGetState()
 	ms.toolGetInstructions()
 	ms.toolGetConfig()
+	ms.toolGetParams()
 	ms.toolGetStatus()
 	ms.toolGetServerStatus()
 	ms.toolsCustom()

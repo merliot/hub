@@ -19,8 +19,8 @@ type History [historyRecs]Record
 type temp struct {
 	Temperature float32 // deg F or C, depends on TempUnits
 	Humidity    float32 // %
-	Sensor      string
-	TempUnits   string
+	Sensor      string  `schema:"desc=Sensor"`
+	TempUnits   string  `schema:"desc=Temperature units F or C"`
 	History
 	io.Temp
 }

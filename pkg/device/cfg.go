@@ -2,7 +2,6 @@ package device
 
 import (
 	"embed"
-	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -139,12 +138,4 @@ type Config struct {
 	// InitialView is the initial display view mode when device is first
 	// displayed.  Value can be "overview" (default) or "detail".
 	InitialView string
-}
-
-func (c Config) getPrettyJSON() []byte {
-	json, err := json.MarshalIndent(&c, "", "\t")
-	if err != nil {
-		return []byte(err.Error())
-	}
-	return json
 }

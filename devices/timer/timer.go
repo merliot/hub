@@ -10,11 +10,11 @@ import (
 )
 
 type timer struct {
-	StartHHMM string
-	StopHHMM  string
-	StartUTC  string
-	StopUTC   string
-	Gpio      string
+	StartHHMM string `schema:"desc=Start time,format=HH:MM"`
+	StopHHMM  string `schema:"desc=Stop time,format=HH:MM"`
+	StartUTC  string `schema:"desc=UTC Start time,format=HH:MM"`
+	StopUTC   string `schema:"desc=UTC Stop time,format=HH:MM"`
+	Gpio      string `schema:"desc=GPIO pin to activate when timer goes off"`
 	On        bool
 	gpio      gpio.Gpio
 	startUTC  time.Time

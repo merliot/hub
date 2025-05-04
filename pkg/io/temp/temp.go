@@ -5,8 +5,8 @@ package temp
 type Temp struct {
 	Temperature float32
 	Humidity    float32
-	Sensor      string
-	Gpio        string
+	Sensor      string `schema:"desc=Sensor name"`
+	Gpio        string `schema:"desc=GPIO pin"`
 }
 
 func (t *Temp) Setup(sensor, gpio string) error                  { return nil }

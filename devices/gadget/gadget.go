@@ -8,7 +8,7 @@ import (
 type gadget struct {
 	Bottles   int // Bottles on the wall
 	Restock   int // Restock countdown timer
-	FullCount int // Full bottle count
+	FullCount int `schema:"desc=Full bottle count"`
 	io.Led
 }
 

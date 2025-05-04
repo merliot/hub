@@ -27,7 +27,7 @@ type camera struct {
 }
 
 type msgGetImage struct {
-	Index uint32 `mcp:"required,desc=Image index"`
+	Index uint32 `schema:"required,desc=Image index"`
 }
 
 func (m msgGetImage) Desc() string {
