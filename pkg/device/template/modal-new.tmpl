@@ -60,13 +60,13 @@
 			<div class="flex flex-row justify-between items-center">
 				<span class=text-red-500 id="error"></span>
 				<div class="flex flex-row justify-end">
-					<button class="btn" hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
+					<button hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
 {{ if isLocked }}
-					<button class="btn" onclick="alert('Sorry, cannot create device: hub is locked')">
+					<button onclick="alert('Sorry, cannot create device: hub is locked')">
 						Create
 					</button>
 {{ else }}
-					<button class="btn" type="submit">Create</button>
+					<button type="submit">Create</button>
 {{ end }}
 				</div>
 			</div>
