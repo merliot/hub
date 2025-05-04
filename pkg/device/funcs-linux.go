@@ -27,7 +27,7 @@ func (s *server) bodyColors() string {
 //
 // IMPORTANT!
 //
-// Don't add any functions that expose sensitive data such as passwd
+// Don't add functions that expose sensitive data such as passwd
 func (s *server) baseFuncs() FuncMap {
 	return FuncMap{
 		"saveToClipboard": func() bool { return s.isSet(flagSaveToClipboard) },
@@ -66,7 +66,7 @@ func (d *device) uptime() string {
 //
 // IMPORTANT!
 //
-// Don't add any functions that expose sensitive data such as passwd
+// Don't add functions that expose sensitive data such as passwd
 func (d *device) baseFuncs() FuncMap {
 	return FuncMap{
 		"id":             func() string { return d.Id },
@@ -87,6 +87,7 @@ func (d *device) baseFuncs() FuncMap {
 		"isHttpPortMust": func() bool { return d.isSet(FlagHttpPortMust) },
 		"isOnline":       func() bool { return d.isSet(flagOnline) },
 		"isLocked":       func() bool { return d.isSet(flagLocked) },
+		"noChildren":     func() bool { return len(d.Children) == 0 },
 		"bgColor":        d.bgColor,
 		"textColor":      d.textColor,
 		"borderColor":    d.borderColor,

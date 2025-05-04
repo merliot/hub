@@ -1,5 +1,8 @@
 {{ if isRoot }}
-<div class="flex flex-row justify-end">
-{{ template "button-new.tmpl" . }}
+<div class="flex flex-row justify-between">
+	{{ if noChildren }}
+		<span class="m-4">No devices.  Click New to add devices.</span>	
+	{{ end }}
+	{{ template "button-new.tmpl" . }}
 </div>
 {{ end }}
