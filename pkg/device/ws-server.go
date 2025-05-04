@@ -96,7 +96,7 @@ func (s *server) handleAnnounce(pkt *Packet) (id string, err error) {
 	// Send announced packet up so parents can update their trees
 	pkt.SetPath("announced")
 	s.logDebug("<- Sending", "pkt", pkt)
-	pkt.RouteUp()
+	pkt.BroadcastUp()
 
 	return id, nil
 }
