@@ -222,7 +222,7 @@ func (ms *MCPServer) toolAddDevice() {
 		),
 		mcp.WithString("params",
 			mcp.Required(),
-			mcp.Description("DeployParams of the device (optional) as URL params.  Is empty for an undefined device.  If not empty, a target param should be set.  If target is not a tinygo target, then port param is optional.  Remaining params are device model specific."),
+			mcp.Description("DeployParams (optional) of the device as URL params.  Is empty for an undefined device.  If not empty, should include 'target=xxx' param to set the deploy target.  If target is not a tinygo target, then a 'port=y' param will set the HTTP listen port for the device.  Remaining params are model-specific."),
 		),
 	)
 	ms.AddTool(tool, ms.handlerAddDevice)
