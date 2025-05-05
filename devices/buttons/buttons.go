@@ -65,10 +65,10 @@ func (b *buttons) Setup() error {
 func (b *buttons) Poll(pkt *device.Packet) {
 	for i := range b.Buttons {
 		button := &b.Buttons[i]
-		state := button.Get()
-		if button.State != state {
-			button.State = state
-			var update = msgUpdate{i, state}
+		last := button.State
+		curr := button.Get()
+		if curr != last {
+			var update = msgUpdate{i, curr}
 			pkt.SetPath("update").Marshal(&update).BroadcastUp()
 		}
 	}
