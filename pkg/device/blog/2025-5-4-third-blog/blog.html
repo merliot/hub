@@ -1,0 +1,192 @@
+<h2>PLUGGING INTO AI</h2>
+
+<p>I started this project before LLMs where readily available.  I've been
+exploring how to use LLMs in this project.  I've found two use-cases so far,
+both blow me away.</p>
+
+<h3>USE CASE #1: MCP SERVER</h3>
+
+<p>Merliot Hub is a Model Context Protocol (<a href="/doc/mcp-server">MCP</a>)
+server.  MCP is defined by <a target="_blank"
+href="https://www.anthropic.com/news/model-context-protocol">Anthropic</a> as a
+way for external context to plug into LLM hosts to extend the context of the
+LLM.  Examples of LLM hosts are <a target="_blank"
+href="https://claude.ai/download">Claude Desktop</a> and <a target="_blank"
+href="https://www.cursor.com/">Cursor</a>.</p>
+
+<a target="_blank" href="/docs/images/mcp-server.gif"><img class="w-120" src="/docs/images/mcp-server.gif"></a>
+
+<p>So what does this mean for Merliot Hub?  MCP is the USB-C port for LLMs.
+Merliot Hub can be plugged into the LLM, giving the LLM access to Hub MCP tools
+and resources.  Here's a list of tools available to the LLM:</p>
+
+<table>
+<tr>
+<th>Tool Name</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>add_device</td>
+<td>Add a new device to the Merliot Hub</td>
+</tr>
+<tr>
+<td>camera_get-image</td>
+<td>Get the camera image</td>
+</tr>
+<tr>
+<td>gadget_takeone</td>
+<td>Take one down, pass it around</td>
+</tr>
+<tr>
+<td>get_config</td>
+<td>Get the model configuration of a Merliot Hub device model</td>
+</tr>
+<tr>
+<td>get_devices</td>
+<td>Get all devices running on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_instructions</td>
+<td>Get the instructions for device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_models</td>
+<td>Get list of all device models available on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_params</td>
+<td>Get the parameter schema for a Merliot Hub device model</td>
+</tr>
+<tr>
+<td>get_server_status</td>
+<td>Get the status of the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_state</td>
+<td>Get the state of a device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_status</td>
+<td>Get the status of a Merliot Hub device</td>
+</tr>
+<tr>
+<td>qrcode_update</td>
+<td>QR code</td>
+</tr>
+<tr>
+<td>relays_click</td>
+<td>Click (toggle) the relay</td>
+</tr>
+<tr>
+<td>remove_device</td>
+<td>Remove a device from the Merliot Hub</td>
+</tr>
+<tr>
+<td>rename</td>
+<td>Rename a device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>save</td>
+<td>Save current device configuration</td>
+</tr>
+</table>
+
+<p>These tools give the LLM quite a bit of access into the Hub, as you can see.
+Some tools are device-specific, like relays_click.  relays_click only works on
+relay devices, but it's cool because the LLM can use it to toggle a relay.
+Basically, the LLM has access to the physical world.  What could go wrong?</p>
+
+<p>In your LLM host such as Cursor, you can prompt the LLM to do things:</p>
+
+<pre class="code-snippet text-wrap">
+
+"Create a new relays device for target=nano-rp2040, two relays: A and B on D2/D3"
+
+"Have a beer!"
+
+"What is the parts list for a GPS device, target=rpi?"
+
+"Triangulate between all of the GPS devices to find a geographic center"
+
+"Change the QR Code device content to: https://cursor.com"
+
+</pre>
+
+<p>Pretty cool, huh?  Some of these devices are Tinygo targets.  It's amazing
+to me that you can monitor and control an embedded device with an LLM using
+natural language.  (Monitoring is limited, see below).</p>
+
+<h4>More Work Needed</h4>
+
+<p>One thing that's missing from the experience is the ability to set up
+device rules that depend on notifications from a device, something like:</p>
+
+<pre class="code-snippet text-wrap">
+
+"When the humidity is below 30%, turn on the humidifier.  Turn it back off when humidity reaches 50%"
+
+</pre>
+
+<p>The LLM doesn't seem to know what to do with this.  It doesn't keep checking
+the humidity reading.  The MCP server for the Hub is sending notifications
+events every 5 seconds with humidity updates.  MCP servers can send unsolicited
+notifications.  It appears that the current LLM host ignores the notifications,
+so there I'm not sure how to setup a rule such as the one above.  Maybe someone
+knows how to make this work?</p>
+
+
+<h3>USE CASE #2: MODEL GENERATOR</h3>
+
+<p>At one point in this project, I had a skeleton device model to be used as an
+example device model others could start from.  It was too hard to maintain as I
+iterated on project designs and I dropped it along the way.  I intended to replace it
+with a guide on 'how to write a new device model'.  I still intend to write
+something along those lines, but something is happening...</p>
+
+<p>Could AI write a new device model if I gave it the requirements?  Even
+without a guide?</p>
+
+<p>I loaded the Merliot Hub github repo into Cursor, which includes code for
+existing device models.  I prompted Cursor to create a new device model that
+was kind of like what I had with skeleton, and annotate the code such that it
+serves as a guide to a full model.  It took a bit more prompting to get there,
+but the new model works and the // TODO comments are spot-on.  Here are the
+prompts:</p>
+
+<pre class="code-snippet text-wrap">
+
+"Create a new device model called 'skelton' which is a minimalist model to serve as a starting point.  Annotate the code in areas that need work to make a full model.  target rpi, x86-64, and nano-rp2040.  Review all of the existing models in /devices and all code in pkg/device."
+
+"Why did you invent *device.Device?  Look over the example device models in devices/*"
+
+"Skeleton-linux.go and skeleton-tinygo.go should be much smaller...see other device models in devices/*"
+
+"The fs should be defined in -linux.go and -tinygo.go, but not in skeleton.go"
+
+"The skeleton/template/ content should be modeled after the other device models.  Just show TODO in the body-detail.tmpl and body-overview.tmpl."
+
+"Add skeleton to models.json"
+
+</pre>
+
+<p>That was a little frustrating trying to keep Cursor on track, but in the end
+the result was perfect.  It compiled and ran with no problems.</p>
+
+<p>At the time, I didn't have a 'buttons' device model, so I tried Cursor with
+this prompt:</p>
+
+<pre class="code-snippet text-wrap">
+
+"Let's make a new device model called "buttons".  Similar to relays device, it allows for up to four buttons to be defined and each button has a name and a gpio pin.  targets include: rpi, nano-rp2040.  Reuse on/off switch icon from relays.  When button is pressed (may be mometary or continuous), show the on icon.  When button is not pressed, show the off icon.  May need to create a new pkg/io/button pkg.  There is a msg for when the button transisions from on to off, and when button transistions from off to on.   Make sure tinygo or rpi libs used can handle button de-bouncing.  bg-color is gold."
+
+</pre>
+
+<p>I did have to refine the model with a few more prompts, but in the end it
+created a working model.  It even created the instructions for each target with
+parts list and steps.  It was so good, I added it to the list of models.</p>
+
+<p>Conclusions?  I'm not so motivated to work on the new model guide given that
+I can just prompt my way to a working model.  But I know how things should look
+and can guide it, so I should probably finish the guide for those just
+starting.  On the other hand, maybe working with the LMM towards a goal may be
+a better way to learn?  Not sure.</p>
