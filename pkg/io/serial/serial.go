@@ -8,7 +8,7 @@ compile for windows from another platform.  Unfortunately goinstall
 does not currently let you cross compile so you will have to do it
 manually:
 
- GOOS=windows make clean install
+	GOOS=windows make clean install
 
 Currently there is very little in the way of configurability.  You can
 set the baud rate.  Then you can Read(), Write(), or Close() the
@@ -26,32 +26,32 @@ different goroutines).
 
 Example usage:
 
-  package main
+	package main
 
-  import (
-        "github.com/tarm/serial"
-        "log"
-  )
+	import (
+	      "github.com/tarm/serial"
+	      "log"
+	)
 
-  func main() {
-        c := &serial.Config{Name: "COM5", Baud: 115200}
-        s, err := serial.OpenPort(c)
-        if err != nil {
-                log.Fatal(err)
-        }
+	func main() {
+	      c := &serial.Config{Name: "COM5", Baud: 115200}
+	      s, err := serial.OpenPort(c)
+	      if err != nil {
+	              log.Fatal(err)
+	      }
 
-        n, err := s.Write([]byte("test"))
-        if err != nil {
-                log.Fatal(err)
-        }
+	      n, err := s.Write([]byte("test"))
+	      if err != nil {
+	              log.Fatal(err)
+	      }
 
-        buf := make([]byte, 128)
-        n, err = s.Read(buf)
-        if err != nil {
-                log.Fatal(err)
-        }
-        log.Print("%q", buf[:n])
-  }
+	      buf := make([]byte, 128)
+	      n, err = s.Read(buf)
+	      if err != nil {
+	              log.Fatal(err)
+	      }
+	      log.Print("%q", buf[:n])
+	}
 */
 package serial
 
@@ -87,13 +87,14 @@ const (
 //
 // For example:
 //
-//    c0 := &serial.Config{Name: "COM45", Baud: 115200, ReadTimeout: time.Millisecond * 500}
-// or
-//    c1 := new(serial.Config)
-//    c1.Name = "/dev/tty.usbserial"
-//    c1.Baud = 115200
-//    c1.ReadTimeout = time.Millisecond * 500
+//	c0 := &serial.Config{Name: "COM45", Baud: 115200, ReadTimeout: time.Millisecond * 500}
 //
+// or
+//
+//	c1 := new(serial.Config)
+//	c1.Name = "/dev/tty.usbserial"
+//	c1.Baud = 115200
+//	c1.ReadTimeout = time.Millisecond * 500
 type Config struct {
 	Name        string
 	Baud        int

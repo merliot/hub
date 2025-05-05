@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 package serial
@@ -129,7 +130,7 @@ func openPort(name string, baud int, databits byte, parity Parity, stopbits Stop
 }
 
 type Port struct {
-	// We intentionly do not use an "embedded" struct so that we
+	// We intentionally do not use an "embedded" struct so that we
 	// don't export File
 	f *os.File
 }
