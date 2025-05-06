@@ -14,6 +14,7 @@ func (d *device) installAPI() {
 	// Base APIs for all devices
 
 	d.HandleFunc("GET /", d.serveStaticFile)
+	d.HandleFunc("GET /{$}", d.showHome)
 	d.HandleFunc("GET /show-view", d.showView)
 	d.HandleFunc("GET /state", d.showState)
 	d.HandleFunc("GET /status", d.showStatus)
@@ -42,6 +43,19 @@ func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript")
 	}
 	http.FileServer(http.FS(d.layeredFS)).ServeHTTP(w, r)
+}
+
+func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
+	server := d.server
+	sessionId, ok := server.sessions.newSession()
+	if !ok {
+		server.sessions.noSessions(w, r)
+		return
+	}
+	d.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
+		"sessionId":  sessionId,
+		"pingPeriod": server.wsxPingPeriod,
+	})
 }
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {

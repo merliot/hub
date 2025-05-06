@@ -44,7 +44,7 @@ func (b *buttons) GetConfig() device.Config {
 		FS:         &fs,
 		Targets:    []string{"rpi", "nano-rp2040"},
 		PollPeriod: 10 * time.Millisecond,
-		BgColor:    "gold",
+		BgColor:    "lilac",
 		FgColor:    "black",
 		PacketHandlers: device.PacketHandlers{
 			"update": &device.PacketHandler[msgUpdate]{b.update},
