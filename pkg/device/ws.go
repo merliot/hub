@@ -75,7 +75,7 @@ func (l *wsLink) startPing() {
 			}
 			l.Lock()
 			if err := l.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				println("Ping error:", "err", err)
+				println("Ping error:", "err", err.Error())
 			}
 			l.Unlock()
 			time.Sleep(pingPeriod)

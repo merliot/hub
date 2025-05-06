@@ -3,6 +3,7 @@
 package button
 
 import (
+	"fmt"
 	"machine"
 	"time"
 
@@ -27,8 +28,9 @@ func (b *Button) Setup() error {
 	if pin, ok := target.Pin(b.Gpio); ok {
 		b.pin = machine.Pin(pin)
 		b.pin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
+		return nil
 	}
-	return nil
+	return fmt.Errorf("No pin for GPIO %s", b.Gpio)
 }
 
 func (b *Button) Get() bool {

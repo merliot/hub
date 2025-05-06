@@ -40,7 +40,7 @@ func (b *Button) Get() bool {
 		return false
 	}
 
-	reading := b.driver.Active()
+	reading := !b.driver.Active()
 
 	// If the switch changed, due to noise or pressing:
 	if reading != b.lastReading {
