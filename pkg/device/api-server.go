@@ -117,6 +117,7 @@ func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
 		s.sessions.noSessions(w, r)
 		return
 	}
+	w.Header().Set("session-id", sessionId)
 	s.root.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
 		"sessionId":  sessionId,
 		"pingPeriod": s.wsxPingPeriod,
