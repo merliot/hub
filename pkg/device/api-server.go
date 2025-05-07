@@ -148,7 +148,8 @@ func (s *server) showSaveModal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
-	var pkt = s.newPacket().SetPath(r.URL.Path).SetSession(r.Header.Get("session-id"))
+	var sessionId = r.Header.Get("session-id")
+	var pkt = s.newPacket().SetPath(r.URL.Path).SetSession(sessionId)
 	if _, ok := v.(*NoMsg); ok {
 		return pkt, nil
 	}
