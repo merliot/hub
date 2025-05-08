@@ -59,9 +59,10 @@ over the internet.  Try the demo to get a feel for the UI.</p>
 
 ### MCP Server
 
-</p>Merliot Hub is a Model Context Protocol (<a target="_blank" src="doc/mcp-server">MCP</a>) server.  The MCP server lets
-you plug your Merliot Hub into LLM hosts such as Claude or Cursor.  From there,
-you can chat with the hub using natural language:</p>
+</p>Merliot Hub is a Model Context Protocol (<a target="_blank"
+href="doc/mcp-server">MCP</a>) server.  The MCP server lets you plug your
+Merliot Hub into LLM hosts such as Claude or Cursor.  From there, you can chat
+with the hub using natural language:</p>
 
 <pre>
 "List all of the devices in a tree view"
