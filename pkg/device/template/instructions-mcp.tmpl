@@ -3,11 +3,18 @@
 	<ol>
 		<li>
 			<p>Select Platform</p>
-			<p>Choose the appropriate platform for your system to run the MCP server locally using stdio transport.</p>
+			<p>Choose the appropriate platform for your system to
+			run the MCP server locally using stdio transport.</p>
 		</li>
 		<li>
 			<p>Download MCP Server</p>
-			<p>Download the MCP server binary for your selected platform.</p>
+			<p>Download the MCP server binary for your selected
+			platform.  Once downloaded, change the permissions to
+			allow for execution:</p>
+			<pre class="cmd-line">
+$ chmod +x mcp-server-{{model}}-{{toLower name}}-{platform}
+			</pre>
+
 		</li>
 		<li>
 			<p>Configure LLM Host</p>

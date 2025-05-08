@@ -32,6 +32,7 @@ func (s *server) baseFuncs() FuncMap {
 	return FuncMap{
 		"saveToClipboard": func() bool { return s.isSet(flagSaveToClipboard) },
 		"devicesJSON":     func() string { return string(s.devices.getPrettyJSON()) },
+		"toLower":         strings.ToLower,
 		"title":           strings.Title,
 		"add":             func(a, b int) int { return a + b },
 		"mult":            func(a, b int) int { return a * b },
