@@ -12,7 +12,8 @@ type page struct {
 
 var homePages = []page{
 	{"", "WELCOME", ""},
-	{"intro", "INTRO", "/home/intro"},
+	{"intro", "INTRODUCTION", "/home/intro"},
+	{"targets", "TARGETS", "/home/targets"},
 	{"", "SOURCE", "https://github.com/merliot/hub"},
 	{"contact", "CONTACT", "/home/contact"},
 }

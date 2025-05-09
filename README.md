@@ -12,7 +12,7 @@ PRIVATE DEVICE HUB
 <a target="_blank" href="https://merliot.io">Merliot</a> Hub is a private
 device hub, a web app, and an MCP server.
 
-There is a lot to unpack there.  Let’s start with the private device hub part.
+That is a lot to unpack.  Let’s start with the private device hub part.
 
 ### Private Hub
 
@@ -41,7 +41,7 @@ camera, gps, relay, timer and other devices you can build for the hub.
 Assembling the devices requires maker-level skills.  There is no software to
 write, unless you want to create a new device model.  (Fun fact: <a
 target="_blank" href="https://www.merliot.io/blog/2025-5-4-third-blog">LLMs</a>
-can also write new device models).
+can write device models).
 
 <div style="text-align: center;">
   <img src="devices/relays/images/nano-rp2040-relays.png">
@@ -80,7 +80,6 @@ Merliot Hub devices are build from one or more target platforms:
 - <a href="https://www.adafruit.com/product/4116">Adafruit PyPortal</a>
 - <a href="https://koyeb.com">Koyeb (cloud)</a>
 - Linux x86-64
-
 
 ## QUICK START
 

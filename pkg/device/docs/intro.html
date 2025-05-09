@@ -1,76 +1,66 @@
-<p>Merliot Hub is your private device hub, allowing you to monitor and control
-your devices over the Internet, privately.</p>
+<h2>INTRODUCTION</h2>
 
-<h4>WHAT DEVICES?</h4>
+<p>Merliot Hub is a private device hub, a web app, and an MCP server.</p>
 
-<p>Not the smart devices you buy at the big box store. Those
-aren't private! Merliot Hub requires you to build your devices using Raspberry
-Pis, microcontrollers, and parts you can readily buy online.</p>
+<p>That is a lot to unpack.  Let’s start with the private device hub part.</p>
 
-<p>The hub has instructions and parts lists to build each device. You download
-the firmware for the device from the hub, so there is no programming required.
-Once installed, the device will securely connect to the hub.</p>
+<h3>Private Hub</h3>
 
-<p><a href="/doc/quick-start">Deploy</a> your hub on the cloud or on your server.
-View your hub and devices from any web browser, even on your phone.  There is
-no app to install.</p>
+<p>Consider consumer-grade Smart devices such as Smart security cameras, Smart
+lights, and Smart thermostats.  These are not private.  They have one thing in
+common: they dial home to the device manufacturer's central hub.  For each
+manufacture, you'll install a phone app which connects to the same central hub.
+Your data is unencrypted on the manufacture's side of the hub.  Your data is
+not private.  The device manufacturer can analyze, track, store, share, and
+sell your data.  Your data plus your profile associated with the device
+purchase and app signup make <i>you</i> the product.</p>
 
-<p>Try the <a href="/demo">demo</a> to see examples of supported device models.</p>
+<p>Merliot Hub is private alternative.  It’s private by switching from a
+central-hub architecture to a distributed-hub architecture.  There is no
+central Merliot Hub.  Each user of Merliot Hub installs their own hub.  A hub
+can be installed on a local resource such as a laptop or Raspberry Pi.
+Alternatively, it can be installed on the cloud (for free in some cases).  Each
+user’s hub is independent from others’.  There is no central hub.  No central
+point to compromise, tap, exploit, or profit from.</p>
 
-<a href="/demo">
-	<img src="/docs/images/demo.svg">
+<p>The trade off for privacy is convenience.  You must <a target="_blank"
+href="https://www.merliot.io/doc/quick-start">install</a> and maintain your own
+Merliot Hub and you must to build your own devices.  Merliot Hub devices are
+built from hobbyist-level components that are readily available.  There are
+camera, gps, relay, timer and other devices you can build for the hub.
+Assembling the devices requires maker-level skills.  There is no software to
+write, unless you want to create a new device model.  (Fun fact: <a
+target="_blank" href="https://www.merliot.io/blog/2025-5-4-third-blog">LLMs</a>
+can write device models).</p>
+
+<div style="text-align: center;">
+	<img src="/model/relays/images/nano-rp2040-relays.png">
+</div>
+
+<h3>Web App</h3>
+
+<p>Merliot Hub is a web app.  There is no phone app.  But, you can use any
+browser on any device, including your phone, to access your hub, locally or
+over the internet.  Just point the browser to the hub address.</p>
+
+<p>Try the demo to get a feel for the UI.</p>
+
+<a target="_blank" href="https://merliot.io/demo">
+	<img src="/docs/images/demo.svg" width="500px">
 </a>
 
-<h4>SUPPORTED DEVICE TARGETS</h4>
+<h3>MCP Server</h3>
 
-<div class="flex flex-row items-center justify-center">
-	<div class="flex flex-col items-center w-32 m-4">
-		<a href="https://www.raspberrypi.com/">
-			<img class="w-32" src="/docs/images/rpi5.png">
-		</a>
-		<span class="mt-4">Raspberry Pi</span>
-	</div>
-	<div class="flex flex-col items-center w-32 m-4">
-		<a href="https://store.arduino.cc/products/arduino-nano-rp2040-connect">
-			<img class="w-32" src="/docs/images/nano-rp2040.png">
-		</a>
-		<span class="mt-4">Arduino Nano RP2040 Connect</span>
-	</div>
-	<div class="flex flex-col items-center w-32 m-4">
-		<a href="https://www.seeedstudio.com/Wio-Terminal-p-4509.html">
-			<img class="w-32" src="/docs/images/wioterminal.png">
-		</a>
-		<span class="mt-4">Seed Wio Terminal</span>
-	</div>
-</div>
-<div class="flex flex-row items-center justify-center mb-24">
-	<div class="flex flex-col items-center w-32 m-4">
-		<a href="https://www.adafruit.com/product/4116">
-			<img class="w-32" src="/docs/images/pyportal.png">
-		</a>
-		<span class="mt-4">Adafruit PyPortal</span>
-	</div>
-	<div class="flex flex-col items-center w-32 m-4">
-		<img class="w-32" src="/docs/images/laptop.png">
-		<span class="mt-4">Linux x86-64</span>
-	</div>
-	<div class="flex flex-col items-center w-32 m-4">
-		<a href="https://koyeb.com">
-			<img class="w-32" src="https://www.koyeb.com/static/images/deploy/button.svg">
-		</a>
-		<span class="mt-4">Koyeb (Cloud)</span>
-	</div>
-</div>
+<p>Merliot Hub is a Model Context Protocol (<a target="_blank"
+href="https://www.merliot.io/doc/mcp-server">MCP</a>) server.
+The MCP server lets you plug your Merliot Hub into LLM hosts such as <a
+target="_blank" href="https://claude.ai/download">Claude Desktop</a> or
+<a target="_blank" href="https://www.cursor.com/">Cursor</a>.  From there,
+you can chat with the hub using natural language:</p>
 
-<p>Merliot is written in 
-	<a class="no-underline" href="https://go.dev/">Go</a>,
-	<a class="no-underline" href="https://tinygo.org/">TinyGo</a>, and
-	<a class="no-underline" href="https://htmx.org/">htmx.</a>
-	Thank you to those who built and maintain these fine tools.
-</p>
-
-<div class="flex flex-wrap items-center justify-center mt-8">
-	<a href="https://go.dev"><img class="w-24 m-4" src="/docs/images/go-logo.png"></a>
-	<a href="https://tinygo.org"><img class="w-24 m-4" src="/docs/images/tinygo-logo.png"></a>
-	<a href="https://htmx.org"><img class="w-24 m-4" src="/docs/images/htmx-logo.png"></a>
-</div>
+<pre class="code-snippet">
+"List all of the devices in a tree view"
+"Add a new gps device"
+"Turn on all the relays"
+"Show the instructions on how to deploy a qrcode device"
+</pre>
