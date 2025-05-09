@@ -143,7 +143,7 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	switch target {
 	case "x86-64", "rpi":
 		return s.buildLinuxImage(d, w, r, dir, target)
-	case "nano-rp2040", "wioterminal", "pyportal":
+	case "nano-rp2040", "wioterminal", "pyportal", "elecrow-rp2040", "elecrow-rp2350":
 		return s.buildTinyGoImage(d, w, r, dir, target)
 	default:
 		return fmt.Errorf("Target '%s' not supported", target)

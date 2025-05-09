@@ -18,7 +18,7 @@ func (g *gadget) GetConfig() device.Config {
 		Parents:    []string{"hub"},
 		State:      g,
 		FS:         &fs,
-		Targets:    []string{"x86-64", "nano-rp2040"},
+		Targets:    []string{"x86-64", "nano-rp2040", "elecrow-rp2350"},
 		PollPeriod: time.Second,
 		BgColor:    "african-violet",
 		FgColor:    "black",

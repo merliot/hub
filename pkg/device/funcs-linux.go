@@ -13,7 +13,9 @@ import (
 )
 
 func tinygoTarget(target string) bool {
-	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
+	return target == "pyportal" || target == "wioterminal" ||
+		target == "nano-rp2040" || target == "elecrow-rp2040" ||
+		target == "elecrow-rp2350"
 }
 
 func (s *server) bodyColors() string {

@@ -1,4 +1,4 @@
-//go:build pyportal || nano_rp2040 || metro_m4_airlift || arduino_mkrwifi1010 || matrixportal_m4 || wioterminal
+//go:build pyportal || nano_rp2040 || metro_m4_airlift || arduino_mkrwifi1010 || matrixportal_m4 || wioterminal || elecrow_rp2040 || elecrow_rp2350
 
 package tinynet
 

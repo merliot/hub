@@ -1,4 +1,4 @@
-//go:build nano_rp2040
+//go:build nano_rp2040 || elecrow_rp2040 || elecrow_rp2350
 
 package tinynet
 

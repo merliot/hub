@@ -106,7 +106,9 @@ func (d *device) selectedTarget(params url.Values) string {
 }
 
 func wantsWifi(target string) bool {
-	return target == "pyportal" || target == "wioterminal" || target == "nano-rp2040"
+	return target == "pyportal" || target == "wioterminal" ||
+		target == "nano-rp2040" || target == "elecrow-rp2040" ||
+		target == "elecrow-rp2350"
 }
 
 func wantsHttpPort(target string) bool {
