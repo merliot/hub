@@ -17,15 +17,21 @@ gateway between AI and the physical world.
 What could go wrong?
 
 <a target="_blank" href="pkg/device/docs/images/mcp-server.gif">
-    <img class="w-120" src="pkg/device/docs/images/mcp-server.gif">
+    <img src="pkg/device/docs/images/mcp-server.gif">
 </a>
+
+### Devices
 
 Which devices?  Not any retail Smart devices, sorry.  You build a device from
 hobby-grade components which are readily available, like Raspberry Pis,
-buttons, relays, and sensors.  You need maker-level skills to build the
-devices.  The hub includes a parts list and instructions to build each device.
-There is no software to write; the hub includes the download-able device
-firmware.
+Arduinos, buttons, relays, and sensors.  You need maker-level skills to build
+the devices.  The hub includes a parts list and instructions for building each
+device.  There is no software to write; the hub includes the downloadable
+device firmware.
+
+<center>
+    <img src="devices/camera/images/rpi-camera.png" width="200">
+</center>
 
 ## FEATURES
 
@@ -33,8 +39,9 @@ firmware.
 
     - Merliot Hub uses a distributed architecture rather than a centralized
       architecture, eliminating third-party access to your devices' data. You
-      install and maintain your own hub.  No one else has access.  You data is
-      private.  <a target="_blank" href="">Read more</a>.
+      install and maintain your own hub and devices.  No one else has access.  Your
+      data is private.  Your data can't be sold, shared, stored, analyzed, or
+      surveilled by third parties.  [Read more]().
 
 - ### Web App
 
@@ -43,7 +50,9 @@ firmware.
       locally or over the internet.  Try the demo to get a feel for the UI.
 
 <a href="https://merliot.io/demo">
-	<img src="pkg/device/docs/images/demo.svg" width="500px">
+    <center>
+        <img src="pkg/device/docs/images/demo.svg" width="500px">
+    </center>
 </a>
 
 - ### AI-Integration
@@ -64,8 +73,9 @@ firmware.
     - Merliot Hub is packaged as a Docker container image so you can run your
       hub anywhere you can run a Docker image, locally on your own laptop or
       server, or on the cloud.  See [install](https://merliot.io/doc/install) guide
-      for more info.  The docker image requires a minimal VM: 0.1vCPU, 256MB Ram,
-      256MB Disk.  
+      for more info.  The docker image requires a minimal VM: 0.1vCPU, 256MB RAM,
+      256MB disk.  Koyeb offers a FREE VM suitable for running one hub in the
+      cloud.
 
 
 ### Private Hub
@@ -73,8 +83,8 @@ firmware.
 Consider consumer-grade Smart devices such as Smart security cameras, Smart
 lights, and Smart thermostats.  These are not private.  They have one thing in
 common: they dial home to the device manufacturer's central hub.  For each
-manufacture, you'll install a phone app which connects to the same central hub.
-Your data is unencrypted on the manufacture's side of the hub.  Your data is
+manufacturer, you'll install a phone app which connects to the same central hub.
+Your data is unencrypted on the manufacturer's side of the hub.  Your data is
 not private.  The device manufacturer can analyze, track, store, share, and
 sell your data.  Your data plus your profile associated with the device
 purchase and app signup make _you_ the product.
@@ -103,7 +113,7 @@ can write device models).
 
 ## SUPPORTED DEVICES TARGETS
 
-Merliot Hub devices are build from one or more target platforms:
+Merliot Hub devices are built from one or more target platforms:
 
 - [Raspberry Pi (models 3, 4, 5, and Zero 2W)](https://www.raspberrypi.com/)
 - [Arduino Nano rp2040 Connect](https://store.arduino.cc/products/arduino-nano-rp2040-connect)
@@ -146,9 +156,7 @@ Browse to `http://localhost:8000` to view hub.
 
 PRs/Issues welcomed.
 
-I'd like to see others build cool devices to share.
-
-There are always TODOs in the code that need attention.
+I'd like to see others build cool devices to share and to add to the project.
 
 ## TESTING
 
