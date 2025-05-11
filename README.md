@@ -21,7 +21,7 @@ What could go wrong?
 
 <diagram>
 
-Which devices?  Not the retail Smart devices, sorry.  You build a device from
+Which devices?  Not any retail Smart devices, sorry.  You build a device from
 hobby-grade components which are readily available, like Raspberry Pis,
 buttons, relays, and sensors.  You need maker-level skills to build the
 devices.  The hub includes a parts list and instructions to build each device.
@@ -38,8 +38,8 @@ private.  <a target="_blank" href="">Read more</a>.
 
 - ### Web App
     - Merliot hub is a web app.  There is no phone app.  But, you can use any
-browser on any device, including your phone, to access your hub, locally
-or over the internet.  Try the demo to get a feel for the UI.
+web browser on any device, including your phone, to access your hub,
+locally or over the internet.  Try the demo to get a feel for the UI.
 
 <a target="_blank" href="https://merliot.io/demo">
 	<img src="pkg/device/docs/images/demo.svg" width="500px">
@@ -60,7 +60,13 @@ there, you can chat with the hub using natural language:
 
 - ### Docker
 
+    - Merliot Hub is a Docker container image so you can run your hub anywhere
+      you can run a Docker image.
 
+- ### Cloud-Ready
+
+    - Merliot Hub is cloud-ready and requires a minimal VM to run.  You need
+      0.1vCPU, 256MB RAM, and 256MB Disk.
 
 
 
