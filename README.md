@@ -4,10 +4,7 @@
 [![Issues](https://img.shields.io/github/issues/merliot/hub)](https://github.com/merliot/hub/issues)
 [![codecov](https://codecov.io/gh/merliot/hub/graph/badge.svg?token=N0ATO7YP4U)](https://codecov.io/gh/merliot/hub)
 
-# MERLIOT
-DEVICE HUB
-
-## INTRODUCTION
+# MERLIOT DEVICE HUB
 
 <a target="_blank" href="https://merliot.io">Merliot</a> Hub is an
 AI-integrated device hub.
@@ -33,25 +30,27 @@ firmware.
 ## FEATURES
 
 - ### Privacy
+
     - Merliot Hub uses a distributed architecture rather than a centralized
-architecture, eliminating third-party access to your devices' data. You
-install and maintain your own hub.  No one else has access.  You data is
-private.  <a target="_blank" href="">Read more</a>.
+      architecture, eliminating third-party access to your devices' data. You
+      install and maintain your own hub.  No one else has access.  You data is
+      private.  <a target="_blank" href="">Read more</a>.
 
 - ### Web App
-    - Merliot hub is a web app.  There is no phone app.  But, you can use any
-web browser on any device, including your phone, to access your hub,
-locally or over the internet.  Try the demo to get a feel for the UI.
 
-<a target="_blank" href="https://merliot.io/demo">
+    - Merliot hub is a web app.  There is no phone app.  But, you can use any
+      web browser on any device, including your phone, to access your hub,
+      locally or over the internet.  Try the demo to get a feel for the UI.
+
+<a href="https://merliot.io/demo">
 	<img src="pkg/device/docs/images/demo.svg" width="500px">
 </a>
 
 - ### AI-Integration
-	- Merliot Hub is a Model Context Protocol (<a target="_blank"
-href="https://www.merliot.io/doc/mcp-server">MCP</a>) server.  The MCP server
-lets you plug your Merliot Hub into LLM hosts such as Claude or Cursor.  From
-there, you can chat with the hub using natural language:
+
+	- Merliot Hub is a Model Context Protocol ([MCP](https://www.merliot.io/doc/mcp-server))
+      server.  The MCP server lets you plug your Merliot Hub into LLM hosts such as
+      Claude or Cursor.  From there, you can chat with the hub using natural language:
 
 		<pre>
 		"List all of the devices in a tree view"
@@ -60,24 +59,14 @@ there, you can chat with the hub using natural language:
 		"Show the instructions on how to deploy a qrcode device"
 		</pre>
 
-- ### Docker
-
-    - Merliot Hub is a Docker container image so you can run your hub anywhere
-      you can run a Docker image.
-
 - ### Cloud-Ready
 
-    - Merliot Hub is cloud-ready and requires a minimal VM to run.  You need
-      0.1vCPU, 256MB RAM, and 256MB Disk.
+    - Merliot Hub is packaged as a Docker container image so you can run your
+      hub anywhere you can run a Docker image, locally on your own laptop or
+      server, or on the cloud.  See [install](https://merliot.io/doc/install) guide
+      for more info.  The docker image requires a minimal VM: 0.1vCPU, 256MB Ram,
+      256MB Disk.  
 
-
-
-
-
-
-
-
-That is a lot to unpack.  Let’s start with the private device hub part.
 
 ### Private Hub
 
@@ -112,38 +101,14 @@ can write device models).
   <img src="devices/relays/images/nano-rp2040-relays.png">
 </div>
 
-### Web App
-
-Merliot Hub is a web app.  There is no phone app.  But, you can use any
-browser on any device, including your phone, to access your hub, locally or
-over the internet.  Try the demo to get a feel for the UI.
-
-<a target="_blank" href="https://merliot.io/demo">
-	<img src="pkg/device/docs/images/demo.svg" width="500px">
-</a>
-
-### MCP Server
-
-Merliot Hub is a Model Context Protocol (<a target="_blank"
-href="https://www.merliot.io/doc/mcp-server">MCP</a>) server.  The MCP server
-lets you plug your Merliot Hub into LLM hosts such as Claude or Cursor.  From
-there, you can chat with the hub using natural language:
-
-<pre>
-"List all of the devices in a tree view"
-"Add a new gps device"
-"Turn on all the relays"
-"Show the instructions on how to deploy a qrcode device"
-</pre>
-
 ## SUPPORTED DEVICES TARGETS
 
 Merliot Hub devices are build from one or more target platforms:
 
-- <a href="https://www.raspberrypi.com/">Raspberry Pi (models 3, 4, 5, and Zero 2W)</a>
-- <a href="https://store.arduino.cc/products/arduino-nano-rp2040-connect">Arduino Nano rp2040 Connect</a>
-- <a href="https://www.adafruit.com/product/4116">Adafruit PyPortal</a>
-- <a href="https://koyeb.com">Koyeb (cloud)</a>
+- [Raspberry Pi (models 3, 4, 5, and Zero 2W)](https://www.raspberrypi.com/)
+- [Arduino Nano rp2040 Connect](https://store.arduino.cc/products/arduino-nano-rp2040-connect)
+- [Adafruit PyPortal](https://www.adafruit.com/product/4116)
+- [Koyeb (cloud)](https://koyeb.com)
 - Linux x86-64
 
 ## QUICK START
@@ -161,7 +126,7 @@ Browse to `http://localhost:8000` to view hub.
 
 ### Install on Cloud
 
-Run a FREE hub instance on <a target="_blank" href="koyeb.com">Koyeb</a>.  Use this one-click button to get started:
+Run a FREE hub instance on [Koyeb](https://koyeb.com).  Use this one-click button to get started:
 
 <a href="https://app.koyeb.com/deploy?name=hub&type=docker&image=merliot%2Fhub&instance_type=free&regions=was&ports=8000;http;/&env[LOG_LEVEL]=INFO&env[PING_PERIOD]=2&env[BACKGROUND]=&env[DEVICES]=&env[USER]=&env[PASSWD]=&env[WIFI_SSIDS]=&env[WIFI_PASSPHRASES]=&env[AUTO_SAVE]=false">
 	<img src="https://www.koyeb.com/static/images/deploy/button.svg">
@@ -199,9 +164,9 @@ BSD 3-Clause License
 
 Email: <a target="_blank" href="mailto:contact@merliot.io">contact@merliot.io</a>
 
-X: <a target="_blank" href="https://x.com/merliotio">@merliotio</a>
+X: [@merliotio](https://x.com/merliotio)
 
-Slack: <a target="_blank" href="https://merliotcommunity.slack.com/messages/C06Q6QV6YSJ">#merliot</a>
+Slack: [#merliot](https://merliotcommunity.slack.com/messages/C06Q6QV6YSJ)
 
 ## CREDITS
 
