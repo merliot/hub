@@ -5,12 +5,69 @@
 [![codecov](https://codecov.io/gh/merliot/hub/graph/badge.svg?token=N0ATO7YP4U)](https://codecov.io/gh/merliot/hub)
 
 # MERLIOT
-PRIVATE DEVICE HUB
+AI DEVICE HUB
 
 ## INTRODUCTION
 
-<a target="_blank" href="https://merliot.io">Merliot</a> Hub is a private
-device hub, a web app, and an MCP server.
+<a target="_blank" href="https://merliot.io">Merliot</a> Hub is an
+AI-integrated device hub.
+
+What does that mean?  It means you can control and interact with your physical
+devices, your security camera, your thermometer, seamlessly using natural
+language from an LLM host such as Claude Desktop or Cursor.  The hub is a
+gateway between AI and the physical world.
+
+What could go wrong?
+
+<diagram>
+
+Which devices?  Not the retail Smart devices, sorry.  You build a device from
+hobby-grade components which are readily available, like Raspberry Pis,
+buttons, relays, and sensors.  You need maker-level skills to build the
+devices.  The hub includes a parts list and instructions to build each device.
+There is no software to write; the hub includes the download-able device
+firmware.
+
+## FEATURES
+
+- ### Privacy
+    - Merliot Hub uses a distributed architecture rather than a centralized
+architecture, eliminating third-party access to your devices' data. You
+install and maintain your own hub.  No one else has access.  You data is
+private.  <a target="_blank" href="">Read more</a>.
+
+- ### Web App
+    - Merliot hub is a web app.  There is no phone app.  But, you can use any
+browser on any device, including your phone, to access your hub, locally
+or over the internet.  Try the demo to get a feel for the UI.
+
+<a target="_blank" href="https://merliot.io/demo">
+	<img src="pkg/device/docs/images/demo.svg" width="500px">
+</a>
+
+- ### AI-Integration
+	- Merliot Hub is a Model Context Protocol (<a target="_blank"
+href="https://www.merliot.io/doc/mcp-server">MCP</a>) server.  The MCP server
+lets you plug your Merliot Hub into LLM hosts such as Claude or Cursor.  From
+there, you can chat with the hub using natural language:
+
+		<pre>
+		"List all of the devices in a tree view"
+		"Add a new gps device"
+		"Turn on all the relays"
+		"Show the instructions on how to deploy a qrcode device"
+		</pre>
+
+- ### Docker
+
+
+
+
+
+
+
+
+
 
 That is a lot to unpack.  Let’s start with the private device hub part.
 
