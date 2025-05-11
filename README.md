@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/merliot/hub/graph/badge.svg?token=N0ATO7YP4U)](https://codecov.io/gh/merliot/hub)
 
 # MERLIOT
-AI DEVICE HUB
+DEVICE HUB
 
 ## INTRODUCTION
 
