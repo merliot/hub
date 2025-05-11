@@ -19,7 +19,9 @@ gateway between AI and the physical world.
 
 What could go wrong?
 
-<diagram>
+<a target="_blank" href="pkg/device/docs/images/mcp-server.gif">
+    <img class="w-120" src="pkg/device/docs/images/mcp-server.gif">
+</a>
 
 Which devices?  Not any retail Smart devices, sorry.  You build a device from
 hobby-grade components which are readily available, like Raspberry Pis,
@@ -138,7 +140,7 @@ there, you can chat with the hub using natural language:
 
 Merliot Hub devices are build from one or more target platforms:
 
-- <a href="https://www.raspberrypi.com/">Raspberry Pi (models 3, 4, 5)</a>
+- <a href="https://www.raspberrypi.com/">Raspberry Pi (models 3, 4, 5, and Zero 2W)</a>
 - <a href="https://store.arduino.cc/products/arduino-nano-rp2040-connect">Arduino Nano rp2040 Connect</a>
 - <a href="https://www.adafruit.com/product/4116">Adafruit PyPortal</a>
 - <a href="https://koyeb.com">Koyeb (cloud)</a>
