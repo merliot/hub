@@ -6,7 +6,7 @@
 
 # MERLIOT DEVICE HUB
 
-<a target="_blank" href="https://merliot.io">Merliot</a> Hub is an
+<a href="https://merliot.io">Merliot</a> Hub is an
 AI-integrated device hub.
 
 What does that mean?  It means you can control and interact with your physical
@@ -17,7 +17,7 @@ physical world.
 
 What could go wrong?
 
-<a target="_blank" href="pkg/device/docs/images/mcp-server.gif">
+<a href="pkg/device/docs/images/mcp-server.gif">
     <img src="pkg/device/docs/images/mcp-server.gif">
 </a>
 
@@ -46,7 +46,8 @@ device firmware.
 
     - Merliot hub is a web app.  There is no phone app.  You can use any
       web browser on any device, including your phone, to access your hub,
-      locally or over the internet.  Try the demo to get a feel for the UI.
+      locally or over the internet.  Try the [demo](https://merliot.io/demo)
+      to get a feel for the UI.
 
 <a href="https://merliot.io/demo">
     <img src="pkg/device/docs/images/demo.svg" width="500px">
@@ -133,7 +134,7 @@ BSD 3-Clause License
 
 ## CONTACT
 
-Email: <a target="_blank" href="mailto:contact@merliot.io">contact@merliot.io</a>
+Email: <a href="mailto:contact@merliot.io">contact@merliot.io</a>
 
 X: [@merliotio](https://x.com/merliotio)
 
