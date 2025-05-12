@@ -11,8 +11,9 @@ AI-integrated device hub.
 
 What does that mean?  It means you can control and interact with your physical
 devices, your security camera, your thermometer, seamlessly using natural
-language from an LLM host such as Claude Desktop or Cursor.  The hub is a
-gateway between AI and the physical world.
+language from an LLM host such as [Claude Desktop](https://claude.ai/download)
+or [Cursor](https://cursor.com).  The hub is a gateway between AI and the
+physical world.
 
 What could go wrong?
 
@@ -43,7 +44,7 @@ device firmware.
 
 - ### Web App
 
-    - Merliot hub is a web app.  There is no phone app.  But, you can use any
+    - Merliot hub is a web app.  There is no phone app.  You can use any
       web browser on any device, including your phone, to access your hub,
       locally or over the internet.  Try the demo to get a feel for the UI.
 
@@ -66,12 +67,12 @@ device firmware.
 
 - ### Cloud-Ready
 
-    - Merliot Hub is packaged as a Docker container image so you can run your
-      hub anywhere you can run a Docker image, locally on your own laptop or
-      server, or on the cloud.  See [install](https://merliot.io/doc/install) guide
-      for more info.  The docker image requires a minimal VM: 0.1vCPU, 256MB RAM,
-      256MB disk.  Koyeb offers a [FREE](#install-on-cloud) VM suitable for running
-      a hub in the cloud.
+    - Merliot Hub is packaged as a Docker image so you can run your hub
+      anywhere you can run a Docker image, locally on your own laptop or server
+      using Docker Desktop, or on the cloud.  See
+      [install](https://merliot.io/doc/install) guide for more info.  The docker
+      image requires a minimal VM: 0.1vCPU, 256MB RAM, 256MB disk.  Koyeb offers a
+      [FREE](#install-on-cloud) VM suitable for running a hub in the cloud.
 
 ## SUPPORTED DEVICES TARGETS
 
