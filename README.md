@@ -22,16 +22,14 @@ What could go wrong?
 
 ### Devices
 
-Which devices?  Not any retail Smart devices, sorry.  You build a device from
-hobby-grade components which are readily available, like Raspberry Pis,
+Which devices?  Not any of the retail Smart devices, sorry.  You build a device
+from hobby-grade components which are readily available, like Raspberry Pis,
 Arduinos, buttons, relays, and sensors.  You need maker-level skills to build
 the devices.  The hub includes a parts list and instructions for building each
 device.  There is no software to write; the hub includes the downloadable
 device firmware.
 
-<center>
-    <img src="devices/camera/images/rpi-camera.png" width="200">
-</center>
+<img src="devices/camera/images/rpi-camera.png" width="200">
 
 ## FEATURES
 
@@ -41,7 +39,7 @@ device firmware.
       architecture, eliminating third-party access to your devices' data. You
       install and maintain your own hub and devices.  No one else has access.  Your
       data is private.  Your data can't be sold, shared, stored, analyzed, or
-      surveilled by third parties.  [Read more]().
+      surveilled by third parties.  [Read more](https://www.merliot.io/doc/privacy).
 
 - ### Web App
 
@@ -50,9 +48,7 @@ device firmware.
       locally or over the internet.  Try the demo to get a feel for the UI.
 
 <a href="https://merliot.io/demo">
-    <center>
-        <img src="pkg/device/docs/images/demo.svg" width="500px">
-    </center>
+    <img src="pkg/device/docs/images/demo.svg" width="500px">
 </a>
 
 - ### AI-Integration
@@ -74,42 +70,8 @@ device firmware.
       hub anywhere you can run a Docker image, locally on your own laptop or
       server, or on the cloud.  See [install](https://merliot.io/doc/install) guide
       for more info.  The docker image requires a minimal VM: 0.1vCPU, 256MB RAM,
-      256MB disk.  Koyeb offers a FREE VM suitable for running one hub in the
-      cloud.
-
-
-### Private Hub
-
-Consider consumer-grade Smart devices such as Smart security cameras, Smart
-lights, and Smart thermostats.  These are not private.  They have one thing in
-common: they dial home to the device manufacturer's central hub.  For each
-manufacturer, you'll install a phone app which connects to the same central hub.
-Your data is unencrypted on the manufacturer's side of the hub.  Your data is
-not private.  The device manufacturer can analyze, track, store, share, and
-sell your data.  Your data plus your profile associated with the device
-purchase and app signup make _you_ the product.
-
-Merliot Hub is private alternative.  It’s private by switching from a
-central-hub architecture to a distributed-hub architecture.  There is no
-central Merliot Hub.  Each user of Merliot Hub installs their own hub.  A hub
-can be installed on a local resource such as a laptop or Raspberry Pi.
-Alternatively, it can be installed on the cloud (for free in some cases).  Each
-user’s hub is independent from others’.  There is no central hub.  No central
-point to compromise, tap, exploit, or profit from.
-
-The trade off for privacy is convenience.  You must <a target="_blank"
-href="https://www.merliot.io/doc/quick-start">install</a> and maintain your own
-Merliot Hub and you must to build your own devices.  Merliot Hub devices are
-built from hobbyist-level components that are readily available.  There are
-camera, gps, relay, timer and other devices you can build for the hub.
-Assembling the devices requires maker-level skills.  There is no software to
-write, unless you want to create a new device model.  (Fun fact: <a
-target="_blank" href="https://www.merliot.io/blog/2025-5-4-third-blog">LLMs</a>
-can write device models).
-
-<div style="text-align: center;">
-  <img src="devices/relays/images/nano-rp2040-relays.png">
-</div>
+      256MB disk.  Koyeb offers a [FREE](#install-on-cloud) VM suitable for running
+      a hub in the cloud.
 
 ## SUPPORTED DEVICES TARGETS
 
