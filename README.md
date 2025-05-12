@@ -30,7 +30,7 @@ the devices.  The hub includes a parts list and instructions for building each
 device.  There is no software to write; the hub includes the downloadable
 device firmware.
 
-<img src="devices/camera/images/rpi-camera.png" width="200">
+<img src="pkg/device/images/devices.png">
 
 ## FEATURES
 
