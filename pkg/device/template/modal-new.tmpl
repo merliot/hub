@@ -62,7 +62,7 @@
 				<div class="flex flex-row justify-end">
 					<button hx-put="/nop" hx-target=".modal" hx-swap="delete">Close</button>
 {{ if isLocked }}
-					<button onclick="alert('Sorry, cannot create device: hub is locked')">
+					<button type="button" onclick="alert('Sorry, cannot create device: hub is locked')">
 						Create
 					</button>
 {{ else }}

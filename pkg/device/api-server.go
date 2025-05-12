@@ -205,6 +205,10 @@ func (s *server) handleCreate(pkt *Packet, flags flags) error {
 		return deviceNotFound(msg.ParentId)
 	}
 
+	if parent.isSet(flagLocked) {
+		return fmt.Errorf("Create device aborted; parent is locked")
+	}
+
 	if parent != s.root {
 		return fmt.Errorf("Create device aborted; parent is not root")
 	}

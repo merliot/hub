@@ -270,10 +270,10 @@ func (s *server) routeDown(pkt *Packet) error {
 func (s *server) defaultDeviceFlags() flags {
 	var flags flags
 	if s.isSet(flagRunningSite) {
-		flags = flagLocked
+		flags |= flagLocked
 	}
 	if s.isSet(flagRunningDemo) {
-		flags = flagDemo | flagOnline | flagMetal
+		flags |= flagDemo | flagOnline | flagMetal
 	}
 	return flags
 }
@@ -317,6 +317,8 @@ func (s *server) newDevice(id, model, name, params string) (d *device, err error
 		model:        m,
 		server:       s,
 	}
+
+	d.nexthop = d
 
 	return
 }
