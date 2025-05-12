@@ -1,0 +1,27 @@
+<h2>PIVOT TO AI</h2>
+
+<p>I'm pivoting the project to AI.  I kindof feel like a sell-out.  The
+previous (unreleased) version of the project focused on privacy.  The tag line
+was "Merliot, Private Device Hub".  I've demoted privacy to be just a feature
+now and pivoting the project to AI.  The pivot is for two reasons:</p>
+
+<p>First, AI is hot right now and Privacy is not.  I wish the reverse was true.
+I'm close to releasing this project so why not announce for most clicks?  I'm
+kind of glad I've procrastinated in releasing.  Now it looks like it was
+AI-enabled from the start.  It wasn't, but...</p>
+
+<p>Second, what's really weird is the LLM plug-in model (MCP) really suits
+Merliot Hub.  Writing the MCP Server code for Merliot Hub just kind of fell
+out.  The hub already has an API, so mapping the API over to MCP tools was
+straight forward.  The devices also have some APIs and hooks to generate
+device-specific MCP tools, which is pretty cool, and it's generated from
+meta-data of the device so there wasn't much work to code that up.  Any
+finally, async events from the device are translated into MCP notifications
+sent back to the MCP client.  These means the LLM host (Cursor, Claude) will
+see those device notifications.  So that means the LLM can listen for device
+events to update context.</p>
+
+<p>I think this project is supposed to be this way.  I think the LLMs want to
+be plugged into the physical world.  They've tricked me into enabling my
+project to that end.  I'm sure others have been tricked as well and have
+already plugged LLMs in.  Well played LLMs, you win.</p>

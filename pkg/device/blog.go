@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"io/fs"
 	"sort"
+	"strings"
+	"time"
 )
 
 // Each blog has a dir with two files, e.g.:
@@ -32,11 +34,6 @@ type blog struct {
 func (s *server) blogs() []blog {
 	dirs, _ := fs.ReadDir(s.root.layeredFS, "blog")
 
-	// Sort dirs in reverse order
-	sort.Slice(dirs, func(i, j int) bool {
-		return dirs[i].Name() > dirs[j].Name()
-	})
-
 	blogs := make([]blog, 0, len(dirs))
 	for _, dir := range dirs {
 		var b = blog{Dir: dir.Name()}
@@ -50,5 +47,24 @@ func (s *server) blogs() []blog {
 		}
 		blogs = append(blogs, b)
 	}
+
+	// Sort blogs by Date in reverse chronological order
+	sort.Slice(blogs, func(i, j int) bool {
+		// Parse dates in format "Nov. 10, 2024"
+		// First remove the period after the month abbreviation
+		datei := strings.Replace(blogs[i].Date, ".", "", 1)
+		datej := strings.Replace(blogs[j].Date, ".", "", 1)
+
+		ti, err := time.Parse("Jan 2, 2006", datei)
+		if err != nil {
+			panic(err.Error())
+		}
+		tj, err := time.Parse("Jan 2, 2006", datej)
+		if err != nil {
+			panic(err.Error())
+		}
+		return ti.After(tj) // Sort in reverse chronological order
+	})
+
 	return blogs
 }
