@@ -5,7 +5,7 @@
 MCP allows LLM hosts, such as <a target="_blank"
 	href="https://claude.ai/download">Claude Desktop</a>,  to "plug-in" to
 external context.  Merliot Hub includes a MCP Server which lets LLM hosts
-"plug-in" to the hub.</p>
+"plug-in" to the hub.  See my blog <a target="_blank" href="https://www.merliot.io/blog/2025-5-4-third-blog">post</a>.</p>
 
 <a target="_blank" href="/docs/images/mcp-server.gif"><img class="w-120" src="/docs/images/mcp-server.gif"></a>
 
@@ -28,3 +28,79 @@ external context.  Merliot Hub includes a MCP Server which lets LLM hosts
 local platform.  The MCP server only supports stdio transport.  The MCP server
 will automatically connect to the hub once plugged into an LLM host.  More than
 one LLM host may be using a MCP Server to connect to the hub.</p>
+
+<h3>TOOLS</h3>
+
+<p>Here's a list of MCP tools available to the LLM:</p>
+
+<table>
+<tr>
+<th>Tool Name</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>add_device</td>
+<td>Add a new device to the Merliot Hub</td>
+</tr>
+<tr>
+<td>camera_get-image</td>
+<td>Get the camera image</td>
+</tr>
+<tr>
+<td>gadget_takeone</td>
+<td>Take one down, pass it around</td>
+</tr>
+<tr>
+<td>get_config</td>
+<td>Get the model configuration of a Merliot Hub device model</td>
+</tr>
+<tr>
+<td>get_devices</td>
+<td>Get all devices running on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_instructions</td>
+<td>Get the instructions for device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_models</td>
+<td>Get list of all device models available on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_params</td>
+<td>Get the parameter schema for a Merliot Hub device model</td>
+</tr>
+<tr>
+<td>get_server_status</td>
+<td>Get the status of the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_state</td>
+<td>Get the state of a device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>get_status</td>
+<td>Get the status of a Merliot Hub device</td>
+</tr>
+<tr>
+<td>qrcode_update</td>
+<td>QR code</td>
+</tr>
+<tr>
+<td>relays_click</td>
+<td>Click (toggle) the relay</td>
+</tr>
+<tr>
+<td>remove_device</td>
+<td>Remove a device from the Merliot Hub</td>
+</tr>
+<tr>
+<td>rename</td>
+<td>Rename a device on the Merliot Hub</td>
+</tr>
+<tr>
+<td>save</td>
+<td>Save current device configuration</td>
+</tr>
+</table>
+
