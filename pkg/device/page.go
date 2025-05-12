@@ -32,6 +32,7 @@ var docPages = []page{
 	{"devices", "DEVICES", "/doc/devices"},
 	{"env-vars", "ENV VARS", "/doc/env-vars"},
 	{"mcp-server", "MCP SERVER", "/doc/mcp-server"},
+	{"privacy", "PRIVACY", "/doc/privacy"},
 	{"faq", "FAQ", "/doc/faq"},
 
 	{"", "DEVELOPER", ""},
