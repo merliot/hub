@@ -10,7 +10,7 @@
 AI-integrated device hub.
 
 What does that mean?  It means you can control and interact with your physical
-devices, your security camera, your thermometer, seamlessly using natural
+devices, your security cameras, your thermometer, seamlessly using natural
 language from an LLM host such as [Claude Desktop](https://claude.ai/download)
 or [Cursor](https://cursor.com).  The hub is a gateway between AI and the
 physical world.
@@ -23,12 +23,13 @@ What could go wrong?
 
 ### Devices
 
-Which devices?  Not any of the retail Smart devices, sorry.  You build a device
-from hobby-grade components which are readily available, like Raspberry Pis,
-Arduinos, buttons, relays, and sensors.  You need maker-level skills to build
-the devices.  The hub includes a parts list and instructions for building each
-device.  There is no software to write; the hub includes the downloadable
-device firmware.
+Which devices?  Not any of the retail Smart devices, sorry.  No Smart security
+cameras, no Smart lights, no Smart thermostats.  Only devices you build.
+You build a device from hobby-grade components which are readily available,
+like Raspberry Pis, Arduinos, buttons, relays, and sensors.  You need
+maker-level skills to build the devices.  The hub includes a parts list and
+instructions for building each device.  There is no software to write; the hub
+includes the downloadable device firmware.
 
 <img src="pkg/device/images/devices.png">
 
