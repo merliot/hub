@@ -68,7 +68,7 @@ func (rl *RateLimiter) Stats() map[string]int64 {
 	rl.Range(func(key, value any) bool {
 		ip := key.(string)
 		client := value.(*client)
-		stats[ip] = client.bucket.avail()
+		stats[ip] = client.bucket.available
 		return true
 	})
 	return stats
