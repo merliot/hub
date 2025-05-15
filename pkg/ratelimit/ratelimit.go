@@ -63,6 +63,17 @@ func (rl *RateLimiter) RateLimit(next http.Handler) http.Handler {
 	})
 }
 
+func (rl *RateLimiter) Stats() map[string]int64 {
+	stats := make(map[string]int64)
+	rl.Range(func(key, value any) bool {
+		ip := key.(string)
+		client := value.(*client)
+		stats[ip] = client.bucket.avail()
+		return true
+	})
+	return stats
+}
+
 func (rl *RateLimiter) cleanupRateLimiters() {
 
 	ticker := time.NewTicker(rl.CleanupInterval)
