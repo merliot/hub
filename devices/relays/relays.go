@@ -79,10 +79,12 @@ func (r *relays) Setup() error {
 func (r *relays) click(pkt *device.Packet) {
 	var click msgClick
 	pkt.Unmarshal(&click)
-	relay := &r.Relays[click.Relay]
-	relay.Set(!relay.State)
-	var clicked = msgClicked{click.Relay, relay.State}
-	pkt.SetPath("clicked").Marshal(&clicked).BroadcastUp()
+	if click.Relay >= 0 && click.Relay < len(r.Relays) {
+		relay := &r.Relays[click.Relay]
+		relay.Set(!relay.State)
+		var clicked = msgClicked{click.Relay, relay.State}
+		pkt.SetPath("clicked").Marshal(&clicked).BroadcastUp()
+	}
 }
 
 func (r *relays) clicked(pkt *device.Packet) {
