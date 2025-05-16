@@ -17,9 +17,7 @@ physical world.
 
 What could go wrong?
 
-<a href="pkg/device/docs/images/mcp-server.gif">
-    <img src="pkg/device/docs/images/mcp-server.gif">
-</a>
+[![](pkg/device/docs/images/mcp-server-thumb.png)](https://media.merliot.io/videos/mcp-server.mp4)
 
 ### Devices
 
