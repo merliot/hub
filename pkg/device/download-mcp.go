@@ -7,6 +7,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -20,7 +21,8 @@ func (s *server) downloadMCPServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hubURL := r.Referer()
+	u, _ := url.Parse(r.Referer())
+	hubURL := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 
 	// Create a temporary file for the self-extracting script
 	tmpFile, err := os.CreateTemp("", "mcp-server-*.sh")
