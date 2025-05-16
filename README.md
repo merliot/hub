@@ -21,13 +21,13 @@ What could go wrong?
 
 ### Devices
 
-Which devices?  Not any of the retail Smart devices, sorry.  No Smart security
-cameras, no Smart lights, no Smart thermostats.  Only devices you build.
-You build a device from hobby-grade components which are readily available,
-like Raspberry Pis, Arduinos, buttons, relays, and sensors.  You need
-maker-level skills to build the devices.  The hub includes a parts list and
-instructions for building each device.  There is no software to write; the hub
-includes the downloadable device firmware.
+Which devices?  Sorry, not any of the consumer-grade Smart devices such as
+Smart security cameras, Smart lights, and Smart thermostats.  Merliot Hub only
+supports devices you build.  You build devices from hobby-grade components
+which are readily available, like Raspberry Pis, Arduinos, buttons, relays, and
+sensors.  You need maker-level skills to build the devices.  The hub includes a
+parts list and instructions for building each device.  There is no software to
+write; the hub includes the downloadable device firmware.
 
 <img src="pkg/device/images/devices.png">
 
