@@ -488,7 +488,7 @@ func toolOptions(msg any) []mcp.ToolOption {
 	for i := 0; i < elem.NumField(); i++ {
 		tag := elem.Type().Field(i).Tag.Get("schema")
 		if tag != "" {
-			name := strings.ToLower(elem.Type().Field(i).Name)
+			name := elem.Type().Field(i).Name
 			popts := parseSchemaTag(tag)
 			opts = append(opts, mcp.WithString(name, popts...))
 		}
@@ -508,11 +508,10 @@ func (ms *MCPServer) handlerCustom(path string, msg any) mcpserver.ToolHandlerFu
 		elem := reflect.ValueOf(msg).Elem()
 		pairs := make([]string, elem.NumField())
 		for i := 0; i < elem.NumField(); i++ {
-			tag := elem.Type().Field(i).Tag.Get("mcp")
+			tag := elem.Type().Field(i).Tag.Get("schema")
 			if tag != "" {
 				name := elem.Type().Field(i).Name
-				lname := strings.ToLower(name)
-				val, _ := request.Params.Arguments[lname].(string)
+				val, _ := request.Params.Arguments[name].(string)
 				pairs[i] = name + "=" + val
 			}
 		}
