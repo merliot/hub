@@ -41,6 +41,8 @@ func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "gzip")
 	case ".js":
 		w.Header().Set("Content-Type", "application/javascript")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
 	}
 	http.FileServer(http.FS(d.layeredFS)).ServeHTTP(w, r)
 }
