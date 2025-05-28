@@ -6,14 +6,14 @@
 
 # MERLIOT DEVICE HUB
 
-<a href="https://merliot.io">Merliot</a> Hub is an
+<a href="https://merliot.io">Merliot</a> Hub is a private,
 AI-integrated device hub.
 
-What does that mean?  It means you can control and interact with your physical
-devices, your security cameras, your thermometer, seamlessly using natural
-language from an LLM host such as [Claude Desktop](https://claude.ai/download)
-or [Cursor](https://cursor.com).  The hub is a gateway between AI and the
-physical world.
+What does that mean?  It means you can privately control and interact with your
+physical devices, your security cameras, your thermometer, seamlessly using
+natural language from an LLM host such as [Claude
+Desktop](https://claude.ai/download) or [Cursor](https://cursor.com).  The hub
+is a gateway between AI and the physical world.
 
 What could go wrong?
 
@@ -22,12 +22,13 @@ What could go wrong?
 ### Devices
 
 Which devices?  Sorry, not any of the consumer-grade Smart devices such as
-Smart security cameras, Smart lights, and Smart thermostats.  Merliot Hub only
-supports devices you build.  You build devices from hobby-grade components
-which are readily available, like Raspberry Pis, Arduinos, buttons, relays, and
-sensors.  You need maker-level skills to build the devices.  The hub includes a
-parts list and instructions for building each device.  There is no software to
-write; the hub includes the downloadable device firmware.
+Smart security cameras, Smart lights, and Smart thermostats.  These are not
+private.  Merliot Hub only supports devices you build that dial into your hub.
+You build devices from hobby-grade components which are readily available, like
+Raspberry Pis, Arduinos, buttons, relays, and sensors.  You need maker-level
+skills to build the devices.  The hub includes a parts list and instructions
+for building each device.  There is no software to write; the hub includes the
+downloadable device firmware.
 
 <img src="pkg/device/images/devices.png">
 
