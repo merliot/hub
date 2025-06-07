@@ -3,7 +3,6 @@
 package device
 
 import (
-	"bytes"
 	_ "embed"
 	"errors"
 	"net/http"
@@ -191,19 +190,6 @@ func (s *session) send(data []byte) error {
 }
 
 func (s *session) renderPkt(pkt *Packet) error {
-
-	// Using Lock rather than RLock because _send needs Lock
-	s.Lock()
-	defer s.Unlock()
-
-	if !s._connected() {
-		return errSessionNotConnected
-	}
-
-	var buf bytes.Buffer
-	if err := pkt.render(&buf, s.id); err != nil {
-		return err
-	}
-
-	return s._send(buf.Bytes())
+	// TODO: Refactor or remove. pkt.render no longer exists.
+	return nil
 }

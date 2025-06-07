@@ -40,9 +40,6 @@ func (q *qrcode) GetConfig() device.Config {
 			"POST /generate":    q.generate,
 			"GET /edit-content": q.editContent,
 		},
-		FuncMap: device.FuncMap{
-			"png": q.png,
-		},
 	}
 }
 

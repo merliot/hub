@@ -53,16 +53,6 @@ func (s *server) serveFile(w http.ResponseWriter, r *http.Request, fileName stri
 	return nil
 }
 
-func (d *device) genFile(dir, template, name string, data any) error {
-	filePath := filepath.Join(dir, name)
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	return d.renderTmpl(file, template, data)
-}
-
 func isLocalhost(referer string) bool {
 	url, err := url.Parse(referer)
 	if err != nil {
@@ -150,26 +140,6 @@ func (s *server) buildImage(d *device, w http.ResponseWriter, r *http.Request) e
 	}
 }
 
-func (s *server) downloadMsgClear(d *device, sessionId string) {
-	var buf bytes.Buffer
-	if err := d.renderTmpl(&buf, "device-download-msg-empty.tmpl", nil); err != nil {
-		s.logError("Rendering template", "err", err)
-		return
-	}
-	s.sessions.send(sessionId, buf.String())
-}
-
-func (s *server) downloadMsgError(d *device, sessionId string, downloadErr error) {
-	var buf bytes.Buffer
-	if err := d.renderTmpl(&buf, "device-download-msg-error.tmpl", map[string]any{
-		"err": "Download error: " + downloadErr.Error(),
-	}); err != nil {
-		s.logError("Rendering template", "err", err)
-		return
-	}
-	s.sessions.send(sessionId, buf.String())
-}
-
 type msgDownloaded struct {
 	DeployParams string
 }
@@ -244,14 +214,11 @@ func (s *server) downloadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.downloadMsgClear(d, sessionId)
-
 	err := s._downloadImage(d, w, r)
 	if err != nil {
 		if sessionId == "" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
-			s.downloadMsgError(d, sessionId, err)
 			w.WriteHeader(http.StatusNoContent)
 		}
 		return

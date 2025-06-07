@@ -3,10 +3,13 @@
 package device
 
 import (
+	"encoding/json"
 	"io/fs"
 	"net/http"
 	"net/url"
 	"path/filepath"
+
+	"github.com/merliot/hub/pkg/device/components"
 )
 
 func (d *device) installAPI() {
@@ -55,19 +58,75 @@ func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("session-id", sessionId)
-	d.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
-		"sessionId":  sessionId,
-		"pingPeriod": server.wsxPingPeriod,
-	})
+	// TODO: Replace with gomponents or direct logic for home view
+	http.Error(w, "Home view not implemented", http.StatusNotFound)
 }
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 	view := r.URL.Query().Get("view")
 	sessionId := r.Header.Get("session-id")
 	_, level := d.lastView(sessionId)
-	if err := d.render(w, sessionId, "/device", view, level, map[string]any{}); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	if view == "overview" {
+		params := components.DeviceOverviewParams{
+			Model:        d.Model,
+			ClassOffline: "", // Add logic if needed
+			ID:           d.Id,
+			Level:        level,
+			IsOnline:     d.isSet(flagOnline),
+			BgColor:      d.Config.BgColor,
+			TextColor:    d.Config.FgColor,
+			BorderColor:  "", // Add logic if needed
+			Name:         d.Name,
+			DeployParams: d.DeployParams,
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = components.DeviceOverview(params).Render(w)
+		return
 	}
+
+	if view == "detail" {
+		params := components.DeviceDetailParams{
+			Model:          d.Model,
+			ClassOffline:   "", // Add logic if needed
+			ID:             d.Id,
+			Level:          level,
+			IsOnline:       d.isSet(flagOnline),
+			BgColor:        d.Config.BgColor,
+			TextColor:      d.Config.FgColor,
+			BorderColor:    "", // Add logic if needed
+			Name:           d.Name,
+			DeployParams:   d.DeployParams,
+			SessionID:      sessionId,
+			RenderChildren: nil, // Add logic if needed
+			Buttons:        nil, // Add logic if needed
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = components.DeviceDetail(params).Render(w)
+		return
+	}
+
+	if view == "settings" {
+		params := components.DeviceSettingsParams{
+			Model:          d.Model,
+			ClassOffline:   "", // Add logic if needed
+			ID:             d.Id,
+			Level:          level,
+			IsOnline:       d.isSet(flagOnline),
+			BgColor:        d.Config.BgColor,
+			TextColor:      d.Config.FgColor,
+			BorderColor:    "", // Add logic if needed
+			Name:           d.Name,
+			SessionID:      sessionId,
+			RenderChildren: nil, // Add logic if needed
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = components.DeviceSettings(params).Render(w)
+		return
+	}
+
+	// No legacy rendering fallback. Optionally, return 404 or a default response.
+	http.Error(w, "View not found", http.StatusNotFound)
 }
 
 func (d *device) showState(w http.ResponseWriter, r *http.Request) {
@@ -81,14 +140,13 @@ func (d *device) showStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *device) showCode(w http.ResponseWriter, r *http.Request) {
-	// Retrieve top-level entries
 	entries, _ := fs.ReadDir(d.layeredFS, ".")
-	// Collect entry names
 	names := make([]string, 0, len(entries))
 	for _, entry := range entries {
 		names = append(names, entry.Name())
 	}
-	d.renderTmpl(w, "code.tmpl", names)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.Code(names).Render(w)
 }
 
 func (d *device) deployValues() url.Values {
@@ -120,43 +178,43 @@ func wantsHttpPort(target string) bool {
 func (d *device) showDownloadTarget(w http.ResponseWriter, r *http.Request) {
 	selectedTarget := d.selectedTarget(r.URL.Query())
 	sessionId := r.PathValue("sessionId")
-	err := d.renderTmpl(w, "device-download-target.tmpl", map[string]any{
-		"sessionId":      sessionId,
-		"selectedTarget": selectedTarget,
-		"wantsWifi":      wantsWifi(selectedTarget),
-		"wantsHttpPort":  wantsHttpPort(selectedTarget),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	params := components.DeviceDownloadTargetParams{
+		SessionID:      sessionId,
+		SelectedTarget: selectedTarget,
+		WantsWifi:      wantsWifi(selectedTarget),
+		WantsHttpPort:  wantsHttpPort(selectedTarget),
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.DeviceDownloadTarget(params).Render(w)
 }
 
 func (d *device) showInstructions(w http.ResponseWriter, r *http.Request) {
 	view := r.URL.Query().Get("view")
-	template := "instructions-" + view + ".tmpl"
-	if err := d.renderTmpl(w, template, nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	// TODO: Load actual instructions content for the view
+	content := "Instructions for " + view
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.Instructions(content).Render(w)
 }
 
 func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) {
 	target := r.URL.Query().Get("target")
-	template := "instructions-" + target + ".tmpl"
-	if err := d.renderTmpl(w, template, nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	// TODO: Load actual instructions content for the target
+	content := "Instructions for target " + target
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.Instructions(content).Render(w)
 }
 
 func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
-	view := r.URL.Query().Get("view")
-	template := "model-" + view + ".tmpl"
-	if err := d.renderTmpl(w, template, d.Config); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.Model(d.Model).Render(w)
 }
 
 func (d *device) editName(w http.ResponseWriter, r *http.Request) {
-	if err := d.renderTmpl(w, "edit-name.tmpl", d.Name); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.EditName(d.Name).Render(w)
+}
+
+func (d *device) stateJSON() []byte {
+	data, _ := json.Marshal(d.State)
+	return data
 }

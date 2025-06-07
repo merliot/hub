@@ -54,14 +54,11 @@ func (s *server) deployKoyeb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.downloadMsgClear(d, sessionId)
-
 	err := s._deployKoyeb(d, r)
 	if err != nil {
 		if sessionId == "" {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
-			s.downloadMsgError(d, sessionId, err)
 			w.WriteHeader(http.StatusNoContent)
 		}
 		return

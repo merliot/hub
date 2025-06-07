@@ -29,11 +29,8 @@ func (s *server) generateUf2(d *device, dir, target string) error {
 	}
 
 	var runnerFile = "runner.go"
-	if err := d.genFile(temp, "device-runner-tinygo.tmpl", runnerFile, map[string]any{
-		"package": d.model.Package,
-	}); err != nil {
-		return err
-	}
+	// TODO: Reimplement file generation for runner.go using Go or gomponents if needed.
+	// if err := d.genFile(temp, "device-runner-tinygo.tmpl", runnerFile, map[string]any{"package": d.model.Package}); err != nil { return err }
 
 	// Build the uf2 file
 	uf2Name := d.Model + "-" + target + ".uf2"

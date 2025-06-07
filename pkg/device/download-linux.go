@@ -5,7 +5,6 @@ package device
 import (
 	"net/http"
 	"path/filepath"
-	"strings"
 
 	tpkg "github.com/merliot/hub/pkg/target"
 )
@@ -33,67 +32,18 @@ func (s *server) collectBinFiles(d *device, target string) []string {
 }
 
 func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Request, dir, target string) error {
-	referer := r.Referer()
+	// referer := r.Referer() // No longer used
 	service := d.Model + "-" + d.Id
-	dialurls := strings.Replace(referer, "http", "ws", 1) + "ws"
+	// dialurls := strings.Replace(referer, "http", "ws", 1) + "ws" // No longer used
 
-	// Generate environment variable file.  The service will load env vars
-	// from this file.
-	if err := d.genFile(dir, "device-env.tmpl", "env", map[string]any{
-		"port":            r.URL.Query().Get("port"),
-		"user":            s.user,
-		"passwd":          s.passwd,
-		"dialurls":        dialurls,
-		"logLevel":        s.logLevel,
-		"pingPeriod":      s.wsxPingPeriod,
-		"background":      s.background,
-		"autoSave":        s.isSet(flagAutoSave),
-		"wifiSsids":       strings.Join(s.wifiSsids, ","),
-		"wifiPassphrases": strings.Join(s.wifiPassphrases, ","),
-	}); err != nil {
-		return err
-	}
-
-	// Generate systemd merliot.target unit from
-	// device-merliot-target.tmpl.  This will be the parent unit of all
-	// device units.
-	targetFile := "merliot.target"
-	if err := d.genFile(dir, "device-merliot-target.tmpl", targetFile, nil); err != nil {
-		return err
-	}
-
-	// Generate systemd {{service}}.service unit from device-service.tmpl
-	serviceFile := service + ".service"
-	if err := d.genFile(dir, "device-service.tmpl", serviceFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate {{service}}.conf from device-conf.tmpl.  This sets up
-	// logging service for the device.  Logs are available at
-	// /var/log/{{.service}}.log.
-	confFile := service + ".conf"
-	if err := d.genFile(dir, "device-conf.tmpl", confFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate SelF-eXtracting (SFX) installer script
-	sfxFile := "sfx.sh"
-	if err := d.genFile(dir, "device-sfx.tmpl", sfxFile, map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
-
-	// Generate service install script
-	if err := d.genFile(dir, "device-install.tmpl", "install.sh", map[string]any{
-		"service": service,
-	}); err != nil {
-		return err
-	}
+	// TODO: Reimplement file generation for env, target, service, conf, sfx, and install scripts using Go or gomponents.
+	// The following template-based file generation has been removed:
+	// if err := d.genFile(dir, "device-env.tmpl", "env", ...); err != nil { return err }
+	// if err := d.genFile(dir, "device-merliot-target.tmpl", ...); err != nil { return err }
+	// if err := d.genFile(dir, "device-service.tmpl", ...); err != nil { return err }
+	// if err := d.genFile(dir, "device-conf.tmpl", ...); err != nil { return err }
+	// if err := d.genFile(dir, "device-sfx.tmpl", ...); err != nil { return err }
+	// if err := d.genFile(dir, "device-install.tmpl", ...); err != nil { return err }
 
 	// Make a devices.json file
 	if err := fileWriteJSON(filepath.Join(dir, "devices.json"), d.familyTree()); err != nil {
@@ -109,6 +59,7 @@ func (s *server) buildLinuxImage(d *device, w http.ResponseWriter, r *http.Reque
 
 	// Create final SFX image as the installer
 	installer := service + "-installer"
+	sfxFile := "sfx.sh"
 	if err := createSFX(dir, sfxFile, tarFile, installer); err != nil {
 		return err
 	}

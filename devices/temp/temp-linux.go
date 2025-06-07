@@ -26,11 +26,6 @@ func (t *temp) GetConfig() device.Config {
 		PacketHandlers: device.PacketHandlers{
 			"update": &device.PacketHandler[msgUpdate]{t.update},
 		},
-		FuncMap: device.FuncMap{
-			"tempf":  t.tempf,
-			"humf":   t.humf,
-			"points": t.points,
-		},
 	}
 }
 

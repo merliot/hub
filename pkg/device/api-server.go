@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/merliot/hub/pkg/device/components"
 )
 
 func (s *server) setupAPI() {
@@ -71,6 +73,9 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 	s.mux.HandleFunc("GET /mcp-modal", s.showMcpModal)
 	s.mux.HandleFunc("GET /instructions-mcp", s.showMcpInstructions)
+
+	// Register the gomponents test site
+	s.mux.HandleFunc("/gomponents-site", s.showGomponentsSite)
 }
 
 func (d *device) deviceHandler(next http.Handler) http.Handler {
@@ -118,10 +123,8 @@ func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("session-id", sessionId)
-	s.root.showSection(w, r, "device.tmpl", "home", "", nil, map[string]any{
-		"sessionId":  sessionId,
-		"pingPeriod": s.wsxPingPeriod,
-	})
+	// TODO: Replace with gomponents or direct logic for home view
+	http.Error(w, "Home view not implemented", http.StatusNotFound)
 }
 
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {
@@ -142,9 +145,8 @@ func (s *server) saveDevices(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) showSaveModal(w http.ResponseWriter, r *http.Request) {
-	if err := s.root.renderTmpl(w, "modal-save.tmpl", nil); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.ModalSave(string(s.devices.getPrettyJSON())).Render(w)
 }
 
 func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
@@ -369,23 +371,31 @@ func (s *server) rename(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) showNewModal(w http.ResponseWriter, r *http.Request) {
-
 	var id = r.PathValue("id")
-
 	d, exists := s.devices.get(id)
 	if !exists {
 		err := fmt.Errorf("Can't show new modal dialog: unknown device id '%s'", id)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	err := d.renderTmpl(w, "modal-new.tmpl", map[string]any{
-		"models": s.childModels(d).unload(),
-		"newid":  generateRandomId(),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	models := s.childModels(d).unload()
+	var modelOptions []components.ModelOption
+	for name, model := range models {
+		modelOptions = append(modelOptions, components.ModelOption{
+			Name:    name,
+			Model:   model.Model,
+			BgColor: model.BgColor,
+			FgColor: model.FgColor,
+		})
 	}
+	params := components.ModalNewParams{
+		ParentID: id,
+		NewID:    generateRandomId(),
+		Models:   modelOptions,
+		IsLocked: d.isSet(flagLocked),
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.ModalNew(params).Render(w)
 }
 
 type mcpPlatform struct {
@@ -395,25 +405,25 @@ type mcpPlatform struct {
 }
 
 func (s *server) showMcpModal(w http.ResponseWriter, r *http.Request) {
-	err := s.root.renderTmpl(w, "modal-mcp.tmpl", map[string]any{
-		"platforms": []mcpPlatform{
-			{"linux", "amd64", "Linux amd64"},
-			{"linux", "arm64", "Linux arm64 (Raspberry Pi)"},
-			{"darwin", "amd64", "MacOS (Intel Silicon)"},
-			{"darwin", "arm64", "MacOS (Apple Silicon)"},
-			{"windows", "amd64", "Windows amd64"},
-			{"windows", "arm64", "Windows arm64"},
+	params := components.ModalMCPParams{
+		Name: "MCP Server",
+		Platforms: []components.PlatformOption{
+			{Os: "linux", Arch: "amd64", Desc: "Linux amd64"},
+			{Os: "linux", Arch: "arm64", Desc: "Linux arm64 (Raspberry Pi)"},
+			{Os: "darwin", Arch: "amd64", Desc: "MacOS (Intel Silicon)"},
+			{Os: "darwin", Arch: "arm64", Desc: "MacOS (Apple Silicon)"},
+			{Os: "windows", Arch: "amd64", Desc: "Windows amd64"},
+			{Os: "windows", Arch: "arm64", Desc: "Windows arm64"},
 		},
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = components.ModalMCP(params).Render(w)
 }
 
 func (s *server) showMcpInstructions(w http.ResponseWriter, r *http.Request) {
 	view := r.URL.Query().Get("view")
-	err := s.root.renderTmpl(w, "instructions-mcp-"+view+".tmpl", nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
+	// TODO: Replace with gomponents or remove if obsolete
+	content := "Instructions MCP for view: " + view
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write([]byte(content))
 }

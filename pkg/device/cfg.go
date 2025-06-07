@@ -113,22 +113,6 @@ type Config struct {
 	// http.HandlerFunc.
 	APIs `json:"-"`
 
-	// FuncMap are custom template functions for the device.  Most devices
-	// will not have any custom functions.
-	//
-	// e.g.
-	//
-	// FuncMap: device.FuncMap{
-	//         "png": q.png,
-	// },
-	//
-	// Device templates call the function using {{fn}} syntax.  For example:
-	//
-	// <div class="m-8">
-	//     <img src="{{png state.Content -5}}">
-	// </div>
-	FuncMap `json:"-"`
-
 	// BgColor is the device background color
 	BgColor string
 

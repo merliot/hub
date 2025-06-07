@@ -30,10 +30,6 @@ func (p *prostar) GetConfig() device.Config {
 			"update-array":      &device.PacketHandler[Array]{p.save},
 			"update-daily":      &device.PacketHandler[Daily]{p.save},
 		},
-		FuncMap: device.FuncMap{
-			"chargeState": p.chargeState,
-			"loadState":   p.loadState,
-		},
 	}
 }
 

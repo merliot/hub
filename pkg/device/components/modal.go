@@ -2,8 +2,8 @@ package components
 
 import (
 	. "maragu.dev/gomponents"
-	html "maragu.dev/gomponents/html"
 	hx "maragu.dev/gomponents-htmx"
+	html "maragu.dev/gomponents/html"
 )
 
 // ModalSave renders the save devices modal.
@@ -22,8 +22,8 @@ func ModalSave(devicesJSON string) Node {
 				Text(devicesJSON),
 			),
 			html.Form(
-				html.Attr("action", "/devices"),
-				html.Method("GET"),
+				Attr("action", "/devices"),
+				Attr("method", "GET"),
 				html.Div(
 					html.Class("flex flex-row justify-end mt-8"),
 					html.Button(
@@ -47,8 +47,7 @@ func ModalSave(devicesJSON string) Node {
 				),
 			),
 		),
-		Script(
-			Raw(`function copy2clipboard() {
+		Raw(`function copy2clipboard() {
 	if (navigator.clipboard) {
 		const content = document.getElementById('devices').innerText;
 		navigator.clipboard.writeText(content);
@@ -56,7 +55,6 @@ func ModalSave(devicesJSON string) Node {
 		alert("Browser blocking clipboard API access...insecure http:// connection?")
 	}
 }`),
-		),
 	)
 }
 
@@ -92,8 +90,8 @@ func InstructionsMCPCollapsed() Node {
 
 // ModalNew renders the create new device modal.
 type ModelOption struct {
-	Name   string
-	Model  string
+	Name    string
+	Model   string
 	BgColor string
 	FgColor string
 }
@@ -158,23 +156,21 @@ func ModalNew(p ModalNewParams) Node {
 					Text("Select a Model"),
 					html.Div(
 						html.Class("flex flex-col overflow-y-auto"),
-						Group(
-							Map(p.Models, func(m ModelOption) Node {
-								return html.Label(
-									html.Class("flex flex-row cursor-pointer radio-container"),
-									html.Input(
-										html.Type("radio"),
-										html.Name("Child.Model"),
-										html.Value(m.Name),
-										html.Required(),
-									),
-									html.Div(
-										html.Class("radio-content p-0.5 border-solid border-2 rounded-2xl"),
-										ModelCollapsed(m.BgColor, m.FgColor, m.Model),
-									),
-								)
-							}),
-						),
+						Map(p.Models, func(m ModelOption) Node {
+							return html.Label(
+								html.Class("flex flex-row cursor-pointer radio-container"),
+								html.Input(
+									html.Type("radio"),
+									html.Name("Child.Model"),
+									html.Value(m.Name),
+									html.Required(),
+								),
+								html.Div(
+									html.Class("radio-content p-0.5 border-solid border-2 rounded-2xl"),
+									ModelCollapsed(m.BgColor, m.FgColor, m.Model),
+								),
+							)
+						}),
 					),
 				),
 				html.Div(
@@ -196,6 +192,8 @@ func ModalNew(p ModalNewParams) Node {
 								Attr("onclick", "alert('Sorry, cannot create device: hub is locked')"),
 								Text("Create"),
 							),
+						),
+						If(!p.IsLocked,
 							html.Button(
 								html.Class("px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"),
 								html.Type("submit"),
@@ -205,7 +203,6 @@ func ModalNew(p ModalNewParams) Node {
 					),
 				),
 			),
-		),
 		),
 	)
 }
@@ -231,8 +228,8 @@ func ModalMCP(p ModalMCPParams) Node {
 			html.P(Text("Download Model Context Protocol (MCP) server for "+p.Name+". The MCP server lets large language models (LLMs), such as Claude, interact with "+p.Name+". Basically, it means we can plug the physical world of devices into an LLM.")),
 			html.P(Text("What could go wrong?")),
 			html.Form(
-				html.Attr("action", "/download-mcp-server"),
-				html.Method("GET"),
+				Attr("action", "/download-mcp-server"),
+				Attr("method", "GET"),
 				html.Class("mt-4"),
 				html.Div(
 					html.Class("mt-4"),
@@ -246,12 +243,9 @@ func ModalMCP(p ModalMCPParams) Node {
 						html.ID("platform"),
 						html.Name("platform"),
 						html.Required(),
-						Group(
-							Option("", "-- Select Platform --"),
-							Map(p.Platforms, func(opt PlatformOption) Node {
-								return Option(opt.Os+"-"+opt.Arch, opt.Desc)
-							}),
-						),
+						Map(p.Platforms, func(opt PlatformOption) Node {
+							return Option(opt.Os+"-"+opt.Arch, opt.Desc)
+						}),
 					),
 				),
 				html.Div(
@@ -278,4 +272,4 @@ func ModalMCP(p ModalMCPParams) Node {
 // Option is a helper for select options.
 func Option(value, label string) Node {
 	return html.Option(html.Value(value), Text(label))
-} 
+}

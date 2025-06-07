@@ -58,9 +58,6 @@ func (c *camera) GetConfig() device.Config {
 			"/get-image": &device.PacketHandler[msgGetImage]{c.getImage},
 			"image":      &device.PacketHandler[msgImage]{device.RouteUp},
 		},
-		FuncMap: device.FuncMap{
-			"jpeg": c.jpeg,
-		},
 	}
 }
 

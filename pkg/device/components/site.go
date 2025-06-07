@@ -48,7 +48,7 @@ func SiteHeader(p SiteHeaderParams) Node {
 								html.Span(html.Class("mr-2.5 text-sm"), Text(tab.Name)),
 							),
 						)
-					})
+					}),
 				),
 			),
 		),
@@ -57,11 +57,11 @@ func SiteHeader(p SiteHeaderParams) Node {
 
 // SiteShell renders the main site HTML shell.
 type SiteShellParams struct {
-	Title     string
+	Title      string
 	BodyColors string
-	Header    Node
-	Body      Node
-	Footer    Node
+	Header     Node
+	Body       Node
+	Footer     Node
 }
 
 func SiteShell(p SiteShellParams) Node {
@@ -190,4 +190,4 @@ func SiteBlog(page string, blogs []Blog) Node {
 			),
 		),
 	)
-} 
+}

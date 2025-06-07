@@ -6,7 +6,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"slices"
@@ -19,7 +18,6 @@ var deviceFs embed.FS
 
 type deviceOS struct {
 	*http.ServeMux
-	templates *template.Template
 	layeredFS
 	views sync.Map
 }
@@ -46,22 +44,6 @@ func (s *server) buildOS(d *device) error {
 	if d.FS != nil {
 		d.layeredFS.stack(d.FS)
 	}
-
-	// Merge device-specific funcs with base server and base device funcs
-	// to make one FuncMap
-	if d.FuncMap == nil {
-		d.FuncMap = make(FuncMap)
-	}
-	for k, v := range s.baseFuncs() {
-		d.FuncMap[k] = v
-	}
-	for k, v := range d.baseFuncs() {
-		d.FuncMap[k] = v
-	}
-
-	// Build the device templates
-	d.templates, err = d.layeredFS.parseFS("template/*.tmpl",
-		template.FuncMap(d.FuncMap))
 
 	return err
 }

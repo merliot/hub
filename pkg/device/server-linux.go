@@ -448,3 +448,11 @@ func (s *server) statusJSON() []byte {
 	j, _ := json.MarshalIndent(&status, "", "\t")
 	return j
 }
+
+func (s *server) setupRoutes() {
+	mux := http.NewServeMux()
+	// ... existing routes ...
+	mux.HandleFunc("/gomponents-site", s.showGomponentsSite)
+	// ... existing code ...
+	s.server.Handler = mux
+}

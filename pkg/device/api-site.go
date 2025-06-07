@@ -4,6 +4,11 @@ package device
 
 import (
 	"net/http"
+
+	"github.com/merliot/hub/pkg/device/components"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/components"
+	html "maragu.dev/gomponents/html"
 )
 
 type siteTab struct {
@@ -24,66 +29,137 @@ var (
 	tabsBlog = siteTabs{tabBlog, tabHome, tabDemo, tabDocs}
 )
 
-func (d *device) showPage(w http.ResponseWriter, r *http.Request,
-	template, defaultPage string, pages []page, data map[string]any) {
-
-	data["pages"] = pages
-	data["page"] = r.PathValue("page")
-	if data["page"] == "" {
-		data["page"] = defaultPage
-	}
-
-	if err := d.renderTmpl(w, template, data); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-}
-
-func (d *device) showSection(w http.ResponseWriter, r *http.Request,
-	template, section, defaultPage string, pages []page, data map[string]any) {
-	data["section"] = section
-	d.showPage(w, r, template, defaultPage, pages, data)
-}
-
 func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {
-	s.root.showSection(w, r, "site.tmpl", "home", "intro", homePages, map[string]any{
-		"tabs": tabsHome,
-	})
-}
-
-func (s *server) showSiteDemoSession(w http.ResponseWriter, r *http.Request) {
-	sessionId, ok := s.sessions.newSession()
-	if !ok {
-		s.sessions.noSessions(w, r)
-		return
+	page := r.PathValue("page")
+	if page == "" {
+		page = "intro"
 	}
-	s.root.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
-		"tabs":       tabsDemo,
-		"sessionId":  sessionId,
-		"pingPeriod": s.wsxPingPeriod,
+	tabs := []components.SiteTab{
+		{Name: "HOME", Href: "/"},
+		{Name: "DEMO", Href: "/demo"},
+		{Name: "DOCS", Href: "/doc"},
+		{Name: "BLOG", Href: "/blog"},
+	}
+	pages := make([]components.PageTab, len(homePages))
+	for i, p := range homePages {
+		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
+	}
+	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "HOME"})
+	body := components.SiteHome(page, pages)
+	footer := components.SiteFooter()
+	site := components.SiteShell(components.SiteShellParams{
+		Title:      "Merliot",
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       body,
+		Footer:     footer,
 	})
+	_ = site.Render(w)
 }
 
 func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 	page := r.PathValue("page")
-	if page == "" || page == "devices" {
-		s.showSiteDemoSession(w, r)
-	} else {
-		s.root.showSection(w, r, "site.tmpl", "demo", "devices", demoPages, map[string]any{
-			"tabs": tabsDemo,
-		})
+	if page == "" {
+		page = "devices"
 	}
+	tabs := []components.SiteTab{
+		{Name: "HOME", Href: "/"},
+		{Name: "DEMO", Href: "/demo"},
+		{Name: "DOCS", Href: "/doc"},
+		{Name: "BLOG", Href: "/blog"},
+	}
+	pages := make([]components.PageTab, len(demoPages))
+	for i, p := range demoPages {
+		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
+	}
+	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "DEMO"})
+	body := components.SiteDemo(page, pages, nil) // TODO: pass session Node
+	footer := components.SiteFooter()
+	site := components.SiteShell(components.SiteShellParams{
+		Title:      "Merliot Demo",
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       body,
+		Footer:     footer,
+	})
+	_ = site.Render(w)
 }
 
 func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {
-	s.root.showSection(w, r, "site.tmpl", "docs", "quick-start", docPages, map[string]any{
-		"tabs": tabsDocs,
+	page := r.PathValue("page")
+	if page == "" {
+		page = "quick-start"
+	}
+	tabs := []components.SiteTab{
+		{Name: "HOME", Href: "/"},
+		{Name: "DEMO", Href: "/demo"},
+		{Name: "DOCS", Href: "/doc"},
+		{Name: "BLOG", Href: "/blog"},
+	}
+	pages := make([]components.PageTab, len(docPages))
+	for i, p := range docPages {
+		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
+	}
+	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "DOCS"})
+	body := components.SiteDocs(page, pages)
+	footer := components.SiteFooter()
+	site := components.SiteShell(components.SiteShellParams{
+		Title:      "Merliot Docs",
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       body,
+		Footer:     footer,
 	})
+	_ = site.Render(w)
 }
 
 func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
+	page := r.PathValue("page")
 	blogs := s.blogs()
-	s.root.showSection(w, r, "site.tmpl", "blog", blogs[0].Dir, nil, map[string]any{
-		"tabs":  tabsBlog,
-		"blogs": blogs,
+	if page == "" && len(blogs) > 0 {
+		page = blogs[0].Dir
+	}
+	tabs := []components.SiteTab{
+		{Name: "HOME", Href: "/"},
+		{Name: "DEMO", Href: "/demo"},
+		{Name: "DOCS", Href: "/doc"},
+		{Name: "BLOG", Href: "/blog"},
+	}
+	blogTabs := make([]components.Blog, len(blogs))
+	for i, b := range blogs {
+		blogTabs[i] = components.Blog{Dir: b.Dir, Title: b.Title, Date: b.Date}
+	}
+	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "BLOG"})
+	body := components.SiteBlog(page, blogTabs)
+	footer := components.SiteFooter()
+	site := components.SiteShell(components.SiteShellParams{
+		Title:      "Merliot Blog",
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       body,
+		Footer:     footer,
 	})
+	_ = site.Render(w)
+}
+
+func (s *server) showGomponentsSite(w http.ResponseWriter, r *http.Request) {
+	page := HTML5(HTML5Props{
+		Title:    "Merliot Gomponents Site",
+		Language: "en",
+		Head: []Node{
+			html.Meta(html.Name("viewport"), html.Content("width=device-width, initial-scale=1")),
+			html.Link(
+				html.Rel("stylesheet"),
+				html.Href("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"),
+			),
+		},
+		Body: []Node{
+			html.Div(
+				html.Class("m-4"),
+				html.H1(html.Class("text-2xl font-bold"), Text("Merliot Gomponents Site")),
+				components.SiteFooter(),
+			),
+		},
+	})
+	_ = page.Render(w)
 }
