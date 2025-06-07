@@ -47,14 +47,16 @@ func ModalSave(devicesJSON string) Node {
 				),
 			),
 		),
-		Raw(`function copy2clipboard() {
+		Raw(`
+function copy2clipboard() {
 	if (navigator.clipboard) {
 		const content = document.getElementById('devices').innerText;
 		navigator.clipboard.writeText(content);
 	} else {
 		alert("Browser blocking clipboard API access...insecure http:// connection?")
 	}
-}`),
+}
+		`),
 	)
 }
 
