@@ -92,3 +92,5 @@ This file contains the task breakdown for converting from custom CSS to Tailwind
 - Test thoroughly after each phase completion
 - Consider creating a style guide for the new Tailwind-based design system
 - Keep custom CSS minimal and only for truly unique styling needs
+
+- [x] **Custom Utility Migration**: Convert remaining custom utilities (none found in main templates)
