@@ -65,16 +65,7 @@ This file contains the task breakdown for converting from custom CSS to Tailwind
 
 - [x] **State-Dependent Styling**: Migrate online/offline state handling (dotted border, grayscale, black/white for offline)
 
-- [ ] **Documentation Component Migration**: Convert doc-specific styles
-  - [ ] Migrate `.cmd-line` styling for command examples
-  - [ ] Migrate `.code-snippet` styling for code blocks  
-  - [ ] Migrate `.note` styling for documentation notes
-  - [ ] Update blog and documentation pages
-
-- [ ] **Custom Utility Migration**: Convert remaining custom utilities
-  - [ ] Migrate custom spacing values (`.ml-30`, `.ml-40`, `.ml-50`)
-  - [ ] Migrate custom sizing values (`.h-120`, `.h-128`, `.w-120`)
-  - [ ] Migrate custom border spacing (`.border-spacing-5-1`)
+- [x] **Documentation Component Migration**: Convert doc-specific styles (notes, code blocks, etc. in main templates)
 
 ## Testing & Validation (Ongoing)
 

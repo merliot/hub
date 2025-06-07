@@ -30,15 +30,14 @@
 
 <p>Plug the Arduino into a computer USB port to mount the Arduino as a USB drive.  The USB drive is named "RPI-RP2".</p>
 
-<div class="note">
-	<span class="note-icon">📝 NOTE</span>
-	Sometimes the Arduino is not detected as a USB drive even when it is connected to your computer. This can be solved through the following steps:
-
-	<p>1. Connect the Arduino to your computer via USB cable.</p>
-
-	<p>2. Place a jumper wire between the REC and GND pins on the board, then press the reset button.</p>
-
-	<p>3. This will mount the Arduino as a USB drive.  You can now remove the jumper wire.</p>	
+<div class="bg-yellow-100 border-l-4 border-yellow-400 p-3 my-4 rounded flex items-start">
+	<span class="mr-2">📝</span>
+	<span>Sometimes the Arduino is not detected as a USB drive even when it is connected to your computer. This can be solved through the following steps:</span>
+	<ul class="ml-4 list-disc">
+		<li>1. Connect the Arduino to your computer via USB cable.</li>
+		<li>2. Place a jumper wire between the REC and GND pins on the board, then press the reset button.</li>
+		<li>3. This will mount the Arduino as a USB drive.  You can now remove the jumper wire.</li>
+	</ul>
 </div>
 
 <h4>Step 4</h4>
@@ -51,26 +50,22 @@
 	<img src="/device/{{id}}/images/rpi-rp2-install.png" width="100%">
 </center>
 
-<div class="note">
-	<span class="note-icon">📝 NOTE</span>
-	The UF2 firmware image file has embedded secrets so it's a good idea to delete the file after device install.
+<div class="bg-yellow-100 border-l-4 border-yellow-400 p-3 my-4 rounded flex items-start">
+	<span class="mr-2">📝</span>
+	<span>The UF2 firmware image file has embedded secrets so it's a good idea to delete the file after device install.</span>
 </div>
 
-<div class="note">
-	<span class="note-icon">📝 NOTE</span>
-	<p>On Linux, you can manually install the uf2 using dd:</p>
-	<pre class="text-wrap">
-	<code>
+<div class="bg-yellow-100 border-l-4 border-yellow-400 p-3 my-4 rounded flex items-start">
+	<span class="mr-2">📝</span>
+	<span>On Linux, you can manually install the uf2 using dd:</span>
+	<pre class="bg-gray-900 text-green-300 rounded p-3 my-2 text-xs font-mono overflow-x-auto">
 $ sudo dd if=./{{model}}-{{id}}-installer.uf2 of=/dev/sdb bs=4M status=progress conv=fsync
-	</code>
 	</pre>
-	<p>Where /dev/sdb is the Arduino mount point.  (Verify your /dev/sdX mount point using lsblk).</p>
+	<span>Where /dev/sdb is the Arduino mount point.  (Verify your /dev/sdX mount point using lsblk).</span>
 </div>
 
 <p>The device will automatically connect to this hub.  To troubleshoot connectivity issues, use minicom to view device log:</p>
 
-<pre>
-<code>
-	$ minicom -c on -D /dev/ttyACM0 -b 115200
-</code>
+<pre class="bg-gray-900 text-green-300 rounded p-3 my-2 text-xs font-mono overflow-x-auto">
+$ minicom -c on -D /dev/ttyACM0 -b 115200
 </pre>
