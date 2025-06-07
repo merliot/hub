@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-//go:embed robots.txt blog docs images js template
+//go:embed robots.txt blog docs images js
 var deviceFs embed.FS
 
 type deviceOS struct {

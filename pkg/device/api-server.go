@@ -73,9 +73,6 @@ func (s *server) setupAPI() {
 	s.mux.HandleFunc("GET /new-modal/{id}", s.showNewModal)
 	s.mux.HandleFunc("GET /mcp-modal", s.showMcpModal)
 	s.mux.HandleFunc("GET /instructions-mcp", s.showMcpInstructions)
-
-	// Register the gomponents test site
-	s.mux.HandleFunc("/gomponents-site", s.showGomponentsSite)
 }
 
 func (d *device) deviceHandler(next http.Handler) http.Handler {

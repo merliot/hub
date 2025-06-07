@@ -6,9 +6,6 @@ import (
 	"net/http"
 
 	"github.com/merliot/hub/pkg/device/components"
-	. "maragu.dev/gomponents"
-	. "maragu.dev/gomponents/components"
-	html "maragu.dev/gomponents/html"
 )
 
 type siteTab struct {
@@ -140,26 +137,4 @@ func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
 		Footer:     footer,
 	})
 	_ = site.Render(w)
-}
-
-func (s *server) showGomponentsSite(w http.ResponseWriter, r *http.Request) {
-	page := HTML5(HTML5Props{
-		Title:    "Merliot Gomponents Site",
-		Language: "en",
-		Head: []Node{
-			html.Meta(html.Name("viewport"), html.Content("width=device-width, initial-scale=1")),
-			html.Link(
-				html.Rel("stylesheet"),
-				html.Href("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"),
-			),
-		},
-		Body: []Node{
-			html.Div(
-				html.Class("m-4"),
-				html.H1(html.Class("text-2xl font-bold"), Text("Merliot Gomponents Site")),
-				components.SiteFooter(),
-			),
-		},
-	})
-	_ = page.Render(w)
 }

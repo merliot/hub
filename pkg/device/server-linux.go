@@ -452,7 +452,5 @@ func (s *server) statusJSON() []byte {
 func (s *server) setupRoutes() {
 	mux := http.NewServeMux()
 	// ... existing routes ...
-	mux.HandleFunc("/gomponents-site", s.showGomponentsSite)
-	// ... existing code ...
 	s.server.Handler = mux
 }
