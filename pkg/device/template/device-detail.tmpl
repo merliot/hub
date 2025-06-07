@@ -5,7 +5,7 @@
 	<div class="flex flex-row ml-{{mult .level 10}}">
 
 		<div class="panel flex flex-col m-1 p-2 min-w-[20rem]
-			{{bgColor}} {{textColor}} {{borderColor}}
+			{{if not .isOnline}}border-dotted grayscale text-black bg-white{{else}}{{bgColor}} {{textColor}} {{borderColor}}{{end}}
 			border-solid border-2 rounded-3xl">
 
 			<div class="flex flex-row mb-5 items-center justify-between">

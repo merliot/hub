@@ -63,10 +63,7 @@ This file contains the task breakdown for converting from custom CSS to Tailwind
 
 ## Phase 5: Advanced Features (Lower Priority)
 
-- [ ] **State-Dependent Styling**: Migrate online/offline state handling
-  - [ ] Convert `.offline .panel` rules to conditional classes
-  - [ ] Migrate state-based color inversions
-  - [ ] Test device state transitions
+- [x] **State-Dependent Styling**: Migrate online/offline state handling (dotted border, grayscale, black/white for offline)
 
 - [ ] **Documentation Component Migration**: Convert doc-specific styles
   - [ ] Migrate `.cmd-line` styling for command examples
