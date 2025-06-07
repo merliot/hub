@@ -4,7 +4,10 @@ This file contains the task breakdown for converting from html/template to gompo
 
 ## Phase 1: Infrastructure & Simple Components (Low Priority)
 
-- [In Progress] **Static Components**: Convert static components (device-footer.tmpl, robots.txt, static icons/images)
+- [x] **Static Components**: Convert static components (device-footer.tmpl, robots.txt, static icons/images)
+    - device-footer.tmpl was a placeholder (no conversion needed)
+    - site-footer.tmpl converted to Go (SiteFooter)
+    - robots.txt and images remain static assets
 - [ ] **Button Components**: Convert simple button components (button-save.tmpl, button-info.tmpl, button-settings.tmpl)  
 - [ ] **Modal Components**: Convert modal components (modal-save.tmpl, modal-new.tmpl, modal-mcp.tmpl)
 
