@@ -191,3 +191,28 @@ func SiteBlog(page string, blogs []Blog) Node {
 		),
 	)
 }
+
+// DRY helpers for site tabs, header, and shell
+
+func SiteTabsSlice() []SiteTab {
+	return []SiteTab{
+		{Name: "HOME", Href: "/"},
+		{Name: "DEMO", Href: "/demo"},
+		{Name: "DOCS", Href: "/doc"},
+		{Name: "BLOG", Href: "/blog"},
+	}
+}
+
+func SiteHeaderDRY(active string) Node {
+	return SiteHeader(SiteHeaderParams{Tabs: SiteTabsSlice(), ActiveTab: active})
+}
+
+func SiteShellDRY(title string, header, body, footer Node) Node {
+	return SiteShell(SiteShellParams{
+		Title:      title,
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       body,
+		Footer:     footer,
+	})
+}

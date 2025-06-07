@@ -6,147 +6,65 @@ import (
 	"net/http"
 
 	"github.com/merliot/hub/pkg/device/components"
+	"maragu.dev/gomponents"
 )
 
-type siteTab struct {
-	Name string
-	Href string
-}
-
-type siteTabs []siteTab
-
-var (
-	tabHome  = siteTab{"HOME", "/"}
-	tabDemo  = siteTab{"DEMO", "/demo"}
-	tabDocs  = siteTab{"DOCS", "/doc"}
-	tabBlog  = siteTab{"BLOG", "/blog"}
-	tabsHome = siteTabs{tabHome, tabDemo, tabDocs, tabBlog}
-	tabsDemo = siteTabs{tabDemo, tabHome, tabDocs, tabBlog}
-	tabsDocs = siteTabs{tabDocs, tabHome, tabDemo, tabBlog}
-	tabsBlog = siteTabs{tabBlog, tabHome, tabDemo, tabDocs}
-)
-
-func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {
+// DRY helper for PageTab-based site pages
+func showSitePage(w http.ResponseWriter, r *http.Request, defaultPage, title, activeTab string, pagesSrc []page, bodyFunc func(string, []components.PageTab) gomponents.Node) {
 	page := r.PathValue("page")
 	if page == "" {
-		page = "intro"
+		page = defaultPage
 	}
-	tabs := []components.SiteTab{
-		{Name: "HOME", Href: "/"},
-		{Name: "DEMO", Href: "/demo"},
-		{Name: "DOCS", Href: "/doc"},
-		{Name: "BLOG", Href: "/blog"},
-	}
-	pages := make([]components.PageTab, len(homePages))
-	for i, p := range homePages {
+	pages := make([]components.PageTab, len(pagesSrc))
+	for i, p := range pagesSrc {
 		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
 	}
-	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "HOME"})
-	body := components.SiteHome(page, pages)
+	header := components.SiteHeaderDRY(activeTab)
+	body := bodyFunc(page, pages)
 	footer := components.SiteFooter()
-	site := components.SiteShell(components.SiteShellParams{
-		Title:      "Merliot",
-		BodyColors: "bg-black text-purple-200",
-		Header:     header,
-		Body:       body,
-		Footer:     footer,
-	})
+	site := components.SiteShellDRY(title, header, body, footer)
 	if err := site.Render(w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
+}
+
+func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {
+	showSitePage(w, r, "intro", "Merliot", "HOME", homePages, components.SiteHome)
 }
 
 func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
-	if page == "" {
-		page = "devices"
+	bodyFunc := func(page string, pages []components.PageTab) gomponents.Node {
+		return components.SiteDemo(page, pages, nil) // TODO: pass session Node
 	}
-	tabs := []components.SiteTab{
-		{Name: "HOME", Href: "/"},
-		{Name: "DEMO", Href: "/demo"},
-		{Name: "DOCS", Href: "/doc"},
-		{Name: "BLOG", Href: "/blog"},
-	}
-	pages := make([]components.PageTab, len(demoPages))
-	for i, p := range demoPages {
-		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
-	}
-	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "DEMO"})
-	body := components.SiteDemo(page, pages, nil) // TODO: pass session Node
-	footer := components.SiteFooter()
-	site := components.SiteShell(components.SiteShellParams{
-		Title:      "Merliot Demo",
-		BodyColors: "bg-black text-purple-200",
-		Header:     header,
-		Body:       body,
-		Footer:     footer,
-	})
-	if err := site.Render(w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	showSitePage(w, r, "devices", "Merliot Demo", "DEMO", demoPages, bodyFunc)
 }
 
 func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {
+	showSitePage(w, r, "quick-start", "Merliot Docs", "DOCS", docPages, components.SiteDocs)
+}
+
+// DRY helper for Blog-based site pages
+func showSiteBlogPage(w http.ResponseWriter, r *http.Request, title, activeTab string, blogsSrc []components.Blog, bodyFunc func(string, []components.Blog) gomponents.Node) {
 	page := r.PathValue("page")
-	if page == "" {
-		page = "quick-start"
+	if page == "" && len(blogsSrc) > 0 {
+		page = blogsSrc[0].Dir
 	}
-	tabs := []components.SiteTab{
-		{Name: "HOME", Href: "/"},
-		{Name: "DEMO", Href: "/demo"},
-		{Name: "DOCS", Href: "/doc"},
-		{Name: "BLOG", Href: "/blog"},
-	}
-	pages := make([]components.PageTab, len(docPages))
-	for i, p := range docPages {
-		pages[i] = components.PageTab{Name: p.Name, Url: p.Url, Label: p.Label}
-	}
-	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "DOCS"})
-	body := components.SiteDocs(page, pages)
+	blogs := make([]components.Blog, len(blogsSrc))
+	copy(blogs, blogsSrc)
+	header := components.SiteHeaderDRY(activeTab)
+	body := bodyFunc(page, blogs)
 	footer := components.SiteFooter()
-	site := components.SiteShell(components.SiteShellParams{
-		Title:      "Merliot Docs",
-		BodyColors: "bg-black text-purple-200",
-		Header:     header,
-		Body:       body,
-		Footer:     footer,
-	})
+	site := components.SiteShellDRY(title, header, body, footer)
 	if err := site.Render(w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }
 
 func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
-	page := r.PathValue("page")
 	blogs := s.blogs()
-	if page == "" && len(blogs) > 0 {
-		page = blogs[0].Dir
-	}
-	tabs := []components.SiteTab{
-		{Name: "HOME", Href: "/"},
-		{Name: "DEMO", Href: "/demo"},
-		{Name: "DOCS", Href: "/doc"},
-		{Name: "BLOG", Href: "/blog"},
-	}
 	blogTabs := make([]components.Blog, len(blogs))
 	for i, b := range blogs {
 		blogTabs[i] = components.Blog{Dir: b.Dir, Title: b.Title, Date: b.Date}
 	}
-	header := components.SiteHeader(components.SiteHeaderParams{Tabs: tabs, ActiveTab: "BLOG"})
-	body := components.SiteBlog(page, blogTabs)
-	footer := components.SiteFooter()
-	site := components.SiteShell(components.SiteShellParams{
-		Title:      "Merliot Blog",
-		BodyColors: "bg-black text-purple-200",
-		Header:     header,
-		Body:       body,
-		Footer:     footer,
-	})
-	if err := site.Render(w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	showSiteBlogPage(w, r, "Merliot Blog", "BLOG", blogTabs, components.SiteBlog)
 }
