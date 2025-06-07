@@ -51,7 +51,10 @@ func (s *server) showSiteHome(w http.ResponseWriter, r *http.Request) {
 		Body:       body,
 		Footer:     footer,
 	})
-	_ = site.Render(w)
+	if err := site.Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +82,10 @@ func (s *server) showSiteDemo(w http.ResponseWriter, r *http.Request) {
 		Body:       body,
 		Footer:     footer,
 	})
-	_ = site.Render(w)
+	if err := site.Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +113,10 @@ func (s *server) showSiteDocs(w http.ResponseWriter, r *http.Request) {
 		Body:       body,
 		Footer:     footer,
 	})
-	_ = site.Render(w)
+	if err := site.Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
@@ -136,5 +145,8 @@ func (s *server) showSiteBlog(w http.ResponseWriter, r *http.Request) {
 		Body:       body,
 		Footer:     footer,
 	})
-	_ = site.Render(w)
+	if err := site.Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

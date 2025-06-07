@@ -143,7 +143,10 @@ func (s *server) saveDevices(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) showSaveModal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.ModalSave(string(s.devices.getPrettyJSON())).Render(w)
+	if err := components.ModalSave(string(s.devices.getPrettyJSON())).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) newPacketFromRequest(r *http.Request, v any) (*Packet, error) {
@@ -392,7 +395,10 @@ func (s *server) showNewModal(w http.ResponseWriter, r *http.Request) {
 		IsLocked: d.isSet(flagLocked),
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.ModalNew(params).Render(w)
+	if err := components.ModalNew(params).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 type mcpPlatform struct {
@@ -414,7 +420,10 @@ func (s *server) showMcpModal(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.ModalMCP(params).Render(w)
+	if err := components.ModalMCP(params).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) showMcpInstructions(w http.ResponseWriter, r *http.Request) {

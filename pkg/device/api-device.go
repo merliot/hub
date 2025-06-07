@@ -81,7 +81,10 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 			DeployParams: d.DeployParams,
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = components.DeviceOverview(params).Render(w)
+		if err := components.DeviceOverview(params).Render(w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -102,7 +105,10 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 			Buttons:        nil, // Add logic if needed
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = components.DeviceDetail(params).Render(w)
+		if err := components.DeviceDetail(params).Render(w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -121,7 +127,10 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 			RenderChildren: nil, // Add logic if needed
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = components.DeviceSettings(params).Render(w)
+		if err := components.DeviceSettings(params).Render(w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -146,7 +155,10 @@ func (d *device) showCode(w http.ResponseWriter, r *http.Request) {
 		names = append(names, entry.Name())
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.Code(names).Render(w)
+	if err := components.CodeList(names).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) deployValues() url.Values {
@@ -185,7 +197,10 @@ func (d *device) showDownloadTarget(w http.ResponseWriter, r *http.Request) {
 		WantsHttpPort:  wantsHttpPort(selectedTarget),
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.DeviceDownloadTarget(params).Render(w)
+	if err := components.DeviceDownloadTarget(params).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) showInstructions(w http.ResponseWriter, r *http.Request) {
@@ -193,7 +208,10 @@ func (d *device) showInstructions(w http.ResponseWriter, r *http.Request) {
 	// TODO: Load actual instructions content for the view
 	content := "Instructions for " + view
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.Instructions(content).Render(w)
+	if err := components.Instructions(content).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) {
@@ -201,17 +219,26 @@ func (d *device) showInstructionsTarget(w http.ResponseWriter, r *http.Request) 
 	// TODO: Load actual instructions content for the target
 	content := "Instructions for target " + target
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.Instructions(content).Render(w)
+	if err := components.Instructions(content).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) showModel(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.Model(d.Model).Render(w)
+	if err := components.Model(d.Model).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) editName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = components.EditName(d.Name).Render(w)
+	if err := components.EditName(d.Name).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) stateJSON() []byte {
