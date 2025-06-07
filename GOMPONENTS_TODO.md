@@ -8,19 +8,19 @@ This file contains the task breakdown for converting from html/template to gompo
     - device-footer.tmpl was a placeholder (no conversion needed)
     - site-footer.tmpl converted to Go (SiteFooter)
     - robots.txt and images remain static assets
-- [In Progress] **Button Components**: Convert simple button components (button-save.tmpl, button-info.tmpl, button-settings.tmpl, button-new.tmpl)
-- [ ] **Modal Components**: Convert modal components (modal-save.tmpl, modal-new.tmpl, modal-mcp.tmpl)
+- [x] **Button Components**: Convert simple button components (button-save.tmpl, button-info.tmpl, button-settings.tmpl, button-new.tmpl)
+    - All button gomponents created (not yet integrated)
+- [x] **SiteFooter Integration**: SiteFooter gomponent integrated and tested at /gomponents-site
+- [In Progress] **Modal Components**: Create gomponents for modal-save.tmpl, modal-new.tmpl, modal-mcp.tmpl (for later integration)
 
 ## Phase 2: Standalone Templates (Medium Priority)
 
 - [ ] **Documentation Pages**: Convert documentation pages (site-docs.tmpl, site-blog.tmpl, /docs/ content)
-- [ ] **Device State Templates**: Convert device state templates (online-overview.tmpl, offline-overview.tmpl, created-detail.tmpl, destroyed-detail.tmpl)
-- [ ] **Instruction Templates**: Convert instruction templates (instructions-*-parts.tmpl, instructions-*-step1.tmpl)
+- [ ] **Device State Templates**: Convert device state templates (device.tmpl, device-state.tmpl, etc.)
 
-## Phase 3: Core Device Views (High Priority)
+## Phase 3: Full Integration (High Priority)
 
-- [ ] **Device Body Templates**: Convert device-specific body templates (body-overview.tmpl, body-detail.tmpl per device type)
-- [ ] **Master Page Templates**: Convert master page templates (device.tmpl, session.tmpl with complex composition)
+- [ ] Replace template rendering with gomponents rendering throughout the codebase
 
 ## Phase 4: Rendering Infrastructure (High Priority)
 
