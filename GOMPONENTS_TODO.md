@@ -11,11 +11,12 @@ This file contains the task breakdown for converting from html/template to gompo
 - [x] **Button Components**: Convert simple button components (button-save.tmpl, button-info.tmpl, button-settings.tmpl, button-new.tmpl)
     - All button gomponents created (not yet integrated)
 - [x] **SiteFooter Integration**: SiteFooter gomponent integrated and tested at /gomponents-site
-- [In Progress] **Modal Components**: Create gomponents for modal-save.tmpl, modal-new.tmpl, modal-mcp.tmpl (for later integration)
+- [x] **Modal Components**: Create gomponents for modal-save.tmpl, modal-new.tmpl, modal-mcp.tmpl (for later integration)
+    - All modal gomponents created and ready for integration
+- [In Progress] **Documentation Pages**: Convert documentation pages (site-docs.tmpl, site-blog.tmpl, /docs/ content)
 
 ## Phase 2: Standalone Templates (Medium Priority)
 
-- [ ] **Documentation Pages**: Convert documentation pages (site-docs.tmpl, site-blog.tmpl, /docs/ content)
 - [ ] **Device State Templates**: Convert device state templates (device.tmpl, device-state.tmpl, etc.)
 
 ## Phase 3: Full Integration (High Priority)
