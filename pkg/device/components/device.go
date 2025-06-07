@@ -1,8 +1,6 @@
 package components
 
 import (
-	"fmt"
-
 	. "maragu.dev/gomponents"
 	hx "maragu.dev/gomponents-htmx"
 	html "maragu.dev/gomponents/html"
@@ -100,11 +98,6 @@ func panelClass(p DeviceStateParams) string {
 		return "border-dotted grayscale text-black bg-white"
 	}
 	return p.BgColor + " " + p.TextColor + " " + p.BorderColor
-}
-
-// itoa is a helper to convert int to string.
-func itoa(i int) string {
-	return fmt.Sprintf("%d", i)
 }
 
 // DeviceStateBody renders the device state body (device-state-body.tmpl).
