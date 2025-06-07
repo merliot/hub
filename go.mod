@@ -33,6 +33,7 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	maragu.dev/gomponents v1.1.0 // indirect
+	maragu.dev/gomponents-htmx v0.6.1 // indirect
 	periph.io/x/conn/v3 v3.7.0 // indirect
 	periph.io/x/host/v3 v3.8.2 // indirect
 )
