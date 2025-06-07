@@ -12,10 +12,10 @@
 		<meta http-equiv="refresh" content="2">
 	</head>
 
-	<body class="bg-black text m-4">
+	<body class="bg-black text-purple-200 m-4">
 		<h2>Active Sessions</h2>
 		{{range $id, $session := .}}
-			<div class="bg-sunflower text-black m-1 p-2 rounded-3xl max-w-lg">
+			<div class="bg-yellow-300 text-black m-1 p-2 rounded-3xl max-w-lg">
 				<h3>Session ID: {{$id}}</h3>
 				<p>Last Update: {{$session.Age}}</p>
 				<h4>Last Views:</h4>

@@ -1,19 +1,19 @@
 <div class="flex flex-col mr-10 items-end text-sm">
 {{ range $i, $page := .pages }}
 	{{ if and (eq $page.Name "") (eq $page.Url "") }}
-		<div class="flex flex-row mt-8 w-36 h-10 text">
+		<div class="flex flex-row mt-8 w-36 h-10 text-purple-200">
 			<span class="font-bold">{{$page.Label}}</span>
 		</div>
 	{{ else if eq $page.Name $.page }}
 		<div class="flex flex-row items-end justify-end m-0.5 w-36 h-10
-			bg-gold border-gold text-black
+			bg-yellow-400 border-yellow-400 text-black
 			border-solid border-2 rounded-2xl">
 			<span class="mr-2.5 font-bold">{{$page.Label}}</span>
 		</div>
 	{{ else }}
 		<a class="no-underline" href="{{$page.Url}}">
 			<div class="flex flex-row items-end justify-end m-0.5 w-32 h-5
-				bg-text border-text text-black
+				bg-purple-200 border-purple-200 text-black
 				border-solid border-2 rounded-xl">
 				<span class="mr-2.5">{{$page.Label}}</span>
 			</div>
