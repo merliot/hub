@@ -35,7 +35,7 @@ func (d *device) installAPI() {
 func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 	fileExtension := filepath.Ext(r.URL.Path)
 	switch fileExtension {
-	case ".go", ".tmpl", ".css":
+	case ".go", ".tmpl":
 		w.Header().Set("Content-Type", "text/plain")
 	case ".gz":
 		w.Header().Set("Content-Encoding", "gzip")
