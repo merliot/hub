@@ -114,14 +114,7 @@ func (s *server) installModels() {
 }
 
 func (s *server) showHome(w http.ResponseWriter, r *http.Request) {
-	sessionId, ok := s.sessions.newSession()
-	if !ok {
-		s.sessions.noSessions(w, r)
-		return
-	}
-	w.Header().Set("session-id", sessionId)
-	// TODO: Replace with gomponents or direct logic for home view
-	http.Error(w, "Home view not implemented", http.StatusNotFound)
+	s.root.showHome(w, r)
 }
 
 func (s *server) showDevices(w http.ResponseWriter, r *http.Request) {

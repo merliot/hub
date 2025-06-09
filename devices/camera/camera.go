@@ -17,6 +17,8 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 //go:embed *.go images template
@@ -180,3 +182,19 @@ func watermark(fileName string, modTime time.Time) ([]byte, error) {
 func (c *camera) Poll(pkt *device.Packet)     {}
 func (c *camera) DemoSetup() error            { return c.Setup() }
 func (c *camera) DemoPoll(pkt *device.Packet) { c.Poll(pkt) }
+
+// Implement Detail() and Overview() for camera
+func (c *camera) Detail() Node {
+	return Div(
+		Class("flex flex-col m-4"),
+		Attr("id", "camera-image"),
+		Attr("hx-post", "/device/camera/get-image"),
+		Attr("hx-swap", "none"),
+		Attr("hx-trigger", "load"),
+	)
+}
+
+func (c *camera) Overview() Node {
+	// No overview content for camera
+	return Group(nil)
+}

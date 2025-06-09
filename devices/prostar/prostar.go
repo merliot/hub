@@ -12,6 +12,8 @@ import (
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/io/modbus"
 	"github.com/x448/float16"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 const (
@@ -303,3 +305,75 @@ func (p *prostar) Poll(pkt *device.Packet) {
 
 func (p *prostar) DemoSetup() error            { return p.Setup() }
 func (p *prostar) DemoPoll(pkt *device.Packet) { p.Poll(pkt) }
+
+// Implement Detail() and Overview() for prostar
+func (p *prostar) Detail() Node {
+	return Div(
+		Class("flex flex-col h-128"),
+		Attr("id", "prostar-charge"),
+		Div(
+			Class("flex flex-row items-center relative"),
+			// Style block omitted for brevity
+			Img(Class("h-96"), Src("/device/prostar/images/prostar.png")),
+			// Charge Summary Table
+			Table(
+				Class("absolute panel text-sm"),
+				Attr("style", "top: 240px; left: 20px"),
+				Tr(
+					Th(Attr("colspan", "2"), Text("CHARGE SUMMARY")),
+				),
+				Tr(Td(Text("Array Voltage")), Td(Textf("%.2fV", p.Array.Volts))),
+				Tr(Td(Text("Array Current")), Td(Textf("%.2fA", p.Array.Amps))),
+				Tr(Td(Text("Daily System Charge")), Td(Textf("%.2fAh", p.Daily.ChargeAh))),
+				Tr(Td(Text("Charge State")), Td(Textf("%d", p.Array.State))), // TODO: chargeState helper
+			),
+			// Battery Summary Table
+			Table(
+				Class("absolute panel text-sm"),
+				Attr("style", "top: 380px; left: 215px"),
+				Tr(
+					Th(Attr("colspan", "2"), Text("BATTERY SUMMARY")),
+				),
+				Tr(Td(Text("Net Battery Current")), Td(Textf("%.2fA", p.Battery.SlowNetAmps))),
+				Tr(Td(Text("Battery Terminal Voltage")), Td(Textf("%.2fV", p.Battery.Volts))),
+			),
+			// Load Summary Table
+			Table(
+				Class("absolute panel text-sm"),
+				Attr("style", "top: 240px; left: 410px"),
+				Tr(
+					Th(Attr("colspan", "2"), Text("LOAD SUMMARY")),
+				),
+				Tr(Td(Text("Load Voltage")), Td(Textf("%.2fV", p.Load.Volts))),
+				Tr(Td(Text("Load Current")), Td(Textf("%.2fA", p.Load.Amps))),
+				Tr(Td(Text("Daily Load")), Td(Textf("%.2fAh", p.Daily.LoadAh))),
+				Tr(Td(Text("Load State")), Td(Textf("%d", p.Load.State))), // TODO: loadState helper
+			),
+		),
+		Div(
+			Class("flex flex-row h-8 justify-center"),
+			If(string(p.Status) != "OK",
+				Group([]Node{
+					Img(Src("/device/prostar/images/modbus-disconnected.png")),
+					Span(Class("ml-4"), Text(string(p.Status))),
+				}),
+			),
+		),
+	)
+}
+
+func (p *prostar) Overview() Node {
+	return Div(
+		Class("flex flex-row items-center"),
+		Attr("id", "prostar-charge"),
+		Img(Class("h-8"), Src("/device/prostar/images/solar-panel.svg")),
+		Img(Class("h-8"), Src("/device/prostar/images/leader.svg")),
+		Span(Textf("%.2fA", p.Array.Amps)),
+		Img(Class("h-8"), Src("/device/prostar/images/arrow.svg")),
+		Img(Class("h-8"), Src("/device/prostar/images/battery.svg")),
+		Img(Class("h-8"), Src("/device/prostar/images/leader.svg")),
+		Span(Textf("%.2fA", p.Load.Amps)),
+		Img(Class("h-8"), Src("/device/prostar/images/arrow.svg")),
+		Img(Class("h-8"), Src("/device/prostar/images/lightbulb.svg")),
+	)
+}

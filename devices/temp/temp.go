@@ -5,6 +5,8 @@ import (
 
 	"github.com/merliot/hub/pkg/device"
 	io "github.com/merliot/hub/pkg/io/temp"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 const (
@@ -77,4 +79,52 @@ func (t *temp) Poll(pkt *device.Packet) {
 	}
 	var msg = msgUpdate{t.Temperature, t.Humidity}
 	pkt.SetPath("update").Marshal(&msg).BroadcastUp()
+}
+
+// Implement Detail() and Overview() for temp
+func (t *temp) Detail() Node {
+	return Div(
+		Class("flex flex-col"),
+		Attr("id", "temp-detail"),
+		Div(
+			Class("flex flex-row w-full mb-8 items-center justify-evenly"),
+			Div(
+				Class("flex flex-col"),
+				Span(Text("Temperature")),
+				Div(
+					Class("flex flex-row mr-4"),
+					Span(Class("text-6xl"), Textf("%.1f", t.Temperature)),
+					Span(Text("°"+t.TempUnits)),
+				),
+			),
+			Div(
+				Class("flex flex-col"),
+				Span(Text("Humidity")),
+				Div(
+					Class("flex flex-row mr-4"),
+					Span(Class("text-6xl"), Textf("%.1f", t.Humidity)),
+					Span(Text("%")),
+				),
+			),
+		),
+		// Placeholder for SVG chart
+		Raw(`<svg viewBox="0 0 400 300"><!-- Chart Placeholder --></svg>`),
+	)
+}
+
+func (t *temp) Overview() Node {
+	return Div(
+		Class("flex flex-row items-center justify-evenly"),
+		Attr("id", "temp-overview"),
+		Div(
+			Class("flex flex-row mr-2.5"),
+			Span(Class("text-3xl"), Textf("%.1f", t.Temperature)),
+			Span(Text("°"+t.TempUnits)),
+		),
+		Div(
+			Class("flex flex-row mr-2.5"),
+			Span(Class("text-3xl"), Textf("%.1f", t.Humidity)),
+			Span(Text("%")),
+		),
+	)
 }

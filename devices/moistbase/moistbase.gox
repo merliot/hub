@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/device/components"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 //go:embed *.go template
@@ -53,3 +56,17 @@ func (m *moistbase) Setup() error                { return nil }
 func (m *moistbase) Poll(pkt *device.Packet)     {}
 func (m *moistbase) DemoSetup() error            { return m.Setup() }
 func (m *moistbase) DemoPoll(pkt *device.Packet) { m.Poll(pkt) }
+
+// Implement Detail() and Overview() for moistbase
+func (m *moistbase) Detail() Node {
+	return Div(
+		Class("flex flex-row justify-end"),
+		// TODO: Replace with actual button-new gomponent if available
+		Button(Class("bg-blue-500 text-white px-4 py-2 rounded"), Text("New")),
+	)
+}
+
+func (m *moistbase) Overview() Node {
+	// No overview content for moistbase
+	return Group(nil)
+}

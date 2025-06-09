@@ -7,6 +7,8 @@ import (
 	"github.com/merliot/hub/pkg/device"
 	"github.com/merliot/hub/pkg/io/gpio"
 	"github.com/merliot/hub/pkg/io/ntp"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 type timer struct {
@@ -119,3 +121,27 @@ func (t *timer) DemoSetup() error {
 }
 
 func (t *timer) DemoPoll(pkt *device.Packet) { t.Poll(pkt) }
+
+// Implement Detail() and Overview() for timer
+func (t *timer) detailImg() string {
+	if t.On {
+		return "/model/timer/images/lightbulb-on.svg"
+	}
+	return "/model/timer/images/lightbulb-off.svg"
+}
+
+func (t *timer) Detail() Node {
+	return Div(
+		Class("flex flex-col"),
+		Attr("id", "timer-detail"),
+		Img(Class("icon"), Src(t.detailImg())),
+	)
+}
+
+func (t *timer) Overview() Node {
+	return Div(
+		Class("flex flex-row items-center justify-evenly"),
+		Attr("id", "timer-overview"),
+		Img(Class("icon"), Src(t.detailImg())),
+	)
+}

@@ -4,6 +4,9 @@ import (
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/device/components"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 type moist struct {
@@ -29,3 +32,17 @@ func (m *moist) Setup() error                { return nil }
 func (m *moist) Poll(pkt *device.Packet)     {}
 func (m *moist) DemoSetup() error            { return m.Setup() }
 func (m *moist) DemoPoll(pkt *device.Packet) { m.Poll(pkt) }
+
+func (m *moist) Detail() Node {
+	return Div(
+		Class("flex flex-col items-center justify-center"),
+		Text("Moisture sensor detail view (placeholder)"),
+	)
+}
+
+func (m *moist) Overview() Node {
+	return Div(
+		Class("flex flex-row items-center justify-evenly"),
+		Text("Moisture sensor overview (placeholder)"),
+	)
+}

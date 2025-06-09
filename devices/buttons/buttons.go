@@ -6,7 +6,10 @@ import (
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
+	"github.com/merliot/hub/pkg/device/components"
 	io "github.com/merliot/hub/pkg/io/button"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 type buttons struct {
@@ -80,4 +83,58 @@ func (b *buttons) update(pkt *device.Packet) {
 	button := &b.Buttons[update.Button]
 	button.State = update.State
 	pkt.BroadcastUp()
+}
+
+func (b *buttons) Detail() Node {
+	added := false
+	rows := []Node{}
+	for _, button := range b.Buttons {
+		if button.Gpio != "" && button.Name != "" {
+			added = true
+			rows = append(rows, Div(
+				Class("flex flex-row items-center"),
+				Span(Class("w-16 text-right mx-6"), Text(button.Name)),
+				Img(Class("h-10"), Src("/model/buttons/images/button-"+stateToString(button.State)+".png")),
+				Span(Class("mx-6 px-2.5 text-sm bg-amber-500 text-white rounded"), Text(button.Gpio)),
+			))
+		}
+	}
+	if !added {
+		return components.UndefinedDetail("Buttons")
+	}
+	return Div(
+		Class("flex flex-col items-center justify-center"),
+		Attr("id", "buttons-detail"),
+		Group(rows),
+	)
+}
+
+func (b *buttons) Overview() Node {
+	added := false
+	cols := []Node{}
+	for _, button := range b.Buttons {
+		if button.Gpio != "" && button.Name != "" {
+			added = true
+			cols = append(cols, Div(
+				Class("flex flex-col items-center mx-1"),
+				Span(Class("text-sm"), Text(button.Name)),
+				Img(Class("h-6"), Src("/model/buttons/images/button-"+stateToString(button.State)+".png")),
+			))
+		}
+	}
+	if !added {
+		return components.UndefinedOverview()
+	}
+	return Div(
+		Class("flex flex-row items-center justify-evenly"),
+		Attr("id", "buttons-overview"),
+		Group(cols),
+	)
+}
+
+func stateToString(state bool) string {
+	if state {
+		return "on"
+	}
+	return "off"
 }

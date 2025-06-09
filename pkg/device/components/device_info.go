@@ -1,6 +1,8 @@
 package components
 
 import (
+	"strconv"
+
 	. "maragu.dev/gomponents"
 	hx "maragu.dev/gomponents-htmx"
 	. "maragu.dev/gomponents/html"
@@ -32,7 +34,7 @@ func DeviceInfo(p DeviceInfoParams) Node {
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
-			Class("flex flex-row ml-"+itoa(p.Level*10)),
+			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
 				Class("panel flex flex-col m-1 p-2 min-w-[20rem] "+panelClass(DeviceStateParams{
 					IsOnline: p.IsOnline, BgColor: p.BgColor, TextColor: p.TextColor, BorderColor: p.BorderColor,

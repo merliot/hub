@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"strconv"
 
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -51,7 +52,7 @@ func SessionsPage(p SessionsPageParams) Node {
 						Ul(
 							Group(
 								Map(s.LastViews, func(v SessionViewInfo) Node {
-									return Li(Text(v.DeviceID + ": " + v.View + ", " + itoa(v.Level)))
+									return Li(Text(v.DeviceID + ": " + v.View + ", " + fmt.Sprintf("%d", v.Level)))
 								}),
 							),
 						),
@@ -74,15 +75,10 @@ func SessionView(p SessionViewParams) Node {
 		Class("offline"),
 		Attr("id", "session"),
 		Attr("hx-headers", `{"session-id": "`+p.SessionID+`"}`),
-		Attr("hx-trigger", "every "+itoa(p.PingPeriod)+"s"),
-		Attr("ws-send", ""),
+		Attr("hx-trigger", "every "+strconv.Itoa(p.PingPeriod)+"s"),
+		Attr("ws-send"),
 		Attr("hx-ext", "ws"),
 		Attr("ws-connect", "/wsx?session-id="+p.SessionID),
 		p.Body,
 	)
-}
-
-// itoa is a helper to convert int to string.
-func itoa(i int) string {
-	return fmt.Sprintf("%d", i)
 }

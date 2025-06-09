@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/merliot/hub/pkg/device/components"
+	. "maragu.dev/gomponents"
 )
 
 func (d *device) installAPI() {
@@ -50,6 +51,34 @@ func (d *device) serveStaticFile(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(http.FS(d.layeredFS)).ServeHTTP(w, r)
 }
 
+// Recursively render children for DeviceDetail
+func renderChildren(parent *device, level int, sessionId string) Node {
+	var childrenNodes []Node
+	for _, childId := range parent.Children {
+		child, ok := parent.children.get(childId)
+		if !ok {
+			continue
+		}
+		childrenNodes = append(childrenNodes, components.DeviceDetail(components.DeviceDetailParams{
+			Model:          child.Model,
+			ClassOffline:   "",
+			ID:             child.Id,
+			Level:          level,
+			IsOnline:       child.isSet(flagOnline),
+			BgColor:        child.Config.BgColor,
+			TextColor:      child.Config.FgColor,
+			BorderColor:    "",
+			Name:           child.Name,
+			DeployParams:   child.DeployParams,
+			SessionID:      sessionId,
+			Body:           child.Detail(),
+			RenderChildren: renderChildren(child, level+1, sessionId),
+			Buttons:        nil,
+		}))
+	}
+	return Group(childrenNodes)
+}
+
 func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 	server := d.server
 	sessionId, ok := server.sessions.newSession()
@@ -58,8 +87,48 @@ func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("session-id", sessionId)
-	// TODO: Replace with gomponents or direct logic for home view
-	http.Error(w, "Home view not implemented", http.StatusNotFound)
+
+	sessionView := components.SessionViewParams{
+		SessionID:  sessionId,
+		PingPeriod: 2,
+	}
+	sessionView.Body = components.DeviceDetail(components.DeviceDetailParams{
+		Model:          d.Model,
+		ClassOffline:   "",
+		ID:             d.Id,
+		Level:          0,
+		IsOnline:       d.isSet(flagOnline),
+		BgColor:        d.Config.BgColor,
+		TextColor:      d.Config.FgColor,
+		BorderColor:    "",
+		Name:           d.Name,
+		DeployParams:   d.DeployParams,
+		SessionID:      sessionId,
+		Body:           d.Detail(),
+		RenderChildren: renderChildren(d, 1, sessionId),
+		Buttons:        nil,
+	})
+
+	// Add device header
+	header := components.DeviceHeader(components.DeviceHeaderParams{
+		SaveButton: components.ButtonSave(d.uniq("save-button"),
+			d.server.isSet(flagDirty), d.server.isSet(flagSaveToClipboard)),
+	})
+
+	params := components.DevicePageParams{
+		Model:      d.Model,
+		Name:       d.Name,
+		BodyColors: "bg-black text-purple-200",
+		Header:     header,
+		Body:       components.DeviceHome(components.SessionView(sessionView)),
+		Footer:     components.SiteFooter(),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := components.DevicePage(params).Render(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (d *device) showView(w http.ResponseWriter, r *http.Request) {
@@ -244,4 +313,8 @@ func (d *device) editName(w http.ResponseWriter, r *http.Request) {
 func (d *device) stateJSON() []byte {
 	data, _ := json.Marshal(d.State)
 	return data
+}
+
+func (d *device) uniq(name string) string {
+	return d.Model + "-" + d.Id + "-" + name
 }

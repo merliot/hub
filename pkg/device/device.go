@@ -5,6 +5,8 @@ import (
 	"math"
 	"net/url"
 	"time"
+
+	. "maragu.dev/gomponents"
 )
 
 // Devicer is the device model interface
@@ -29,6 +31,9 @@ type Devicer interface {
 
 	// DemoPoll is DEMO mode Poll()
 	DemoPoll(*Packet)
+
+	Detail() Node
+	Overview() Node
 }
 
 type device struct {

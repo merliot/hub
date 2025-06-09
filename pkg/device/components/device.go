@@ -1,6 +1,8 @@
 package components
 
 import (
+	"strconv"
+
 	. "maragu.dev/gomponents"
 	hx "maragu.dev/gomponents-htmx"
 	. "maragu.dev/gomponents/html"
@@ -11,7 +13,6 @@ type DevicePageParams struct {
 	Model      string
 	Name       string
 	BodyColors string
-	Section    string
 	Header     Node
 	Body       Node
 	Footer     Node
@@ -25,6 +26,7 @@ func DevicePage(p DevicePageParams) Node {
 			Meta(Name("viewport"), Content("width=device-width, initial-scale=1")),
 			Meta(Name("robots"), Content("noindex, nofollow")),
 			Meta(Name("referrer"), Content("same-origin")),
+			TitleEl(Text(p.Model+" - "+p.Name)),
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "32x32"), Href("/images/favicon-32x32.png")),
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "16x16"), Href("/images/favicon-16x16.png")),
 			Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css")),
@@ -67,7 +69,7 @@ func DeviceState(p DeviceStateParams) Node {
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
-			Class("flex flex-row ml-"+itoa(p.Level*10)),
+			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
 				Class("panel flex flex-col m-1 p-2 min-w-[20rem] "+panelClass(p)),
 				Div(

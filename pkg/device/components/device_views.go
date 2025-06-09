@@ -1,6 +1,8 @@
 package components
 
 import (
+	"strconv"
+
 	. "maragu.dev/gomponents"
 	hx "maragu.dev/gomponents-htmx"
 	. "maragu.dev/gomponents/html"
@@ -21,12 +23,15 @@ type DeviceDetailParams struct {
 	SessionID      string
 	RenderChildren Node
 	Buttons        []Node
+	Body           Node
 }
 
 // DeviceDetail renders the device detail panel.
 func DeviceDetail(p DeviceDetailParams) Node {
 	var body Node
-	if p.DeployParams == "" {
+	if p.Body != nil {
+		body = p.Body
+	} else if p.DeployParams == "" {
 		body = UndefinedDetail(p.Name)
 	} else {
 		body = BodyDetail()
@@ -37,7 +42,7 @@ func DeviceDetail(p DeviceDetailParams) Node {
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
-			Class("flex flex-row ml-"+itoa(p.Level*10)),
+			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
 				Class("panel flex flex-col m-1 p-2 min-w-[20rem] "+panelClass(DeviceStateParams{
 					IsOnline: p.IsOnline, BgColor: p.BgColor, TextColor: p.TextColor, BorderColor: p.BorderColor,
@@ -89,7 +94,7 @@ func DeviceOverview(p DeviceOverviewParams) Node {
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
-			Class("flex flex-row ml-"+itoa(p.Level*10)),
+			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
 				Class("panel flex flex-row m-1 p-2 min-w-[20rem] justify-between "+panelClass(DeviceStateParams{
 					IsOnline: p.IsOnline, BgColor: p.BgColor, TextColor: p.TextColor, BorderColor: p.BorderColor,
@@ -128,7 +133,7 @@ func DeviceSettings(p DeviceSettingsParams) Node {
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
-			Class("flex flex-row ml-"+itoa(p.Level*10)),
+			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
 				Class("panel flex flex-col m-1 p-2 min-w-[20rem] "+panelClass(DeviceStateParams{
 					IsOnline: p.IsOnline, BgColor: p.BgColor, TextColor: p.TextColor, BorderColor: p.BorderColor,
@@ -159,7 +164,7 @@ func DeviceSettings(p DeviceSettingsParams) Node {
 func BodyDetail() Node {
 	return Div(
 		Class("p-2.5 bg-black"),
-		Span(Class("text-red"), Text("Missing body-detail.tmpl")),
+		Span(Class("text-red-500"), Text("Missing body-detail.tmpl")),
 	)
 }
 

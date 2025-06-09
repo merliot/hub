@@ -3,6 +3,8 @@ package gadget
 import (
 	"github.com/merliot/hub/pkg/device"
 	io "github.com/merliot/hub/pkg/io/led"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 type gadget struct {
@@ -56,3 +58,41 @@ func (g *gadget) update(pkt *device.Packet) {
 
 func (g *gadget) DemoSetup() error            { return g.Setup() }
 func (g *gadget) DemoPoll(pkt *device.Packet) { g.Poll(pkt) }
+
+func (g *gadget) Detail() Node {
+	return Div(
+		Class("flex flex-col"),
+		ID("gadget-bottles"),
+		Div(
+			Class("flex flex-row w-full items-center justify-evenly"),
+			Span(Class("text-6xl mx-4"), Textf("%d", g.Bottles)),
+			Div(
+				Class("flex flex-col items-center"),
+				Span(Text("Bottles of Beer on the Wall")),
+				If(g.Restock <= 60,
+					Span(Class("text-sm"), Textf("[Restocking in %ds]", g.Restock)),
+				),
+			),
+		),
+		Div(
+			Class("flex flex-row justify-end"),
+			Button(
+				Attr("hx-post", "/device/gadget/reboot"),
+				Attr("hx-swap", "none"),
+				Text("Reboot"),
+			),
+			Button(
+				Attr("hx-post", "/device/gadget/takeone"),
+				Attr("hx-swap", "none"),
+				Text("Take One"),
+			),
+		),
+	)
+}
+
+func (g *gadget) Overview() Node {
+	return Div(
+		Class("flex flex-col items-center"),
+		Span(Class("text-lg"), Textf("%d Bottles", g.Bottles)),
+	)
+}

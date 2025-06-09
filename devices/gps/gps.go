@@ -1,10 +1,13 @@
 package gps
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/merliot/hub/pkg/device"
 	io "github.com/merliot/hub/pkg/io/gps"
+	. "maragu.dev/gomponents"
+	. "maragu.dev/gomponents/html"
 )
 
 type gps struct {
@@ -52,4 +55,30 @@ func (g *gps) Poll(pkt *device.Packet) {
 		g.Lat, g.Long = lat, long
 		pkt.SetPath("update").Marshal(&up).BroadcastUp()
 	}
+}
+
+// Implement Detail() and Overview() for gps
+func (g *gps) Detail() Node {
+	return Div(
+		Class("flex flex-col items-center"),
+		Div(
+			Class("w-full h-52 rounded-2xl overflow-hidden"),
+			Attr("id", "gps-map"),
+		),
+		// Placeholder for map script
+		Script(Raw(`/* Map script placeholder: center at Lat: `+f64(g.Lat)+`, Long: `+f64(g.Long)+` */`)),
+	)
+}
+
+func (g *gps) Overview() Node {
+	return Div(
+		Class("flex flex-row items-center justify-evenly"),
+		Attr("id", "gps-overview"),
+		Span(Textf("Lat: %.5f°, Long: %.5f°", g.Lat, g.Long)),
+	)
+}
+
+// Helper to format float64 as string
+func f64(f float64) string {
+	return fmt.Sprintf("%.5f", f)
 }
