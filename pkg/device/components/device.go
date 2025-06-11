@@ -29,7 +29,7 @@ func DevicePage(p DevicePageParams) Node {
 			TitleEl(Text(p.Model+" - "+p.Name)),
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "32x32"), Href("/images/favicon-32x32.png")),
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "16x16"), Href("/images/favicon-16x16.png")),
-			Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css")),
+			Link(Rel("stylesheet"), Href("/css/tailwind.css")),
 			Script(Src("/js/htmx.min.js.gz")),
 			Script(Src("/js/htmx-ext-ws.js.gz")),
 			Script(Src("/js/util.js")),

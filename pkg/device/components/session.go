@@ -33,7 +33,7 @@ func SessionsPage(p SessionsPageParams) Node {
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "32x32"), Href("/images/favicon-32x32.png")),
 			Link(Rel("icon"), Type("image/png"), Attr("sizes", "16x16"), Href("/images/favicon-16x16.png")),
 			Title("Sessions"),
-			Link(Rel("stylesheet"), Href("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css")),
+			Link(Rel("stylesheet"), Href("/css/tailwind.css")),
 			Meta(Attr("http-equiv", "refresh"), Content("2")),
 		),
 		Body(
