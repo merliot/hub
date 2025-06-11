@@ -153,3 +153,14 @@ Merliot is written in
 	<a href="https://tinygo.org"><img src="pkg/device/docs/images/tinygo-logo.png"></a>
 	<a href="https://htmx.org"><img src="pkg/device/docs/images/htmx-logo.png"></a>
 </div>
+
+## Building Tailwind CSS
+
+To (re)build the Tailwind CSS file:
+
+```
+cd pkg/device/css
+npx tailwindcss -c tailwind.config.js -i input.css -o tailwind.css --minify
+```
+
+This will generate or update `tailwind.css` for embedding and serving.

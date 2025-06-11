@@ -34,6 +34,13 @@ jobs:
           wget https://github.com/tinygo-org/tinygo/releases/download/v0.36.0/tinygo_0.36.0_amd64.deb
           sudo dpkg -i tinygo_0.36.0_amd64.deb
 
+      # Build Tailwind CSS
+      - name: Build Tailwind CSS
+        run: |
+          cd pkg/device/css
+          npm install tailwindcss
+          npx tailwindcss -c tailwind.config.js -i input.css -o tailwind.css --minify
+
       # Run go generate to build required binaries
       - name: Generate Binaries
         run: go generate ./...

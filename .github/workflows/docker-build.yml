@@ -58,6 +58,12 @@ jobs:
             org.opencontainers.image.title=Merliot Private Device Hub
             org.opencontainers.image.description=Merliot is a private device hub, written in Go, TinyGo, and htmx.
 
+      - name: Build Tailwind CSS
+        run: |
+          cd pkg/device/css
+          npm install tailwindcss
+          npx tailwindcss -c tailwind.config.js -i input.css -o tailwind.css --minify
+
       - name: Build and push Docker images
         uses: docker/build-push-action@v5
         with:
