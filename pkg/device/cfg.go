@@ -113,11 +113,14 @@ type Config struct {
 	// http.HandlerFunc.
 	APIs `json:"-"`
 
-	// BgColor is the device background color
+	// BgColor is the device background color, e.g. "bg-yellow-200"
 	BgColor string
 
-	// FgColor is the device forground (text, border) color
+	// FgColor is the device forground (text, border) color, e.g. "text-black"
 	FgColor string
+
+	// BorderColor is the device border color, e.g. "border-yellow-200"
+	BorderColor string
 
 	// InitialView is the initial display view mode when device is first
 	// displayed.  Value can be "overview" (default) or "detail".

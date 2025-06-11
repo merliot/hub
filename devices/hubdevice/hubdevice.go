@@ -26,8 +26,9 @@ func (h *hubDevice) GetConfig() device.Config {
 		State:       h,
 		FS:          &fs,
 		Targets:     []string{"x86-64", "rpi", "koyeb"},
-		BgColor:     "sunflower",
-		FgColor:     "black",
+		BgColor:     "bg-yellow-300",
+		FgColor:     "text-black",
+		BorderColor: "border-yellow-300",
 		InitialView: "detail",
 	}
 }

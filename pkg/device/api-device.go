@@ -60,6 +60,7 @@ func renderChildren(parent *device, level int, sessionId string) Node {
 			continue
 		}
 		childrenNodes = append(childrenNodes, components.DeviceDetail(components.DeviceDetailParams{
+			Uniq:           child.uniq("device"),
 			Model:          child.Model,
 			ClassOffline:   "",
 			ID:             child.Id,
@@ -67,7 +68,7 @@ func renderChildren(parent *device, level int, sessionId string) Node {
 			IsOnline:       child.isSet(flagOnline),
 			BgColor:        child.Config.BgColor,
 			TextColor:      child.Config.FgColor,
-			BorderColor:    "",
+			BorderColor:    child.Config.BorderColor,
 			Name:           child.Name,
 			DeployParams:   child.DeployParams,
 			SessionID:      sessionId,
@@ -93,6 +94,7 @@ func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 		PingPeriod: 2,
 	}
 	sessionView.Body = components.DeviceDetail(components.DeviceDetailParams{
+		Uniq:           d.uniq("device"),
 		Model:          d.Model,
 		ClassOffline:   "",
 		ID:             d.Id,
@@ -100,13 +102,19 @@ func (d *device) showHome(w http.ResponseWriter, r *http.Request) {
 		IsOnline:       d.isSet(flagOnline),
 		BgColor:        d.Config.BgColor,
 		TextColor:      d.Config.FgColor,
-		BorderColor:    "",
+		BorderColor:    d.Config.BorderColor,
 		Name:           d.Name,
 		DeployParams:   d.DeployParams,
 		SessionID:      sessionId,
 		Body:           d.Detail(),
 		RenderChildren: renderChildren(d, 1, sessionId),
-		Buttons:        nil,
+		Buttons: []Node{
+			components.ButtonInfo(d.Name, d.Model, d.Id),
+			components.ButtonSettings(d.Model, d.Id, d.isSet(flagRoot)),
+			components.ButtonHammer(d.Model, d.Id),
+			components.ButtonTrashcan(d.Model, d.Id),
+			If(d.isSet(flagLocked), components.ButtonLocked(d.Model, d.Id)),
+		},
 	})
 
 	// Add device header
@@ -171,7 +179,13 @@ func (d *device) showView(w http.ResponseWriter, r *http.Request) {
 			DeployParams:   d.DeployParams,
 			SessionID:      sessionId,
 			RenderChildren: nil, // Add logic if needed
-			Buttons:        nil, // Add logic if needed
+			Buttons: []Node{
+				components.ButtonInfo(d.Name, d.Model, d.Id),
+				components.ButtonSettings(d.Model, d.Id, d.isSet(flagRoot)),
+				components.ButtonHammer(d.Model, d.Id),
+				components.ButtonTrashcan(d.Model, d.Id),
+				If(d.isSet(flagLocked), components.ButtonLocked(d.Model, d.Id)),
+			},
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if err := components.DeviceDetail(params).Render(w); err != nil {

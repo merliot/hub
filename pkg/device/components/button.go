@@ -59,3 +59,33 @@ func ButtonSettings(model, id string, isRoot bool) Node {
 		hx.Get("/device/"+id+"/show-view?view=settings"),
 	))
 }
+
+// ButtonTrashcan renders the trash/delete button as an image with HTMX attributes.
+func ButtonTrashcan(model, id string) Node {
+	return Img(
+		Class("w-6 h-6 mx-1 cursor-pointer"),
+		Title("Delete device"),
+		Src("/images/trash.svg"),
+		hx.Delete("/device/"+id+"/destroy"),
+		hx.Confirm("Are you sure you want to delete this device?"),
+	)
+}
+
+// ButtonHammer renders the hammer/tool button as an image with HTMX attributes.
+func ButtonHammer(model, id string) Node {
+	return Img(
+		Class("w-6 h-6 mx-1 cursor-pointer"),
+		Title("Tool/Maintenance"),
+		Src("/images/hammer.svg"),
+		hx.Get("/device/"+id+"/show-view?view=tool"),
+	)
+}
+
+// ButtonLocked renders the locked button as an image with HTMX attributes.
+func ButtonLocked(model, id string) Node {
+	return Img(
+		Class("w-6 h-6 mx-1 cursor-pointer opacity-50"),
+		Title("Device is locked"),
+		Src("/images/locked.svg"),
+	)
+}

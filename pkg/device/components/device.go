@@ -97,9 +97,10 @@ func DeviceState(p DeviceStateParams) Node {
 // panelClass returns the appropriate class string for the panel based on online status.
 func panelClass(p DeviceStateParams) string {
 	if !p.IsOnline {
-		return "border-dotted grayscale text-black bg-white"
+		// Tailwind closest: text-gray-100 (#f5f6fa), bg-black (#000), border-gray-100
+		return "border-dashed border-2 rounded-3xl text-gray-100 bg-black border-gray-100"
 	}
-	return p.BgColor + " " + p.TextColor + " " + p.BorderColor
+	return "border-solid border-2 rounded-3xl " + p.BgColor + " " + p.TextColor + " " + p.BorderColor
 }
 
 // DeviceStateBody renders the device state body (device-state-body.tmpl).

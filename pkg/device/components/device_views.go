@@ -13,6 +13,7 @@ type DeviceDetailParams struct {
 	Model          string
 	ClassOffline   string
 	ID             string
+	Uniq           string
 	Level          int
 	IsOnline       bool
 	BgColor        string
@@ -38,19 +39,19 @@ func DeviceDetail(p DeviceDetailParams) Node {
 	}
 	return Div(
 		Class("model-"+p.Model+" "+p.ClassOffline),
-		Attr("id", p.ID),
+		Attr("id", p.Uniq),
 		hx.Target("this"),
 		hx.Swap("outerHTML"),
 		Div(
 			Class("flex flex-row ml-"+strconv.Itoa(p.Level*10)),
 			Div(
-				Class("panel flex flex-col m-1 p-2 min-w-[20rem] "+panelClass(DeviceStateParams{
+				Class("flex flex-col m-1 p-2 min-w-fit "+panelClass(DeviceStateParams{
 					IsOnline: p.IsOnline, BgColor: p.BgColor, TextColor: p.TextColor, BorderColor: p.BorderColor,
 				})),
 				Div(
 					Class("flex flex-row mb-5 items-center justify-between"),
 					Span(
-						Class("text-lg font-bold ml-2.5 w-24 cursor-pointer"),
+						Class("text-lg font-bold ml-2.5 w-full cursor-pointer"),
 						hx.Get("/device/"+p.ID+"/show-view?view=overview"),
 						Text(p.Name),
 					),
